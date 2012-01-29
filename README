@@ -1,0 +1,16 @@
+Summary
+
+    - Machine learning toolkit for natural language processing.
+
+    - Originally written for Lisbon Machine Learning Summer School (lxmls.it.pt)
+
+Dependencies
+
+    - Only tested with python 2.7 
+    - pip (http://pypi.python.org/pypi/pip)
+        - In ubuntu 'sudo apt-get install python-pip'
+
+Installation
+
+    - Install the requirement via pip
+        - pip install -r pip-requirements.txt
