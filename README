@@ -14,3 +14,5 @@ Installation
 
     - Install the requirement via pip
         - pip install -r pip-requirements.txt
+
+That's it!
