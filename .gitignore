@@ -1,1 +1,4 @@
 *.pyc
+/LXMLS_Toolkit.egg-info/
+/build/
+/dist/
