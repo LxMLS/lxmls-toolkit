@@ -1,7 +1,8 @@
 import numpy as np
 import scipy as scipy
 import linear_classifier as lc
-from distributions.gaussian import *
+from gaussian import *
+#from distributions.gaussian import *
 
 
 class GaussianNaiveBayes(lc.LinearClassifier):

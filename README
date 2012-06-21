@@ -1,7 +1,6 @@
 Summary
 
     - Machine learning toolkit for natural language processing.
-
     - Originally written for Lisbon Machine Learning Summer School (lxmls.it.pt)
 
 Dependencies
@@ -14,3 +13,4 @@ Installation
 
     - Install the requirement via pip
         - pip install -r pip-requirements.txt
+
