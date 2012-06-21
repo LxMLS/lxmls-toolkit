@@ -31,7 +31,7 @@ class Perceptron(lc.LinearClassifier):
                     w[:,y[inst:inst+1,0]] += self.learning_rate*x[inst:inst+1,:].transpose()
                     #Decrease features of the prediction
                     w[:,y_hat] += -1*self.learning_rate*x[inst:inst+1,:].transpose()
-             self.params_per_round.append(w.copy())   
+             self.params_per_round.append(w.copy())
              self.trained = True
              y_pred = self.test(x_orig,w)
              acc = self.evaluate(y,y_pred)
