@@ -1,0 +1,1044 @@
+1	É	é	adv	adv	<foc>	2	FOC	_	_
+2	por	por	prp	prp	_	9	ADVL	_	_
+3	isso	isso	pron	pron-indp	<dem>|M|S	2	P<	_	_
+4	que	que	adv	adv	<foc>	6	FOC	_	_
+5	,	,	punc	punc	_	6	PUNC	_	_
+6	explica	explicar	v	v-fin	PR|3S|IND	0	STA	_	_
+7	,	,	punc	punc	_	6	PUNC	_	_
+8	não	não	adv	adv	_	9	ADVL	_	_
+9	tem	ter	v	v-fin	PR|3S|IND	6	ACC	_	_
+10	pena	pena	n	n	F|S	9	ACC	_	_
+11	de	de	prp	prp	_	10	N<	_	_
+12	Hillary_Clinton	Hillary_Clinton	prop	prop	F|S	11	P<	_	_
+13	.	.	punc	punc	_	9	PUNC	_	_
+
+1	«	«	punc	punc	_	2	PUNC	_	_
+2	Vivo	viver	v	v-fin	PR|3S|IND	0	STA	_	_
+3	em	em	prp	prp	<sam->	2	ADVS	_	_
+4	um	um	art	art	<-sam>|<arti>|M|S	5	>N	_	_
+5	Estado	estado	n	n	M|S	3	P<	_	_
+6	de	de	prp	prp	_	5	N<	_	_
+7	Ironia	ironia	n	n	F|S	6	P<	_	_
+8	»	»	punc	punc	_	2	PUNC	_	_
+9	.	.	punc	punc	_	2	PUNC	_	_
+
+1	Gosto	gostar	v	v-fin	PR|1S|IND	0	STA	_	_
+2	de	de	prp	prp	_	1	PIV	_	_
+3	levar	levar	v	v-inf	_	2	P<	_	_
+4	a_sério	a_sério	pp	pp	_	3	OC	_	_
+5	o	o	art	art	<artd>|M|S	7	>N	_	_
+6	meu	meu	pron	pron-det	<poss|1S>|M|S	7	>N	_	_
+7	papel	papel	n	n	M|S	3	ACC	_	_
+8	de	de	prp	prp	_	7	N<	_	_
+9	consultor	consultor	n	n	M|S	8	P<	_	_
+10	encartado	encartar	v	v-pcp	M|S	9	N<	_	_
+11	.	.	punc	punc	_	1	PUNC	_	_
+
+1	É	ser	v	v-fin	PR|3S|IND	0	STA	_	_
+2	de	de	prp	prp	_	1	SC	_	_
+3	crer	crer	v	v-inf	_	2	P<	_	_
+4	que	que	conj	conj-s	_	5	SUB	_	_
+5	estivesse	estar	v	v-fin	IMPF|3S|SUBJ	3	ACC	_	_
+6	a	a	prp	prp	_	5	PRT-AUX<	_	_
+7	ser	ser	v	v-inf	_	5	MV	_	_
+8	sincero	sincero	adj	adj	M|S	7	SC	_	_
+9	.	.	punc	punc	_	1	PUNC	_	_
+
+1	Um	um	num	num	<card>|M|S	2	>N	_	_
+2	talento	talento	n	n	M|S	8	UTT	_	_
+3	que	que	pron	pron-indp	<rel>|M|S	2	SUBJ	_	_
+4	,	,	punc	punc	_	8	PUNC	_	_
+5	por	por	prp	prp	_	8	ADVL	_	_
+6	norma	norma	n	n	F|S	5	P<	_	_
+7	,	,	punc	punc	_	8	PUNC	_	_
+8	cabe	caber	v	v-fin	PR|3S|IND	0	N<	_	_
+9	apenas	apenas	adv	adv	_	8	>P	_	_
+10	a	a	prp	prp	<sam->	8	PIV	_	_
+11	os	o	art	art	<-sam>|<artd>|M|P	12	>N	_	_
+12	poetas	poeta	n	n	M|P	10	P<	_	_
+13	.	.	punc	punc	_	8	PUNC	_	_
+
+1	Greve	greve	n	n	F|S	0	UTT	_	_
+2	em	em	prp	prp	<sam->	1	N<	_	_
+3	a	o	art	art	<-sam>|<artd>|F|S	4	>N	_	_
+4	televisão	televisão	n	n	F|S	2	P<	_	_
+5	pública	público	adj	adj	F|S	4	N<	_	_
+6	francesa	francesa	n	n	F|S	2	N<	_	_
+
+1	France_3	France_3	prop	prop	F|S	2	SUBJ	_	_
+2	suspende	suspender	v	v-fin	PR|3S|IND	0	STA	_	_
+3	programação	programação	n	n	F|S	2	ACC	_	_
+
+1	Em	em	prp	prp	<sam->	0	UTT	_	_
+2	o	o	art	art	<-sam>|<artd>|M|S	3	>N	_	_
+3	Paço_dos_Duques_de_Bragança	Paço_dos_Duques_de_Bragança	prop	prop	M|S	1	P<	_	_
+4	,	,	punc	punc	_	3	PUNC	_	_
+5	a	a	prp	prp	<sam->	3	CJT	_	_
+6	as	o	art	art	<-sam>|<artd>|F|P	7	>N	_	_
+7	21h45	21h45	n	n	F|P	5	P<	_	_
+8	.	.	punc	punc	_	5	PUNC	_	_
+
+1	O	o	art	art	<artd>|M|S	2	>N	_	_
+2	povo	povo	n	n	M|S	3	SUBJ	_	_
+3	defende	defender	v	v-fin	PR|3S|IND	0	STA	_	_
+4	o	o	art	art	<artd>|M|S	5	>N	_	_
+5	sacerdote	sacerdote	n	n	M|S	3	ACC	_	_
+6	.	.	punc	punc	_	3	PUNC	_	_
+
+1	As	o	art	art	<artd>|F|P	2	>N	_	_
+2	autoridades	autoridade	n	n	F|P	3	SUBJ	_	_
+3	arquivam	arquivar	v	v-fin	PR|3P|IND	0	STA	_	_
+4	o	o	art	art	<artd>|M|S	5	>N	_	_
+5	processo	processo	n	n	M|S	3	ACC	_	_
+6	por	por	prp	prp	_	5	ADVL	_	_
+7	falta	falta	n	n	F|S	6	P<	_	_
+8	de	de	prp	prp	_	7	N<	_	_
+9	provas	prova	n	n	F|P	8	P<	_	_
+10	.	.	punc	punc	_	3	PUNC	_	_
+
+1	O	o	art	art	<artd>|M|S	2	>N	_	_
+2	arcebispado	arcebispado	n	n	M|S	6	SUBJ	_	_
+3	,	,	punc	punc	_	6	PUNC	_	_
+4	porém	porém	adv	adv	<kc>	6	ADVL	_	_
+5	,	,	punc	punc	_	6	PUNC	_	_
+6	transfere	transferir	v	v-fin	PR|3S|IND	0	STA	_	_
+7	o	o	art	art	<artd>|M|S	8	>N	_	_
+8	acusado	acusado	n	n	M|S	6	ACC	_	_
+9	para	para	prp	prp	_	8	ADVL	_	_
+10	Paris	Paris	prop	prop	M|S	9	P<	_	_
+11	.	.	punc	punc	_	6	PUNC	_	_
+
+1	Boletim_Universitário	Boletim_Universitário	prop	prop	M|S	0	UTT	_	_
+
+1	Comédia	comédia	n	n	F|S	0	UTT	_	_
+2	inglesa	inglês	adj	adj	F|S	1	N<	_	_
+3	,	,	punc	punc	_	1	PUNC	_	_
+4	anos	ano	n	n	M|P	1	N<PRED	_	_
+5	50	50	num	num	<card>|M|P	4	N<	_	_
+6	.	.	punc	punc	_	1	PUNC	_	_
+
+1	Teatro_da_Trindade	Teatro_da_Trindade	prop	prop	M|S	0	UTT	_	_
+2	.	.	punc	punc	_	1	PUNC	_	_
+
+1	Moçambique	Moçambique	prop	prop	M|S	0	UTT	_	_
+2	a	a	prp	prp	<sam->	1	N<	_	_
+3	a	o	art	art	<-sam>|<artd>|F|S	4	>N	_	_
+4	espera	espera	n	n	F|S	2	P<	_	_
+5	de	de	prp	prp	_	4	N<	_	_
+6	Maio	maio	n	n	<prop>|M|S	5	P<	_	_
+
+1	Cessar-fogo	cessar-fogo	n	n	M|S	0	UTT	_	_
+2	em	em	prp	prp	_	1	N<	_	_
+3	o	o	art	art	<artd>|M|S	4	>N	_	_
+4	Camboja	Camboja	prop	prop	M|S	2	P<	_	_
+
+1	Grande_Prémio_de_Itália_de_motociclismo	Grande_Prémio_de_Itália_de_motociclismo	prop	prop	M|S	0	UTT	_	_
+
+1	A	o	art	art	<artd>|F|S	2	>N	_	_
+2	desfeita	desfeita	n	n	F|S	0	UTT	_	_
+3	de	de	prp	prp	_	2	N<	_	_
+4	Doohan	Doohan	prop	prop	M|S	3	P<	_	_
+
+1	Casa_de_Nossa_Senhora_do_Carmo	Casa_de_Nossa_Senhora_do_Carmo	prop	prop	F|S	0	UTT	_	_
+
+1	O	o	art	art	<artd>|M|S	2	>N	_	_
+2	quadro	quadro	n	n	M|S	5	SUBJ	_	_
+3	de	de	prp	prp	_	2	N<	_	_
+4	intenções	intenção	n	n	F|P	3	P<	_	_
+5	levanta	levantar	v	v-fin	PR|3S|IND	0	STA	_	_
+6	uma	um	art	art	<arti>|F|S	8	>N	_	_
+7	outra	outro	pron	pron-det	<diff>|<KOMP>|F|S	8	>N	_	_
+8	questão	questão	n	n	F|S	5	ACC	_	_
+9	.	.	punc	punc	_	5	PUNC	_	_
+
+1	Quantos	quanto	pron	pron-det	<interr>|<quant>|M|P	2	>N	_	_
+2	emigrantes	emigrante	n	n	M|P	4	SUBJ	_	_
+3	muçulmanos	muçulmano	adj	adj	M|P	2	N<	_	_
+4	residem	residir	v	v-fin	PR|3P|IND	0	QUE	_	_
+5	em	em	prp	prp	<sam->	4	ADVS	_	_
+6	a	o	art	art	<-sam>|<artd>|F|S	7	>N	_	_
+7	Europa	Europa	prop	prop	F|S	5	P<	_	_
+8	?	?	punc	punc	_	4	PUNC	_	_
+
+1	Explica	explicar	v	v-fin	PR|3S|IND	0	STA	_	_
+2	Américo_Ramalho	Américo_Ramalho	prop	prop	M|S	1	SUBJ	_	_
+3	:	:	punc	punc	_	1	PUNC	_	_
+
+1	O	o	art	art	<artd>|M|S	2	>N	_	_
+2	sindicato	sindicato	n	n	M|S	8	SUBJ	_	_
+3	de	de	prp	prp	<sam->	2	N<	_	_
+4	os	o	art	art	<-sam>|<artd>|M|P	5	>N	_	_
+5	maquinistas	maquinista	n	n	M|P	3	P<	_	_
+6	também	também	adv	adv	_	8	>A	_	_
+7	não	não	adv	adv	_	8	ADVL	_	_
+8	contabilizou	contabilizar	v	v-fin	PS|3S|IND	0	STA	_	_
+9	os	o	art	art	<artd>|M|P	10	>N	_	_
+10	custos	custo	n	n	M|P	8	ACC	_	_
+11	de	de	prp	prp	<sam->	10	N<	_	_
+12	esta	este	pron	pron-det	<-sam>|<dem>|F|S	13	>N	_	_
+13	greve	greve	n	n	F|S	11	P<	_	_
+14	.	.	punc	punc	_	8	PUNC	_	_
+
+1	O	o	art	art	<artd>|M|S	2	>N	_	_
+2	primeiro	primeiro	adj	adj	<n>|<NUM-ord>|M|S	3	SUBJ	_	_
+3	reutiliza	reutilizar	v	v-fin	PR|3S|IND	0	STA	_	_
+4	a	o	art	art	<artd>|F|S	5	>N	_	_
+5	forma	forma	n	n	F|S	3	ACC	_	_
+6	de	de	prp	prp	<sam->	5	N<	_	_
+7	a	o	art	art	<-sam>|<artd>|F|S	8	>N	_	_
+8	coluna	coluna	n	n	F|S	6	P<	_	_
+9	--	--	punc	punc	_	3	PUNC	_	_
+
+1	Todas_as	todo_o	pron	pron-det	<quant>|F|P	2	>N	_	_
+2	interpretações	interpretação	n	n	F|P	3	SUBJ	_	_
+3	são	ser	v	v-fin	PR|3P|IND	0	STA	_	_
+4	possíveis	possível	adj	adj	F|P	3	SC	_	_
+5	,	,	punc	punc	_	3	PUNC	_	_
+6	tudo	tudo	pron	pron-indp	<quant>|M|S	7	SUBJ	_	_
+7	pode	poder	v	v-fin	PR|3S|IND	3	CJT	_	_
+8	acontecer	acontecer	v	v-inf	_	7	MV	_	_
+9	a	a	prp	prp	_	8	PIV	_	_
+10	este	este	pron	pron-det	<dem>|M|S	11	>N	_	_
+11	corpo	corpo	n	n	M|S	9	P<	_	_
+12	.	.	punc	punc	_	7	PUNC	_	_
+
+1	Mania	mania	n	n	F|S	2	SUBJ	_	_
+2	altera	alterar	v	v-fin	PR|3S|IND	0	STA	_	_
+3	comportamento	comportamento	n	n	M|S	2	ACC	_	_
+
+1	As	o	art	art	<artd>|F|P	2	>N	_	_
+2	pessoas	pessoa	n	n	F|P	5	SUBJ	_	_
+3	com	com	prp	prp	_	2	N<	_	_
+4	PMD	PMD	prop	prop	F|S	3	P<	_	_
+5	oscilam	oscilar	v	v-fin	PR|3P|IND	0	STA	_	_
+6	entre	entre	prp	prp	_	5	ADVL	_	_
+7	dois	dois	num	num	<card>|M|P	8	>N	_	_
+8	pólos	pólo	n	n	M|P	6	P<	_	_
+9	.	.	punc	punc	_	5	PUNC	_	_
+
+1	Têm	ter	v	v-fin	PR|3P|IND	0	STA	_	_
+2	fases	fase	n	n	F|P	1	ACC	_	_
+3	de	de	prp	prp	_	2	N<	_	_
+4	depressão	depressão	n	n	F|S	3	P<	_	_
+5	e	e	conj	conj-c	<co-postnom>	3	CO	_	_
+6	de	de	prp	prp	_	4	CJT	_	_
+7	euforia	euforia	n	n	F|S	6	P<	_	_
+8	(	(	punc	punc	_	7	PUNC	_	_
+9	mania	mania	n	n	F|S	7	N<PRED	_	_
+10	)	)	punc	punc	_	9	PUNC	_	_
+11	.	.	punc	punc	_	1	PUNC	_	_
+
+1	Nem	nem	adv	adv	_	3	>N	_	_
+2	todos	todo	pron	pron-det	<quant>|M|P	3	SUBJ	_	_
+3	passam	passar	v	v-fin	PR|3P|IND	0	STA	_	_
+4	por	por	prp	prp	<sam->	3	PIV	_	_
+5	as	o	art	art	<-sam>|<artd>|F|P	7	>N	_	_
+6	duas	dois	num	num	<card>|F|P	7	>N	_	_
+7	fases	fase	n	n	F|P	4	P<	_	_
+8	.	.	punc	punc	_	3	PUNC	_	_
+
+1	Os	o	art	art	<artd>|M|P	2	>N	_	_
+2	irmãos	irmão	n	n	M|P	6	SUBJ	_	_
+3	Osny_Silveira_Neto	Osny_Silveira_Neto	prop	prop	M|S	2	N<	_	_
+4	e	e	conj	conj-c	<co-postnom>	3	CO	_	_
+5	Guilherme_Silveira	Guilherme_Silveira	prop	prop	M|S	3	CJT	_	_
+6	abrem	abrir	v	v-fin	PR|3P|IND	0	STA	_	_
+7	hoje	hoje	adv	adv	_	6	ADVL	_	_
+8	o	o	art	art	<artd>|M|S	9	>N	_	_
+9	bar	bar	n	n	M|S	6	ACC	_	_
+10	Horácio	Horácio	prop	prop	M|S	9	N<	_	_
+11	em	em	prp	prp	<sam->	6	ADVL	_	_
+12	o	o	art	art	<-sam>|<artd>|M|S	13	>N	_	_
+13	Itaim	Itaim	prop	prop	M|S	11	P<	_	_
+14	.	.	punc	punc	_	6	PUNC	_	_
+
+1	Um	um	num	num	<card>|M|S	2	>N	_	_
+2	ano	ano	n	n	M|S	7	>A	_	_
+3	depois	depois	adv	adv	_	2	ADVL	_	_
+4	,	,	punc	punc	_	7	PUNC	_	_
+5	a	o	art	art	<artd>|F|S	6	>N	_	_
+6	capital	capital	n	n	F|S	7	SUBJ	_	_
+7	passa	passar	v	v-fin	PR|3S|IND	0	STA	_	_
+8	a	a	prp	prp	_	7	PRT-AUX<	_	_
+9	ser	ser	v	v-inf	_	7	MV	_	_
+10	Tóquio	Tóquio	prop	prop	M|S	9	SC	_	_
+11	.	.	punc	punc	_	7	PUNC	_	_
+
+1	A	o	art	art	<artd>|F|S	2	>N	_	_
+2	hidroginástica	hidroginástica	n	n	<DERP>|F|S	3	SUBJ	_	_
+3	é	ser	v	v-fin	PR|3S|IND	0	STA	_	_
+4	uma	um	art	art	<arti>|F|S	5	>N	_	_
+5	alternativa	alternativa	n	n	F|S	3	SC	_	_
+6	para	para	prp	prp	_	5	N<	_	_
+7	quem	quem	pron	pron-indp	<rel>|M/F|S	6	SUBJ	_	_
+8	não	não	adv	adv	_	9	ADVL	_	_
+9	tem	ter	v	v-fin	PR|3S|IND	3	P<	_	_
+10	acompanhante	acompanhante	n	n	M|S	9	ACC	_	_
+11	.	.	punc	punc	_	9	PUNC	_	_
+
+1	Moustafa_El-Guindy	Moustafa_El-Guindy	prop	prop	M|S	0	UTT	_	_
+2	,	,	punc	punc	_	1	PUNC	_	_
+3	51	51	num	num	<card>|M|P	1	N<PRED	_	_
+4	,	,	punc	punc	_	1	PUNC	_	_
+5	professor-titular	professor-titular	n	n	M|S	1	N<PRED	_	_
+6	de	de	prp	prp	<sam->	5	N<	_	_
+7	a	o	art	art	<-sam>|<artd>|F|S	8	>N	_	_
+8	Unicamp	Unicamp	prop	prop	F|S	6	P<	_	_
+9	:	:	punc	punc	_	1	PUNC	_	_
+
+1	Um	um	art	art	<arti>|M|S	2	>N	_	_
+2	programa	programa	n	n	M|S	3	SUBJ	_	_
+3	é	ser	v	v-fin	PR|3S|IND	0	STA	_	_
+4	um	um	art	art	<arti>|M|S	5	>N	_	_
+5	planejamento	planejamento	n	n	M|S	3	SC	_	_
+6	para	para	prp	prp	_	5	N<	_	_
+7	se	se	pron	pron-pers	M/F|3S/P|ACC	8	SUBJ	_	_
+8	atingir	atingir	v	v-inf	3S	6	P<	_	_
+9	certas	certo	pron	pron-det	<quant>|F|P	10	>N	_	_
+10	metas	meta	n	n	F|P	8	ACC	_	_
+11	.	.	punc	punc	_	3	PUNC	_	_
+
+1	A	o	art	art	<artd>|F|S	2	>N	_	_
+2	falta	falta	n	n	F|S	12	SUBJ	_	_
+3	de	de	prp	prp	_	2	N<	_	_
+4	um	um	art	art	<arti>|M|S	5	>N	_	_
+5	programa	programa	n	n	M|S	3	P<	_	_
+6	poderia	poder	v	v-fin	COND|3S	5	STA	_	_
+7	dar	dar	v	v-inf	_	6	MV	_	_
+8	a	o	art	art	<artd>|F|S	9	>N	_	_
+9	impressão	impressão	n	n	F|S	7	ACC	_	_
+10	de	de	prp	prp	_	9	N<	_	_
+11	não	não	adv	adv	_	12	ADVL	_	_
+12	ter	ter	v	v-inf	_	0	P<	_	_
+13	metas	meta	n	n	F|P	12	ACC	_	_
+14	.	.	punc	punc	_	12	PUNC	_	_
+
+1	Paulo_Luiz_Moretti	Paulo_Luiz_Moretti	prop	prop	M|S	0	UTT	_	_
+2	,	,	punc	punc	_	1	PUNC	_	_
+3	39	39	num	num	<card>|M|P	1	N<PRED	_	_
+4	,	,	punc	punc	_	1	PUNC	_	_
+5	engenheiro	engenheiro	n	n	M|S	1	N<PRED	_	_
+6	químico	químico	adj	adj	M|S	5	N<	_	_
+7	:	:	punc	punc	_	5	PUNC	_	_
+
+1	«	«	punc	punc	_	2	PUNC	_	_
+2	Gostei	gostar	v	v-fin	PS|1S|IND	0	STA	_	_
+3	de	de	prp	prp	<sam->	2	PIV	_	_
+4	a	o	art	art	<-sam>|<artd>|F|S	6	>N	_	_
+5	sua	seu	pron	pron-det	<poss|3S>|F|S	6	>N	_	_
+6	posição	posição	n	n	F|S	3	P<	_	_
+7	sobre	sobre	prp	prp	_	6	N<	_	_
+8	a	o	art	art	<artd>|F|S	9	>N	_	_
+9	religião	religião	n	n	F|S	7	P<	_	_
+10	.	.	punc	punc	_	2	PUNC	_	_
+
+1	Em	em	prp	prp	_	6	ADVL	_	_
+2	muitos	muito	pron	pron-det	<quant>|M|P	3	>N	_	_
+3	momentos	momento	n	n	M|P	1	P<	_	_
+4	ele	ele	pron	pron-pers	M|3S|NOM	6	SUBJ	_	_
+5	simplesmente	simplesmente	adv	adv	_	6	ADVL	_	_
+6	deixou	deixar	v	v-fin	PS|3S|IND	0	STA	_	_
+7	de	de	prp	prp	_	6	PRT-AUX<	_	_
+8	se	se	pron	pron-pers	<refl>|M|3S|ACC	9	ACC	_	_
+9	posicionar	posicionar	v	v-inf	_	7	MV	_	_
+10	.	.	punc	punc	_	6	PUNC	_	_
+
+1	Talvez	talvez	adv	adv	_	4	ADVL	_	_
+2	ele	ele	pron	pron-pers	M|3S|NOM	4	SUBJ	_	_
+3	não	não	adv	adv	_	4	ADVL	_	_
+4	tenha	ter	v	v-fin	PR|3S|SUBJ	0	STA	_	_
+5	idéias	idéia	n	n	F|P	4	ACC	_	_
+6	elaboradas	elaborar	v	v-pcp	F|P	5	N<	_	_
+7	sobre	sobre	prp	prp	_	6	N<	_	_
+8	os	o	art	art	<artd>|M|P	9	>N	_	_
+9	problemas	problema	n	n	M|P	7	P<	_	_
+10	de	de	prp	prp	<sam->	9	N<	_	_
+11	o	o	art	art	<-sam>|<artd>|M|S	12	>N	_	_
+12	Estado	estado	n	n	<prop>|M|S	10	P<	_	_
+13	.	.	punc	punc	_	4	PUNC	_	_
+
+1	Elden_Paulo_Durante	Elden_Paulo_Durante	prop	prop	M|S	5	UTT	_	_
+2	,	,	punc	punc	_	1	PUNC	_	_
+3	27	27	num	num	<card>|M|P	1	N<PRED	_	_
+4	,	,	punc	punc	_	1	PUNC	_	_
+5	formado	formar	v	v-pcp	M|S	0	N<PRED	_	_
+6	em	em	prp	prp	_	5	PIV	_	_
+7	direito	direito	n	n	M|S	6	P<	_	_
+8	,	,	punc	punc	_	5	PUNC	_	_
+9	pecuarista	pecuarista	n	n	M|S	7	N<PRED	_	_
+10	:	:	punc	punc	_	5	PUNC	_	_
+
+1	Minha	meu	pron	pron-det	<poss|1S>|F|S	2	>N	_	_
+2	expectativa	expectativa	n	n	F|S	4	SUBJ	_	_
+3	não	não	adv	adv	_	5	ADVL	_	_
+4	foi	ser	v	v-fin	PS|3S|IND	0	STA	_	_
+5	atendida	atender	v	v-pcp	F|S	4	MV	_	_
+6	em	em	prp	prp	_	5	ADVL	_	_
+7	vários	vários	pron	pron-det	<quant>|M|P	8	>N	_	_
+8	pontos	ponto	n	n	M|P	6	P<	_	_
+9	.	.	punc	punc	_	4	PUNC	_	_
+
+1	Congresso	congresso	n	n	M|S	2	SUBJ	_	_
+2	reúne	reunir	v	v-fin	PR|3S|IND	0	STA	_	_
+3	127	127	num	num	<card>|M|P	4	>N	_	_
+4	seminários	seminário	n	n	M|P	2	ACC	_	_
+5	e	e	conj	conj-c	_	4	CO	_	_
+6	palestras	palestra	n	n	F|P	4	CJT	_	_
+
+1	Redes	rede	n	n	F|P	0	UTT	_	_
+2	,	,	punc	punc	_	1	PUNC	_	_
+3	multimídia	multimídia	n	n	F|S	1	CJT	_	_
+4	,	,	punc	punc	_	3	PUNC	_	_
+5	sistemas	sistema	n	n	F|P	3	CJT	_	_
+6	operacionais	operacional	adj	adj	F|P	5	N<	_	_
+7	ou	ou	conj	conj-c	_	6	CO	_	_
+8	informática	informática	n	n	F|S	5	CJT	_	_
+9	em	em	prp	prp	<sam->	8	N<	_	_
+10	a	o	art	art	<-sam>|<artd>|F|S	11	>N	_	_
+11	educação	educação	n	n	F|S	9	P<	_	_
+12	.	.	punc	punc	_	1	PUNC	_	_
+
+1	O	o	art	art	<artd>|M|S	2	>N	_	_
+2	senhor	senhor	n	n	M|S	3	SUBJ	_	_
+3	teme	temer	v	v-fin	PR|3S|IND	0	QUE	_	_
+4	ser	ser	v	v-inf	_	3	ACC	_	_
+5	condenado	condenar	v	v-pcp	M|S	4	MV	_	_
+6	?	?	punc	punc	_	3	PUNC	_	_
+
+1	Miranda	Miranda	prop	prop	F|S	0	UTT	_	_
+2	--	--	punc	punc	_	1	PUNC	_	_
+3	Em_relação_a	em_relação_a	prp	prp	_	1	ADVL	_	_
+4	mim	eu	pron	pron-pers	M|1S|PIV	3	P<	_	_
+5	isso	isso	pron	pron-indp	<dem>|M|S	7	SUBJ	_	_
+6	não	não	adv	adv	_	8	ADVL	_	_
+7	vai	ir	v	v-fin	PR|3S|IND	3	STA	_	_
+8	dar	dar	v	v-inf	_	7	MV	_	_
+9	absolutamente	absolutamente	adv	adv	_	8	>P	_	_
+10	em	em	prp	prp	_	8	PIV	_	_
+11	nada	nada	pron	pron-indp	<quant>|M|S	10	P<	_	_
+12	.	.	punc	punc	_	7	PUNC	_	_
+
+1	Não	não	adv	adv	_	2	ADVL	_	_
+2	sei	saber	v	v-fin	PR|1S|IND	0	STA	_	_
+3	em_relação_a	em_relação_a	prp	prp	<sam->	2	ADVL	_	_
+4	os	o	art	art	<artd>|<-sam>|M|P	2	>N	_	_
+5	outros	outro	pron	pron-det	<diff>|<KOMP>|M|P	6	>N	_	_
+6	indiciados	indiciar	v	v-pcp	<n>|M|P	2	P<	_	_
+7	.	.	punc	punc	_	2	PUNC	_	_
+
+1	Me	eu	pron	pron-pers	M|1S|ACC	2	ACC	_	_
+2	indiciaram	indiciar	v	v-fin	PS/MQP|3P|IND	0	STA	_	_
+3	precipitadamente	precipitadamente	adv	adv	_	2	ADVL	_	_
+4	,	,	punc	punc	_	2	PUNC	_	_
+5	açodadamente	açodadamente	adv	adv	_	2	ADVL	_	_
+6	.	.	punc	punc	_	2	PUNC	_	_
+
+1	É	ser	v	v-fin	PR|3S|IND	0	STA	_	_
+2	coisa	coisa	n	n	F|S	1	SC	_	_
+3	orquestrada	orquestrar	v	v-pcp	F|S	2	N<	_	_
+4	,	,	punc	punc	_	5	PUNC	_	_
+5	dirigida	dirigir	v	v-pcp	F|S	3	N<PRED	_	_
+6	.	.	punc	punc	_	5	PUNC	_	_
+
+1	Com	com	prp	prp	_	4	STA	_	_
+2	pregações	pregação	n	n	F|P	1	P<	_	_
+3	que	que	pron	pron-indp	<rel>|F|P	4	SUBJ	_	_
+4	duram	durar	v	v-fin	PR|3P|IND	0	N<	_	_
+5	até	até	prp	prp	_	4	ADVL	_	_
+6	dois	dois	num	num	<card>|M|P	7	>N	_	_
+7	minutos	minuto	n	n	M|P	5	P<	_	_
+8	.	.	punc	punc	_	4	PUNC	_	_
+
+1	Charuto	charuto	n	n	M|S	0	UTT	_	_
+
+1	O	o	art	art	<artd>|M|S	2	>N	_	_
+2	número	número	n	n	M|S	13	SUBJ	_	_
+3	total	total	adj	adj	M|S	2	N<	_	_
+4	de	de	prp	prp	_	2	N<	_	_
+5	candidatos	candidato	n	n	M|P	4	P<	_	_
+6	em	em	prp	prp	<sam->	5	N<	_	_
+7	o	o	art	art	<-sam>|<artd>|M|S	8	>N	_	_
+8	vestibular	vestibular	n	n	M|S	6	P<	_	_
+9	caiu	cair	v	v-fin	PS|3S|IND	0	STA	_	_
+10	em_relação_a	em_relação_a	prp	prp	<sam->	9	ADVL	_	_
+11	o	o	art	art	<artd>|<-sam>|M|S	12	>N	_	_
+12	ano	ano	n	n	M|S	10	P<	_	_
+13	passado	passar	v	v-pcp	M|S	12	N<	_	_
+14	.	.	punc	punc	_	9	PUNC	_	_
+
+1	De	de	prp	prp	_	7	ADVL	_	_
+2	140.518	140.518	num	num	<card>|M|P	1	>N	_	_
+3	inscritos	inscrito	adj	adj	<n>|M|P	1	P<	_	_
+4	,	,	punc	punc	_	7	PUNC	_	_
+5	a	o	art	art	<artd>|F|S	6	>N	_	_
+6	Fuvest	Fuvest	prop	prop	F|S	7	SUBJ	_	_
+7	registrou	registrar	v	v-fin	PS|3S|IND	0	STA	_	_
+8	139.369	139.369	num	num	<card>|M|P	7	ACC	_	_
+9	.	.	punc	punc	_	7	PUNC	_	_
+
+1	Preço	preço	n	n	M|S	0	UTT	_	_
+
+1	Kim	Kim	prop	prop	F|S	6	UTT	_	_
+2	E	e	conj	conj-c	_	1	CO	_	_
+3	sobre	sobre	prp	prp	_	6	UTT	_	_
+4	como	como	adv	adv	<rel>|<ks>	6	ADVL	_	_
+5	eu	eu	pron	pron-pers	F|1S|NOM	6	SUBJ	_	_
+6	fiquei	ficar	v	v-fin	PS|1S|IND	0	P<	_	_
+7	totalmente	totalmente	adv	adv	<quant>	8	>A	_	_
+8	nua	nu	adj	adj	F|S	6	SC	_	_
+9	o	o	art	art	<artd>|M|S	10	>N	_	_
+10	tempo	tempo	n	n	M|S	6	ADVL	_	_
+11	todo	todo	pron	pron-det	<quant>|M|S	10	N<	_	_
+12	.	.	punc	punc	_	6	PUNC	_	_
+
+1	E	e	conj	conj-c	_	0	UTT	_	_
+2	por_trás	por_trás	adv	adv	_	1	ADVL	_	_
+3	...	...	punc	punc	_	1	PUNC	_	_
+
+1	Está	estar	v	v-fin	PR|3S|IND	0	STA	_	_
+2	tudo	tudo	pron	pron-indp	<quant>|M|S	1	SUBJ	_	_
+3	em	em	prp	prp	<sam->	1	ADVL	_	_
+4	a	o	art	art	<-sam>|<artd>|F|S	6	>N	_	_
+5	sua	seu	pron	pron-det	<poss|3S>|<si>|F|S	6	>N	_	_
+6	cabeça	cabeça	n	n	F|S	3	P<	_	_
+7	.	.	punc	punc	_	1	PUNC	_	_
+
+1	Como	como	adv	adv	<rel>|<prp>	4	UTT	_	_
+2	quando	quando	adv	adv	<rel>|<ks>	4	ADVL	_	_
+3	eu	eu	pron	pron-pers	F|1S|NOM	4	SUBJ	_	_
+4	conheci	conhecer	v	v-fin	PS|1S|IND	0	SUBJ	_	_
+5	Alec	Alec	prop	prop	M|S	4	ACC	_	_
+6	.	.	punc	punc	_	4	PUNC	_	_
+
+1	Jurava	jurar	v	v-fin	IMPF|1S|IND	0	STA	_	_
+2	que	que	conj	conj-s	_	4	SUB	_	_
+3	ele	ele	pron	pron-pers	M|3S|NOM	4	SUBJ	_	_
+4	usava	usar	v	v-fin	IMPF|3S|IND	1	ACC	_	_
+5	um	um	art	art	<arti>|M|S	6	>N	_	_
+6	chapéu	chapéu	n	n	M|S	4	ACC	_	_
+7	de	de	prp	prp	_	6	N<	_	_
+8	cowboy	cowboy	n	n	M|S	7	P<	_	_
+9	.	.	punc	punc	_	1	PUNC	_	_
+
+1	Alec	Alec	prop	prop	M|S	3	UTT	_	_
+2	Nunca	nunca	adv	adv	_	3	ADVL	_	_
+3	usei	usar	v	v-fin	PS|1S|IND	0	EXC	_	_
+4	um	um	art	art	<arti>|M|S	5	>N	_	_
+5	chapéu	chapéu	n	n	M|S	3	ACC	_	_
+6	de	de	prp	prp	<sam->	5	N<	_	_
+7	aqueles	aquele	pron	pron-det	<-sam>|<dem>|M|P	6	P<	_	_
+8	em	em	prp	prp	<sam->	3	ADVL	_	_
+9	a	o	art	art	<-sam>|<artd>|F|S	10	>N	_	_
+10	vida	vida	n	n	F|S	8	P<	_	_
+11	!	!	punc	punc	_	3	PUNC	_	_
+
+1	Nasci	nascer	v	v-fin	PS|1S|IND	0	STA	_	_
+2	em	em	prp	prp	_	1	ADVL	_	_
+3	Lono_Island	Lono_Island	prop	prop	M|S	2	P<	_	_
+4	.	.	punc	punc	_	1	PUNC	_	_
+
+1	o_que	o_que	pron	pron-indp	<interr>|M|S	3	ACC	_	_
+2	um	um	art	art	<arti>|M|S	3	>N	_	_
+3	chapéu	chapéu	n	n	M|S	6	SUBJ	_	_
+4	de	de	prp	prp	_	3	N<	_	_
+5	cowboy	cowboy	n	n	M|S	4	P<	_	_
+6	estaria	estar	v	v-fin	COND|3S	0	QUE	_	_
+7	fazendo	fazer	v	v-ger	_	6	MV	_	_
+8	ali	ali	adv	adv	_	7	ADVL	_	_
+9	?	?	punc	punc	_	6	PUNC	_	_
+
+1	Seleção	seleção	n	n	F|S	2	SUBJ	_	_
+2	afasta	afastar	v	v-fin	PR|3S|IND	0	STA	_	_
+3	os	o	art	art	<artd>|M|P	4	>N	_	_
+4	torcedores	torcedor	n	n	M|P	2	ACC	_	_
+
+1	Em	em	prp	prp	<sam->	5	ADVL	_	_
+2	o	o	art	art	<-sam>|<artd>|M|S	3	>N	_	_
+3	projeto	projeto	n	n	M|S	1	P<	_	_
+4	não	não	adv	adv	_	5	ADVL	_	_
+5	há	haver	v	v-fin	PR|3S|IND	0	STA	_	_
+6	definição	definição	n	n	F|S	5	ACC	_	_
+7	de	de	prp	prp	_	6	N<	_	_
+8	quantos	quanto	pron	pron-det	<interr>|M|S	9	SUBJ	_	_
+9	podem	poder	v	v-fin	PR|3P|IND	7	P<	_	_
+10	ser	ser	v	v-inf	_	9	AUX	_	_
+11	construídos	construir	v	v-pcp	M|P	10	MV	_	_
+12	.	.	punc	punc	_	9	PUNC	_	_
+
+1	«	«	punc	punc	_	4	PUNC	_	_
+2	Nossa	nosso	pron	pron-det	<poss|1P>|F|S	3	>N	_	_
+3	preocupação	preocupação	n	n	F|S	4	SUBJ	_	_
+4	é	ser	v	v-fin	PR|3S|IND	0	STA	_	_
+5	promover	promover	v	v-inf	_	4	SC	_	_
+6	o	o	art	art	<artd>|M|S	7	>N	_	_
+7	desenvolvimento	desenvolvimento	n	n	M|S	5	ACC	_	_
+8	.	.	punc	punc	_	4	PUNC	_	_
+
+1	É	ser	v	v-fin	PR|3S|IND	0	STA	_	_
+2	também	também	adv	adv	_	1	ADVL	_	_
+3	primo	primo	n	n	M|S	1	SC	_	_
+4	de	de	prp	prp	_	3	N<	_	_
+5	Curica	Curica	prop	prop	M|S	4	P<	_	_
+6	e	e	conj	conj-c	<co-postnom>	5	CO	_	_
+7	de	de	prp	prp	_	3	CJT	_	_
+8	Floriano_Graça	Floriano_Graça	prop	prop	M|S	7	P<	_	_
+9	.	.	punc	punc	_	1	PUNC	_	_
+
+1	Fui	ser	v	v-fin	PS|1S|IND	0	STA	_	_
+2	procurado	procurar	v	v-pcp	M|S	1	MV	_	_
+3	por	por	prp	prp	<sam->	2	PASS	_	_
+4	os	o	art	art	<-sam>|<artd>|M|P	5	>N	_	_
+5	ladrões	ladrão	n	n	M|P	3	P<	_	_
+6	para	para	prp	prp	_	5	ADVL	_	_
+7	comprar	comprar	v	v-inf	_	6	P<	_	_
+8	a	o	art	art	<artd>|F|S	9	>N	_	_
+9	carga	carga	n	n	F|S	7	ACC	_	_
+10	.	.	punc	punc	_	1	PUNC	_	_
+
+1	Prenderam	prender	v	v-fin	PS/MQP|3P|IND	0	STA	_	_
+2	todos	todo	pron	pron-det	<quant>|M|P	1	ACC	_	_
+3	e	e	conj	conj-c	<co-vfin>|<co-fmc>	1	CO	_	_
+4	apreenderam	apreender	v	v-fin	PS/MQP|3P|IND	1	CJT	_	_
+5	a	o	art	art	<artd>|F|S	6	>N	_	_
+6	mercadoria	mercadoria	n	n	F|S	4	ACC	_	_
+7	.	.	punc	punc	_	1	PUNC	_	_
+
+1	Eles	eles	pron	pron-pers	M|3P|NOM	2	SUBJ	_	_
+2	desviaram	desviar	v	v-fin	PS/MQP|3P|IND	0	STA	_	_
+3	quatro	quatro	num	num	<card>|F|P	4	>N	_	_
+4	toneladas	tonelada	n	n	F|P	2	ACC	_	_
+5	de	de	prp	prp	<sam->	4	N<	_	_
+6	a	o	art	art	<-sam>|<artd>|F|S	7	>N	_	_
+7	carga	carga	n	n	F|S	5	P<	_	_
+8	.	.	punc	punc	_	2	PUNC	_	_
+
+1	Quatro	quatro	num	num	<card>|F|P	3	>N	_	_
+2	Kombis	Kombis	prop	prop	F|P	3	SUBJ	_	_
+3	foram	ser	v	v-fin	PS/MQP|3P|IND	0	STA	_	_
+4	para	para	prp	prp	_	3	PIV	_	_
+5	o	o	art	art	<artd>|M|S	6	>N	_	_
+6	Deic	Deic	prop	prop	M|S	4	P<	_	_
+7	.	.	punc	punc	_	3	PUNC	_	_
+
+1	Só	só	adv	adv	_	4	>N	_	_
+2	isso	isso	pron	pron-indp	<dem>|M|S	3	SUBJ	_	_
+3	foi	ser	v	v-fin	PS|3S|IND	0	STA	_	_
+4	devolvido	devolver	v	v-pcp	M|S	3	MV	_	_
+5	para	para	prp	prp	_	4	ADVL	_	_
+6	a	o	art	art	<artd>|F|S	7	>N	_	_
+7	Riachuelo	Riachuelo	prop	prop	F|S	5	P<	_	_
+8	.	.	punc	punc	_	3	PUNC	_	_
+
+1	ONU	ONU	prop	prop	F|S	2	SUBJ	_	_
+2	pede	pedir	v	v-fin	PR|3S|IND	0	STA	_	_
+3	tropas	tropa	n	n	F|P	2	ACC	_	_
+4	em	em	prp	prp	<sam->	2	ADVL	_	_
+5	a	o	art	art	<-sam>|<artd>|F|S	6	>N	_	_
+6	Bósnia	Bósnia	prop	prop	F|S	4	P<	_	_
+
+1	Folha	Folha	prop	prop	F|S	0	UTT	_	_
+2	--	--	punc	punc	_	1	PUNC	_	_
+3	Qual	qual	pron	pron-det	<interr>|M|S	5	QUE	_	_
+4	o	o	art	art	<artd>|M|S	5	>N	_	_
+5	segredo	segredo	n	n	M|S	1	SUBJ	_	_
+6	de	de	prp	prp	<sam->	5	N<	_	_
+7	a	o	art	art	<-sam>|<artd>|F|S	8	>N	_	_
+8	vitória	vitória	n	n	F|S	6	P<	_	_
+9	?	?	punc	punc	_	1	PUNC	_	_
+
+1	Gilbert	Gilbert	prop	prop	M|S	3	UTT	_	_
+2	--	--	punc	punc	_	1	PUNC	_	_
+3	Acho	achar	v	v-fin	PR|1S|IND	0	STA	_	_
+4	que	que	conj	conj-s	_	6	SUB	_	_
+5	Andre	Andre	prop	prop	M|S	6	SUBJ	_	_
+6	usou	usar	v	v-fin	PS|3S|IND	3	ACC	_	_
+7	essa	esse	pron	pron-det	<dem>|F|S	9	>N	_	_
+8	mesma	mesmo	pron	pron-det	<diff>|<KOMP>|F|S	9	>N	_	_
+9	pressão	pressão	n	n	F|S	6	ACC	_	_
+10	a	a	prp	prp	_	9	ADVL	_	_
+11	seu	seu	pron	pron-det	<poss|3S>|<si>|M|S	12	>N	_	_
+12	favor	favor	n	n	M|S	10	P<	_	_
+13	.	.	punc	punc	_	3	PUNC	_	_
+
+1	Ele	ele	pron	pron-pers	M|3S|NOM	2	SUBJ	_	_
+2	funciona	funcionar	v	v-fin	PR|3S|IND	0	STA	_	_
+3	de	de	prp	prp	<sam->	2	ADVL	_	_
+4	esse	esse	pron	pron-det	<-sam>|<dem>|M|S	5	>N	_	_
+5	jeito	jeito	n	n	M|S	3	P<	_	_
+6	.	.	punc	punc	_	2	PUNC	_	_
+
+1	Se	se	conj	conj-s	_	3	SUB	_	_
+2	você	você	pron	pron-pers	M/F|3S|NOM	3	SUBJ	_	_
+3	bate	bater	v	v-fin	PR|3S|IND	12	ADVL	_	_
+4	em	em	prp	prp	<sam->	3	PIV	_	_
+5	ele	ele	pron	pron-pers	<-sam>|M|3S|NOM/PIV	4	P<	_	_
+6	,	,	punc	punc	_	9	PUNC	_	_
+7	o	o	art	art	<artd>|M|S	8	>N	_	_
+8	revide	revide	n	n	M|S	9	SUBJ	_	_
+9	vem	vir	v	v-fin	PR|3S|IND	12	ACC	_	_
+10	forte	forte	n	n	M|S	9	ADVL	_	_
+11	,	,	punc	punc	_	12	PUNC	_	_
+12	pode	poder	v	v-fin	PR|3S|IND	0	STA	_	_
+13	apostar	apostar	v	v-inf	_	12	MV	_	_
+14	.	.	punc	punc	_	12	PUNC	_	_
+
+1	Alguns	algum	pron	pron-det	<quant>|M|P	2	>N	_	_
+2	tenistas	tenista	n	n	M|P	3	SUBJ	_	_
+3	são	ser	v	v-fin	PR|3P|IND	0	STA	_	_
+4	assim	assim	adv	adv	_	3	ADVL	_	_
+5	,	,	punc	punc	_	3	PUNC	_	_
+6	usam	usar	v	v-fin	PR|3P|IND	3	CJT	_	_
+7	sua	seu	pron	pron-det	<poss|3S>|<si>|F|S	8	>N	_	_
+8	carga	carga	n	n	F|S	6	ACC	_	_
+9	emocional	emocional	adj	adj	F|S	8	N<	_	_
+10	como	como	adv	adv	<rel>	6	OC	_	_
+11	combustível	combustível	n	n	M|S	10	SC	_	_
+12	.	.	punc	punc	_	3	PUNC	_	_
+
+1	Haverá	haver	v	v-fin	FUT|3S|IND	0	STA	_	_
+2	mais	muito	pron	pron-det	<quant>|<KOMP>|F|P	1	>N	_	_
+3	e	e	conj	conj-c	<co-prenom>	1	CO	_	_
+4	melhores	bom	adj	adj	<KOMP>|<SUP>|F|P	5	CJT	_	_
+5	escolas	escola	n	n	F|P	1	ACC	_	_
+6	,	,	punc	punc	_	5	PUNC	_	_
+7	laboratórios	laboratório	n	n	M|P	5	CJT	_	_
+8	,	,	punc	punc	_	7	PUNC	_	_
+9	universidades	universidade	n	n	F|P	7	CJT	_	_
+10	e	e	conj	conj-c	_	9	CO	_	_
+11	bolsas_de_estudo	bolsa_de_estudo	n	n	F|P	9	CJT	_	_
+12	.	.	punc	punc	_	1	PUNC	_	_
+
+1	O	o	art	art	<artd>|M|S	2	>N	_	_
+2	Emeraude	Emeraude	prop	prop	M|S	4	SUBJ	_	_
+3	não	não	adv	adv	_	4	ADVL	_	_
+4	carrega	carregar	v	v-fin	PR|3S|IND	0	STA	_	_
+5	armamento	armamento	n	n	M|S	4	ACC	_	_
+6	nuclear	nuclear	adj	adj	M|S	5	N<	_	_
+7	.	.	punc	punc	_	4	PUNC	_	_
+
+1	A	o	art	art	<artd>|F|S	2	>N	_	_
+2	energia	energia	n	n	F|S	4	SUBJ	_	_
+3	nuclear	nuclear	adj	adj	F|S	2	N<	_	_
+4	é	ser	v	v-fin	PR|3S|IND	0	STA	_	_
+5	usada	usar	v	v-pcp	F|S	4	MV	_	_
+6	só	só	adv	adv	_	5	>A	_	_
+7	para	para	prp	prp	_	5	ADVL	_	_
+8	movimentar	movimentar	v	v-inf	_	7	P<	_	_
+9	a	o	art	art	<artd>|F|S	10	>N	_	_
+10	embarcação	embarcação	n	n	F|S	8	ACC	_	_
+11	.	.	punc	punc	_	4	PUNC	_	_
+
+1	Ito	Ito	prop	prop	M|S	2	SUBJ	_	_
+2	pode	poder	v	v-fin	PR|3S|IND	0	STA	_	_
+3	anunciar	anunciar	v	v-inf	_	2	MV	_	_
+4	hoje	hoje	adv	adv	_	3	ADVL	_	_
+5	que	que	conj	conj-s	_	8	SUB	_	_
+6	a	o	art	art	<artd>|F|S	7	>N	_	_
+7	transmissão	transmissão	n	n	F|S	8	SUBJ	_	_
+8	está	estar	v	v-fin	PR|3S|IND	2	ACC	_	_
+9	proibida	proibir	v	v-pcp	F|S	8	SC	_	_
+10	.	.	punc	punc	_	8	PUNC	_	_
+
+1	Abertura	abertura	n	n	F|S	0	UTT	_	_
+2	hoje	hoje	adv	adv	_	1	N<	_	_
+3	a	a	prp	prp	<sam->	2	N<	_	_
+4	as	o	art	art	<-sam>|<artd>|F|P	5	>N	_	_
+5	19h30	19h30	n	n	F|P	3	P<	_	_
+6	.	.	punc	punc	_	1	PUNC	_	_
+
+1	Seg	Seg	n	n	F|S	0	UTT	_	_
+2	a	a	prp	prp	_	1	?	_	_
+3	sex	sex	n	n	M|S	2	P<	_	_
+4	de	de	prp	prp	<sam->	3	ADVL	_	_
+5	as	o	art	art	<-sam>|<artd>|F|P	6	>N	_	_
+6	9h30	9h30	n	n	F|P	4	P<	_	_
+7	a	a	prp	prp	<sam->	6	?	_	_
+8	as	o	art	art	<-sam>|<artd>|F|P	9	>N	_	_
+9	18h30	18h30	n	n	F|P	7	P<	_	_
+10	.	.	punc	punc	_	1	PUNC	_	_
+
+1	Preço	preço	n	n	M|S	0	UTT	_	_
+2	de	de	prp	prp	<sam->	1	N<	_	_
+3	as	o	art	art	<-sam>|<artd>|F|P	4	>N	_	_
+4	fotos	foto	n	n	F|P	2	P<	_	_
+5	:	:	punc	punc	_	1	PUNC	_	_
+6	US$	US$	n	n	M|P	4	N<PRED	_	_
+7	300	300	num	num	<card>|M|P	6	N<	_	_
+8	.	.	punc	punc	_	1	PUNC	_	_
+
+1	Até	até	prp	prp	_	0	STA	_	_
+2	17	17	num	num	<card>|M|S	1	P<	_	_
+3	de	de	prp	prp	_	2	N<	_	_
+4	junho	junho	n	n	M|S	3	P<	_	_
+5	.	.	punc	punc	_	1	PUNC	_	_
+
+1	Isto	isto	pron	pron-indp	<dem>|M|S	2	SUBJ	_	_
+2	ocorre	ocorrer	v	v-fin	PR|3S|IND	0	STA	_	_
+3	principalmente	principalmente	adv	adv	_	2	ADVL	_	_
+4	a	a	prp	prp	<sam->	2	PIV	_	_
+5	a	o	art	art	<-sam>|<artd>|F|S	6	>N	_	_
+6	noite	noite	n	n	F|S	4	P<	_	_
+7	e	e	conj	conj-c	<co-vfin>|<co-fmc>	6	CO	_	_
+8	a	o	art	art	<artd>|F|S	9	>N	_	_
+9	visibilidade	visibilidade	n	n	F|S	4	SUBJ	_	_
+10	pode	poder	v	v-fin	PR|3S|IND	9	CJT	_	_
+11	chegar	chegar	v	v-inf	_	10	MV	_	_
+12	a	a	prp	prp	_	11	PIV	_	_
+13	zero	zero	num	num	<card>|M|S	12	P<	_	_
+14	.	.	punc	punc	_	10	PUNC	_	_
+
+1	Para	para	prp	prp	_	0	ADVL	_	_
+2	45	45	num	num	<card>|M|P	3	>N	_	_
+3	$%	%	n	n	M|P	1	P<	_	_
+4	de	de	prp	prp	<sam->	3	N<	_	_
+5	os	o	art	art	<-sam>|<artd>|M|P	6	>N	_	_
+6	paulistanos	paulistano	n	n	M|P	4	P<	_	_
+7	,	,	punc	punc	_	9	PUNC	_	_
+8	inflação	inflação	n	n	F|S	4	SUBJ	_	_
+9	aumenta	aumentar	v	v-fin	PR|3S|IND	8	STA	_	_
+
+1	O	o	art	art	<artd>|M|S	2	>N	_	_
+2	paulistano	paulistano	n	n	M|S	4	SUBJ	_	_
+3	não	não	adv	adv	_	4	ADVL	_	_
+4	acredita	acreditar	v	v-fin	PR|3S|IND	0	STA	_	_
+5	em	em	prp	prp	_	4	PIV	_	_
+6	queda	queda	n	n	F|S	5	P<	_	_
+7	de	de	prp	prp	_	6	N<	_	_
+8	inflação	inflação	n	n	F|S	7	P<	_	_
+9	em	em	prp	prp	<sam->	8	ADVL	_	_
+10	os	o	art	art	<-sam>|<artd>|M|P	12	>N	_	_
+11	próximos	próximo	adj	adj	M|P	12	>N	_	_
+12	meses	mês	n	n	M|P	9	P<	_	_
+13	.	.	punc	punc	_	4	PUNC	_	_
+
+1	Mexicanos	mexicano	n	n	M|P	2	SUBJ	_	_
+2	são	ser	v	v-fin	PR|3P|IND	0	STA	_	_
+3	recebidos	receber	v	v-pcp	M|P	2	MV	_	_
+4	com	com	prp	prp	_	3	ADVL	_	_
+5	ovos	ovo	n	n	M|P	4	P<	_	_
+
+1	Em	em	prp	prp	<sam->	7	ADVL	_	_
+2	a	o	art	art	<-sam>|<artd>|F|S	3	>N	_	_
+3	recepção	recepção	n	n	F|S	1	P<	_	_
+4	,	,	punc	punc	_	7	PUNC	_	_
+5	os	o	art	art	<artd>|M|P	6	>N	_	_
+6	torcedores	torcedor	n	n	M|P	7	SUBJ	_	_
+7	exibiam	exibir	v	v-fin	IMPF|3P|IND	0	STA	_	_
+8	um	um	art	art	<arti>|M|S	9	>N	_	_
+9	cartaz	cartaz	n	n	M|S	7	ACC	_	_
+10	,	,	punc	punc	_	12	PUNC	_	_
+11	que	que	pron	pron-indp	<rel>|M|S	12	ACC	_	_
+12	dizia	dizer	v	v-fin	IMPF|3S|IND	7	N<PRED	_	_
+13	:	:	punc	punc	_	7	PUNC	_	_
+
+1	«	«	punc	punc	_	2	PUNC	_	_
+2	Nascidos	nascer	v	v-pcp	M|P	0	UTT	_	_
+3	para	para	prp	prp	_	2	ADVL	_	_
+4	perder	perder	v	v-inf	_	3	P<	_	_
+5	»	»	punc	punc	_	2	PUNC	_	_
+6	.	.	punc	punc	_	2	PUNC	_	_
+
+1	Mãe	mãe	n	n	F|S	5	SUBJ	_	_
+2	de	de	prp	prp	_	1	N<	_	_
+3	Rossi	Rossi	prop	prop	M|S	2	P<	_	_
+4	agora	agora	adv	adv	<kc>	5	ADVL	_	_
+5	quer	querer	v	v-fin	PR|3S|IND	0	STA	_	_
+6	ser	ser	v	v-inf	_	5	ACC	_	_
+7	candidata	candidata	n	n	F|S	6	SC	_	_
+
+1	«	«	punc	punc	_	2	PUNC	_	_
+2	Adoraria	adorar	v	v-fin	COND|1S	0	STA	_	_
+3	ser	ser	v	v-inf	_	2	ACC	_	_
+4	candidata	candidata	n	n	F|S	3	SC	_	_
+5	.	.	punc	punc	_	2	PUNC	_	_
+
+1	Tenho	ter	v	v-fin	PR|1S|IND	0	STA	_	_
+2	certeza	certeza	n	n	F|S	1	ACC	_	_
+3	de	de	prp	prp	_	2	N<	_	_
+4	que	que	conj	conj-s	_	6	SUB	_	_
+5	se	se	conj	conj-s	_	6	SUB	_	_
+6	pudesse	poder	v	v-fin	IMPF|3S|SUBJ	1	ADVL	_	_
+7	concorrer	concorrer	v	v-inf	_	6	MV	_	_
+8	a	a	prp	prp	_	7	PIV	_	_
+9	algum	algum	pron	pron-det	<quant>|M|S	10	>N	_	_
+10	cargo	cargo	n	n	M|S	8	P<	_	_
+11	,	,	punc	punc	_	13	PUNC	_	_
+12	me	eu	pron	pron-pers	<refl>|F|1S|ACC	13	ACC	_	_
+13	elegeria	eleger	v	v-fin	COND|3S	1	P<	_	_
+14	.	.	punc	punc	_	1	PUNC	_	_
+
+1	Mercedes	Mercedes	prop	prop	M|S	2	SUBJ	_	_
+2	diz	dizer	v	v-fin	PR|3S|IND	0	STA	_	_
+3	que	que	conj	conj-s	_	4	SUB	_	_
+4	começaria	começar	v	v-fin	COND|3S	2	ACC	_	_
+5	como	como	adv	adv	<rel>	4	SC	_	_
+6	vereadora	vereadora	n	n	F|S	4	SC	_	_
+7	:	:	punc	punc	_	2	PUNC	_	_
+
+1	«	«	punc	punc	_	3	PUNC	_	_
+2	Depois	depois	adv	adv	_	4	ADVL	_	_
+3	tentaria	tentar	v	v-fin	COND|3S	0	STA	_	_
+4	ser	ser	v	v-inf	_	3	ACC	_	_
+5	deputada	deputada	n	n	F|S	4	SC	_	_
+6	estadual	estadual	adj	adj	F|S	5	N<	_	_
+7	.	.	punc	punc	_	3	PUNC	_	_
+8	»	»	punc	punc	_	3	PUNC	_	_
+
+1	O	o	art	art	<artd>|M|S	2	>N	_	_
+2	painel	painel	n	n	M|S	3	SUBJ	_	_
+3	vai	ir	v	v-fin	PR|3S|IND	0	STA	_	_
+4	funcionar	funcionar	v	v-inf	_	3	MV	_	_
+5	de	de	prp	prp	<sam->	4	ADVL	_	_
+6	as	o	art	art	<-sam>|<artd>|F|P	7	>N	_	_
+7	8h	8h	n	n	F|P	5	P<	_	_
+8	a	a	prp	prp	<sam->	7	?	_	_
+9	as	o	art	art	<-sam>|<artd>|F|P	10	>N	_	_
+10	22h	22h	n	n	F|P	8	P<	_	_
+11	.	.	punc	punc	_	3	PUNC	_	_
+
+1	Onde	onde	adv	adv	<rel>|<ks>	2	ADVL	_	_
+2	Alugar	alugar	v	v-fin	FUT|3S|SUBJ	0	STA	_	_
+
+1	Empresa	empresa	n	n	F|S	2	SUBJ	_	_
+2	funciona	funcionar	v	v-fin	PR|3S|IND	0	STA	_	_
+3	de	de	prp	prp	<sam->	2	ADVL	_	_
+4	as	o	art	art	<-sam>|<artd>|F|P	5	>N	_	_
+5	9h	9h	n	n	F|P	3	P<	_	_
+6	a	a	prp	prp	<sam->	5	?	_	_
+7	as	o	art	art	<-sam>|<artd>|F|P	8	>N	_	_
+8	19h	19h	n	n	F|P	6	P<	_	_
+9	,	,	punc	punc	_	2	PUNC	_	_
+10	diariamente	diariamente	adv	adv	_	2	ADVL	_	_
+11	.	.	punc	punc	_	2	PUNC	_	_
+
+1	Retorna	retornar	v	v-fin	PR|3S|IND	0	STA	_	_
+2	a	a	prp	prp	<sam->	1	ADVS	_	_
+3	o	o	art	art	<-sam>|<artd>|M|S	4	>N	_	_
+4	banco	banco	n	n	M|S	2	P<	_	_
+5	o	o	art	art	<artd>|M|S	7	>N	_	_
+6	bom	bom	adj	adj	M|S	7	>N	_	_
+7	volante	volante	n	n	M|S	2	SUBJ	_	_
+8	eslovênio	eslovênio	adj	adj	M|S	7	N<	_	_
+9	Katanec	Katanec	prop	prop	M|S	7	N<	_	_
+10	.	.	punc	punc	_	1	PUNC	_	_
+
+1	A	o	art	art	<artd>|F|S	2	>N	_	_
+2	Juve	Juve	prop	prop	F|S	3	SUBJ	_	_
+3	vive	viver	v	v-fin	PR|3S|IND	0	STA	_	_
+4	a	o	art	art	<artd>|F|S	5	>N	_	_
+5	transição	transição	n	n	F|S	3	ACC	_	_
+6	para	para	prp	prp	_	5	N<	_	_
+7	uma	um	art	art	<arti>|F|S	9	>N	_	_
+8	nova	novo	adj	adj	F|S	9	>N	_	_
+9	temporada	temporada	n	n	F|S	6	P<	_	_
+10	.	.	punc	punc	_	3	PUNC	_	_
+
+1	Em	em	prp	prp	_	6	ADVL	_	_
+2	seu	seu	pron	pron-det	<poss|3S>|<si>|M|S	3	>N	_	_
+3	lugar	lugar	n	n	M|S	1	P<	_	_
+4	,	,	punc	punc	_	5	PUNC	_	_
+5	vai	ir	v	v-fin	PR|3S|IND	0	STA	_	_
+6	assumindo	assumir	v	v-ger	_	5	MV	_	_
+7	um	um	art	art	<arti>|M|S	9	>N	_	_
+8	outro	outro	pron	pron-det	<diff>|<KOMP>|M|S	9	>N	_	_
+9	ex-atleta	ex-atleta	n	n	M|S	6	ACC	_	_
+10	,	,	punc	punc	_	5	PUNC	_	_
+11	Roberto_Bettega	Roberto_Bettega	prop	prop	M|S	9	N<PRED	_	_
+12	.	.	punc	punc	_	5	PUNC	_	_
+
+1	A	o	art	art	<artd>|F|S	2	>N	_	_
+2	população	população	n	n	F|S	4	SUBJ	_	_
+3	mundial	mundial	adj	adj	F|S	2	N<	_	_
+4	está	estar	v	v-fin	PR|3S|IND	0	STA	_	_
+5	em_torno_de	em_torno_de	prp	prp	_	4	SC	_	_
+6	5,66	5,66	num	num	<card>|M|P	7	>N	_	_
+7	bilhões	bilhão	n	n	M|P	5	P<	_	_
+8	.	.	punc	punc	_	4	PUNC	_	_
+
+1	VERA_LÚCIA_DA_COSTA_ANTUNES	VERA_LÚCIA_DA_COSTA_ANTUNES	prop	prop	F|S	2	SUBJ	_	_
+2	é	ser	v	v-fin	PR|3S|IND	0	STA	_	_
+3	coordenadora	coordenador	adj	adj	<n>|F|S	2	SC	_	_
+4	de	de	prp	prp	_	3	N<	_	_
+5	geografia	geografia	n	n	F|S	4	P<	_	_
+6	de	de	prp	prp	<sam->	5	N<	_	_
+7	o	o	art	art	<-sam>|<artd>|M|S	8	>N	_	_
+8	curso	curso	n	n	M|S	6	P<	_	_
+9	e	e	conj	conj-c	<co-prparg>	8	CO	_	_
+10	colégio	colégio	n	n	M|S	8	CJT	_	_
+11	Objetivo	Objetivo	prop	prop	M|S	10	N<	_	_
+12	.	.	punc	punc	_	2	PUNC	_	_
+
+1	Ele	ele	pron	pron-pers	M|3S|NOM	2	SUBJ	_	_
+2	teria	ter	v	v-fin	COND|3S	0	STA	_	_
+3	deixado	deixar	v	v-pcp	_	2	?	_	_
+4	a	o	art	art	<artd>|F|S	5	>N	_	_
+5	mulher	mulher	n	n	F|S	3	ACC	_	_
+6	e	e	conj	conj-c	<co-pcv>	3	CO	_	_
+7	trazido	trazer	v	v-pcp	M|S	3	CJT	_	_
+8	a	o	art	art	<artd>|F|S	9	>N	_	_
+9	amante	amante	n	n	F|S	7	ACC	_	_
+10	para	para	prp	prp	_	9	PIV	_	_
+11	Roma	Roma	prop	prop	M|S	10	P<	_	_
+12	.	.	punc	punc	_	2	PUNC	_	_
+
+1	«	«	punc	punc	_	6	PUNC	_	_
+2	Várias	várias	pron	pron-det	<quant>|F|P	3	>N	_	_
+3	vezes	vez	n	n	F|P	6	ADVL	_	_
+4	os	o	art	art	<artd>|M|P	3	>N	_	_
+5	dois	dois	num	num	<card>|M|P	6	SUBJ	_	_
+6	foram	ser	v	v-fin	PS/MQP|3P|IND	0	STA	_	_
+7	pegos	pegar	v	v-pcp	M|P	6	MV	_	_
+8	fazendo	fazer	v	v-ger	_	7	ADVL	_	_
+9	amor	amor	n	n	M|S	8	ACC	_	_
+10	em	em	prp	prp	<sam->	8	ADVL	_	_
+11	a	o	art	art	<-sam>|<artd>|F|S	13	>N	_	_
+12	minha	meu	pron	pron-det	<poss|1S>|F|S	13	>N	_	_
+13	clínica	clínica	n	n	F|S	10	P<	_	_
+14	.	.	punc	punc	_	6	PUNC	_	_
+
+1	«	«	punc	punc	_	2	PUNC	_	_
+2	Era	ser	v	v-fin	IMPF|3S|IND	0	STA	_	_
+3	um	um	art	art	<arti>|M|S	2	>N	_	_
+4	miserável	miserável	adj	adj	M|S	2	SC	_	_
+5	quando	quando	adv	adv	<rel>|<ks>	6	ADVL	_	_
+6	chegou	chegar	v	v-fin	PS|3S|IND	2	ADVL	_	_
+7	.	.	punc	punc	_	2	PUNC	_	_
+
+1	Em	em	prp	prp	_	4	ADVL	_	_
+2	poucos	pouco	pron	pron-det	<quant>|M|P	3	>N	_	_
+3	anos	ano	n	n	M|P	1	P<	_	_
+4	ganhou	ganhar	v	v-fin	PS|3S|IND	0	STA	_	_
+5	mais_de	mais_de	adv	adv	_	4	>N	_	_
+6	US$	US$	n	n	M|P	4	ACC	_	_
+7	1	1	num	num	<card>|M|S	8	>N	_	_
+8	milhão	milhão	n	n	M|S	6	N<	_	_
+9	»	»	punc	punc	_	4	PUNC	_	_
+10	.	.	punc	punc	_	4	PUNC	_	_
+
+1	Após	após	prp	prp	_	9	ADVL	_	_
+2	várias	várias	pron	pron-det	<quant>|F|P	3	>N	_	_
+3	divergências	divergência	n	n	F|P	1	P<	_	_
+4	com	com	prp	prp	_	3	N<	_	_
+5	Fishel	Fishel	prop	prop	M|S	4	P<	_	_
+6	,	,	punc	punc	_	5	PUNC	_	_
+7	Antinori	Antinori	prop	prop	M|S	5	SUBJ	_	_
+8	o	ele	pron	pron-pers	M|3S|ACC	9	ACC	_	_
+9	demitiu	demitir	v	v-fin	PS|3S|IND	0	STA	_	_
+10	em	em	prp	prp	_	9	ADVL	_	_
+11	1990	1990	num	num	<card>|M|S	10	P<	_	_
+12	.	.	punc	punc	_	9	PUNC	_	_
+
+1	«	«	punc	punc	_	3	PUNC	_	_
+2	Me	eu	pron	pron-pers	<refl>|M|1S|DAT	3	DAT	_	_
+3	pergunto	perguntar	v	v-fin	PR|1S|IND	0	STA	_	_
+4	sempre	sempre	adv	adv	_	3	ADVL	_	_
+5	quem	quem	pron	pron-indp	<rel>|M|S	6	SUBJ	_	_
+6	podia	poder	v	v-fin	IMPF|3S|IND	3	ACC	_	_
+7	ter	ter	v	v-inf	_	6	AUX	_	_
+8	sido	ser	v	v-pcp	_	7	MV	_	_
+9	aquele	aquele	pron	pron-det	<dem>|M|S	8	>N	_	_
+10	jovem	jovem	adj	adj	M|S	11	>N	_	_
+11	alemão	alemão	n	n	M|S	8	SC	_	_
+12	.	.	punc	punc	_	6	PUNC	_	_
+13	»	»	punc	punc	_	3	PUNC	_	_
+
