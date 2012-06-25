@@ -3,6 +3,7 @@ import scipy as scipy
 import linear_classifier as lc
 import sys
 from distributions.gaussian import *
+from gaussian import *
 
 
 class MultinomialNaiveBayes(lc.LinearClassifier):
@@ -16,22 +17,26 @@ class MultinomialNaiveBayes(lc.LinearClassifier):
         
     def train(self,x,y):
         nr_x,nr_f = x.shape
+        # nr_x = no. of documents
+        # nr_f = no. of words
         nr_c = np.unique(y).shape[0]
+        # nr_c = no. of classes
         prior = np.zeros(nr_c)
-        ind_per_class = {}
+#        ind_per_class = {}
         classes = np.unique(y)
-        for i in xrange(nr_c):
-            idx,_ = np.nonzero(y == classes[i])
-            ind_per_class = idx
+#        for i in xrange(nr_c):
+#            idx,_ = np.nonzero(y == classes[i])
+#            ind_per_class = idx
         likelihood = np.zeros((nr_f,nr_c))
         sums = np.zeros((nr_f,1))
         for i in xrange(nr_c):
             idx,_ = np.nonzero(y == classes[i]) 
-            prior[i] = 1.0*len(idx)/len(y)
+            prior[i] = 1.0*len(idx)/len(y) # prior = fraction of documents with this class
 
-            value =  x[idx,:].sum(0)
-            sums[:,0] += value
-            likelihood[:,i] = value
+            value = x[idx,:].sum(0)
+            sums[:,0] += value # sums = total number of counts of each word
+            likelihood[:,i] = value # likelihood = count of occurrences of a word in a class
+                                    # NOTE: at this point this is a count, not a likelihood
                 
         for f in xrange(nr_f):
             for i in xrange(nr_c):
