@@ -1,9 +1,5 @@
 import codecs
 import gzip
-
-
-import sys
-import os
 from sequences.sequence import *
 from sequences.sequence_list import *
 

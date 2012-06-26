@@ -13,17 +13,17 @@ class HMM():
     ''' Implements a first order HMM'''
 
     def __init__(self,dataset,nr_states=-1):
-        self.trained = False
-        self.init_probs = 0
-        self.final_probs = 0
-        self.transition_probs = 0
-        self.observation_probs = 0
         if(nr_states == -1):
-            self.nr_states = len(dataset.int_to_pos)
+            self.nr_states = len(dataset.int_to_tag)
         else:
             self.nr_states = nr_states
         self.nr_types = len(dataset.int_to_word)
         self.dataset = dataset
+        self.trained = False
+        self.init_probs = np.zeros([self.nr_states,1],dtype=float)
+        self.final_probs = np.zeros([self.nr_states,self.nr_states],dtype=float)
+        self.transition_probs = np.zeros([self.nr_states,self.nr_states],dtype=float)
+        self.observation_probs = np.zeros([self.nr_types,self.nr_states],dtype=float)
         ## Model counts tables
           ### All this distributions normalize over the second entry
         # c(s_0 = s)
@@ -40,7 +40,7 @@ class HMM():
 
 
     def train_supervised(self,sequence_list, smoothing=0):
-        if(len(self.dataset.int_to_pos) != self.nr_states):
+        if(len(self.dataset.int_to_tag) != self.nr_states):
             print "Cannot train supervised models with number of states different than true pos tags"
             return
         

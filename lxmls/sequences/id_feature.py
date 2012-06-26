@@ -20,7 +20,7 @@ class IDFeatures:
         
     def build_features(self):
         self.add_features = True
-        for seq in self.dataset.train.seq_list:
+        for seq in self.dataset.sequence_list.seq_list:
            seq_node_features,seq_edge_features = self.get_seq_features(seq)
            self.feature_list.append([seq_node_features,seq_edge_features])
         self.nr_feats = len(self.feature_names)
@@ -51,7 +51,7 @@ class IDFeatures:
     ##Add word tag pair
     def add_node_features(self,seq,pos,y,idx):
         x = seq.x[pos]
-        y_name = self.dataset.int_to_pos[y]
+        y_name = self.dataset.int_to_tag[y]
         word = self.dataset.int_to_word[x]
         feat = "id:%s::%s"%(word,y_name)
         nr_feat = self.add_feature(feat)
@@ -89,7 +89,7 @@ class IDFeatures:
         return all_feat
 
     def add_init_state_features(self,seq,pos,y,init_idx):
-        y_name = self.dataset.int_to_pos[y]
+        y_name = self.dataset.int_to_tag[y]
         feat = "init_tag:%s"%(y_name)
         nr_feat = self.add_feature(feat)
         if(nr_feat != -1):
@@ -99,8 +99,8 @@ class IDFeatures:
 
     def add_edge_features(self,seq,pos,y,y_prev,edge_idx):
         #print "Adding edge feature for pos:%i y:%i y_prev%i seq_len:%i"%(pos,y,y_prev,len(seq.x))
-        y_name = self.dataset.int_to_pos[y]
-        y_prev_name = self.dataset.int_to_pos[y_prev]
+        y_name = self.dataset.int_to_tag[y]
+        y_prev_name = self.dataset.int_to_tag[y_prev]
         if(pos == len(seq.x)-1):
             feat = "last_prev_tag:%s::%s"%(y_prev_name,y_name)
         else: 
@@ -156,12 +156,12 @@ class IDFeatures:
         word = seq.x[0]
         word_n = self.dataset.int_to_word[word]
         tag = seq.y[0]
-        tag_n = self.dataset.int_to_pos[tag]
+        tag_n = self.dataset.int_to_tag[tag]
         txt = ""
         for i,tag in enumerate(seq.y):
             word = seq.x[i]
             word_n = self.dataset.int_to_word[word]
-            tag_n = self.dataset.int_to_pos[tag]
+            tag_n = self.dataset.int_to_tag[tag]
             txt += "%i %s/%s NF: "%(i,word_n,tag_n)
             for nf in node_f_list[i]:
                 txt+="%s "%self.feature_names[nf]
@@ -177,7 +177,7 @@ class IDFeatures:
         for i,tag in enumerate(seq.y):
             word = seq.x[i]
             word_n = self.dataset.int_to_word[word]
-            tag_n = self.dataset.int_to_pos[tag]
+            tag_n = self.dataset.int_to_tag[tag]
             txt += "%i %s/%s NF: "%(i,word_n,tag_n)
             prev_tag = seq.y[i-1]
             if(i > 0):
