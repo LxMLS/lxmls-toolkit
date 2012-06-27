@@ -1,13 +1,9 @@
 import codecs
 import gzip
-
-
-import sys
-import os
 from sequences.sequence import *
 from sequences.sequence_list import *
 
-from nltk.corpus import brown
+#from nltk.corpus import brown
 
 
 ## Directory where the data files are located.
@@ -126,50 +122,50 @@ class PostagCorpus:
 
     ## Read a text file in brown format and return a sequence list
     ## 
-    def read_sequence_list_brown(self,mapping_file="readers/en-ptb.map",max_sent_len=100000,max_nr_sent=100000,categories=""):
-        ##Build mapping of postags:
-        mapping = {}
-        if(mapping_file != None):
-            for line in open(mapping_file):
-                coarse,fine = line.strip().split("\t")
-                mapping[coarse.lower()] = fine.lower()        
+    # def read_sequence_list_brown(self,mapping_file="readers/en-ptb.map",max_sent_len=100000,max_nr_sent=100000,categories=""):
+    #     ##Build mapping of postags:
+    #     mapping = {}
+    #     if(mapping_file != None):
+    #         for line in open(mapping_file):
+    #             coarse,fine = line.strip().split("\t")
+    #             mapping[coarse.lower()] = fine.lower()        
 
-        if(categories == ""):
-            sents = brown.tagged_sents()
-        else:
-            sents = brown.tagged_sents(categories=categories)
-        seq_list = Sequence_List(self.word_dict,self.int_to_word,self.tag_dict,self.int_to_tag)
-        nr_types = len(self.word_dict)
-        nr_tag = len(self.tag_dict)
-        for sent in sents:
-            if(len(sent) > max_sent_len or len(sent) <= 1):
-                continue
-            ns_x = []
-            ns_y = []
-            for word,tag in sent:
-                    tag = tag.lower()
-                    if(tag not in mapping):
-                        ##Add unk tags to dict
-                        mapping[tag] = "noun"
-                    c_t =  mapping[tag]
-                    if(word not in self.word_dict):
-                        self.word_dict[word] = nr_types
-                        c_word = nr_types
-                        self.int_to_word.append(word)
-                        nr_types += 1
-                    else:
-                        c_word = self.word_dict[word]
-                    if(c_t not in self.tag_dict):
-                        self.tag_dict[c_t] = nr_tag
-                        c_pos_c = nr_tag
-                        self.int_to_tag.append(c_t)
-                        nr_tag += 1
-                    else:
-                        c_pos_c = self.tag_dict[c_t]
-                    ns_x.append(c_word)
-                    ns_y.append(c_pos_c)
-            seq_list.add_sequence(ns_x,ns_y)
-        return seq_list
+    #     if(categories == ""):
+    #         sents = brown.tagged_sents()
+    #     else:
+    #         sents = brown.tagged_sents(categories=categories)
+    #     seq_list = Sequence_List(self.word_dict,self.int_to_word,self.tag_dict,self.int_to_tag)
+    #     nr_types = len(self.word_dict)
+    #     nr_tag = len(self.tag_dict)
+    #     for sent in sents:
+    #         if(len(sent) > max_sent_len or len(sent) <= 1):
+    #             continue
+    #         ns_x = []
+    #         ns_y = []
+    #         for word,tag in sent:
+    #                 tag = tag.lower()
+    #                 if(tag not in mapping):
+    #                     ##Add unk tags to dict
+    #                     mapping[tag] = "noun"
+    #                 c_t =  mapping[tag]
+    #                 if(word not in self.word_dict):
+    #                     self.word_dict[word] = nr_types
+    #                     c_word = nr_types
+    #                     self.int_to_word.append(word)
+    #                     nr_types += 1
+    #                 else:
+    #                     c_word = self.word_dict[word]
+    #                 if(c_t not in self.tag_dict):
+    #                     self.tag_dict[c_t] = nr_tag
+    #                     c_pos_c = nr_tag
+    #                     self.int_to_tag.append(c_t)
+    #                     nr_tag += 1
+    #                 else:
+    #                     c_pos_c = self.tag_dict[c_t]
+    #                 ns_x.append(c_word)
+    #                 ns_y.append(c_pos_c)
+    #         seq_list.add_sequence(ns_x,ns_y)
+    #     return seq_list
 
 
     ## Dumps a corpus into a file
