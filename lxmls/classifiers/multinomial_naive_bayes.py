@@ -14,6 +14,7 @@ class MultinomialNaiveBayes(lc.LinearClassifier):
         self.likelihood = 0
         self.prior = 0
         self.smooth = True
+        self.smooth_param = 100
         
     def train(self,x,y):
         nr_x,nr_f = x.shape
@@ -41,7 +42,7 @@ class MultinomialNaiveBayes(lc.LinearClassifier):
         for f in xrange(nr_f):
             for i in xrange(nr_c):
                 if self.smooth:
-                    likelihood[f,i] = (1 + likelihood[f,i])/(nr_f + sums[f,0]) # Add-one smoothing
+                    likelihood[f,i] = (self.smooth_param + likelihood[f,i])/(nr_f*self.smooth_param + sums[f,0]) # Add-one smoothing
                 else:
                     likelihood[f,i] = likelihood[f,i]/sums[f,0] 
 
