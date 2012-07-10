@@ -1,6 +1,6 @@
 import numpy as np
 import scipy as scipy
-import linear_classifier as lc
+import classifiers.linear_classifier as lc
 from distributions.gaussian import *
 
 
