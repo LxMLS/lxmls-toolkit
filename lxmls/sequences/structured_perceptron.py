@@ -2,17 +2,13 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.optimize.lbfgsb as opt2
-sys.path.append("util/" )
-
 
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
-sys.path.append("util/" )
-from my_math_utils import *
-from forward_backward import forward_backward,sanity_check_forward_backward
-sys.path.append("sequences/" )
-import discriminative_sequence_classifier as dsc
+from util.my_math_utils import *
+from sequences.forward_backward import forward_backward,sanity_check_forward_backward
+import sequences.discriminative_sequence_classifier as dsc
 
 class StructuredPercetron(dsc.DiscriminativeSequenceClassifier):
     ''' Implements a first order CRF'''
