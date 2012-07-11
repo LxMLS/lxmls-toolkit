@@ -2,28 +2,37 @@ import sys
 import numpy as np
 import scipy.optimize.lbfgsb as opt2
 from util.my_math_utils import *
-import linear_classifier as lc
+from classifiers import linear_classifier as lc
 
-################
-### Train a maxent in a batch setting using LBFGS
-################
+'''
+Train a maxent in a batch setting using LBFGS
+'''
 class MaxEnt_batch(lc.LinearClassifier):
 
     def __init__(self,regularizer=1):
         self.parameters = 0
         self.regularizer = regularizer
-        
+
     def train(self,x,y):
+
+        # Append a column of ones to the current features
         x = self.add_intercept_term(x)
+
+        # Get dimension and number of examples of our input set
         nr_x,nr_f = x.shape
+        # Get the number of classes of our output set
         classes = np.unique(y)
         nr_c = classes.shape[0]
+        
         ## Add the bias feature
         init_parameters = np.zeros((nr_f,nr_c),dtype=float)
         emp_counts = np.zeros((nr_f,nr_c))
         classes_idx = []
+        # For each pair of classes (in this case 00 01 10 11)
         for c,c_i in enumerate(classes):
+            # Find index of elements of output set belonging to class c
             idx,_ = np.nonzero(y == c)
+            # Store that index
             classes_idx.append(idx)
             emp_counts[:,c_i] = x[idx,:].sum(0)            
         params = self.minimize_lbfgs(init_parameters,x,y,self.regularizer,emp_counts,classes_idx,nr_x,nr_f,nr_c)
