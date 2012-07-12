@@ -4,10 +4,10 @@ import linear_classifier as lc
 
 class Perceptron(lc.LinearClassifier):
 
-    def __init__(self,nr_rounds = 10,learning_rate = 1, averaged = True):
+    def __init__(self,nr_epochs = 10,learning_rate = 1, averaged = True):
         lc.LinearClassifier.__init__(self)
         self.trained = False
-        self.nr_rounds = nr_rounds
+        self.nr_epochs = nr_epochs
         self.learning_rate = learning_rate
         self.averaged = averaged
         self.params_per_round = []
@@ -21,9 +21,9 @@ class Perceptron(lc.LinearClassifier):
         w = np.zeros((nr_f,nr_c))
         ## Randomize the examples
         perm = np.random.permutation(nr_x)
-        for round_nr in xrange(self.nr_rounds):
+        for epoch_nr in xrange(self.nr_epochs):
              for nr in xrange(nr_x):
-                #print "iter %i" %( round_nr*nr_x + nr)
+                #print "iter %i" %( epoch_nr*nr_x + nr)
                 inst = perm[nr]
                 y_hat = self.get_label(x[inst:inst+1,:],w)
                 if(y[inst:inst+1,0] != y_hat):
@@ -36,7 +36,7 @@ class Perceptron(lc.LinearClassifier):
              y_pred = self.test(x_orig,w)
              acc = self.evaluate(y,y_pred)
              self.trained = False
-             print "Rounds: %i Accuracy: %f" %( round_nr,acc) 
+             print "Rounds: %i Accuracy: %f" %( epoch_nr,acc) 
         self.trained = True
         
         if(self.averaged == True):
