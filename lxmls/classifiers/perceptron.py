@@ -4,13 +4,13 @@ import linear_classifier as lc
 
 class Perceptron(lc.LinearClassifier):
 
-    def __init__(self,nr_rounds = 10,learning_rate = 1, averaged = True):
+    def __init__(self,nr_epochs = 10,learning_rate = 1, averaged = True):
         lc.LinearClassifier.__init__(self)
         self.trained = False
-        # Perceptron Model parameters (values for all training rounds stored)
-        self.params_per_round = []
+        # Perceptron Model parameters (values for all training epochs stored)
+        self.params_per_epoch = []
 	# Training parameters
-        self.nr_rounds = nr_rounds
+        self.nr_epochs = nr_rounds
         self.learning_rate = learning_rate
         self.averaged = averaged
 
@@ -33,17 +33,17 @@ class Perceptron(lc.LinearClassifier):
 
         # Initialization of classifier parameters
         w = np.zeros((nr_f,nr_c))
-	self.params_per_round = [] 
+	self.params_per_epoch = [] 
     
         ## Randomize the examples
         perm = np.random.permutation(nr_x)
 
-        # For each training round
-        for round_nr in xrange(self.nr_rounds):
-             # For each feature
+        # For each training epoch
+        for epoch_nr in xrange(self.nr_rounds):
+             # For each training example
              for nr in xrange(nr_x):
-                #print "iter %i" %( round_nr*nr_x + nr)
-                # Get one feature index at random
+                #print "iter %i" %( epoch_nr*nr_x + nr)
+                # Get one training example index at random
                 inst = perm[nr]
 		# Predict output using the current model
                 y_hat = self.get_label(x[inst:inst+1,:],w)
@@ -56,25 +56,25 @@ class Perceptron(lc.LinearClassifier):
                     # Subtract feature with respect to the predicted output
                     w[:,y_hat] -= self.learning_rate*x[inst:inst+1,:].transpose()
 
-             # Store the parameters for this round 
-             self.params_per_round.append(w.copy())
-             # Test accuracy of the model in this round of training
+             # Store the parameters for this epoch 
+             self.params_per_epoch.append(w.copy())
+             # Test accuracy of the model in this epoch of training
              # To keep the test routine happy
              self.trained = True
              # Test
              y_pred = self.test(x_orig,w)
              # Evaluation
              acc = self.evaluate(y,y_pred)
-             print "Rounds: %i Accuracy: %f" %( round_nr,acc) 
+             print "Rounds: %i Accuracy: %f" %( epoch_nr,acc) 
              # We continue training
              self.trained = False
 
-        # Optionaly return the average of all training round parameters
+        # Optionaly return the average of all training epoch parameters
         if(self.averaged == True):
             new_w = 0
-            for old_w in self.params_per_round:
+            for old_w in self.params_per_epoch:
                 new_w += old_w
-            new_w = new_w / len(self.params_per_round)
+            new_w = new_w / len(self.params_per_epoch)
             w=new_w.copy()
 
         self.trained = True

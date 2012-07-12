@@ -5,13 +5,13 @@ from util.my_math_utils import *
 
 class SVM(lc.LinearClassifier):
 
-    def __init__(self,nr_rounds = 10, initial_step = 1.0, alpha = 1.0,regularizer = 1.0):
+    def __init__(self,nr_epochs = 10, initial_step = 1.0, alpha = 1.0,regularizer = 1.0):
         lc.LinearClassifier.__init__(self)
         self.trained = False
-        # SVN Model parameters (values for all training rounds stored)
-        self.params_per_round = []
+        # SVN Model parameters (values for all training epochs stored)
+        self.params_per_epoch = []
         # Training parameters
-        self.nr_rounds = nr_rounds
+        self.nr_epochs = nr_epochs
         self.regularizer = regularizer
         self.initial_step = initial_step
         self.alpha = alpha
@@ -34,20 +34,21 @@ class SVM(lc.LinearClassifier):
 
 	# Initialization of classifier parameters
         w = np.zeros((nr_f,nr_c))
-	self.params_per_round = []
+	self.params_per_epoch = []
 
         ## Randomize the examples
         perm = np.random.permutation(nr_x)
 
-        # For each training round
-        for round_nr in xrange(self.nr_rounds):
-
-            # Set training rate for this round
-            learning_rate =  self.initial_step*np.power(round_nr+1,-self.alpha)           
-            # For each feature
+        # For each training epoch
+        t=0
+        for epoch_nr in xrange(self.nr_epochs):
+            # For each training example
             objective = 0.0
             for nr in xrange(nr_x):
-		# Get one feature index at random 
+                t += 1
+                # Set training rate for this example
+                learning_rate =  self.initial_step*np.power(t,-self.alpha)           
+                # Get one training example index at random 
                 inst = perm[nr]
                 # Get true output from training data
                 y_true = y[inst:inst+1,0]
@@ -65,17 +66,17 @@ class SVM(lc.LinearClassifier):
 
             objective /= nr_x
 
-            # Store the parameters for this round 
-            self.params_per_round.append(w.copy())   
-            # test accuracy of the model in this round of training
+            # Store the parameters for this epoch 
+            self.params_per_epoch.append(w.copy())   
+            # test accuracy of the model in this epoch of training
             # to keep the test routine happy		
             self.trained = True
             # test
             y_pred = self.test(x_orig,w)
             # evaluation
             acc = self.evaluate(y,y_pred)
-            print "Epochs: %i Objective: %f" %( round_nr,objective)
-            print "Epochs: %i Accuracy: %f" %( round_nr,acc)
+            print "Epochs: %i Objective: %f" %( epoch_nr,objective)
+            print "Epochs: %i Accuracy: %f" %( epoch_nr,acc)
             # We continue training
             self.trained = False
 
