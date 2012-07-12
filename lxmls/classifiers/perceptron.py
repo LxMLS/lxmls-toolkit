@@ -10,7 +10,7 @@ class Perceptron(lc.LinearClassifier):
         # Perceptron Model parameters (values for all training epochs stored)
         self.params_per_epoch = []
 	# Training parameters
-        self.nr_epochs = nr_rounds
+        self.nr_epochs = nr_epochs
         self.learning_rate = learning_rate
         self.averaged = averaged
 
@@ -39,7 +39,7 @@ class Perceptron(lc.LinearClassifier):
         perm = np.random.permutation(nr_x)
 
         # For each training epoch
-        for epoch_nr in xrange(self.nr_rounds):
+        for epoch_nr in xrange(self.nr_epochs):
              # For each training example
              for nr in xrange(nr_x):
                 #print "iter %i" %( epoch_nr*nr_x + nr)

@@ -11,7 +11,7 @@ class Mira(lc.LinearClassifier):
         # MIRA Model parameters (values for all training epochs stored)
         self.params_per_epoch = []
         # Training parameters
-        self.nr_epochs = nr_rounds
+        self.nr_epochs = nr_epochs
         self.regularizer = regularizer
         self.averaged = averaged
 
@@ -39,7 +39,7 @@ class Mira(lc.LinearClassifier):
         perm = np.random.permutation(nr_x)
 
         # For each training epoch
-        for epoch_nr in xrange(self.nr_rounds):
+        for epoch_nr in xrange(self.nr_epochs):
             # For each training example
             for nr in xrange(nr_x):
                 # Get one training example index at random
