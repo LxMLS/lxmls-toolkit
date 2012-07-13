@@ -39,44 +39,63 @@ class HMM():
 
 
     def train_supervised(self,sequence_list, smoothing=0):
+
+        # Check if the number of classes in the corpus and trained model match
         if(len(self.dataset.int_to_tag) != self.nr_states):
             print "Cannot train supervised models with number of states different than true pos tags"
             return
-        
+
+        # Get number of different observations 
         nr_types = len(sequence_list.x_dict)
+        # Get number of different states
         nr_states = len(sequence_list.y_dict)
         ## Sets all counts to zeros
         self.clear_counts(smoothing)
+        # Collect all counts 
         self.collect_counts_from_corpus(sequence_list)
+        # Update parameters
         self.update_params()
         
     def collect_counts_from_corpus(self,sequence_list):
+
         ''' Collects counts from a labeled corpus'''
         for sequence in sequence_list.seq_list:
+
+            # Get number of observation in this sequence
             len_x = len(sequence.x)
-            #print sequence.x
-            #print sequence.y
-            #Take care of first position
+
+            # Process first position of the sequence by separate
+            # Increase initial count (number of times a sequence starts by state y[0], Eq. 2.4)
             self.init_counts[sequence.y[0],0] +=1
+            # Increase state count (number of times we observe state x[0] while being at y[0], Eq. 2.7) 
             self.observation_counts[sequence.x[0],sequence.y[0]] +=1
+
+            # Process the rest except the last position (if there is such rest)
             if(len_x > 2):
+                # For each remaning element (x), provide as well position of x in sequence (i)
                 for i,x in enumerate(sequence.x[1:-1]):
+                    # index of current element
                     idx = i+1
                     #print "len %i at position %i with x %i and y %i and prev %i"%(len(sequence.x),idx,x,sequence.y[idx],sequence.y[idx-1])
                     y = sequence.y[idx]
                     y_prev = sequence.y[idx-1]
+                    # Increase state count (number of times we observe x while being at y, Eq. 2.7)
                     self.observation_counts[x,y] +=1
+                    # Increase transition count (number of times we reach state y from state y_prev)  
                     self.transition_counts[y,y_prev] += 1
             else:
                 idx = 0
-            ##Take care of last position
+            
+            ## Take care of last position
             #print sequence.x
             #print idx
             #print "len %i at position %i with x %i and y %i and prev %i"%(len(sequence.x),idx+1,sequence.x[idx+1],sequence.y[idx+1],sequence.y[idx])
             x = sequence.x[idx+1]
             y_prev = sequence.y[idx]
             y = sequence.y[idx+1]
+            # Increase final count (number of times a sequence ends by state y[-1], Eq. 2.5)
             self.final_counts[y,y_prev] += 1
+            # Increase state count (number of times we observe x while being at y, Eq. 2.7) 
             self.observation_counts[x,y] +=1
 
     ## Initializes the parameter randomnly
@@ -100,6 +119,7 @@ class HMM():
         self.observation_counts.fill(smoothing)
 
     def update_params(self):
+        ''' Updates the parameters of the model'''
         # Normalize
         self.init_probs = normalize_array(self.init_counts)
         self.final_probs = normalize_array(self.final_counts)
@@ -150,14 +170,20 @@ class HMM():
     # NOTE: If you use smoothing when trainig you have to account for that when comparing the values
     ######
     def sanity_check_counts(self,seq_list,smoothing = 0):
+
+        # Number of sentences in the training set
         nr_sentences = len(seq_list.seq_list)
+        # total number of elements (tokens)
         nr_tokens = sum(map(lambda seq: len(seq.x), seq_list.seq_list))
         print "Nr_sentence: %i"%nr_sentences
         print "Nr_tokens: %i"%nr_tokens
+
+        # Sums
         sum_init = np.sum(self.init_counts)
         sum_final = np.sum(self.final_counts)
         sum_transition = np.sum(self.transition_counts)
         sum_observations = np.sum(self.observation_counts)
+
         ##Compare
         value = (nr_sentences +smoothing*self.init_counts.size)
         if(abs(sum_init - value) > 0.001):
@@ -180,18 +206,27 @@ class HMM():
         else:
             print "Observations Counts match"
 
-
     def build_potentials(self,sequence):
+        ''' Computes the potentials from the HMM parameters '''
+
+        # Compute number of states 
         nr_states = self.nr_states
+        # Compute length of current sequence
         nr_pos = len(sequence.x)
+
+        # Initialize potentials
         node_potentials = np.zeros([nr_states,nr_pos])
         edge_potentials = np.zeros([nr_states,nr_states,nr_pos-1])
+
+        # Potentials of the first position in the sequence
         node_potentials[:,0] = self.observation_probs[sequence.x[0],:]*self.init_probs.transpose()
+
+        # Process the rest until the last position 
         for pos in xrange(1,nr_pos-1,1):
             edge_potentials[:,:,pos-1] = self.transition_probs[:,:].transpose()
             node_potentials[:,pos] =self.observation_probs[sequence.x[pos],:]
 
-        #Final position
+        # Process last postion
         edge_potentials[:,:,nr_pos-2] = self.final_probs.transpose()
         node_potentials[:,nr_pos-1] =self.observation_probs[sequence.x[nr_pos-1],:]
 
