@@ -1,23 +1,17 @@
+#!/usr/bin/python
 ###### Exercises for pratica class 1
-import sys
-sys.path.append("readers/" )
-sys.path.append("classifiers/" )
-sys.path.append("util")
-sys.path.append("distributions")
-
-
-import simple_data_set as sds
-import sentiment_reader as srs
-import linear_classifier as lcc
-import perceptron as percc
-import mira as mirac
-import gaussian_naive_bayes as gnbc
-import multinomial_naive_bayes as mnb
-import max_ent_batch as mebc
-import max_ent_online as meoc
-import svm as svmc
-import naive_bayes as nb
-import run_all_classifiers as run_all_c
+import readers.simple_data_set as sds
+import readers.sentiment_reader as srs
+import classifiers.linear_classifier as lcc
+import classifiers.perceptron as percc
+import classifiers.mira as mirac
+import classifiers.gaussian_naive_bayes as gnbc
+import classifiers.multinomial_naive_bayes as mnb
+#import classifiers.max_ent_batch as mebc
+#import classifiers.max_ent_online as meoc
+import classifiers.svm as svmc
+import classifiers.naive_bayes as nb
+#import run_all_classifiers as run_all_c
 
 
 #### Exercise 3.1 ####
@@ -104,52 +98,52 @@ print "Mira Amazon Sentiment Accuracy train: %f test: %f"%(acc_train,acc_test)
 
 
 
-print "Exercise 3.6 1"
-me_lbfgs = mebc.MaxEnt_batch()
-params_meb_sd = me_lbfgs.train(sd.train_X,sd.train_y)
-y_pred_train = me_lbfgs.test(sd.train_X,params_meb_sd)
-acc_train = me_lbfgs.evaluate(sd.train_y, y_pred_train)
-y_pred_test = me_lbfgs.test(sd.test_X,params_meb_sd)
-acc_test = me_lbfgs.evaluate(sd.test_y, y_pred_test)
-print "Max-Ent batch Simple Dataset Accuracy train: %f test: %f"%(acc_train,acc_test)
-#goon = raw_input("Enter to go on to next exercise:")
-
-print "Exercise 3.6 2"
-fig,axis = sd.add_line(fig,axis,params_meb_sd,"Max-Ent-Batch","orange")
-#goon = raw_input("Enter to go on to next exercise:")
-
-print "Exercise 3.6 3"
-params_meb_sc = me_lbfgs.train(scr.train_X,scr.train_y)
-y_pred_train = me_lbfgs.test(scr.train_X,params_meb_sc)
-acc_train = me_lbfgs.evaluate(scr.train_y, y_pred_train)
-y_pred_test = me_lbfgs.test(scr.test_X,params_meb_sc)
-acc_test = me_lbfgs.evaluate(scr.test_y, y_pred_test)
-print "Max-Ent Batch Amazon Sentiment Accuracy train: %f test: %f"%(acc_train,acc_test)
-#goon = raw_input("Enter to go on to next exercise:")
-
-
-print "Exercise 3.7 1"
-me_sgd = meoc.MaxEnt_online()
-params_meo_sd = me_sgd.train(sd.train_X,sd.train_y)
-y_pred_train = me_sgd.test(sd.train_X,params_meo_sd)
-acc_train = me_sgd.evaluate(sd.train_y, y_pred_train)
-y_pred_test = me_sgd.test(sd.test_X,params_meo_sd)
-acc_test = me_sgd.evaluate(sd.test_y, y_pred_test)
-print "Max-Ent Online Simple Dataset Accuracy train: %f test: %f"%(acc_train,acc_test)
-#goon = raw_input("Enter to go on to next exercise:")
-
-print "Exercise 3.7 2"
-fig,axis = sd.add_line(fig,axis,params_meo_sd,"Max-Ent-Batch","orange")
-#goon = raw_input("Enter to go on to next exercise:")
-
-print "Exercise 3.7 3"
-params_meo_sc = me_sgd.train(scr.train_X,scr.train_y)
-y_pred_train = me_sgd.test(scr.train_X,params_meo_sc)
-acc_train = me_sgd.evaluate(scr.train_y, y_pred_train)
-y_pred_test = me_sgd.test(scr.test_X,params_meo_sc)
-acc_test = me_sgd.evaluate(scr.test_y, y_pred_test)
-print "Max-Ent Online Amazon Sentiment Accuracy train: %f test: %f"%(acc_train,acc_test)
-#goon = raw_input("Enter to go on to next exercise:")
+#print "Exercise 3.6 1"
+#me_lbfgs = mebc.MaxEnt_batch()
+#params_meb_sd = me_lbfgs.train(sd.train_X,sd.train_y)
+#y_pred_train = me_lbfgs.test(sd.train_X,params_meb_sd)
+#acc_train = me_lbfgs.evaluate(sd.train_y, y_pred_train)
+#y_pred_test = me_lbfgs.test(sd.test_X,params_meb_sd)
+#acc_test = me_lbfgs.evaluate(sd.test_y, y_pred_test)
+#print "Max-Ent batch Simple Dataset Accuracy train: %f test: %f"%(acc_train,acc_test)
+##goon = raw_input("Enter to go on to next exercise:")
+#
+#print "Exercise 3.6 2"
+#fig,axis = sd.add_line(fig,axis,params_meb_sd,"Max-Ent-Batch","orange")
+##goon = raw_input("Enter to go on to next exercise:")
+#
+#print "Exercise 3.6 3"
+#params_meb_sc = me_lbfgs.train(scr.train_X,scr.train_y)
+#y_pred_train = me_lbfgs.test(scr.train_X,params_meb_sc)
+#acc_train = me_lbfgs.evaluate(scr.train_y, y_pred_train)
+#y_pred_test = me_lbfgs.test(scr.test_X,params_meb_sc)
+#acc_test = me_lbfgs.evaluate(scr.test_y, y_pred_test)
+#print "Max-Ent Batch Amazon Sentiment Accuracy train: %f test: %f"%(acc_train,acc_test)
+##goon = raw_input("Enter to go on to next exercise:")
+#
+#
+#print "Exercise 3.7 1"
+#me_sgd = meoc.MaxEnt_online()
+#params_meo_sd = me_sgd.train(sd.train_X,sd.train_y)
+#y_pred_train = me_sgd.test(sd.train_X,params_meo_sd)
+#acc_train = me_sgd.evaluate(sd.train_y, y_pred_train)
+#y_pred_test = me_sgd.test(sd.test_X,params_meo_sd)
+#acc_test = me_sgd.evaluate(sd.test_y, y_pred_test)
+#print "Max-Ent Online Simple Dataset Accuracy train: %f test: %f"%(acc_train,acc_test)
+##goon = raw_input("Enter to go on to next exercise:")
+#
+#print "Exercise 3.7 2"
+#fig,axis = sd.add_line(fig,axis,params_meo_sd,"Max-Ent-Batch","orange")
+##goon = raw_input("Enter to go on to next exercise:")
+#
+#print "Exercise 3.7 3"
+#params_meo_sc = me_sgd.train(scr.train_X,scr.train_y)
+#y_pred_train = me_sgd.test(scr.train_X,params_meo_sc)
+#acc_train = me_sgd.evaluate(scr.train_y, y_pred_train)
+#y_pred_test = me_sgd.test(scr.test_X,params_meo_sc)
+#acc_test = me_sgd.evaluate(scr.test_y, y_pred_test)
+#print "Max-Ent Online Amazon Sentiment Accuracy train: %f test: %f"%(acc_train,acc_test)
+##goon = raw_input("Enter to go on to next exercise:")
 
 
 print "Exercise 3.8 1"
