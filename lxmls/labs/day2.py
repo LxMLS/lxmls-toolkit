@@ -3,29 +3,28 @@ import readers.simple_sequence as ssr
 import sequences.hmm as hmmc
 import readers.pos_corpus as pcc
 
-#Exercise 4.1
-print "Exercise 4.1"
+#Exercise 2.1
+print "Exercise 2.1"
 simple = ssr.SimpleSequence()
 simple.train
 simple.test
 
 
-#exercise 4.2
-print "Exercise 4.2"
+#exercise 2.2
+print "Exercise 2.2"
 ## See hmm.py file
 hmm = hmmc.HMM(simple)
 hmm.train_supervised(simple.train)
+hmm.sanity_check_counts(simple.train)
 print "Init Probs"
 print hmm.init_probs
 print "Transition Probs"
 print hmm.transition_probs
-print "Final Probs"
-print hmm.final_probs
 print "Observation Probs"
 print hmm.observation_probs
 
-#exercise 4.3
-print "Exercise 4.3"
+#exercise 2.3
+print "Exercise 2.3"
 ## See hmm.py file
 node_potentials,edge_potentials = hmm.build_potentials(simple.train.seq_list[0])
 print "Node Potentials"
@@ -33,15 +32,15 @@ print node_potentials
 print "Edge Potentials"
 print edge_potentials
 
-#exercise 4.4
-print "Exercise 4.4"
+#exercise 2.4
+print "Exercise 2.4"
 ## See forward_backward.py file
 forward,backward =  hmm.forward_backward(simple.train.seq_list[0])
 print "Likelihoods per position"
 print hmm.sanity_check_fb(forward,backward)
 
-#exercise 4.5
-print "Exercise 4.5"
+#exercise 2.5
+print "Exercise 2.5"
 print "Node Posteriors"
 node_posteriors = hmm.get_node_posteriors(simple.train.seq_list[0])
 print node_posteriors
@@ -73,13 +72,13 @@ print y_pred
 print "Truth test 2"
 print simple.test.seq_list[1]
 
-#exercise 4.6
-print "Exercise 4.6"
+#exercise 2.6
+print "Exercise 2.6"
 
 y_pred = hmm.viterbi_decode(simple.test.seq_list[0])
 print "Viterbi decoding Prediction test 1 with smoothing"
 print y_pred
-print "Truth test 2"
+print "Truth test 1"
 print simple.test.seq_list[0]
 
 y_pred = hmm.viterbi_decode(simple.test.seq_list[1])
@@ -88,8 +87,8 @@ print y_pred
 print "Truth test 2"
 print simple.test.seq_list[1]
 
-#exercise 4.7
-print "Exercise 4.7"
+#exercise 2.7
+print "Exercise 2.7"
 corpus = pcc.PostagCorpus()
 train_seq = corpus.read_sequence_list_conll("../data/train-02-21.conll",max_sent_len=15,max_nr_sent=1000)
 test_seq = corpus.read_sequence_list_conll("../data/test-23.conll",max_sent_len=15,max_nr_sent=1000)

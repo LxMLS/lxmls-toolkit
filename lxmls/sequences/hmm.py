@@ -21,17 +21,14 @@ class HMM():
         self.dataset = dataset
         self.trained = False
         self.init_probs = np.zeros([self.nr_states,1],dtype=float)
-        self.final_probs = np.zeros([self.nr_states,self.nr_states],dtype=float)
-        self.transition_probs = np.zeros([self.nr_states,self.nr_states],dtype=float)
+        self.transition_probs = np.zeros([self.nr_states+1,self.nr_states],dtype=float)
         self.observation_probs = np.zeros([self.nr_types,self.nr_states],dtype=float)
         ## Model counts tables
-          ### All this distributions normalize over the second entry
-        # c(s_0 = s)
+        # c(s_1 = s)
         self.init_counts = np.zeros([self.nr_states,1],dtype=float)
-        # c(s_T = s | s_T-1 = q)
-        self.final_counts = np.zeros([self.nr_states,self.nr_states],dtype=float)
         # c(s_t = s | s_t-1 = q)
-        self.transition_counts = np.zeros([self.nr_states,self.nr_states],dtype=float)
+        # Includes extra row for the stopping probability (stop symbol)
+        self.transition_counts = np.zeros([self.nr_states+1,self.nr_states],dtype=float)
         # c(o_t = v | s_t = q)
         self.observation_counts = np.zeros([self.nr_types,self.nr_states],dtype=float)
         
@@ -55,38 +52,25 @@ class HMM():
         ''' Collects counts from a labeled corpus'''
         for sequence in sequence_list.seq_list:
             len_x = len(sequence.x)
-            #print sequence.x
-            #print sequence.y
             #Take care of first position
             self.init_counts[sequence.y[0],0] +=1
             self.observation_counts[sequence.x[0],sequence.y[0]] +=1
-            if(len_x > 2):
-                for i,x in enumerate(sequence.x[1:-1]):
-                    idx = i+1
-                    #print "len %i at position %i with x %i and y %i and prev %i"%(len(sequence.x),idx,x,sequence.y[idx],sequence.y[idx-1])
-                    y = sequence.y[idx]
-                    y_prev = sequence.y[idx-1]
-                    self.observation_counts[x,y] +=1
-                    self.transition_counts[y,y_prev] += 1
-            else:
-                idx = 0
+            idx = 0
+            for i,x in enumerate(sequence.x[1:]):
+                idx = i+1
+                y = sequence.y[idx]
+                y_prev = sequence.y[idx-1]
+                self.observation_counts[x,y] +=1
+                self.transition_counts[y,y_prev] += 1
             ##Take care of last position
-            #print sequence.x
-            #print idx
-            #print "len %i at position %i with x %i and y %i and prev %i"%(len(sequence.x),idx+1,sequence.x[idx+1],sequence.y[idx+1],sequence.y[idx])
-            x = sequence.x[idx+1]
-            y_prev = sequence.y[idx]
-            y = sequence.y[idx+1]
-            self.final_counts[y,y_prev] += 1
-            self.observation_counts[x,y] +=1
+            y = sequence.y[idx]
+            self.transition_counts[-1,y] += 1
 
     ## Initializes the parameter randomnly
-    def initialize_radom(self):
+    def initialize_random(self):
         jitter = 1
         self.init_counts.fill(1)
         self.init_counts +=  jitter*np.random.rand(self.init_counts.shape[0],self.init_counts.shape[1])
-        self.final_counts.fill(1)
-        self.final_counts +=  jitter*np.random.rand(self.final_counts.shape[0],self.final_counts.shape[1])
         self.transition_counts.fill(1)
         self.transition_counts +=  jitter*np.random.rand(self.transition_counts.shape[0],self.transition_counts.shape[1])
         self.observation_counts.fill(1)
@@ -96,25 +80,19 @@ class HMM():
         
     def clear_counts(self,smoothing = 0):
         self.init_counts.fill(smoothing)
-        self.final_counts.fill(smoothing)
         self.transition_counts.fill(smoothing)
         self.observation_counts.fill(smoothing)
 
     def update_params(self):
         # Normalize
         self.init_probs = normalize_array(self.init_counts)
-        self.final_probs = normalize_array(self.final_counts)
         self.transition_probs = normalize_array(self.transition_counts)
         self.observation_probs = normalize_array(self.observation_counts)
 
     def update_counts(self,seq,posteriors):
         node_posteriors,edge_posteriors = posteriors
-        #print"Node Posteriors"
-        #print node_posteriors
         H,N = node_posteriors.shape
         ## Take care of initial probs
-        #print "seq_x"
-        #print seq.x
         for y in xrange(H):
             self.init_counts[y] += node_posteriors[y,0]
             x = seq.x[0]
@@ -143,8 +121,7 @@ class HMM():
     #####
     # Check if the collected counts make sense
     # Init Counts - Should sum to the number of sentences
-    # Final Counts - Should sum to the number of sentences
-    # Transition Counts  - Should sum to number of tokens - 2* number of sentences
+    # Transition Counts  - Should sum to number of tokens - number of sentences
     # Observation counts - Should sum to the number of tokens
     #
     # Seq_list should be the same used for train.
@@ -156,7 +133,6 @@ class HMM():
         print "Nr_sentence: %i"%nr_sentences
         print "Nr_tokens: %i"%nr_tokens
         sum_init = np.sum(self.init_counts)
-        sum_final = np.sum(self.final_counts)
         sum_transition = np.sum(self.transition_counts)
         sum_observations = np.sum(self.observation_counts)
         ##Compare
@@ -165,12 +141,7 @@ class HMM():
             print "Init counts do not match: is - %f should be - %f"%(sum_init,value)
         else:
             print "Init Counts match"
-        value = (nr_sentences +smoothing*self.final_counts.size)
-        if(abs(sum_final - value) > 0.001):
-            print "Final counts do not match: is - %f should be - %f"%(sum_final,value)
-        else:
-            print "Final Counts match"
-        value = (nr_tokens - 2*nr_sentences) + smoothing*self.transition_counts.size
+        value = nr_tokens + smoothing*self.transition_counts.size
         if(abs(sum_transition - value) > 0.001):
             print "Transition counts do not match: is - %f should be - %f"%(sum_transition,value)
         else:
@@ -188,13 +159,12 @@ class HMM():
         node_potentials = np.zeros([nr_states,nr_pos])
         edge_potentials = np.zeros([nr_states,nr_states,nr_pos-1])
         node_potentials[:,0] = self.observation_probs[sequence.x[0],:]*self.init_probs.transpose()
-        for pos in xrange(1,nr_pos-1,1):
-            edge_potentials[:,:,pos-1] = self.transition_probs[:,:].transpose()
-            node_potentials[:,pos] =self.observation_probs[sequence.x[pos],:]
+        for pos in xrange(1,nr_pos):
+            edge_potentials[:,:,pos-1] = self.transition_probs[0:-1,:].transpose()
+            node_potentials[:,pos] = self.observation_probs[sequence.x[pos],:]
 
         #Final position
-        edge_potentials[:,:,nr_pos-2] = self.final_probs.transpose()
-        node_potentials[:,nr_pos-1] =self.observation_probs[sequence.x[nr_pos-1],:]
+        node_potentials[:,nr_pos-1] *= self.transition_probs[-1,:].transpose()
 
         return node_potentials,edge_potentials
 
@@ -321,7 +291,7 @@ class HMM():
     # Plot the transition matrix for a given HMM
     ######
     def print_transition_matrix(self):
-        cax = plt.imshow(self.transition_probs, interpolation='nearest',aspect='auto')
+        cax = plt.imshow(self.transition_probs[0:-1,:], interpolation='nearest',aspect='auto')
         cbar = plt.colorbar(cax, ticks=[-1, 0, 1])
         plt.xticks(np.arange(0,len(self.nr_states)),np.arange(self.nr_staets),rotation=90)
         plt.yticks(np.arange(0,len(self.nr_states)),np.arange(self.nr_staets))
