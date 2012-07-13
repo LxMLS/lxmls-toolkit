@@ -1,9 +1,5 @@
 ###### Exercises for pratica class 1
-import sys
-sys.path.append("parsing/" )
-
-import dependency_parser as depp
-
+import parsing.dependency_parser as depp
 
 print "Exercise 6.1"
 
