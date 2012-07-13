@@ -42,7 +42,6 @@ class Perceptron(lc.LinearClassifier):
         for epoch_nr in xrange(self.nr_epochs):
              # For each training example
              for nr in xrange(nr_x):
-                #print "iter %i" %( epoch_nr*nr_x + nr)
                 # Get one training example index at random
                 inst = perm[nr]
 		# Predict output using the current model
