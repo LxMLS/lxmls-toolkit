@@ -184,7 +184,7 @@ class HMM():
     def forward_backward(self,seq):
         node_potentials,edge_potentials = self.build_potentials(seq)
         forward,backward = forward_backward(node_potentials,edge_potentials)
-        sanity_check_forward_backward(forward,backward)
+#        sanity_check_forward_backward(forward,backward)
         return forward,backward
 
     def sanity_check_fb(self,forward,backward):

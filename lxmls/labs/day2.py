@@ -2,6 +2,10 @@
 import readers.simple_sequence as ssr
 import sequences.hmm as hmmc
 import readers.pos_corpus as pcc
+import pdb
+import sys
+
+sys.path.append('.')
 
 #Exercise 2.1
 print "Exercise 2.1"
@@ -22,6 +26,8 @@ print "Transition Probs"
 print hmm.transition_probs
 print "Observation Probs"
 print hmm.observation_probs
+
+pdb.set_trace()
 
 #exercise 2.3
 print "Exercise 2.3"

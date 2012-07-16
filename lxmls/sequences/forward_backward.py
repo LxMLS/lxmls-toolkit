@@ -83,7 +83,7 @@ def sanity_check_forward_backward(forward,backward):
             if abs(aux - likelihood[i]) > 0.001:
                 print "Likelihood for pos %i and pos %i mismatch: %f - %f"%(i,pos,likelihood[i],aux)
                 return False
-    
+    print likelihood
     return True
 
 
