@@ -293,8 +293,8 @@ class HMM():
     def print_transition_matrix(self):
         cax = plt.imshow(self.transition_probs[0:-1,:], interpolation='nearest',aspect='auto')
         cbar = plt.colorbar(cax, ticks=[-1, 0, 1])
-        plt.xticks(np.arange(0,len(self.nr_states)),np.arange(self.nr_staets),rotation=90)
-        plt.yticks(np.arange(0,len(self.nr_states)),np.arange(self.nr_staets))
+        plt.xticks(np.arange(0,self.nr_states),np.arange(0,self.nr_states),rotation=90)
+        plt.yticks(np.arange(0,self.nr_states),np.arange(0,self.nr_states))
 
 
     def pick_best_smoothing(self,train,test,smooth_values):
