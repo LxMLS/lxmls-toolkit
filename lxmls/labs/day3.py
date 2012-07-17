@@ -49,13 +49,13 @@ print "Structured Percetron - Extended Features Accuracy Train: %.3f Dev: %.3f T
 
 
 print "CRF Exercise"
-corpus = pcc.PostagCorpus()
-train_seq = corpus.read_sequence_list_conll("../data/train-02-21.conll",max_sent_len=15,max_nr_sent=1000)
-test_seq = corpus.read_sequence_list_conll("../data/test-23.conll",max_sent_len=15,max_nr_sent=1000)
-dev_seq = corpus.read_sequence_list_conll("../data/dev-22.conll",max_sent_len=15,max_nr_sent=1000)
-corpus.add_sequence_list(train_seq) 
-id_f = idfc.IDFeatures(corpus)
-id_f.build_features()
+#corpus = pcc.PostagCorpus()
+#train_seq = corpus.read_sequence_list_conll("../data/train-02-21.conll",max_sent_len=15,max_nr_sent=1000)
+#test_seq = corpus.read_sequence_list_conll("../data/test-23.conll",max_sent_len=15,max_nr_sent=1000)
+#dev_seq = corpus.read_sequence_list_conll("../data/dev-22.conll",max_sent_len=15,max_nr_sent=1000)
+#corpus.add_sequence_list(train_seq) 
+#id_f = idfc.IDFeatures(corpus)
+#id_f.build_features()
 
 
 crf = crfc.CRF_batch(corpus,id_f)
@@ -71,22 +71,25 @@ eval_test = crf.evaluate_corpus(test_seq.seq_list,pred_test)
 
 print "CRF - ID Features Accuracy Train: %.3f Dev: %.3f Test: %.3f"%(eval_train,eval_dev,eval_test)
 
-corpus = pcc.PostagCorpus()
-train_seq = corpus.read_sequence_list_conll("../data/train-02-21.conll",max_sent_len=15,max_nr_sent=1000)
-test_seq = corpus.read_sequence_list_conll("../data/test-23.conll",max_sent_len=15,max_nr_sent=1000)
-dev_seq = corpus.read_sequence_list_conll("../data/dev-22.conll",max_sent_len=15,max_nr_sent=1000)
-corpus.add_sequence_list(train_seq) 
-ex_f = exfc.ExtendedFeatures(corpus)
-ex_f.build_features()
+#corpus = pcc.PostagCorpus()
+#train_seq = corpus.read_sequence_list_conll("../data/train-02-21.conll",max_sent_len=15,max_nr_sent=1000)
+#test_seq = corpus.read_sequence_list_conll("../data/test-23.conll",max_sent_len=15,max_nr_sent=1000)
+#dev_seq = corpus.read_sequence_list_conll("../data/dev-22.conll",max_sent_len=15,max_nr_sent=1000)
+#corpus.add_sequence_list(train_seq) 
+#ex_f = exfc.ExtendedFeatures(corpus)
+#ex_f.build_features()
 
-
+print "starting training"
 crf = crfc.CRF_batch(corpus,ex_f)
 crf.train_supervised(train_seq.seq_list)
 
+
+print "starting decoding"
 pred_train = crf.viterbi_decode_corpus(train_seq.seq_list)
 pred_dev = crf.viterbi_decode_corpus(dev_seq.seq_list)
 pred_test = crf.viterbi_decode_corpus(test_seq.seq_list)
 
+print "starting evaluation"
 eval_train = crf.evaluate_corpus(train_seq.seq_list,pred_train)
 eval_dev = crf.evaluate_corpus(dev_seq.seq_list,pred_dev)
 eval_test = crf.evaluate_corpus(test_seq.seq_list,pred_test)

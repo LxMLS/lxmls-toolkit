@@ -101,8 +101,6 @@ corpus.add_sequence_list(train_seq)
 hmm = hmmc.HMM(corpus)
 hmm.train_supervised(train_seq)
 
-
-
 viterbi_pred_train = hmm.viterbi_decode_corpus(train_seq.seq_list)
 posterior_pred_train = hmm.posterior_decode_corpus(train_seq.seq_list)
 eval_viterbi_train =   hmm.evaluate_corpus(train_seq.seq_list,viterbi_pred_train)
