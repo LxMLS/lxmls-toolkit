@@ -4,7 +4,7 @@ import numpy as np
 
 ######
 # Computes the forward backward trellis for a given sequence and node and edge potentials
-# N - Lenght of sequence
+# N - Length of sequence
 # H - Number of hidden states
 # Receives:
 # Node potentials (N,H) vector
