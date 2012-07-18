@@ -2,7 +2,6 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import optimize
-import pdb as pdb
 
 sys.path.append("util/" )
 
@@ -20,23 +19,26 @@ class CRF_batch(dsc.DiscriminativeSequenceClassifier):
         self.regularizer = regularizer
 
     def train_supervised(self,sequence_list):
+        numeric_gradient_flag = True
         self.parameters = np.zeros(self.feature_class.nr_feats)
         emp_counts = self.get_empirical_counts(sequence_list)
-        analytic_gradient,numeric_gradient = self.check_gradient(self.parameters,sequence_list,emp_counts)
-        params,_,d = optimize.fmin_l_bfgs_b(self.get_objective,self.parameters,args=[sequence_list,emp_counts],factr = 1e12,maxfun = 3,iprint = 2,pgtol=1e-5)        
-        analytic_gradient,numeric_gradient = self.check_gradient(self.parameters,sequence_list,emp_counts)
-
-        pdb.set_trace()
+#        analytic_gradient,numeric_gradient = self.check_gradient(self.parameters,sequence_list,emp_counts)
+        if numeric_gradient_flag:
+            params,_,d = optimize.fmin_l_bfgs_b(self.get_objective2,self.parameters,args=[sequence_list,emp_counts],factr = 1e12,maxfun = 500,iprint = 2,pgtol=1e-5)   
+        else:			
+            params,_,d = optimize.fmin_l_bfgs_b(self.get_objective,self.parameters,args=[sequence_list,emp_counts],factr = 1e12,maxfun = 500,iprint = 2,pgtol=1e-5)  		
+#        analytic_gradient,numeric_gradient = self.check_gradient(self.parameters,sequence_list,emp_counts)
+        
+#        import pdb
+#        pdb.set_trace()
         self.parameters = params
         self.trained = True
         return params
 
 
     def check_gradient(self,parameters,sequence_list,emp_counts):
-        hh = 1e-5
+        hh = 1e-8
         Nvariables = self.parameters.shape[0]
-        import pdb
-        pdb.set_trace()
         f_center,analytic_gradient = self.get_objective(parameters,sequence_list,emp_counts)
 
         numeric_gradient = np.zeros(Nvariables)
@@ -49,9 +51,56 @@ class CRF_batch(dsc.DiscriminativeSequenceClassifier):
     
             numeric_gradient[i] = (f_offcenter - f_center) / hh
             
-        print analytic_gradient
-        print numeric_gradient
+#        print "analytic gradient"
+#        print analytic_gradient
+#        print "analytic gradient"
+#        print numeric_gradient
+#        print "quotient"
+#        print analytic_gradient/numeric_gradient
+#        print "\n"
         return analytic_gradient,numeric_gradient
+
+    # This function is the same as get_objective, but it will return the numeric gradient instead of the analytic one.
+    # It has to be a separate function, otherwise we get an infinite recursion and another baby whale dies.
+    def get_objective2(self,parameters,sequence_list,emp_counts):
+        self.parameters = parameters
+        gradient = np.zeros(parameters.shape)
+        gradient += emp_counts
+        objective = 0
+        likelihoods = 0
+        exp_counts = np.zeros(parameters.shape)
+#        import pdb;pdb.set_trace()          
+        for sequence in sequence_list:
+            seq_obj,seq_lik = self.get_objective_seq(parameters,sequence,exp_counts)
+            objective += seq_obj
+            likelihoods += seq_lik
+#            if seq_obj > np.log(seq_lik):
+#                import pdb; pdb.set_trace()
+#        import pdb;pdb.set_trace()
+        objective -= 0.5*self.regularizer*np.dot(parameters,parameters)
+        objective -= likelihoods
+        gradient -= self.regularizer*parameters
+        gradient -= exp_counts
+
+        ##Since we are minizing we need to multiply both the objective and gradient by -1
+        objective = -1*objective
+        gradient = gradient*-1
+        
+#        print "New objective function!"
+#        print objective
+        if objective < 0:
+            import pdb;pdb.set_trace()
+#        print "Objective: %f"%objective
+        #print gradient
+ #       print "Gradient norm: %f"%np.sqrt(np.dot(gradient,gradient))
+        ## Sicne we are minimizing and not maximizing
+#        import pdb
+#        pdb.set_trace()
+        print "Quotient of analytic and numeric gradient:"
+        _,numeric_gradient = self.check_gradient(self.parameters,sequence_list,emp_counts)
+        print gradient/numeric_gradient
+        
+        return objective,numeric_gradient
 
     def get_objective(self,parameters,sequence_list,emp_counts):
         self.parameters = parameters
@@ -78,13 +127,15 @@ class CRF_batch(dsc.DiscriminativeSequenceClassifier):
         gradient = gradient*-1
         
 #        print "New objective function!"
-        print objective
+#        print objective
         if objective < 0:
             import pdb;pdb.set_trace()
 #        print "Objective: %f"%objective
         #print gradient
  #       print "Gradient norm: %f"%np.sqrt(np.dot(gradient,gradient))
         ## Sicne we are minimizing and not maximizing
+#        import pdb
+#        pdb.set_trace()
  
         return objective,gradient
 
