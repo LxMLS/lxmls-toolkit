@@ -3,7 +3,6 @@ import scipy as scipy
 import linear_classifier as lc
 import sys
 from distributions.gaussian import *
-from gaussian import *
 
 
 class MultinomialNaiveBayes(lc.LinearClassifier):
