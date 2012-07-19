@@ -1,0 +1,48 @@
+Building corpus
+unknown tag po
+unknown tag pr
+unknown tag wd
+unknown tag pd
+unknown tag wr
+unknown tag sy
+Training model
+Epoch: 0 Accuracy: 0.935001
+Epoch: 1 Accuracy: 0.950078
+Epoch: 2 Accuracy: 0.953659
+Epoch: 3 Accuracy: 0.955903
+Epoch: 4 Accuracy: 0.957339
+Epoch: 5 Accuracy: 0.958615
+Epoch: 6 Accuracy: 0.959672
+Epoch: 7 Accuracy: 0.959926
+Epoch: 8 Accuracy: 0.960533
+Epoch: 9 Accuracy: 0.961178
+Testing on wsj
+unknown tag wd
+unknown tag wr
+unknown tag po
+unknown tag pr
+unknown tag pd
+Accuracy on wsj development 0.955378
+unknown tag pr
+unknown tag po
+unknown tag wr
+unknown tag wd
+unknown tag pd
+unknown tag sy
+Accuracy on wsj test 0.956054
+Testing on brown
+Accuracy on Brown cat adventure: 0.730311
+Accuracy on Brown cat belles_lettres: 0.720021
+Accuracy on Brown cat editorial: 0.718199
+Accuracy on Brown cat fiction: 0.726679
+Accuracy on Brown cat government: 0.735119
+Accuracy on Brown cat hobbies: 0.716971
+Accuracy on Brown cat humor: 0.726556
+Accuracy on Brown cat learned: 0.719277
+Accuracy on Brown cat lore: 0.723741
+Accuracy on Brown cat mystery: 0.726043
+Accuracy on Brown cat news: 0.747063
+Accuracy on Brown cat religion: 0.711617
+Accuracy on Brown cat reviews: 0.726162
+Accuracy on Brown cat romance: 0.730203
+Accuracy on Brown cat science_fiction: 0.725740

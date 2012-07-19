@@ -2,9 +2,6 @@
 import sys
 sys.path.append("readers/" )
 sys.path.append("classifiers/" )
-sys.path.append("util")
-sys.path.append("distributions")
-
 
 import simple_data_set as sds
 import sentiment_reader as srs
