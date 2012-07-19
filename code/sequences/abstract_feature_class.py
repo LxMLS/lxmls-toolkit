@@ -58,3 +58,31 @@ class AbstractFeatureClass(object):
         '''
         raise NotImplementedError
 
+    def save_features(self,file):
+        fn = open(file,"w")
+        for feat_nr,feat in enumerate(self.feature_names):
+            fn.write("%i\t%s\n"%(feat_nr,feat))
+        fn.close()
+
+
+    ###########
+    # Loads all features form a file
+    ###########
+    def load_features(self,file,dataset):
+        fn = open(file)
+        self.feature_names = []
+        self.feature_dic = {}
+        for line in fn:
+            feat_nr,feat = line.strip().split("\t")
+            self.feature_names.append(feat)
+            self.feature_dic[feat] = int(feat_nr)
+        self.feature_list = []
+        self.nr_feats = len(self.feature_names)
+        self.add_features = False
+        self.dataset = dataset
+        fn.close()
+        #Speed up
+        self.node_feature_cache = {}
+        self.initial_state_feature_cache = {}
+        self.edge_feature_cache = {}
+        self.final_edge_feature_cache = {}    
