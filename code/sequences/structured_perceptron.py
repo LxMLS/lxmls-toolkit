@@ -29,8 +29,6 @@ class StructuredPercetron(dsc.DiscriminativeSequenceClassifier):
         ## Randomize the examples
         nr_x = len(sequence_list)
         #perm = np.random.permutation(nr_x)
-        
-        
         for round_nr in xrange(self.nr_rounds):
              incorrect = 0
              total = 0
