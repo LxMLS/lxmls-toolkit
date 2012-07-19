@@ -3,7 +3,7 @@
 #### Feature Class
 ### Extracts features from a labeled corpus (only supported features are extracted
 #######################
-class ExtendedFeatures:
+class ExtendedFeatures(object):
 
     def __init__(self,dataset):
         self.feature_dic = {}

@@ -250,19 +250,9 @@ class CRF_batch(dsc.DiscriminativeSequenceClassifier):
 
 
 
-#    def get_empirical_counts(self,sequence_list):
-#        emp_counts = np.zeros(self.feature_class.nr_feats)
-#        for seq_node_features,seq_edge_features in self.feature_class.feature_list:
-#            for f_l in seq_node_features:
-#                for f in f_l:
-#                    emp_counts[f] += 1
-#            for f_l in seq_edge_features:
-#                for f in f_l:
-#                    emp_counts[f] += 1
-#        return emp_counts
 
     def get_empirical_counts(self,sequence_list):
-#        print "New empirical counts!"
+        print "New empirical counts!"
         emp_counts = np.zeros(self.feature_class.nr_feats)
         for seq in sequence_list:
             ## Update features
@@ -279,7 +269,12 @@ class CRF_batch(dsc.DiscriminativeSequenceClassifier):
                     truth_edge_features = self.feature_class.get_edge_features(seq,pos,y_t_true,prev_y_t_true)
                     for f_l in truth_edge_features:
                         emp_counts[f_l] += 1
-
+            #Last transition to final state
+            y_t_true = seq.y[len(seq.x)]
+            prev_y_t_true = seq.y[len(seq.x)-1]
+            truth_edge_features = self.feature_class.get_edge_features(seq,len(seq.x),y_t_true,prev_y_t_true)
+            for f_l in truth_edge_features:
+                emp_counts[f_l] += 1
 
         return emp_counts
 
