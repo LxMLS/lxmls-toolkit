@@ -19,7 +19,7 @@ class CRF_batch(dsc.DiscriminativeSequenceClassifier):
         self.regularizer = regularizer
 
     def train_supervised(self,sequence_list):
-        numeric_gradient_flag = True
+        numeric_gradient_flag = False
         self.parameters = np.zeros(self.feature_class.nr_feats)
         emp_counts = self.get_empirical_counts(sequence_list)
 #        analytic_gradient,numeric_gradient = self.check_gradient(self.parameters,sequence_list,emp_counts)
@@ -112,6 +112,8 @@ class CRF_batch(dsc.DiscriminativeSequenceClassifier):
 #        import pdb;pdb.set_trace()          
         for sequence in sequence_list:
             seq_obj,seq_lik = self.get_objective_seq(parameters,sequence,exp_counts)
+#            import pdb
+#            pdb.set_trace()
             objective += seq_obj
             likelihoods += seq_lik
 #            if seq_obj > np.log(seq_lik):
@@ -134,9 +136,10 @@ class CRF_batch(dsc.DiscriminativeSequenceClassifier):
         #print gradient
  #       print "Gradient norm: %f"%np.sqrt(np.dot(gradient,gradient))
         ## Sicne we are minimizing and not maximizing
-#        import pdb
-#        pdb.set_trace()
+        #import pdb
+        #pdb.set_trace()
  
+        print objective
         return objective,gradient
 
 
@@ -186,59 +189,51 @@ class CRF_batch(dsc.DiscriminativeSequenceClassifier):
 #         import pdb;pdb.set_trace()
          node_posteriors = self.get_node_posteriors_aux(seq,forward,backward,node_potentials,edge_potentials,likelihood)
          edge_posteriors = self.get_edge_posteriors_aux(seq,forward,backward,node_potentials,edge_potentials,likelihood)
-#         seq_objective = 0
-         seq_objective2 = 1
+         seq_objective = 1.0
+
+
+         # Compute sequence objective looking at the gold sequence.
          for pos in xrange(N): 
              true_y = seq.y[pos]
              for state in xrange(H):
                  node_f_list = self.feature_class.get_node_features(seq,pos,state)
-#                 backward_aux = backward[state,pos]
-#                 forward_aux = forward[state,pos]
-#                 forward_aux_div_likelihood = forward_aux/likelihood
-
-                 ##Iterate over feature indexes
- #                prob_aux = forward_aux_div_likelihood*backward_aux
- #                if (prob_aux - node_posteriors[state,pos])**2 > 0.0001:
- #                  import pdb;                                 exp_counts[fi] += prob_aux
-
- #                  pdb.set_trace()
-                 for fi in node_f_list:
-                     ## For the objective add both the node features and edge feature dot the parameters for the true observation
-#                     if(state == true_y):
-#                         seq_objective += parameters[fi]
-#                         ## For the gradient add the node_posterior ##Compute node posteriors on the fly
-#                    
-                     exp_counts[fi] += node_posteriors[state,pos] # prob_aux
                  if(state == true_y):
-                     seq_objective2 *= node_potentials[state,pos]
-                      
-                 #Handle transitions
+                     seq_objective *= node_potentials[state,pos]
                      if(pos < N-1):
                          true_next_y = seq.y[pos+1]
-                         for next_state in xrange(H):
-                             #backward_aux2 = backward[next_state,pos+1]
-                             #node_pot_aux = node_potentials[next_state,pos+1]
-                             edge_f_list = self.feature_class.get_edge_features(seq,pos+1,next_state,state)
-                             ## For the gradient add the edge_posterior
-                             #edge_aux = edge_potentials[state,next_state,pos]
-                             #prob_aux = forward_aux_div_likelihood*edge_aux*node_pot_aux*backward_aux2
-                             #if (prob_aux - edge_posteriors[state,next_state,pos])**2 > 0.0001:
-                             #  import pdb;
-                             #  pdb.set_trace()
-                             for fi in edge_f_list: 
-    #                             ## For the objective add both the node features and edge feature dot the parameters for the true observation
-    #                             if(next_state == true_next_y):
-    #                                 seq_objective += parameters[fi]
-                                 exp_counts[fi] += edge_posteriors[state,next_state,pos] #prob_aux
-                             if(next_state == true_next_y):
-                                 seq_objective2 *= edge_potentials[state,next_state,pos]
-         
-         if seq_objective2 > likelihood:
-             import pdb; pdb.set_trace()
-         seq_objective2 = np.log(seq_objective2)
-#         print seq_objective, seq_objective2         
+                         seq_objective *= edge_potentials[state,true_next_y,pos]
 
-         if np.any(np.isnan(seq_objective2)):
+         # Now compute expected counts.
+         # Take care of nodes.
+         for pos in xrange(N): 
+             for state in xrange(H):
+                 node_f_list = self.feature_class.get_node_features(seq,pos,state)
+                 for fi in node_f_list:
+                     exp_counts[fi] += node_posteriors[state,pos]
+         # Take care of edges.
+         # 1) Initial position.
+         for state in xrange(H):
+           edge_f_list = self.feature_class.get_edge_features(seq,0,state,-1)
+           for fi in edge_f_list: 
+               exp_counts[fi] += node_posteriors[state,pos]
+         # 2) Intermediate position.
+         for pos in xrange(N-1):
+             for state in xrange(H):
+                 for next_state in xrange(H):
+                   edge_f_list = self.feature_class.get_edge_features(seq,pos+1,next_state,state)
+                   for fi in edge_f_list: 
+                       exp_counts[fi] += edge_posteriors[state,next_state,pos]
+         # 3) Final position.
+         for state in xrange(H):
+           edge_f_list = self.feature_class.get_edge_features(seq,N,-1,state)
+           for fi in edge_f_list: 
+               exp_counts[fi] += node_posteriors[state,N-1]
+
+         if seq_objective > likelihood:
+             import pdb; pdb.set_trace()
+         seq_objective = np.log(seq_objective)
+
+         if np.any(np.isnan(seq_objective)):
             import pdb
             pdb.set_trace()
 
@@ -246,7 +241,7 @@ class CRF_batch(dsc.DiscriminativeSequenceClassifier):
             import pdb
             pdb.set_trace()
 
-         return seq_objective2,np.log(likelihood)
+         return seq_objective,np.log(likelihood)
 
 
 
