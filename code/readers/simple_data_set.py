@@ -44,13 +44,13 @@ class SimpleDataSet():
     def get_bayes_optimal(self):
         params = np.zeros((3,2))
         p1 = self.balance
-        p2 = 1 - self.balance
-        params[0,0] = -1/(2*self.variance1) * np.dot(self.mean1,self.mean1) + np.log(p1)
-        params[0,1] = -1/(2*self.variance2) * np.dot(self.mean2,self.mean2) + np.log(p2)
-        params[1,0] = 1/self.variance1 * self.mean1[0]
-        params[2,0] = 1/self.variance1 * self.mean1[1]
-        params[1,1] = 1/self.variance2 * self.mean2[0]
-        params[2,1] = 1/self.variance2 * self.mean2[1]
+        p2 = 1.0 - self.balance
+        params[0,0] = -1.0/(2.0*self.variance1) * np.dot(self.mean1,self.mean1) + np.log(p1)
+        params[0,1] = -1.0/(2.0*self.variance2) * np.dot(self.mean2,self.mean2) + np.log(p2)
+        params[1,0] = 1.0/self.variance1 * self.mean1[0]
+        params[2,0] = 1.0/self.variance1 * self.mean1[1]
+        params[1,1] = 1.0/self.variance2 * self.mean2[0]
+        params[2,1] = 1.0/self.variance2 * self.mean2[1]
         print params
         return params
         
