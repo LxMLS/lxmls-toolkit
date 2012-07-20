@@ -19,16 +19,16 @@ class CRF_batch(dsc.DiscriminativeSequenceClassifier):
         self.regularizer = regularizer
 
     def train_supervised(self,sequence_list):
-        numeric_gradient_flag = True
+        numeric_gradient_flag = False
         self.parameters = np.zeros(self.feature_class.nr_feats)
         emp_counts = self.get_empirical_counts(sequence_list)
 #        import pdb
 #        pdb.set_trace()
         #analytic_gradient,numeric_gradient = self.check_gradient(self.parameters,sequence_list,emp_counts)
         if numeric_gradient_flag:
-            params,_,d = optimize.fmin_l_bfgs_b(self.get_objective2,self.parameters,args=[sequence_list,emp_counts],factr = 1e12,maxfun = 500,iprint = 2,pgtol=1e-5)   
+            params,_,d = optimize.fmin_l_bfgs_b(self.get_objective2,self.parameters,args=[sequence_list,emp_counts],factr = 1e14,maxfun = 50,iprint = 2,pgtol=1e-5)   
         else:			
-            params,_,d = optimize.fmin_l_bfgs_b(self.get_objective,self.parameters,args=[sequence_list,emp_counts],factr = 1e12,maxfun = 500,iprint = 2,pgtol=1e-5)  		
+            params,_,d = optimize.fmin_l_bfgs_b(self.get_objective,self.parameters,args=[sequence_list,emp_counts],factr = 1e14,maxfun = 50,iprint = 2,pgtol=1e-5)  		
 #        analytic_gradient,numeric_gradient = self.check_gradient(self.parameters,sequence_list,emp_counts)
         
 #        import pdb
@@ -49,8 +49,7 @@ class CRF_batch(dsc.DiscriminativeSequenceClassifier):
             delta_parameters = np.zeros(Nvariables) # array of size 10, filled with zeros
             delta_parameters[i] = hh
             new_parameters = parameters + delta_parameters
-            f_offcenter,_ = self.get_objective(new_parameters,sequence_list,emp_counts)
-    
+            f_offcenter,_ = self.get_objective(new_parameters,sequence_list,emp_counts)    
             numeric_gradient[i] = (f_offcenter - f_center) / hh
             
 #        print "analytic gradient"
@@ -71,14 +70,16 @@ class CRF_batch(dsc.DiscriminativeSequenceClassifier):
         objective = 0
         likelihoods = 0
         exp_counts = np.zeros(parameters.shape)
-#        import pdb;pdb.set_trace()          
         for sequence in sequence_list:
             seq_obj,seq_lik = self.get_objective_seq(parameters,sequence,exp_counts)
             objective += seq_obj
             likelihoods += seq_lik
-#            if seq_obj > np.log(seq_lik):
-#                import pdb; pdb.set_trace()
-#        import pdb;pdb.set_trace()
+        # print "Emp Counts"
+        # print emp_counts.reshape(13,6)
+        # print "Exp counts"
+        # print exp_counts.reshape(13,6)
+        # print "diffeerene"
+        # print (emp_counts - exp_counts).reshape(13,6)
         objective -= 0.5*self.regularizer*np.dot(parameters,parameters)
         objective -= likelihoods
         gradient -= self.regularizer*parameters
@@ -88,8 +89,6 @@ class CRF_batch(dsc.DiscriminativeSequenceClassifier):
         objective = -1*objective
         gradient = gradient*-1
         
-#        print "New objective function!"
-#        print objective
         if objective < 0:
             import pdb;pdb.set_trace()
 #        print "Objective: %f"%objective
@@ -108,21 +107,17 @@ class CRF_batch(dsc.DiscriminativeSequenceClassifier):
         self.parameters = parameters
         gradient = np.zeros(parameters.shape)
         gradient += emp_counts
-        objective = 0
-        likelihoods = 0
+        objective = 0.0
+        likelihoods = 0.0
         exp_counts = np.zeros(parameters.shape)
-#        import pdb;pdb.set_trace()          
         for sequence in sequence_list:
             seq_obj,seq_lik = self.get_objective_seq(parameters,sequence,exp_counts)
-#            import pdb
-#            pdb.set_trace()
             objective += seq_obj
             likelihoods += seq_lik
-#            if seq_obj > np.log(seq_lik):
-#                import pdb; pdb.set_trace()
-#        import pdb;pdb.set_trace()
         objective -= 0.5*self.regularizer*np.dot(parameters,parameters)
         objective -= likelihoods
+        #print emp_counts
+        #print exp_counts
         gradient -= self.regularizer*parameters
         gradient -= exp_counts
 
@@ -187,21 +182,20 @@ class CRF_batch(dsc.DiscriminativeSequenceClassifier):
          if np.any(np.isnan(likelihood)):
             import pdb
             pdb.set_trace()
-
-#         import pdb;pdb.set_trace()
          node_posteriors = self.get_node_posteriors_aux(seq,forward,backward,node_potentials,edge_potentials,likelihood)
          edge_posteriors = self.get_edge_posteriors_aux(seq,forward,backward,node_potentials,edge_potentials,likelihood)
+
+         
+
          seq_objective = 1.0
          # Compute sequence objective looking at the gold sequence.
          for pos in xrange(N): 
              true_y = seq.y[pos]
-             for state in xrange(H):
-                 node_f_list = self.feature_class.get_node_features(seq,pos,state)
-                 if(state == true_y):
-                     seq_objective *= node_potentials[state,pos]
-                     if(pos < N-1):
-                         true_next_y = seq.y[pos+1]
-                         seq_objective *= edge_potentials[state,true_next_y,pos]
+             node_f_list = self.feature_class.get_node_features(seq,pos,true_y)
+             seq_objective *= node_potentials[true_y,pos]
+             if(pos < N-1):
+                 true_next_y = seq.y[pos+1]
+                 seq_objective *= edge_potentials[true_y,true_next_y,pos]
 
          # Now compute expected counts.
          # Take care of nodes.
@@ -215,7 +209,7 @@ class CRF_batch(dsc.DiscriminativeSequenceClassifier):
          for state in xrange(H):
            edge_f_list = self.feature_class.get_edge_features(seq,0,state,-1)
            for fi in edge_f_list: 
-               exp_counts[fi] += node_posteriors[state,pos]
+               exp_counts[fi] += node_posteriors[state,0]
          # 2) Intermediate position.
          for pos in xrange(N-1):
              for state in xrange(H):
@@ -228,7 +222,7 @@ class CRF_batch(dsc.DiscriminativeSequenceClassifier):
            edge_f_list = self.feature_class.get_edge_features(seq,N,-1,state)
            for fi in edge_f_list: 
                exp_counts[fi] += node_posteriors[state,N-1]
-
+               
          if seq_objective > likelihood:
              import pdb; pdb.set_trace()
          seq_objective = np.log(seq_objective)
