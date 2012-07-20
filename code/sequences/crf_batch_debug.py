@@ -252,7 +252,10 @@ class CRF_batch(dsc.DiscriminativeSequenceClassifier):
 
 
     def get_empirical_counts(self,sequence_list):
-        print "New empirical counts!"
+        '''
+        Computes the empirical counts for  a sequence list.
+        Empirical counts are the counts of the features that appear in the gold data.
+        '''
         emp_counts = np.zeros(self.feature_class.nr_feats)
         for seq in sequence_list:
             ## Update features
@@ -262,20 +265,23 @@ class CRF_batch(dsc.DiscriminativeSequenceClassifier):
                 for f_l in truth_node_features:
                     emp_counts[f_l] += 1
                 if(pos > 0):
-
                 ## update bigram features
                 ## If true bigram != predicted bigram update bigram features
                     prev_y_t_true = seq.y[pos-1]
                     truth_edge_features = self.feature_class.get_edge_features(seq,pos,y_t_true,prev_y_t_true)
                     for f_l in truth_edge_features:
                         emp_counts[f_l] += 1
-            #Last transition to final state
-            y_t_true = seq.y[len(seq.x)]
-            prev_y_t_true = seq.y[len(seq.x)-1]
-            truth_edge_features = self.feature_class.get_edge_features(seq,len(seq.x),y_t_true,prev_y_t_true)
+
+            #First transition to final state
+            y_t_true = seq.y[0]
+            truth_edge_features = self.feature_class.get_edge_features(seq,0,y_t_true,-1)
             for f_l in truth_edge_features:
                 emp_counts[f_l] += 1
-
+            #Last transition to final state
+            prev_y_t_true = seq.y[len(seq.x)-1]
+            truth_edge_features = self.feature_class.get_edge_features(seq,len(seq.x),-1,prev_y_t_true)
+            for f_l in truth_edge_features:
+                emp_counts[f_l] += 1
         return emp_counts
 
 

@@ -15,7 +15,3 @@ f     = function value
            * * *
 
 Machine precision = 2.220D-16
- N =         3484     M =           10
-
-   it   nf  nint  nact  sub  itls  stepl    tstep     projg        f
-    0    1     -     -   -     -     -        -     9.570D+02  3.984D+01
