@@ -192,8 +192,6 @@ class CRF_batch(dsc.DiscriminativeSequenceClassifier):
          node_posteriors = self.get_node_posteriors_aux(seq,forward,backward,node_potentials,edge_potentials,likelihood)
          edge_posteriors = self.get_edge_posteriors_aux(seq,forward,backward,node_potentials,edge_potentials,likelihood)
          seq_objective = 1.0
-
-
          # Compute sequence objective looking at the gold sequence.
          for pos in xrange(N): 
              true_y = seq.y[pos]
