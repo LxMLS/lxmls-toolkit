@@ -39,10 +39,8 @@ class DiscriminativeSequenceClassifier():
     def build_potentials(self,sequence):
         nr_states = self.nr_states
         nr_pos = len(sequence.x)
-        node_potentials = np.zeros([nr_states,nr_pos],dtype=float)
-        edge_potentials = np.zeros([nr_states,nr_states,nr_pos-1],dtype=float)
-
-
+        node_potentials = np.ones([nr_states,nr_pos],dtype=float)
+        edge_potentials = np.ones([nr_states,nr_states,nr_pos-1],dtype=float)
         ## We will assume that transition features do not depend on any X information so
         ## they are the same for all positions this will speed up the code but if the features
         ## change need to uncomment the code in the main loop and comment here
@@ -55,34 +53,25 @@ class DiscriminativeSequenceClassifier():
                 dot_w_f_edge = 0
                 for fi in edge_f_list:
                     dot_w_f_edge += self.parameters[fi]
-                try:
-                    edge_potentials[prev_tag_id,tag_id,:-1] = exp(dot_w_f_edge)
-                except:
-                    print "overflow in exp of edge potentials"
-                    print dot_w_f_edge
-                    print self.parameters[edge_f_list]
-                    edge_potentials[prev_tag_id,tag_id,:-1] = exp(0)
+                edge_potentials[prev_tag_id,tag_id,:] = self.my_exp(dot_w_f_edge)
         #print "edge_potentials"
         #print edge_potentials
-        ## Add last position
-        last_pos = len(sequence.x)-1
+        ## Add first position
         for tag_id in xrange(nr_states):
-            for prev_tag_id in xrange(nr_states):
-                #print "Final Edge list: tag:%i prev:%i"%(tag_id,prev_tag_id)
-                #print edge_f_list
-                edge_f_list = self.feature_class.get_edge_features(sequence,last_pos,tag_id,prev_tag_id)
-                #dot_w_f_edge = np.sum(self.parameters[edge_f_list])
+            edge_f_list = self.feature_class.get_edge_features(sequence,0,tag_id,-1)
+            dot_w_f_edge = 0
+            for fi in edge_f_list:
+                dot_w_f_edge += self.parameters[fi]
+            node_potentials[tag_id,0] *= self.my_exp(dot_w_f_edge)
+        #Add last position
+        
+        last_pos = len(sequence.x)
+        for tag_id in xrange(nr_states):
+                edge_f_list = self.feature_class.get_edge_features(sequence,last_pos,-1,tag_id)
                 dot_w_f_edge = 0
                 for fi in edge_f_list:
                     dot_w_f_edge += self.parameters[fi]
-                try:
-                    edge_potentials[prev_tag_id,tag_id,last_pos -1] = exp(dot_w_f_edge)
-                except:
-                    print "overflow in exp of edge potentials"
-                    print dot_w_f_edge
-                    print self.parameters[edge_f_list]
-                    edge_potentials[prev_tag_id,tag_id,last_pos -1] = exp(0)
-                    
+                node_potentials[prev_tag_id,last_pos -1] *= self.my_exp(dot_w_f_edge)
         #print "edge_potentials after final"
         #print edge_potentials
         for pos,word_id in enumerate(sequence.x):
@@ -97,13 +86,7 @@ class DiscriminativeSequenceClassifier():
                 dot_w_f_node = 0
                 for fi in node_f_list:
                     dot_w_f_node += self.parameters[fi]
-                try:
-                    node_potentials[tag_id,pos] = exp(dot_w_f_node)
-                except:
-                    print "overflow in exp of node potentials"
-                    print dot_w_f_node
-                    print self.parameters[node_f_list]
-                    node_potentials[tag_id,pos] = exp(0)
+                node_potentials[tag_id,pos] *= self.my_exp(dot_w_f_node)
                 
                 ##Note this code is commented since we are assuming that transition features do not depende on X information
                 # if(pos > 0):
@@ -310,3 +293,18 @@ class DiscriminativeSequenceClassifier():
         return correct/total
 
     
+
+
+
+    def my_exp(self,number):
+        '''
+        Returns 1 in case of overflow
+        '''
+        try:
+            value = exp(number)
+        except:
+            print "Overflow computing exp"
+            print number
+            print self.parameters[edge_f_list]
+            value = 1
+        return value

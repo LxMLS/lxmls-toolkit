@@ -19,12 +19,12 @@ class CRF_batch(dsc.DiscriminativeSequenceClassifier):
         self.regularizer = regularizer
 
     def train_supervised(self,sequence_list):
-        numeric_gradient_flag = False
+        numeric_gradient_flag = True
         self.parameters = np.zeros(self.feature_class.nr_feats)
         emp_counts = self.get_empirical_counts(sequence_list)
 #        import pdb
 #        pdb.set_trace()
-#        analytic_gradient,numeric_gradient = self.check_gradient(self.parameters,sequence_list,emp_counts)
+        #analytic_gradient,numeric_gradient = self.check_gradient(self.parameters,sequence_list,emp_counts)
         if numeric_gradient_flag:
             params,_,d = optimize.fmin_l_bfgs_b(self.get_objective2,self.parameters,args=[sequence_list,emp_counts],factr = 1e12,maxfun = 500,iprint = 2,pgtol=1e-5)   
         else:			
@@ -141,7 +141,7 @@ class CRF_batch(dsc.DiscriminativeSequenceClassifier):
         #import pdb
         #pdb.set_trace()
  
-        print objective
+        #print objective
         return objective,gradient
 
 

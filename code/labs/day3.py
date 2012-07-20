@@ -79,8 +79,8 @@ print "CRF - ID Features Accuracy Train: %.3f Dev: %.3f Test: %.3f"%(eval_train,
 # #ex_f = exfc.ExtendedFeatures(corpus)
 # #ex_f.build_features()
 
-# crf = crfc.CRF_batch(corpus,ex_f)
-# crf.train_supervised(train_seq.seq_list)
+#crf = crfc.CRF_batch(corpus,ex_f)
+#crf.train_supervised(train_seq.seq_list)
 
 # pred_train = crf.viterbi_decode_corpus(train_seq.seq_list)
 # pred_dev = crf.viterbi_decode_corpus(dev_seq.seq_list)
