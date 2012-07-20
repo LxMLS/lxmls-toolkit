@@ -2,12 +2,12 @@
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
+sys.path.append("util/" )
 
-from util.my_math_utils import *
+from my_math_utils import *
 from viterbi import viterbi
 from viterbi_2 import viterbi_log
 from forward_backward import forward_backward,sanity_check_forward_backward
-
 
 class DiscriminativeSequenceClassifier():
 
@@ -18,6 +18,7 @@ class DiscriminativeSequenceClassifier():
         self.feature_class = feature_class
         self.nr_states = len(dataset.int_to_tag)
         self.dataset = dataset
+        self.feature_class = feature_class
         self.parameters = np.zeros([feature_class.nr_feats],dtype=float)
         
 
@@ -38,8 +39,9 @@ class DiscriminativeSequenceClassifier():
     def build_potentials(self,sequence):
         nr_states = self.nr_states
         nr_pos = len(sequence.x)
-        node_potentials = np.ones([nr_states,nr_pos],dtype=float)
-        edge_potentials = np.ones([nr_states,nr_states,nr_pos-1],dtype=float)
+        node_potentials = np.zeros([nr_states,nr_pos],dtype=float)
+        edge_potentials = np.zeros([nr_states,nr_states,nr_pos-1],dtype=float)
+
 
         ## We will assume that transition features do not depend on any X information so
         ## they are the same for all positions this will speed up the code but if the features
@@ -54,51 +56,32 @@ class DiscriminativeSequenceClassifier():
                 for fi in edge_f_list:
                     dot_w_f_edge += self.parameters[fi]
                 try:
-                    edge_potentials[prev_tag_id,tag_id,:] = exp(dot_w_f_edge)
+                    edge_potentials[prev_tag_id,tag_id,:-1] = exp(dot_w_f_edge)
                 except:
                     print "overflow in exp of edge potentials"
                     print dot_w_f_edge
                     print self.parameters[edge_f_list]
-                    edge_potentials[prev_tag_id,tag_id,:] = exp(0)
+                    edge_potentials[prev_tag_id,tag_id,:-1] = exp(0)
         #print "edge_potentials"
         #print edge_potentials
-        ## Add first position
-        for tag_id in xrange(nr_states):
-            # Note that last pos does not care about tag in pos N
-            edge_f_list = self.feature_class.get_edge_features(sequence,0,tag_id,-1)
-            dot_w_f_edge = 0
-            for fi in edge_f_list:
-                dot_w_f_edge += self.parameters[fi]
-            try:
-                node_potentials[tag_id,0] *= exp(dot_w_f_edge)
-            except:
-                print "overflow in exp of node potentials"
-                print dot_w_f_edge
-                print self.parameters[edge_f_list]
-                print node_potentials
-                print dot_w_f_edge
-                node_potentials[tag_id,0] *= exp(0)
-
-        
         ## Add last position
-        last_pos = len(sequence.x)
+        last_pos = len(sequence.x)-1
         for tag_id in xrange(nr_states):
-            # Note that last pos does not care about tag in pos N
-            edge_f_list = self.feature_class.get_edge_features(sequence,last_pos,-1,tag_id)
-            dot_w_f_edge = 0
-            for fi in edge_f_list:
-                dot_w_f_edge += self.parameters[fi]
-            try:
-                node_potentials[prev_tag_id,last_pos -1] *= exp(dot_w_f_edge)
-            except:
-                print "overflow in exp of node potentials"
-                import pdb
-                pdb.set_trace()
-                print dot_w_f_edge
-                print self.parameters[edge_f_list]
-                print node_potentials
-                print dot_w_f_edge
-                node_potentials[prev_tag_id,last_pos -1] *= exp(0)
+            for prev_tag_id in xrange(nr_states):
+                #print "Final Edge list: tag:%i prev:%i"%(tag_id,prev_tag_id)
+                #print edge_f_list
+                edge_f_list = self.feature_class.get_edge_features(sequence,last_pos,tag_id,prev_tag_id)
+                #dot_w_f_edge = np.sum(self.parameters[edge_f_list])
+                dot_w_f_edge = 0
+                for fi in edge_f_list:
+                    dot_w_f_edge += self.parameters[fi]
+                try:
+                    edge_potentials[prev_tag_id,tag_id,last_pos -1] = exp(dot_w_f_edge)
+                except:
+                    print "overflow in exp of edge potentials"
+                    print dot_w_f_edge
+                    print self.parameters[edge_f_list]
+                    edge_potentials[prev_tag_id,tag_id,last_pos -1] = exp(0)
                     
         #print "edge_potentials after final"
         #print edge_potentials
@@ -115,12 +98,12 @@ class DiscriminativeSequenceClassifier():
                 for fi in node_f_list:
                     dot_w_f_node += self.parameters[fi]
                 try:
-                    node_potentials[tag_id,pos] *= exp(dot_w_f_node)
+                    node_potentials[tag_id,pos] = exp(dot_w_f_node)
                 except:
                     print "overflow in exp of node potentials"
                     print dot_w_f_node
                     print self.parameters[node_f_list]
-                    node_potentials[tag_id,pos] *= 1
+                    node_potentials[tag_id,pos] = exp(0)
                 
                 ##Note this code is commented since we are assuming that transition features do not depende on X information
                 # if(pos > 0):
