@@ -35,7 +35,11 @@ print "Structured Percetron - ID Features Accuracy Train: %.3f Dev: %.3f Test: %
 ex_f = exfc.ExtendedFeatures(corpus)
 ex_f.build_features()
 sp = spc.StructuredPercetron(corpus,ex_f)
+<<<<<<< HEAD
 sp.nr_rounds = 20
+=======
+sp.nr_rounds = 10
+>>>>>>> c5eeae11efbecee74c391db293c762082a43d044
 sp.train_supervised(train_seq.seq_list)
 
 pred_train = sp.viterbi_decode_corpus(train_seq.seq_list)
