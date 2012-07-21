@@ -17,36 +17,36 @@ id_f.build_features()
 
 print "Perceptron Exercise"
 
-# sp = spc.StructuredPercetron(corpus,id_f)
-# sp.nr_rounds = 20
-# sp.train_supervised(train_seq.seq_list)
+sp = spc.StructuredPercetron(corpus,id_f)
+sp.nr_rounds = 20
+sp.train_supervised(train_seq.seq_list)
 
-# pred_train = sp.viterbi_decode_corpus(train_seq.seq_list)
-# pred_dev = sp.viterbi_decode_corpus(dev_seq.seq_list)
-# pred_test = sp.viterbi_decode_corpus(test_seq.seq_list)
+pred_train = sp.viterbi_decode_corpus(train_seq.seq_list)
+pred_dev = sp.viterbi_decode_corpus(dev_seq.seq_list)
+pred_test = sp.viterbi_decode_corpus(test_seq.seq_list)
 
-# eval_train = sp.evaluate_corpus(train_seq.seq_list,pred_train)
-# eval_dev = sp.evaluate_corpus(dev_seq.seq_list,pred_dev)
-# eval_test = sp.evaluate_corpus(test_seq.seq_list,pred_test)
+eval_train = sp.evaluate_corpus(train_seq.seq_list,pred_train)
+eval_dev = sp.evaluate_corpus(dev_seq.seq_list,pred_dev)
+eval_test = sp.evaluate_corpus(test_seq.seq_list,pred_test)
 
-# print "Structured Percetron - ID Features Accuracy Train: %.3f Dev: %.3f Test: %.3f"%(eval_train,eval_dev,eval_test)
+print "Structured Percetron - ID Features Accuracy Train: %.3f Dev: %.3f Test: %.3f"%(eval_train,eval_dev,eval_test)
 
 
-# ex_f = exfc.ExtendedFeatures(corpus)
-# ex_f.build_features()
-# sp = spc.StructuredPercetron(corpus,ex_f)
-# sp.nr_rounds = 10
-# sp.train_supervised(train_seq.seq_list)
+ex_f = exfc.ExtendedFeatures(corpus)
+ex_f.build_features()
+sp = spc.StructuredPercetron(corpus,ex_f)
+sp.nr_rounds = 20
+sp.train_supervised(train_seq.seq_list)
 
-# pred_train = sp.viterbi_decode_corpus(train_seq.seq_list)
-# pred_dev = sp.viterbi_decode_corpus(dev_seq.seq_list)
-# pred_test = sp.viterbi_decode_corpus(test_seq.seq_list)
+pred_train = sp.viterbi_decode_corpus(train_seq.seq_list)
+pred_dev = sp.viterbi_decode_corpus(dev_seq.seq_list)
+pred_test = sp.viterbi_decode_corpus(test_seq.seq_list)
 
-# eval_train = sp.evaluate_corpus(train_seq.seq_list,pred_train)
-# eval_dev = sp.evaluate_corpus(dev_seq.seq_list,pred_dev)
-# eval_test = sp.evaluate_corpus(test_seq.seq_list,pred_test)
+eval_train = sp.evaluate_corpus(train_seq.seq_list,pred_train)
+eval_dev = sp.evaluate_corpus(dev_seq.seq_list,pred_dev)
+eval_test = sp.evaluate_corpus(test_seq.seq_list,pred_test)
 
-# print "Structured Percetron - Extended Features Accuracy Train: %.3f Dev: %.3f Test: %.3f"%(eval_train,eval_dev,eval_test)
+print "Structured Percetron - Extended Features Accuracy Train: %.3f Dev: %.3f Test: %.3f"%(eval_train,eval_dev,eval_test)
 
 
 
