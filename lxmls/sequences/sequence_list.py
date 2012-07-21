@@ -1,4 +1,5 @@
-import sequence as seq
+from . import sequence as seq
+
 
 class Sequence_List:
     def __init__(self,x_dict,int_to_word,y_dict,int_to_pos):

@@ -1,20 +1,14 @@
 ###### Exercises for pratica class 1
-import sys
-sys.path.append("readers/" )
-sys.path.append("classifiers/" )
 
-import simple_data_set as sds
-import sentiment_reader as srs
-import linear_classifier as lcc
-import perceptron as percc
-import mira as mirac
-import gaussian_naive_bayes as gnbc
-import multinomial_naive_bayes as mnb
-import max_ent_batch as mebc
-import max_ent_online as meoc
-import svm as svmc
-import naive_bayes as nb
-import run_all_classifiers as run_all_c
+from lxmls.readers import simple_data_set as sds
+from lxmls.readers import sentiment_reader as srs
+from lxmls.classifiers import perceptron as percc
+from lxmls.classifiers import mira as mirac
+from lxmls.classifiers import gaussian_naive_bayes as gnbc
+from lxmls.classifiers import multinomial_naive_bayes as mnb
+from lxmls.classifiers import max_ent_batch as mebc
+from lxmls.classifiers import max_ent_online as meoc
+from lxmls.classifiers import svm as svmc
 
 
 #### Exercise 3.1 ####

@@ -1,8 +1,9 @@
-import sys
 import numpy as np
 import scipy.optimize.lbfgsb as opt2
-from util.my_math_utils import *
-import linear_classifier as lc
+
+from ..util.my_math_utils import *
+from . import linear_classifier as lc
+
 
 ################
 ### Train a maxent in a batch setting using LBFGS

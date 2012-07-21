@@ -1,17 +1,10 @@
-import sys
-sys.path.append("readers/" )
-sys.path.append("classifiers/" )
 
-import simple_data_set as sds
-
-import linear_classifier as lcc
-import naive_bayes as nbc
-import perceptron as percc
-import svm as svmc
-import mira as mirac
-import max_ent_batch as mec_batch
-import max_ent_online as mec_online
-
+from lxmls.classifiers import naive_bayes as nbc
+from lxmls.classifiers import perceptron as percc
+from lxmls.classifiers import svm as svmc
+from lxmls.classifiers import mira as mirac
+from lxmls.classifiers import max_ent_batch as mec_batch
+from lxmls.classifiers import max_ent_online as mec_online
 
 
 def run_all_classifiers(dataset):

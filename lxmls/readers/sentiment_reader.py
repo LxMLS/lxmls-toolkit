@@ -1,11 +1,9 @@
 ### http://www.scipy.org/SciPyPackages/Sparse
 
-
-import codecs
+from os import path
 
 import numpy as np
-import os
-from os import path
+
 
 class SentimentCorpus:
     

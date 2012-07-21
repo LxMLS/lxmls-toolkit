@@ -1,4 +1,5 @@
-import id_feature as idf
+from . import id_feature as idf
+
 
 class BasicFeatures(idf.IDFeatures):
 

@@ -1,9 +1,7 @@
-import sys
 import numpy as np
 import matplotlib.pyplot as plt
-from util.my_math_utils import *
-from itertools import izip
-import operator
+
+from ..util.my_math_utils import *
 
 ## Colour for each pos tag
 tag_colors = {

@@ -2,8 +2,8 @@ import numpy as np
 from scipy import *
 from scipy.sparse import *
 
-from itertools import izip
 import operator
+
 
 def sort_dic_by_value (dic,reverse=False):
     return sorted(dic.iteritems(), key=operator.itemgetter(1),reverse=reverse)
