@@ -1,6 +1,8 @@
-import numpy as np
 import math
+
+import numpy as np
 import matplotlib.pyplot as plt
+
 
 ## Exercise about gradient descent
 

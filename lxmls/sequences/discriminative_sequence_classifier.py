@@ -1,18 +1,15 @@
 
-import sys
 import numpy as np
-import matplotlib.pyplot as plt
-sys.path.append("util/" )
 
-from my_math_utils import *
-from viterbi import viterbi
-from viterbi_2 import viterbi_log
-from forward_backward import forward_backward,sanity_check_forward_backward
+from ..util.my_math_utils import *
+from .viterbi import viterbi
+from .viterbi_2 import viterbi_log
+from .forward_backward import forward_backward
+
 
 class DiscriminativeSequenceClassifier():
 
 
-    
     def __init__(self,dataset,feature_class):
         self.trained = False
         self.feature_class = feature_class

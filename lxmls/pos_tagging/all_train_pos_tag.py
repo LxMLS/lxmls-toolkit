@@ -1,19 +1,15 @@
-import sys
-import codecs
-
-from sequences.sequence import *
-from sequences.sequence_list import *
-import readers.pos_corpus as pcc
-import readers.brown_pos_corpus as bpc
-import sequences.extended_feature as exfc
-import sequences.structured_perceptron as spc
-import sequences.confusion_matrix as bcm
-
+from ..sequences.sequence import *
+from ..sequences.sequence_list import *
+from ..sequences import extended_feature as exfc
+from ..sequences import structured_perceptron as spc
+from ..readers import pos_corpus as pcc
 
 
 MAX_SENT_SIZE=1000
 MAX_NR_SENTENCES=100000
+# FIXME: hardcoded path
 MODEL_DIR="/Users/graca/Projects/swm_src/feeds/models/all_data_postag/"
+
 
 def build_corpus_features():
     corpus = pcc.PostagCorpus()

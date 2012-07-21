@@ -1,12 +1,12 @@
-import readers.pos_corpus as pcc
-import sequences.extended_feature as exfc
-import sequences.structured_perceptron as spc
-
+from ..readers import pos_corpus as pcc
+from ..sequences import extended_feature as exfc
+from ..sequences import structured_perceptron as spc
 
 
 MAX_SENT_SIZE=1000
 MAX_NR_SENTENCES=100000
 MODEL_DIR="../models/wsj_postag/"
+
 
 def build_corpus_features():
     corpus = pcc.PostagCorpus()

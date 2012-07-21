@@ -1,5 +1,6 @@
 
-from abstract_feature_class import AbstractFeatureClass
+from .abstract_feature_class import AbstractFeatureClass
+
 
 #################
 ### Replicates teh same features as the HMM

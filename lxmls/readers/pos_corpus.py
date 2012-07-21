@@ -1,13 +1,14 @@
 import codecs
 import gzip
-from sequences.sequence import *
-from sequences.sequence_list import *
+
+from ..sequences.sequence import *
+from ..sequences.sequence_list import *
 
 #from nltk.corpus import brown
 
 
 ## Directory where the data files are located.
-data_dir = "../../data/"
+data_dir = "../../data/"  # TODO: Check if this broke after package installation
 
 ### Train and test files for english WSJ part of the Penn Tree Bank
 en_train = data_dir+"train-02-21.conll"

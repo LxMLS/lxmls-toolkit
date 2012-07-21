@@ -1,6 +1,6 @@
-
 import numpy as np
 import matplotlib.pyplot as plt
+
 
 class SimpleDataSet():
     ''' A simple two dimentional dataset for visualization purposes. The date set contains points from two gaussians with mean u_i and std_i'''

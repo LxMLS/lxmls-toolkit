@@ -1,14 +1,10 @@
-import sys
 import numpy as np
-import matplotlib.pyplot as plt
 from scipy import optimize
 
+from ..util.my_math_utils import *
+from .forward_backward import forward_backward
+from . import discriminative_sequence_classifier as dsc
 
-
-from util.my_math_utils import *
-from viterbi import viterbi
-from forward_backward import forward_backward,sanity_check_forward_backward
-import discriminative_sequence_classifier as dsc
 
 class CRF_batch(dsc.DiscriminativeSequenceClassifier):
     ''' Implements a first order CRF'''
