@@ -12,3 +12,4 @@ import numpy as np
 ######
 def viterbi(node_potentials,edge_potentials):
   # Implement your function here.
+  pass
