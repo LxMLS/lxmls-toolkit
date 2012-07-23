@@ -19,7 +19,7 @@ class CRF_batch(dsc.DiscriminativeSequenceClassifier):
 
     def train_supervised(self,sequence_list):
         self.parameters = np.zeros(self.feature_class.nr_feats)
-        emp_counts = self.get_empirical_counts(sequence_list)
+        emp_counts = self.get_empirical_counts()
         params,_,d = optimize.fmin_l_bfgs_b(self.get_objective,self.parameters,args=[sequence_list,emp_counts],factr = 1e14,maxfun = 500,iprint = 1,pgtol=1e-5)
         self.parameters = params
         self.trained = True
@@ -129,7 +129,7 @@ class CRF_batch(dsc.DiscriminativeSequenceClassifier):
 
 
 
-    def get_empirical_counts(self,sequence_list):
+    def get_empirical_counts(self):
         emp_counts = np.zeros(self.feature_class.nr_feats)
         for seq_node_features,seq_edge_features in self.feature_class.feature_list:
             for f_l in seq_node_features:
