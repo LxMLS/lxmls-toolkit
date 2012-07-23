@@ -1,7 +1,7 @@
 
 
 import sequences.structured_perceptron as spc
-import sequences.crf_batch_debug as crfc
+import sequences.crf_batch as crfc
 import readers.pos_corpus as pcc
 import sequences.id_feature as idfc
 import sequences.extended_feature as exfc

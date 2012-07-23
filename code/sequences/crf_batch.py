@@ -3,11 +3,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy import optimize
 
+sys.path.append("util/" )
 
-
-from util.my_math_utils import *
+from my_math_utils import *
 from viterbi import viterbi
 from forward_backward import forward_backward,sanity_check_forward_backward
+sys.path.append("sequences/" )
 import discriminative_sequence_classifier as dsc
 
 class CRF_batch(dsc.DiscriminativeSequenceClassifier):
@@ -18,42 +19,124 @@ class CRF_batch(dsc.DiscriminativeSequenceClassifier):
         self.regularizer = regularizer
 
     def train_supervised(self,sequence_list):
+        numeric_gradient_flag = False
         self.parameters = np.zeros(self.feature_class.nr_feats)
         emp_counts = self.get_empirical_counts(sequence_list)
-        params,_,d = optimize.fmin_l_bfgs_b(self.get_objective,self.parameters,args=[sequence_list,emp_counts],factr = 1e14,maxfun = 500,iprint = 1,pgtol=1e-5)
+#        import pdb
+#        pdb.set_trace()
+        #analytic_gradient,numeric_gradient = self.check_gradient(self.parameters,sequence_list,emp_counts)
+        if numeric_gradient_flag:
+            params,_,d = optimize.fmin_l_bfgs_b(self.get_objective2,self.parameters,args=[sequence_list,emp_counts],factr = 1e14,maxfun = 50,iprint = 2,pgtol=1e-5)   
+        else:			
+            params,_,d = optimize.fmin_l_bfgs_b(self.get_objective,self.parameters,args=[sequence_list,emp_counts],factr = 1e14,maxfun = 50,iprint = 2,pgtol=1e-5)  		
+#        analytic_gradient,numeric_gradient = self.check_gradient(self.parameters,sequence_list,emp_counts)
+        
+#        import pdb
+#        pdb.set_trace()
         self.parameters = params
         self.trained = True
         return params
 
 
+    def check_gradient(self,parameters,sequence_list,emp_counts):
+        hh = 1e-8
+        Nvariables = self.parameters.shape[0]
+        f_center,analytic_gradient = self.get_objective(parameters,sequence_list,emp_counts)
 
-    def get_objective(self,parameters,sequence_list,emp_counts):
+        numeric_gradient = np.zeros(Nvariables)
+
+        for i in range(Nvariables):
+            delta_parameters = np.zeros(Nvariables) # array of size 10, filled with zeros
+            delta_parameters[i] = hh
+            new_parameters = parameters + delta_parameters
+            f_offcenter,_ = self.get_objective(new_parameters,sequence_list,emp_counts)    
+            numeric_gradient[i] = (f_offcenter - f_center) / hh
+            
+#        print "analytic gradient"
+#        print analytic_gradient
+#        print "analytic gradient"
+#        print numeric_gradient
+#        print "quotient"
+#        print analytic_gradient/numeric_gradient
+#        print "\n"
+        return analytic_gradient,numeric_gradient
+
+    # This function is the same as get_objective, but it will return the numeric gradient instead of the analytic one.
+    # It has to be a separate function, otherwise we get an infinite recursion and another baby whale dies.
+    def get_objective2(self,parameters,sequence_list,emp_counts):
         self.parameters = parameters
         gradient = np.zeros(parameters.shape)
         gradient += emp_counts
         objective = 0
         likelihoods = 0
-        exp_counts = np.zeros(parameters.shape)            
+        exp_counts = np.zeros(parameters.shape)
         for sequence in sequence_list:
             seq_obj,seq_lik = self.get_objective_seq(parameters,sequence,exp_counts)
             objective += seq_obj
             likelihoods += seq_lik
+        # print "Emp Counts"
+        # print emp_counts.reshape(13,6)
+        # print "Exp counts"
+        # print exp_counts.reshape(13,6)
+        # print "diffeerene"
+        # print (emp_counts - exp_counts).reshape(13,6)
         objective -= 0.5*self.regularizer*np.dot(parameters,parameters)
-        if(likelihoods != 0):
-            objective -= np.log(likelihoods)
-        else:
-            print "likelihoods == 0"
+        objective -= likelihoods
         gradient -= self.regularizer*parameters
         gradient -= exp_counts
 
         ##Since we are minizing we need to multiply both the objective and gradient by -1
         objective = -1*objective
         gradient = gradient*-1
+        
+        if objective < 0:
+            import pdb;pdb.set_trace()
 #        print "Objective: %f"%objective
         #print gradient
  #       print "Gradient norm: %f"%np.sqrt(np.dot(gradient,gradient))
         ## Sicne we are minimizing and not maximizing
+#        import pdb
+#        pdb.set_trace()
+        print "Quotient of analytic and numeric gradient:"
+        _,numeric_gradient = self.check_gradient(self.parameters,sequence_list,emp_counts)
+        print gradient/numeric_gradient
+        
+        return objective,numeric_gradient
+
+    def get_objective(self,parameters,sequence_list,emp_counts):
+        self.parameters = parameters
+        gradient = np.zeros(parameters.shape)
+        gradient += emp_counts
+        objective = 0.0
+        likelihoods = 0.0
+        exp_counts = np.zeros(parameters.shape)
+        for sequence in sequence_list:
+            seq_obj,seq_lik = self.get_objective_seq(parameters,sequence,exp_counts)
+            objective += seq_obj
+            likelihoods += seq_lik
+        objective -= 0.5*self.regularizer*np.dot(parameters,parameters)
+        objective -= likelihoods
+        #print emp_counts
+        #print exp_counts
+        gradient -= self.regularizer*parameters
+        gradient -= exp_counts
+
+        ##Since we are minizing we need to multiply both the objective and gradient by -1
+        objective = -1*objective
+        gradient = gradient*-1
+        
+#        print "New objective function!"
+#        print objective
+        if objective < 0:
+            import pdb;pdb.set_trace()
+#        print "Objective: %f"%objective
+        #print gradient
+ #       print "Gradient norm: %f"%np.sqrt(np.dot(gradient,gradient))
+        ## Sicne we are minimizing and not maximizing
+        #import pdb
+        #pdb.set_trace()
  
+        #print objective
         return objective,gradient
 
 
@@ -84,61 +167,111 @@ class CRF_batch(dsc.DiscriminativeSequenceClassifier):
 
     def get_objective_seq(self,parameters,seq,exp_counts):
          #print seq.nr
-         nr_states = self.nr_states
+#         nr_states = self.nr_states
          node_potentials,edge_potentials = self.build_potentials(seq)
+
+#         import pdb
+#         pdb.set_trace()
+
          forward,backward = forward_backward(node_potentials,edge_potentials)
+         if np.any(np.isnan(forward)):
+            import pdb
+            pdb.set_trace()
          H,N = forward.shape
          likelihood = np.sum(forward[:,N-1])
-         #node_posteriors = self.get_node_posteriors_aux(seq,forward,backward,node_potentials,edge_potentials,likelihood)
-         #edge_posteriors = self.get_edge_posteriors_aux(seq,forward,backward,node_potentials,edge_potentials,likelihood)
-         seq_objective = 0
+         if np.any(np.isnan(likelihood)):
+            import pdb
+            pdb.set_trace()
+         node_posteriors = self.get_node_posteriors_aux(seq,forward,backward,node_potentials,edge_potentials,likelihood)
+         edge_posteriors = self.get_edge_posteriors_aux(seq,forward,backward,node_potentials,edge_potentials,likelihood)
+
+         
+
+         seq_objective = 1.0
+         # Compute sequence objective looking at the gold sequence.
          for pos in xrange(N): 
              true_y = seq.y[pos]
+             node_f_list = self.feature_class.get_node_features(seq,pos,true_y)
+             seq_objective *= node_potentials[true_y,pos]
+             if(pos < N-1):
+                 true_next_y = seq.y[pos+1]
+                 seq_objective *= edge_potentials[true_y,true_next_y,pos]
+
+         # Now compute expected counts.
+         # Take care of nodes.
+         for pos in xrange(N): 
              for state in xrange(H):
                  node_f_list = self.feature_class.get_node_features(seq,pos,state)
-                 backward_aux = backward[state,pos]
-                 forward_aux = forward[state,pos]
-                 forward_aux_div_likelihood = forward_aux/likelihood
-
-                 ##Iterate over feature indexes
-                 prob_aux = forward_aux_div_likelihood*backward_aux
                  for fi in node_f_list:
-                     ## For the objective add both the node features and edge feature dot the parameters for the true observation
-                     if(state == true_y):
-                         seq_objective += parameters[fi]
-                     ## For the gradient add the node_posterior ##Compute node posteriors on the fly
-                     exp_counts[fi] += prob_aux
-                 #Handle transitions
-                 if(pos < N-1):
-                     true_next_y = seq.y[pos+1]
-                     for next_state in xrange(H):
-                         backward_aux2 = backward[next_state,pos+1]
-                         node_pot_aux = node_potentials[next_state,pos+1]
-                         edge_f_list = self.feature_class.get_edge_features(seq,pos+1,next_state,state)
-                         ## For the gradient add the edge_posterior
-                         edge_aux = edge_potentials[state,next_state,pos]
-                         prob_aux = forward_aux_div_likelihood*edge_aux*node_pot_aux*backward_aux2
-                         for fi in edge_f_list: 
-                             ## For the objective add both the node features and edge feature dot the parameters for the true observation
-                             if(next_state == true_next_y):
-                                 seq_objective += parameters[fi]
-                             exp_counts[fi] += prob_aux
-         return seq_objective,likelihood
+                     exp_counts[fi] += node_posteriors[state,pos]
+         # Take care of edges.
+         # 1) Initial position.
+         for state in xrange(H):
+           edge_f_list = self.feature_class.get_edge_features(seq,0,state,-1)
+           for fi in edge_f_list: 
+               exp_counts[fi] += node_posteriors[state,0]
+         # 2) Intermediate position.
+         for pos in xrange(N-1):
+             for state in xrange(H):
+                 for next_state in xrange(H):
+                   edge_f_list = self.feature_class.get_edge_features(seq,pos+1,next_state,state)
+                   for fi in edge_f_list: 
+                       exp_counts[fi] += edge_posteriors[state,next_state,pos]
+         # 3) Final position.
+         for state in xrange(H):
+           edge_f_list = self.feature_class.get_edge_features(seq,N,-1,state)
+           for fi in edge_f_list: 
+               exp_counts[fi] += node_posteriors[state,N-1]
+               
+         if seq_objective > likelihood:
+             import pdb; pdb.set_trace()
+         seq_objective = np.log(seq_objective)
 
+         if np.any(np.isnan(seq_objective)):
+            import pdb
+            pdb.set_trace()
 
+         if np.any(np.isnan(np.log(likelihood))):
+            import pdb
+            pdb.set_trace()
 
+         return seq_objective,np.log(likelihood)
 
 
     def get_empirical_counts(self,sequence_list):
+        '''
+        Computes the empirical counts for  a sequence list.
+        Empirical counts are the counts of the features that appear in the gold data.
+        '''
         emp_counts = np.zeros(self.feature_class.nr_feats)
-        for seq_node_features,seq_edge_features in self.feature_class.feature_list:
-            for f_l in seq_node_features:
-                for f in f_l:
-                    emp_counts[f] += 1
-            for f_l in seq_edge_features:
-                for f in f_l:
-                    emp_counts[f] += 1
+        for seq in sequence_list:
+            ## Update features
+            for pos in xrange(len(seq.x)):
+                y_t_true = seq.y[pos]
+                truth_node_features = self.feature_class.get_node_features(seq,pos,y_t_true)
+                for f_l in truth_node_features:
+                    emp_counts[f_l] += 1
+                if(pos > 0):
+                ## update bigram features
+                ## If true bigram != predicted bigram update bigram features
+                    prev_y_t_true = seq.y[pos-1]
+                    truth_edge_features = self.feature_class.get_edge_features(seq,pos,y_t_true,prev_y_t_true)
+                    for f_l in truth_edge_features:
+                        emp_counts[f_l] += 1
+
+            #First transition to final state
+            y_t_true = seq.y[0]
+            truth_edge_features = self.feature_class.get_edge_features(seq,0,y_t_true,-1)
+            for f_l in truth_edge_features:
+                emp_counts[f_l] += 1
+            #Last transition to final state
+            prev_y_t_true = seq.y[len(seq.x)-1]
+            truth_edge_features = self.feature_class.get_edge_features(seq,len(seq.x),-1,prev_y_t_true)
+            for f_l in truth_edge_features:
+                emp_counts[f_l] += 1
         return emp_counts
+
+
 
 
     def print_node_posteriors(self,seq,node_posteriors):

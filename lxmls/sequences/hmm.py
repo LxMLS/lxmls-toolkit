@@ -260,7 +260,6 @@ class HMM():
     
     def viterbi_decode(self,seq):
         node_potentials,edge_potentials = self.build_potentials(seq)
-        # You need to implement the function viterbi(.,.) in viterbi.py.
         viterbi_path,_ = viterbi(node_potentials,edge_potentials)
         res =  viterbi_path
         new_seq =  seq.copy_sequence()
