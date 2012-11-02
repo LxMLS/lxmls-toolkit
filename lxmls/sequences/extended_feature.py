@@ -1,5 +1,6 @@
 
-from id_feature import IDFeatures
+from .id_feature import IDFeatures
+
 
 #######################
 #### Feature Class

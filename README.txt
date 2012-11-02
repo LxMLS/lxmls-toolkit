@@ -11,6 +11,13 @@ Dependencies
 
 Installation
 
-    - Install the requirement via pip
+    - Install the package and all requirements using pip:
+        - pip install lxmls-toolkit
+        (or 'pip install .' inside project folder)
+
+    - If everything went smoothly, you're done.
+
+    - If you got errors installing the requirements, run:
         - pip install -r pip-requirements.txt
+        - pip install .
 

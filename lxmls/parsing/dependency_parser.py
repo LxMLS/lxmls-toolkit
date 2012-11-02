@@ -1,10 +1,10 @@
-import sys
 import numpy as np
-from dependency_reader import * 
-from dependency_writer import * 
-from dependency_features import * 
-from dependency_decoder import * 
-from util.my_math_utils import *
+
+from .dependency_reader import * 
+from .dependency_writer import * 
+from .dependency_features import * 
+from .dependency_decoder import * 
+from ..util.my_math_utils import *
 
 
 class DependencyParser():

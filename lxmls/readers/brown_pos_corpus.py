@@ -1,7 +1,7 @@
 from nltk.corpus import brown
-import sys
-from sequences.sequence import *
-from sequences.sequence_list import *
+
+from ..sequences.sequence import *
+from ..sequences.sequence_list import *
 
 
 class Brown_Postag:

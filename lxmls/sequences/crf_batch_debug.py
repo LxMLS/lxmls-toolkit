@@ -4,7 +4,7 @@ from scipy import optimize
 from ..util.my_math_utils import *
 from .forward_backward import forward_backward
 from . import discriminative_sequence_classifier as dsc
-from .viterbi import viterbi
+
 
 class CRF_batch(dsc.DiscriminativeSequenceClassifier):
     ''' Implements a first order CRF'''

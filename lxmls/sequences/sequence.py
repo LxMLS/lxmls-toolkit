@@ -1,4 +1,5 @@
-import sys
+
+
 class Sequence:
     def __init__(self,sequence_list,x,y,nr):
         self.x = x
