@@ -4,39 +4,49 @@ import scipy.optimize.lbfgsb as opt2
 from util.my_math_utils import *
 from classifiers import linear_classifier as lc
 
-'''
-Train a maxent in a batch setting using LBFGS
-'''
 class MaxEnt_batch(lc.LinearClassifier):
+    '''MaxEnt classifier trained in a batch setting using LBFGS.
+
+    '''
 
     def __init__(self,regularizer=1):
+        lc.LinearClassifier.__init__(self)
+
         self.parameters = 0
         self.regularizer = regularizer
 
     def train(self,x,y):
+        '''Returns the parameters of the classifier.
+        
+        '''
 
-        # Append a column of ones to the current features
+        # Append a column of ones to the current features.
         x = self.add_intercept_term(x)
 
-        # Get dimension and number of examples of our input set
+        # Get dimension and number of examples of the input set.
         nr_x,nr_f = x.shape
-        # Get the number of classes of our output set
+
+        # Get the number of classes of the output set.
         classes = np.unique(y)
         nr_c = classes.shape[0]
         
-        ## Add the bias feature
+        # Add the bias feature.
         init_parameters = np.zeros((nr_f,nr_c),dtype=float)
         emp_counts = np.zeros((nr_f,nr_c))
         classes_idx = []
-        # For each pair of classes (in this case 00 01 10 11)
+        # For each pair of classes (in this case 00 01 10 11).
         for c,c_i in enumerate(classes):
-            # Find index of elements of output set belonging to class c
+            # Find index of elements of output set belonging to
+            # class c.
             idx,_ = np.nonzero(y == c)
-            # Store that index
+
+            # Store that index.
             classes_idx.append(idx)
             emp_counts[:,c_i] = x[idx,:].sum(0)            
+
         params = self.minimize_lbfgs(init_parameters,x,y,self.regularizer,emp_counts,classes_idx,nr_x,nr_f,nr_c)
         self.trained = True
+
         return params
 
     def minimize_lbfgs(self,parameters,x,y,sigma,emp_counts,classes_idx,nr_x,nr_f,nr_c):
@@ -49,6 +59,9 @@ class MaxEnt_batch(lc.LinearClassifier):
     ### Obj = \sum_(x,y) -w*f(x,y) + log(\sum_(y') exp(w*f(x,y'))) +  sigma*||w||_2^2
     ############
     def get_objective(self,parameters,x,y,sigma,emp_counts,classes_idx,nr_x,nr_f,nr_c):
+        '''
+
+        '''
         parameters2 = parameters.reshape([nr_f,nr_c],order="F")
         ##f(x,y).w
  #       scores = spdot(x,parameters2)
@@ -63,14 +76,13 @@ class MaxEnt_batch(lc.LinearClassifier):
         for i,classes in enumerate(classes_idx):
             sum_scores += np.sum(scores[classes,i])
             
-        ## 
         objective = -sum_scores / nr_x + np.sum(logz) / nr_x + 0.5*sigma*l2norm_squared(parameters2)
         ##Probs
         probs = exp_scores/z
         #exp_feat = spdot(x.transpose(),probs)
         exp_feat = np.dot(x.transpose(),probs)
         grad = exp_feat / nr_x + parameters2*sigma - emp_counts / nr_x
+
         print "Objective = {0}".format(objective)
+
         return objective,grad.reshape([nr_f*nr_c],order="F")
-        
-        
