@@ -3,6 +3,7 @@ sys.path.append('.')
 import readers.simple_sequence as ssr
 import sequences.hmm as hmmc
 import readers.pos_corpus as pcc
+import pdb
 
 
 
@@ -17,24 +18,27 @@ simple.test
 #exercise 2.2
 print "Exercise 2.2"
 ## See hmm.py file
-hmm = hmmc.HMM(simple)
+hmm = hmmc.HMM(simple.x_dict, simple.y_dict)
 hmm.train_supervised(simple.train)
 hmm.sanity_check_counts(simple.train)
-print "Init Probs"
-print hmm.init_probs
-print "Transition Probs"
+print "Initial Probabilities:"
+print hmm.initial_probs
+print "Transition Probabilities:"
 print hmm.transition_probs
-print "Observation Probs"
-print hmm.observation_probs
+print "Final Probabilities:"
+print hmm.final_probs
+print "Emission Probabilities"
+print hmm.emission_probs
 
-#exercise 2.3
-print "Exercise 2.3"
-## See hmm.py file
-node_potentials,edge_potentials = hmm.build_potentials(simple.train.seq_list[0])
-print "Node Potentials"
-print node_potentials
-print "Edge Potentials"
-print edge_potentials
+##exercise 2.3
+#print "Exercise 2.3"
+### See hmm.py file
+#node_potentials,edge_potentials = hmm.build_potentials(simple.train.seq_list[0])
+#print "Node Potentials"
+#print node_potentials
+#print "Edge Potentials"
+#print edge_potentials
+
 
 #exercise 2.4
 print "Exercise 2.4"
