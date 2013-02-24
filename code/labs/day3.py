@@ -5,15 +5,19 @@ import sequences.crf_batch as crfc
 import readers.pos_corpus as pcc
 import sequences.id_feature as idfc
 import sequences.extended_feature as exfc
-
+import pdb
 
 corpus = pcc.PostagCorpus()
 train_seq = corpus.read_sequence_list_conll("../data/train-02-21.conll",max_sent_len=10,max_nr_sent=1000)
 test_seq = corpus.read_sequence_list_conll("../data/test-23.conll",max_sent_len=10,max_nr_sent=1000)
 dev_seq = corpus.read_sequence_list_conll("../data/dev-22.conll",max_sent_len=10,max_nr_sent=1000)
-corpus.add_sequence_list(train_seq) 
-id_f = idfc.IDFeatures(corpus)
+#corpus.add_sequence_list(train_seq) 
+#id_f = idfc.IDFeatures(corpus)
+id_f = idfc.IDFeatures(train_seq)
 id_f.build_features()
+
+pdb.set_trace()
+
 
 print "Perceptron Exercise"
 

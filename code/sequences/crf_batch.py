@@ -6,7 +6,7 @@ from scipy import optimize
 sys.path.append("util/" )
 
 from my_math_utils import *
-from viterbi import viterbi
+from viterbi import run_viterbi
 from forward_backward import forward_backward,sanity_check_forward_backward
 sys.path.append("sequences/" )
 import discriminative_sequence_classifier as dsc

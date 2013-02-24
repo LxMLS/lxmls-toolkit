@@ -1,8 +1,9 @@
 
 from abstract_feature_class import AbstractFeatureClass
+import pdb
 
 #################
-### Replicates teh same features as the HMM
+### Replicates the same features as the HMM
 ### One for word/tag and tag/tag pair
 #################
 class IDFeatures(AbstractFeatureClass):
@@ -25,7 +26,44 @@ class IDFeatures(AbstractFeatureClass):
 
         
 
-    def get_seq_features(self,seq):
+#    def get_seq_features(self,seq):
+#        '''
+#        Returns the features for a given sequence.
+#        For a sequence of size N returns:
+#        Node_feature a list of size N. Each entry contains the node potentials for that position.
+#        Edge_features a list of size N+1.
+#        - Entry 0 contains the initial features
+#        - Entry N contains the final features
+#        - Entry i contains entries mapping the transition from i-1 to i.
+#        '''
+#        seq_node_features = []
+#        seq_edge_features = []
+#        ## Take care of first position
+#        init_idx = []
+#        node_idx = []
+#        node_idx = self.add_node_features(seq,0,seq.y[0],node_idx)
+#        init_idx = self.add_init_state_features(seq,seq.y[0],init_idx)
+#        seq_node_features.append(node_idx)
+#        seq_edge_features.append(init_idx)
+#        ## Take care of middle positions
+#        for i,tag in enumerate(seq.y[1:]):
+#            idx = []
+#            edge_idx = []
+#            j = i+1
+#            #print i,j
+#            prev_tag = seq.y[j-1]
+#            edge_idx = self.add_edge_features(seq,j,tag,prev_tag,edge_idx)            
+#            idx = self.add_node_features(seq,j,tag,idx)
+#            seq_node_features.append(idx)
+#            seq_edge_features.append(edge_idx)
+#        ## Take care of final position
+#        final_idx = []
+#        tag = seq.y[-1]
+#        final_idx = self.add_final_state_features(seq,tag,final_idx)
+#        seq_edge_features.append(final_idx)
+#        return seq_node_features,seq_edge_features
+
+    def get_seq_features(self, sequence):
         '''
         Returns the features for a given sequence.
         For a sequence of size N returns:
@@ -40,25 +78,25 @@ class IDFeatures(AbstractFeatureClass):
         ## Take care of first position
         init_idx = []
         node_idx = []
-        node_idx = self.add_node_features(seq,0,seq.y[0],node_idx)
-        init_idx = self.add_init_state_features(seq,seq.y[0],init_idx)
+        node_idx = self.add_node_features(sequence, 0, sequence.y[0],node_idx)
+        init_idx = self.add_initial_features(sequence, sequence.y[0], init_idx)
         seq_node_features.append(node_idx)
         seq_edge_features.append(init_idx)
         ## Take care of middle positions
-        for i,tag in enumerate(seq.y[1:]):
+        for i,tag in enumerate(sequence.y[1:]):
             idx = []
             edge_idx = []
             j = i+1
             #print i,j
-            prev_tag = seq.y[j-1]
-            edge_idx = self.add_edge_features(seq,j,tag,prev_tag,edge_idx)            
-            idx = self.add_node_features(seq,j,tag,idx)
+            prev_tag = sequence.y[j-1]
+            edge_idx = self.add_edge_features(sequence, j, tag, prev_tag, edge_idx)            
+            idx = self.add_node_features(sequence, j, tag, idx)
             seq_node_features.append(idx)
             seq_edge_features.append(edge_idx)
         ## Take care of final position
         final_idx = []
-        tag = seq.y[-1]
-        final_idx = self.add_final_state_features(seq,tag,final_idx)
+        tag = sequence.y[-1]
+        final_idx = self.add_final_features(sequence, tag, final_idx)
         seq_edge_features.append(final_idx)
         return seq_node_features,seq_edge_features
 
@@ -66,14 +104,14 @@ class IDFeatures(AbstractFeatureClass):
     #f(t,y_t,X)
     # Add the word identity and if position is
     # the first also adds the tag position
-    def get_node_features(self,seq,pos,y):
+    def get_node_features(self, sequence, pos, y):
         all_feat = []
-        x = seq.x[pos]
+        x = sequence.x[pos]
         if(x not in self.node_feature_cache):
             self.node_feature_cache[x] = {}
         if(y not in self.node_feature_cache[x]):
             node_idx = []
-            node_idx = self.add_node_features(seq,pos,y,node_idx)
+            node_idx = self.add_node_features(sequence, pos, y, node_idx)
             self.node_feature_cache[x][y] = node_idx
         idx = self.node_feature_cache[x][y]
         all_feat = idx[:]
@@ -83,7 +121,7 @@ class IDFeatures(AbstractFeatureClass):
 
     #f(t,y_t,y_(t-1),X)
     ##Speed up of code
-    def get_edge_features(self,seq,pos,y,y_prev):
+    def get_edge_features(self, sequence, pos, y, y_prev):
         if(pos == 0):
            if(y not in self.initial_state_feature_cache):
                edge_idx = []
@@ -106,80 +144,154 @@ class IDFeatures(AbstractFeatureClass):
             return self.edge_feature_cache[y][y_prev]
 
 
-    def add_init_state_features(self,seq,y,init_idx):
-        y_name = self.dataset.int_to_tag[y]
-        feat = "init_tag:%s"%(y_name)
-        nr_feat = self.add_feature(feat)
-        if(nr_feat != -1):
-            init_idx.append(nr_feat)
-        return init_idx
+#    def add_init_state_features(self,seq,y,init_idx):
+#        y_name = self.dataset.int_to_tag[y]
+#        feat = "init_tag:%s"%(y_name)
+#        nr_feat = self.add_feature(feat)
+#        if(nr_feat != -1):
+#            init_idx.append(nr_feat)
+#        return init_idx
+
+    def add_initial_features(self, sequence, y, features):
+        # Get label name from ID.
+        y_name = self.dataset.y_dict.get_label_name(y)
+        # Generate feature name.
+        feat_name = "init_tag:%s"%(y_name)
+        # Get feature ID from name.
+        feat_id = self.add_feature(feat_name)
+        # Append feature.
+        if(feat_id != -1):
+            features.append(feat_id)
+        return features
+
+#    def add_final_state_features(self,seq,y_prev,final_idx):
+#        y_name = self.dataset.int_to_tag[y_prev]
+#        feat = "final_prev_tag:%s"%(y_name)
+#        nr_feat = self.add_feature(feat)
+#        if(nr_feat != -1):
+#            final_idx.append(nr_feat)
+#        return final_idx
+
+    def add_final_features(self, sequence, y_prev, features):
+        # Get label name from ID.
+        y_name = self.dataset.y_dict.get_label_name(y_prev)
+        # Generate feature name.
+        feat_name = "final_prev_tag:%s"%(y_name)
+        # Get feature ID from name.
+        feat_id = self.add_feature(feat_name)
+        # Append feature.
+        if(feat_id != -1):
+            features.append(feat_id)
+        return features
 
 
-    def add_final_state_features(self,seq,y_prev,final_idx):
-        y_name = self.dataset.int_to_tag[y_prev]
-        feat = "final_prev_tag:%s"%(y_name)
-        nr_feat = self.add_feature(feat)
-        if(nr_feat != -1):
-            final_idx.append(nr_feat)
-        return final_idx
+#        ##Add word tag pair
+#    def add_node_features(self,seq,pos,y,idx):
+#        '''Add word-tag pair feature.'''
+#        x = seq.x[pos]
+#        y_name = self.dataset.int_to_tag[y]
+#        word = self.dataset.int_to_word[x]
+#        feat = "id:%s::%s"%(word,y_name)
+#        nr_feat = self.add_feature(feat)
+#        if(nr_feat != -1):
+#            idx.append(nr_feat)
+#        return idx
 
+    def add_node_features(self, sequence, pos, y, features):
+        '''Add word-tag pair feature.'''
+        x = sequence.x[pos]
+        # Get tag name from ID.
+        y_name = self.dataset.y_dict.get_label_name(y)
+        # Get word name from ID.
+        x_name = self.dataset.x_dict.get_label_name(x)
+        # Generate feature name.
+        feat_name = "id:%s::%s"%(x_name,y_name)
+        # Get feature ID from name.
+        feat_id = self.add_feature(feat_name)
+        # Append feature.
+        if feat_id != -1:
+            features.append(feat_id)
+        return features
 
-        ##Add word tag pair
-    def add_node_features(self,seq,pos,y,idx):
-        x = seq.x[pos]
-        y_name = self.dataset.int_to_tag[y]
-        word = self.dataset.int_to_word[x]
-        feat = "id:%s::%s"%(word,y_name)
-        nr_feat = self.add_feature(feat)
-        if(nr_feat != -1):
-            idx.append(nr_feat)
-        return idx
+#    def add_edge_features(self,seq,pos,y,y_prev,edge_idx):
+#        """ Adds a feature to the edge feature list.
+#        Creates a unique id if its the first time the feature is visited
+#        or returns the existing id otherwise
+#        """
+#        #print "Adding edge feature for pos:%i y:%i y_prev%i seq_len:%i"%(pos,y,y_prev,len(seq.x))
+#        if(pos == len(seq.x)):
+#            y_prev_name = self.dataset.int_to_tag[y_prev]
+#            feat = "final_tag:%s"%(y_prev_name)
+#        else:
+#            y_name = self.dataset.int_to_tag[y]
+#            y_prev_name = self.dataset.int_to_tag[y_prev]
+#            feat = "prev_tag:%s::%s"%(y_prev_name,y_name)
+#        if(pos == len(seq.x)):
+#            print "adding feature %s"%feat
+#        nr_feat = self.add_feature(feat)
+#        if(nr_feat != -1):
+#            edge_idx.append(nr_feat)
+#        if(pos == len(seq.x)):
+#            print "Returning edges"
+#            print edge_idx
+#        return edge_idx
 
-
-
-
-    def add_edge_features(self,seq,pos,y,y_prev,edge_idx):
+    def add_edge_features(self, sequence, pos, y, y_prev, features):
         """ Adds a feature to the edge feature list.
         Creates a unique id if its the first time the feature is visited
         or returns the existing id otherwise
         """
-        #print "Adding edge feature for pos:%i y:%i y_prev%i seq_len:%i"%(pos,y,y_prev,len(seq.x))
-        if(pos == len(seq.x)):
-            y_prev_name = self.dataset.int_to_tag[y_prev]
-            feat = "final_tag:%s"%(y_prev_name)
-        else:
-            y_name = self.dataset.int_to_tag[y]
-            y_prev_name = self.dataset.int_to_tag[y_prev]
-            feat = "prev_tag:%s::%s"%(y_prev_name,y_name)
-        if(pos == len(seq.x)):
-            print "adding feature %s"%feat
-        nr_feat = self.add_feature(feat)
-        if(nr_feat != -1):
-            edge_idx.append(nr_feat)
-        if(pos == len(seq.x)):
-            print "Returning edges"
-            print edge_idx
-        return edge_idx
+        assert pos < len(sequence.x), pdb.set_trace()
+
+        # Get label name from ID.
+        y_name = self.dataset.y_dict.get_label_name(y)
+        # Get previous label name from ID.
+        y_prev_name = self.dataset.y_dict.get_label_name(y_prev)
+        # Generate feature name.
+        feat_name = "prev_tag:%s::%s"%(y_prev_name,y_name)
+        # Get feature ID from name.
+        feat_id = self.add_feature(feat_name)
+        # Append feature.
+        if(feat_id != -1):
+            features.append(feat_id)
+        return features
 
 
-    def add_feature(self,feat):
+#    def add_feature(self,feat):
+#        """
+#        Builds a dictionary of feature name to feature id
+#        If we are at test time and we don't have the feature
+#        we return -1.
+#        """
+#        
+#        # if(self.add_features == False):
+#        #     print feat
+#        if(feat in self.feature_dic):
+#            return self.feature_dic[feat]
+#        if not self.add_features:
+#            return -1
+#        nr_feat = len(self.feature_dic.keys())
+#        #print "Adding feature %s %i"%(feat,nr_feat)
+#        self.feature_dic[feat] = nr_feat
+#        self.feature_names.append(feat)
+#        return nr_feat
+
+    def add_feature(self, feat_name):
         """
         Builds a dictionary of feature name to feature id
         If we are at test time and we don't have the feature
         we return -1.
         """
         
-        # if(self.add_features == False):
-        #     print feat
-        if(feat in self.feature_dic):
-            return self.feature_dic[feat]
+        # Check if feature exists and if so, return the feature ID. 
+        if(feat_name in self.feature_dict):
+            return self.feature_dict[feat_name]
+        # If 'add_features' is True, add the feature to the feature 
+        # dictionary and return the feature ID. Otherwise return -1.
         if not self.add_features:
             return -1
-        nr_feat = len(self.feature_dic.keys())
-        #print "Adding feature %s %i"%(feat,nr_feat)
-        self.feature_dic[feat] = nr_feat
-        self.feature_names.append(feat)
-        return nr_feat
+        return self.feature_dict.add(feat_name)
+
 
     ###### Printing functions ##############
 

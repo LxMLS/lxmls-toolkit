@@ -49,9 +49,11 @@ print hmm.sanity_check_fb(forward,backward)
 
 #exercise 2.5
 print "Exercise 2.5"
-print "Node Posteriors"
-node_posteriors = hmm.get_node_posteriors(simple.train.seq_list[0])
-print node_posteriors
+print "State Posteriors"
+state_posteriors, _ = hmm.compute_posteriors(simple.train.seq_list[0])
+print state_posteriors
+
+
 
 y_pred = hmm.posterior_decode(simple.test.seq_list[0])
 print "Prediction test 0"
@@ -62,11 +64,12 @@ print simple.test.seq_list[0]
 y_pred = hmm.posterior_decode(simple.test.seq_list[1])
 print "Prediction test 1"
 print y_pred
-print "Truth test 2"
+print "Truth test 1"
 print simple.test.seq_list[1]
 
+
 #training with smoothing
-hmm.train_supervised(simple.train,smoothing = 0.1)
+hmm.train_supervised(simple.train, smoothing = 0.1)
 
 y_pred = hmm.posterior_decode(simple.test.seq_list[0])
 print "Prediction test 0 with smoothing"
@@ -77,23 +80,33 @@ print simple.test.seq_list[0]
 y_pred = hmm.posterior_decode(simple.test.seq_list[1])
 print "Prediction test 1 with smoothing"
 print y_pred
-print "Truth test 2"
+print "Truth test 1"
 print simple.test.seq_list[1]
 
 #exercise 2.6
 print "Exercise 2.6"
 
-y_pred = hmm.viterbi_decode(simple.test.seq_list[0])
-print "Viterbi decoding Prediction test 1 with smoothing"
-print y_pred
-print "Truth test 1"
+y_pred, score = hmm.viterbi_decode(simple.test.seq_list[0])
+print "Viterbi decoding Prediction test 0 with smoothing"
+print y_pred, score
+print "Truth test 0"
 print simple.test.seq_list[0]
 
-y_pred = hmm.viterbi_decode(simple.test.seq_list[1])
+y_pred, score = hmm.viterbi_decode(simple.test.seq_list[1])
 print "Viterbi decoding Prediction test 1 with smoothing"
-print y_pred
-print "Truth test 2"
+print y_pred, score
+print "Truth test 1"
 print simple.test.seq_list[1]
+
+pdb.set_trace()
+
+# RIGHT NOW, WHOEVER COMPLETED VITERBI KNOWS ONLY THAT THEIR PREDICTED SEQUENCES MATCH 
+# THE ONES IN THE GUIDE. BUT THESE DOES NOT MEAN THAT THERE IS NOT A BUG 
+# SOMEWHERE.
+# SUGGESTION: MAKE THEM OUTPUT THE PROBABILITY OF THE BEST SEQUENCE.
+# FOR THIS, THEY NEED TO DIVIDE THE BEST SCORE (RETURNED BY VITERBI) 
+# BY THE LIKELIHOOD (BY RUNNING THE FORWARD ALGO)
+
 
 #exercise 2.7
 print "Exercise 2.7"
@@ -101,8 +114,8 @@ corpus = pcc.PostagCorpus()
 train_seq = corpus.read_sequence_list_conll("../data/train-02-21.conll",max_sent_len=15,max_nr_sent=1000)
 test_seq = corpus.read_sequence_list_conll("../data/test-23.conll",max_sent_len=15,max_nr_sent=1000)
 dev_seq = corpus.read_sequence_list_conll("../data/dev-22.conll",max_sent_len=15,max_nr_sent=1000)
-corpus.add_sequence_list(train_seq) 
-hmm = hmmc.HMM(corpus)
+#corpus.add_sequence_list(train_seq) 
+hmm = hmmc.HMM(corpus.word_dict, corpus.tag_dict)
 hmm.train_supervised(train_seq)
 
 viterbi_pred_train = hmm.viterbi_decode_corpus(train_seq.seq_list)

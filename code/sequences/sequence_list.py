@@ -3,7 +3,7 @@ import pdb
 
 class SequenceList:
     def __init__(self, x_dict, y_dict):
-        self.x_dict = x_dict;
+        self.x_dict = x_dict
         self.y_dict = y_dict
         self.seq_list = []
 

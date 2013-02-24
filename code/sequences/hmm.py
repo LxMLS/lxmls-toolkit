@@ -2,8 +2,8 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 from util.my_math_utils import *
-from viterbi import viterbi
-from forward_backward import forward_backward,sanity_check_forward_backward
+from viterbi import run_viterbi
+from forward_backward import run_forward,run_backward,forward_backward,sanity_check_forward_backward
 import pdb
 
 
@@ -26,7 +26,7 @@ class HMM():
         self.initial_probs = np.zeros(num_states)
         
         # Matrix of transition probabilities: P(state|previous_state).
-        # Row is the state, column is the previous_state.
+        # First index is the state, second index is the previous_state.
         self.transition_probs = np.zeros([num_states, num_states])
         
         # Vector of probabilities for the final states: P(STOP|state).
@@ -210,20 +210,20 @@ class HMM():
         return initial_scores, transition_scores, final_scores, emission_scores
 
 
-    def build_potentials(self,sequence):
-        nr_states = self.nr_states
-        nr_pos = len(sequence.x)
-        node_potentials = np.zeros([nr_states,nr_pos])
-        edge_potentials = np.zeros([nr_states,nr_states,nr_pos-1])
-        node_potentials[:,0] = self.observation_probs[sequence.x[0],:]*self.init_probs.transpose()
-        for pos in xrange(1,nr_pos):
-            edge_potentials[:,:,pos-1] = self.transition_probs[0:-1,:].transpose()
-            node_potentials[:,pos] = self.observation_probs[sequence.x[pos],:]
-
-        #Final position
-        node_potentials[:,nr_pos-1] *= self.transition_probs[-1,:].transpose()
-
-        return node_potentials,edge_potentials
+#    def build_potentials(self,sequence):
+#        nr_states = self.nr_states
+#        nr_pos = len(sequence.x)
+#        node_potentials = np.zeros([nr_states,nr_pos])
+#        edge_potentials = np.zeros([nr_states,nr_states,nr_pos-1])
+#        node_potentials[:,0] = self.observation_probs[sequence.x[0],:]*self.init_probs.transpose()
+#        for pos in xrange(1,nr_pos):
+#            edge_potentials[:,:,pos-1] = self.transition_probs[0:-1,:].transpose()
+#            node_potentials[:,pos] = self.observation_probs[sequence.x[pos],:]
+#
+#        #Final position
+#        node_potentials[:,nr_pos-1] *= self.transition_probs[-1,:].transpose()
+#
+#        return node_potentials,edge_potentials
 
 
     def get_seq_prob(self,seq,node_potentials,edge_potentials):
@@ -238,7 +238,7 @@ class HMM():
         return value
     
 
-    def forward_backward(self,seq):
+    def forward_backward(self, seq):
         initial_scores, transition_scores, final_scores, emission_scores = self.compute_scores(seq)
         forward, backward = forward_backward(initial_scores, transition_scores, final_scores, emission_scores)
         return forward, backward
@@ -252,66 +252,132 @@ class HMM():
     def sanity_check_fb(self,forward,backward):
         return sanity_check_forward_backward(forward,backward)
 
+
+    def compute_posteriors(self, sequence):
+        '''Compute the state and transition posteriors:
+        - The state posteriors are the probability of each state
+        occurring at each position given the sequence of observations.
+        - The transition posteriors are the joint probability of two states
+        in consecutive positions given the sequence of observations.
+        Both quantities are computed via the forward-backward algorithm.'''
+
+        num_states = self.get_num_states() # Number of states.
+        length = len(sequence.x) # Length of the sequence.
+        
+        # Compute scores given the observation sequence.
+        initial_scores, transition_scores, final_scores, emission_scores = \
+            self.compute_scores(sequence)
+            
+        # Run the forward algorithm.
+        likelihood, forward = run_forward(initial_scores,
+                                          transition_scores,
+                                          final_scores,
+                                          emission_scores)
+
+        # Run the backward algorithm.
+        likelihood, backward = run_backward(initial_scores,
+                                            transition_scores,
+                                            final_scores,
+                                            emission_scores)
+
+        # Multiply the forward and backward variables to obtain the
+        # state posteriors.
+        state_posteriors = np.zeros([length, num_states]) # State posteriors. 
+        for pos in  xrange(length):
+            state_posteriors[pos,:] = forward[pos,:] * backward[pos,:]
+            state_posteriors[pos,:] /= likelihood
+ 
+        # Use the forward and backward variables along with the transition 
+        # and emission scores to obtain the transition posteriors.
+        transition_posteriors = np.zeros([length-1, num_states, num_states])
+        for pos in xrange(length-1):
+            for prev_state in xrange(num_states):
+                for state in xrange(num_states):
+                    transition_posteriors[pos, state, prev_state] = \
+                        forward[pos, prev_state] * \
+                        transition_scores[pos, state, prev_state] * \
+                        emission_scores[pos+1, state] * \
+                        backward[pos+1, state]
+                    transition_posteriors[pos, state, prev_state] /= likelihood
+                        
+        return state_posteriors, transition_posteriors
+        
+
+#    def get_node_posteriors_aux(self,seq,forward,backward,node_potentials,edge_potentials,likelihood):
+#        H,N = forward.shape
+#        posteriors = np.zeros([H,N],dtype=float)
+#        
+#        for pos in  xrange(N):
+#            for current_state in xrange(H):
+#                posteriors[current_state,pos] = forward[current_state,pos]*backward[current_state,pos]/likelihood
+#        return posteriors
+
     
-    ###############
-    ## Returns the node posterios
-    ####################
-    def get_node_posteriors(self,seq):
-        nr_states = self.nr_states
-        node_potentials,edge_potentials = self.build_potentials(seq)
-        forward,backward = forward_backward(node_potentials,edge_potentials)
-        #print sanity_check_forward_backward(forward,backward)
-        H,N = forward.shape
-        likelihood = np.sum(forward[:,N-1])
-        #print likelihood
-        return self.get_node_posteriors_aux(seq,forward,backward,node_potentials,edge_potentials,likelihood)
-        
+#    ###############
+#    ## Returns the node posterios
+#    ####################
+#    def get_node_posteriors(self,seq):
+#        nr_states = self.nr_states
+#        node_potentials,edge_potentials = self.build_potentials(seq)
+#        forward,backward = forward_backward(node_potentials,edge_potentials)
+#        #print sanity_check_forward_backward(forward,backward)
+#        H,N = forward.shape
+#        likelihood = np.sum(forward[:,N-1])
+#        #print likelihood
+#        return self.get_node_posteriors_aux(seq,forward,backward,node_potentials,edge_potentials,likelihood)
+#        
+#
+#    def get_node_posteriors_aux(self,seq,forward,backward,node_potentials,edge_potentials,likelihood):
+#        H,N = forward.shape
+#        posteriors = np.zeros([H,N],dtype=float)
+#        
+#        for pos in  xrange(N):
+#            for current_state in xrange(H):
+#                posteriors[current_state,pos] = forward[current_state,pos]*backward[current_state,pos]/likelihood
+#        return posteriors
 
-    def get_node_posteriors_aux(self,seq,forward,backward,node_potentials,edge_potentials,likelihood):
-        H,N = forward.shape
-        posteriors = np.zeros([H,N],dtype=float)
-        
-        for pos in  xrange(N):
-            for current_state in xrange(H):
-                posteriors[current_state,pos] = forward[current_state,pos]*backward[current_state,pos]/likelihood
-        return posteriors
+#    def get_edge_posteriors(self,seq):
+#        nr_states = self.nr_states
+#        node_potentials,edge_potentials = self.build_potentials(seq)
+#        forward,backward = forward_backward(node_potentials,edge_potentials)
+#        H,N = forward.shape
+#        likelihood = np.sum(forward[:,N-1])
+#        return self.get_edge_posteriors_aux(seq,forward,backward,node_potentials,edge_potentials,likelihood)
+#        
+#    def get_edge_posteriors_aux(self,seq,forward,backward,node_potentials,edge_potentials,likelihood):
+#        H,N = forward.shape
+#        edge_posteriors = np.zeros([H,H,N-1],dtype=float)
+#        for pos in xrange(N-1):
+#            for prev_state in xrange(H):
+#                for state in xrange(H):
+#                    edge_posteriors[prev_state,state,pos] = forward[prev_state,pos]*edge_potentials[prev_state,state,pos]*node_potentials[state,pos+1]*backward[state,pos+1]/likelihood 
+#        return edge_posteriors
 
-    def get_edge_posteriors(self,seq):
-        nr_states = self.nr_states
-        node_potentials,edge_potentials = self.build_potentials(seq)
-        forward,backward = forward_backward(node_potentials,edge_potentials)
-        H,N = forward.shape
-        likelihood = np.sum(forward[:,N-1])
-        return self.get_edge_posteriors_aux(seq,forward,backward,node_potentials,edge_potentials,likelihood)
-        
-    def get_edge_posteriors_aux(self,seq,forward,backward,node_potentials,edge_potentials,likelihood):
-        H,N = forward.shape
-        edge_posteriors = np.zeros([H,H,N-1],dtype=float)
-        for pos in xrange(N-1):
-            for prev_state in xrange(H):
-                for state in xrange(H):
-                    edge_posteriors[prev_state,state,pos] = forward[prev_state,pos]*edge_potentials[prev_state,state,pos]*node_potentials[state,pos+1]*backward[state,pos+1]/likelihood 
-        return edge_posteriors
-
-    def get_posteriors(self,seq):
-        nr_states = self.nr_states
-        node_potentials,edge_potentials = self.build_potentials(seq)
-        forward,backward = forward_backward(node_potentials,edge_potentials)
-        #self.sanity_check_fb(forward,backward)
-        H,N = forward.shape
-        likelihood = np.sum(forward[:,N-1])
-        node_posteriors = self.get_node_posteriors_aux(seq,forward,backward,node_potentials,edge_potentials,likelihood)
-        edge_posteriors = self.get_edge_posteriors_aux(seq,forward,backward,node_potentials,edge_potentials,likelihood)
-        return [node_posteriors,edge_posteriors],likelihood 
+#    def get_posteriors(self,seq):
+#        nr_states = self.nr_states
+#        node_potentials,edge_potentials = self.build_potentials(seq)
+#        forward,backward = forward_backward(node_potentials,edge_potentials)
+#        #self.sanity_check_fb(forward,backward)
+#        H,N = forward.shape
+#        likelihood = np.sum(forward[:,N-1])
+#        node_posteriors = self.get_node_posteriors_aux(seq,forward,backward,node_potentials,edge_potentials,likelihood)
+#        edge_posteriors = self.get_edge_posteriors_aux(seq,forward,backward,node_potentials,edge_potentials,likelihood)
+#        return [node_posteriors,edge_posteriors],likelihood 
     
         
 
-    def posterior_decode(self,seq):
-        posteriors = self.get_node_posteriors(seq)
-        res =  np.argmax(posteriors,axis=0)
-        new_seq =  seq.copy_sequence()
-        new_seq.y = res
-        return new_seq
+    def posterior_decode(self, sequence):
+        '''Compute the sequence of states that are individually the most
+        probable, given the observations. This is done by maximizing
+        the state posteriors, which are computed with the forward-backward
+        algorithm.'''
+
+        state_posteriors, _ = self.compute_posteriors(sequence)
+        best_states =  np.argmax(state_posteriors, axis=1)
+        predicted_sequence =  sequence.copy_sequence()
+        predicted_sequence.y = best_states
+        return predicted_sequence
+
     
     def posterior_decode_corpus(self,seq_list):
         predictions = []
@@ -322,20 +388,31 @@ class HMM():
 
     
     
-    def viterbi_decode(self,seq):
-        node_potentials,edge_potentials = self.build_potentials(seq)
-        viterbi_path,_ = viterbi(node_potentials,edge_potentials)
-        res =  viterbi_path
-        new_seq =  seq.copy_sequence()
-        new_seq.y = res
-        return new_seq
+    def viterbi_decode(self, sequence):
+        '''Compute the most likely sequence of states given the observations,
+        by running the Viterbi algorithm.'''
+
+        # Compute scores given the observation sequence.
+        initial_scores, transition_scores, final_scores, emission_scores = \
+            self.compute_scores(sequence)
+            
+        # Run the forward algorithm.
+        best_states, total_score = run_viterbi(initial_scores,
+                                               transition_scores,
+                                               final_scores,
+                                               emission_scores)
+
+        predicted_sequence =  sequence.copy_sequence()
+        predicted_sequence.y = best_states
+        return predicted_sequence, total_score
 
 
 
     def viterbi_decode_corpus(self,seq_list):
         predictions = []
         for seq in seq_list:
-            predictions.append(self.viterbi_decode(seq))
+            predicted_sequence, _ = self.viterbi_decode(seq)
+            predictions.append(predicted_sequence)
         return predictions
 
     def evaluate_corpus(self,seq_list,predictions):

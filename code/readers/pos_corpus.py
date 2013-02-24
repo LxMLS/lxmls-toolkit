@@ -1,5 +1,6 @@
 import codecs
 import gzip
+from sequences.label_dictionary import *
 from sequences.sequence import *
 from sequences.sequence_list import *
 
@@ -23,15 +24,28 @@ pt_test = data_dir+"pt_test.txt"
 class PostagCorpus:
 
     def __init__(self):
-        self.word_dict = {}
-        self.int_to_word = []
-        self.tag_dict = {}
-        self.int_to_tag = []
-        ##Initialize noun to be tag zero so that it the default tag
-        self.tag_dict["noun"] = 0
-        self.int_to_tag = ["noun"]
-        self.sequence_list = Sequence_List(self.word_dict,self.int_to_word,self.tag_dict,self.int_to_tag) 
-        self.word_counts = {}
+        # Word dictionary.
+        self.word_dict = LabelDictionary()
+        
+        # POS tag dictionary.
+        # Initialize noun to be tag zero so that it the default tag.
+        self.tag_dict = LabelDictionary(['noun'])
+        
+        # Initialize sequence list.
+        self.sequence_list = SequenceList(self.word_dict, self.tag_dict)
+
+
+#        self.word_counts = {}
+
+#        self.word_dict = {}
+#        self.int_to_word = []
+#        self.tag_dict = {}
+#        self.int_to_tag = []
+#        ##Initialize noun to be tag zero so that it the default tag
+#        self.tag_dict["noun"] = 0
+#        self.int_to_tag = ["noun"]
+#        self.sequence_list = SequenceList(self.word_dict,self.int_to_word,self.tag_dict,self.int_to_tag) 
+#        self.word_counts = {}
         
         
         
@@ -39,18 +53,19 @@ class PostagCorpus:
 
 
 
-    ###########
-    ## Add a sequence list to the corpus for training
-    ###########
-    def add_sequence_list(self,seq_list):
-        for sequence in seq_list.seq_list:
-            ##Add the sequence list
-            self.sequence_list.add_sequence(sequence.x,sequence.y)
-            #update the word counts
-            for word in sequence.x:
-                if word not in self.word_counts:
-                    self.word_counts[word] = 0
-                self.word_counts[word] +=1
+#    ###########
+#    ## Add a sequence list to the corpus for training
+#    ###########
+#    def add_sequence_list(self,seq_list):
+#        pdb.set_trace()
+#        for sequence in seq_list.seq_list:
+#            ##Add the sequence list
+#            self.sequence_list.add_sequence(sequence.x,sequence.y)
+#            #update the word counts
+#            for word in sequence.x:
+#                if word not in self.word_counts:
+#                    self.word_counts[word] = 0
+#                self.word_counts[word] +=1
 
     ## Read a text file in conll format and return a sequence list
     ## 
@@ -62,8 +77,9 @@ class PostagCorpus:
                 coarse,fine = line.strip().split("\t")
                 mapping[coarse.lower()] = fine.lower()        
         instance_list = self.read_conll_instances(train_file,max_sent_len,max_nr_sent,mapping)
-        seq_list = Sequence_List(self.word_dict,self.int_to_word,self.tag_dict,self.int_to_tag)
+        seq_list = SequenceList(self.word_dict, self.tag_dict)
         for sent_x,sent_y in instance_list:
+#            pdb.set_trace()            
             seq_list.add_sequence(sent_x,sent_y)
         return seq_list
     
@@ -72,53 +88,51 @@ class PostagCorpus:
     ### 
     ############################################
     def read_conll_instances(self,file,max_sent_len,max_nr_sent,mapping):
-                if file.endswith("gz"):
-                    zf = gzip.open(file, 'rb')
-                    reader = codecs.getreader("utf-8")
-                    contents = reader( zf )
-                else:
-                    contents =  codecs.open(file,"r","utf-8")
-                
-                nr_sent = 0
-                instances = []
+        if file.endswith("gz"):
+            zf = gzip.open(file, 'rb')
+            reader = codecs.getreader("utf-8")
+            contents = reader( zf )
+        else:
+            contents =  codecs.open(file,"r","utf-8")
+        
+        nr_sent = 0
+        instances = []
+        ex_x = []
+        ex_y = []
+        nr_types = len(self.word_dict)
+        nr_pos = len(self.tag_dict)
+        for line in contents:
+            toks = line.split()
+            if (len(toks) <2):
+                #print "sent n %i size %i"%(nr_sent,len(ex_x)) 
+                if(len(ex_x) < max_sent_len and len(ex_x) > 1):
+                    #print "accept"
+                    nr_sent +=1
+                    instances.append([ex_x,ex_y])
+                # else:
+                #     if(len(ex_x) <= 1):
+                #         print "refusing sentence of len 1"
+                if(nr_sent >= max_nr_sent):
+                    break
                 ex_x = []
                 ex_y = []
-                nr_types = len(self.word_dict)
-                nr_pos = len(self.tag_dict)
-                for line in contents:
-                    toks = line.split()
-                    if (len(toks) <2):
-                        #print "sent n %i size %i"%(nr_sent,len(ex_x)) 
-                        if(len(ex_x) < max_sent_len and len(ex_x) > 1):
-                            #print "accept"
-                            nr_sent +=1
-                            instances.append([ex_x,ex_y])
-                        # else:
-                        #     if(len(ex_x) <= 1):
-                        #         print "refusing sentence of len 1"
-                        if(nr_sent >= max_nr_sent):
-                            break
-                        ex_x = []
-                        ex_y = []
-                    else:
-                        pos = toks[3]
-                        word = toks[1]
-                        pos = pos.lower()
-                        if(pos not in mapping):
-                            mapping[pos] = "noun"
-                            print "unknown tag %s"%pos
-                        pos = mapping[pos]    
-                        if(word not in self.word_dict):
-                            self.word_dict[word] = nr_types
-                            nr_types += 1;
-                            self.int_to_word.append(word)
-                        if (pos not in self.tag_dict):
-                            self.tag_dict[pos] = nr_pos
-                            nr_pos +=1
-                            self.int_to_tag.append(pos)
-                        ex_x.append(self.word_dict[word])
-                        ex_y.append(self.tag_dict[pos])
-                return instances
+            else:
+                pos = toks[3]
+                word = toks[1]
+                pos = pos.lower()
+                if(pos not in mapping):
+                    mapping[pos] = "noun"
+                    print "unknown tag %s"%pos
+                pos = mapping[pos]    
+                if word not in self.word_dict:
+                    self.word_dict.add(word)
+                if pos not in self.tag_dict:
+                    self.tag_dict.add(pos)
+                ex_x.append(word)
+                ex_y.append(pos)
+#                ex_x.append(self.word_dict[word])
+#                ex_y.append(self.tag_dict[pos])
+        return instances
 
     ## Read a text file in brown format and return a sequence list
     ## 
