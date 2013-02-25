@@ -43,9 +43,9 @@ print hmm.emission_probs
 #exercise 2.4
 print "Exercise 2.4"
 ## See forward_backward.py file
-forward,backward =  hmm.forward_backward(simple.train.seq_list[0])
-print "Likelihoods per position"
-print hmm.sanity_check_fb(forward,backward)
+#forward,backward =  hmm.forward_backward(simple.train.seq_list[0])
+#print "Likelihoods per position"
+#print hmm.sanity_check_fb(forward,backward)
 
 #exercise 2.5
 print "Exercise 2.5"

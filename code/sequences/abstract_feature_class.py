@@ -37,6 +37,9 @@ class AbstractFeatureClass(object):
 #        self.nr_feats = len(self.feature_names)
 #        self.add_features = False
 
+    def get_num_features(self):
+        return len(self.feature_dict)
+
     def build_features(self):
         '''
         Generic function to build features for a given dataset.
@@ -56,7 +59,7 @@ class AbstractFeatureClass(object):
         '''
         raise NotImplementedError
 
-    def get_edge_features(self,sequence,position,tag_id,prev_tag_id):
+    def get_transition_features(self, sequence, position, tag_id, prev_tag_id):
         '''
         Returns the edge features for position, for
         previous tag_id and tag_id.
@@ -68,11 +71,18 @@ class AbstractFeatureClass(object):
         '''
         raise NotImplementedError
 
-    def get_node_features(self,sequence,position,tag_id):
+    def get_initial_features(self, sequence, tag_id):
+        raise NotImplementedError
+
+    def get_final_features(self, sequence, prev_tag_id):
+        raise NotImplementedError
+
+    def get_emission_features(self, sequence, position, tag_id):
         '''
         Returns all features for a node at position with tag_id
         '''
         raise NotImplementedError
+
 
     def save_features(self,file):
         fn = open(file,"w")

@@ -13,25 +13,25 @@ test_seq = corpus.read_sequence_list_conll("../data/test-23.conll",max_sent_len=
 dev_seq = corpus.read_sequence_list_conll("../data/dev-22.conll",max_sent_len=10,max_nr_sent=1000)
 #corpus.add_sequence_list(train_seq) 
 #id_f = idfc.IDFeatures(corpus)
-id_f = idfc.IDFeatures(train_seq)
-id_f.build_features()
+feature_mapper = idfc.IDFeatures(train_seq)
+feature_mapper.build_features()
 
 pdb.set_trace()
 
 
 print "Perceptron Exercise"
 
-sp = spc.StructuredPercetron(corpus,id_f)
+sp = spc.StructuredPerceptron(corpus.word_dict, corpus.tag_dict, feature_mapper)
 sp.nr_rounds = 20
-sp.train_supervised(train_seq.seq_list)
+sp.train_supervised(train_seq)
 
-pred_train = sp.viterbi_decode_corpus(train_seq.seq_list)
-pred_dev = sp.viterbi_decode_corpus(dev_seq.seq_list)
-pred_test = sp.viterbi_decode_corpus(test_seq.seq_list)
+pred_train = sp.viterbi_decode_corpus(train_seq)
+pred_dev = sp.viterbi_decode_corpus(dev_seq)
+pred_test = sp.viterbi_decode_corpus(test_seq)
 
-eval_train = sp.evaluate_corpus(train_seq.seq_list,pred_train)
-eval_dev = sp.evaluate_corpus(dev_seq.seq_list,pred_dev)
-eval_test = sp.evaluate_corpus(test_seq.seq_list,pred_test)
+eval_train = sp.evaluate_corpus(train_seq, pred_train)
+eval_dev = sp.evaluate_corpus(dev_seq, pred_dev)
+eval_test = sp.evaluate_corpus(test_seq, pred_test)
 
 print "Structured Percetron - ID Features Accuracy Train: %.3f Dev: %.3f Test: %.3f"%(eval_train,eval_dev,eval_test)
 
