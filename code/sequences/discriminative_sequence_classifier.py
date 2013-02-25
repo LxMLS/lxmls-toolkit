@@ -329,7 +329,7 @@ class DiscriminativeSequenceClassifier(sc.SequenceClassifier):
         Returns 1 in case of overflow
         '''
         try:
-            value = np.exp(number)
+            value = number #np.exp(number)
         except:
             print "Overflow computing exp"
             print number

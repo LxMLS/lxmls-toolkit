@@ -78,7 +78,7 @@ class IDFeatures(AbstractFeatureClass):
         ## Take care of first position
         init_idx = []
         node_idx = []
-        node_idx = self.add_node_features(sequence, 0, sequence.y[0],node_idx)
+        node_idx = self.add_emission_features(sequence, 0, sequence.y[0],node_idx)
         init_idx = self.add_initial_features(sequence, sequence.y[0], init_idx)
         seq_node_features.append(node_idx)
         seq_edge_features.append(init_idx)
@@ -89,8 +89,8 @@ class IDFeatures(AbstractFeatureClass):
             j = i+1
             #print i,j
             prev_tag = sequence.y[j-1]
-            edge_idx = self.add_edge_features(sequence, j, tag, prev_tag, edge_idx)            
-            idx = self.add_node_features(sequence, j, tag, idx)
+            edge_idx = self.add_transition_features(sequence, j, tag, prev_tag, edge_idx)            
+            idx = self.add_emission_features(sequence, j, tag, idx)
             seq_node_features.append(idx)
             seq_edge_features.append(edge_idx)
         ## Take care of final position
@@ -111,7 +111,7 @@ class IDFeatures(AbstractFeatureClass):
             self.node_feature_cache[x] = {}
         if(y not in self.node_feature_cache[x]):
             node_idx = []
-            node_idx = self.add_node_features(sequence, pos, y, node_idx)
+            node_idx = self.add_emission_features(sequence, pos, y, node_idx)
             self.node_feature_cache[x][y] = node_idx
         idx = self.node_feature_cache[x][y]
         all_feat = idx[:]
@@ -128,7 +128,7 @@ class IDFeatures(AbstractFeatureClass):
             self.edge_feature_cache[y]={}
         if(y_prev not in self.edge_feature_cache[y]): 
             edge_idx = []
-            edge = self.add_edge_features(sequence, pos, y, y_prev, edge_idx)            
+            edge = self.add_transition_features(sequence, pos, y, y_prev, edge_idx)            
             self.edge_feature_cache[y][y_prev] = edge_idx
         return self.edge_feature_cache[y][y_prev]
 
@@ -202,7 +202,7 @@ class IDFeatures(AbstractFeatureClass):
 #            idx.append(nr_feat)
 #        return idx
 
-    def add_node_features(self, sequence, pos, y, features):
+    def add_emission_features(self, sequence, pos, y, features):
         '''Add word-tag pair feature.'''
         x = sequence.x[pos]
         # Get tag name from ID.
@@ -241,7 +241,7 @@ class IDFeatures(AbstractFeatureClass):
 #            print edge_idx
 #        return edge_idx
 
-    def add_edge_features(self, sequence, pos, y, y_prev, features):
+    def add_transition_features(self, sequence, pos, y, y_prev, features):
         """ Adds a feature to the edge feature list.
         Creates a unique id if its the first time the feature is visited
         or returns the existing id otherwise

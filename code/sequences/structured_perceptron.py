@@ -59,7 +59,7 @@ class StructuredPerceptron(dsc.DiscriminativeSequenceClassifier):
         predicted_sequence, _ = self.viterbi_decode(sequence)
 
         #pdb.set_trace()
-        print predicted_sequence
+#        print predicted_sequence
         y_hat = predicted_sequence.y
 
         
@@ -100,11 +100,12 @@ class StructuredPerceptron(dsc.DiscriminativeSequenceClassifier):
             ## update bigram features
             ## If true bigram != predicted bigram update bigram features
                 prev_y_t_true = sequence.y[pos-1]
-                prev_y_t_hat = y_hat[pos-1][0]
+#                pdb.set_trace()
+                prev_y_t_hat = y_hat[pos-1]
                 if(y_t_true != y_t_hat or  prev_y_t_true !=  prev_y_t_hat):
-                    true_transition_features = self.feature_class.get_transition_features(sequence, pos, y_t_true, prev_y_t_true)
+                    true_transition_features = self.feature_mapper.get_transition_features(sequence, pos, y_t_true, prev_y_t_true)
                     self.parameters[true_transition_features] += self.learning_rate                                
-                    hat_transition_features = self.feature_class.get_transition_features(sequence, pos, y_t_hat, prev_y_t_hat)
+                    hat_transition_features = self.feature_mapper.get_transition_features(sequence, pos, y_t_hat, prev_y_t_hat)
                     self.parameters[hat_transition_features] -= self.learning_rate
                     # print "increasing parameters"
                     # print truth_edge_features

@@ -101,11 +101,11 @@ class SequenceClassifier():
         return predicted_sequence
 
     
-    def posterior_decode_corpus(self, sequence_list):
+    def posterior_decode_corpus(self, dataset):
         '''Run posterior_decode at corpus level.'''
         
         predictions = []
-        for sequence in sequence_list:
+        for sequence in dataset.seq_list:
             predictions.append(self.posterior_decode(sequence))
         return predictions
 
@@ -130,22 +130,22 @@ class SequenceClassifier():
 
 
 
-    def viterbi_decode_corpus(self, sequence_list):
+    def viterbi_decode_corpus(self, dataset):
         '''Run viterbi_decode at corpus level.'''
 
         predictions = []
-        for sequence in sequence_list:
+        for sequence in dataset.seq_list:
             predicted_sequence, _ = self.viterbi_decode(sequence)
             predictions.append(predicted_sequence)
         return predictions
 
 
-    def evaluate_corpus(self, sequence_list, predictions):
+    def evaluate_corpus(self, dataset, predictions):
         '''Evaluate classification accuracy at corpus level, comparing with
         gold standard.'''
         total = 0.0
         correct = 0.0
-        for i, sequence in enumerate(sequence_list):
+        for i, sequence in enumerate(dataset.seq_list):
             pred = predictions[i]
             for i,y_hat in enumerate(pred.y):
                 if(sequence.y[i] == y_hat):
