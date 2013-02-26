@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import sequence_classifier as sc
+from log_domain import *
 
 import pdb
 
@@ -176,22 +177,22 @@ class HMM(sc.SequenceClassifier):
     def compute_scores(self, sequence):
         num_states = self.get_num_states()
         length = len(sequence.x)
-        emission_scores = np.zeros([length, num_states])
-        initial_scores = np.zeros(num_states)
-        transition_scores = np.zeros([length-1, num_states, num_states])
-        final_scores = np.zeros(num_states)
+        emission_scores = np.zeros([length, num_states]) + logzero()
+        initial_scores = np.zeros(num_states) + logzero()
+        transition_scores = np.zeros([length-1, num_states, num_states]) + logzero()
+        final_scores = np.zeros(num_states) + logzero()
 
         # Initial position.
-        initial_scores[:] = self.initial_probs
+        initial_scores[:] = np.log(self.initial_probs)
         
         # Intermediate position.
         for pos in xrange(length):
-            emission_scores[pos,:] = self.emission_probs[sequence.x[pos], :]
+            emission_scores[pos,:] = np.log(self.emission_probs[sequence.x[pos], :])
             if pos > 0: 
-                transition_scores[pos-1,:,:] = self.transition_probs
+                transition_scores[pos-1,:,:] = np.log(self.transition_probs)
 
         # Final position.
-        final_scores[:] = self.final_probs
+        final_scores[:] = np.log(self.final_probs)
 
         return initial_scores, transition_scores, final_scores, emission_scores
 
@@ -424,17 +425,17 @@ class HMM(sc.SequenceClassifier):
         max_smooth = 0
         max_acc = 0
         for i in smooth_values:
-               self.train_supervised(train,smoothing=i)
-               viterbi_pred_train = self.viterbi_decode_corpus(train.seq_list)
-               posterior_pred_train = self.posterior_decode_corpus(train.seq_list)
-               eval_viterbi_train =   self.evaluate_corpus(train.seq_list,viterbi_pred_train)
-               eval_posterior_train = self.evaluate_corpus(train.seq_list,posterior_pred_train)
+               self.train_supervised(train, smoothing=i)
+               viterbi_pred_train = self.viterbi_decode_corpus(train)
+               posterior_pred_train = self.posterior_decode_corpus(train)
+               eval_viterbi_train =   self.evaluate_corpus(train, viterbi_pred_train)
+               eval_posterior_train = self.evaluate_corpus(train, posterior_pred_train)
                print "Smoothing %f --  Train Set Accuracy: Posterior Decode %.3f, Viterbi Decode: %.3f"%(i,eval_posterior_train,eval_viterbi_train)
 
-               viterbi_pred_test = self.viterbi_decode_corpus(test.seq_list)
-               posterior_pred_test = self.posterior_decode_corpus(test.seq_list)
-               eval_viterbi_test =   self.evaluate_corpus(test.seq_list,viterbi_pred_test)
-               eval_posterior_test = self.evaluate_corpus(test.seq_list,posterior_pred_test)
+               viterbi_pred_test = self.viterbi_decode_corpus(test)
+               posterior_pred_test = self.posterior_decode_corpus(test)
+               eval_viterbi_test =   self.evaluate_corpus(test, viterbi_pred_test)
+               eval_posterior_test = self.evaluate_corpus(test, posterior_pred_test)
                print "Smoothing %f -- Test Set Accuracy: Posterior Decode %.3f, Viterbi Decode: %.3f"%(i,eval_posterior_test,eval_viterbi_test)
                if(eval_posterior_test > max_acc):
                    max_acc = eval_posterior_test

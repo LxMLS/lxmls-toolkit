@@ -98,7 +98,7 @@ print y_pred, score
 print "Truth test 1"
 print simple.test.seq_list[1]
 
-pdb.set_trace()
+#pdb.set_trace()
 
 # RIGHT NOW, WHOEVER COMPLETED VITERBI KNOWS ONLY THAT THEIR PREDICTED SEQUENCES MATCH 
 # THE ONES IN THE GUIDE. BUT THESE DOES NOT MEAN THAT THERE IS NOT A BUG 
@@ -118,19 +118,19 @@ dev_seq = corpus.read_sequence_list_conll("../data/dev-22.conll",max_sent_len=15
 hmm = hmmc.HMM(corpus.word_dict, corpus.tag_dict)
 hmm.train_supervised(train_seq)
 
-viterbi_pred_train = hmm.viterbi_decode_corpus(train_seq.seq_list)
-posterior_pred_train = hmm.posterior_decode_corpus(train_seq.seq_list)
-eval_viterbi_train =   hmm.evaluate_corpus(train_seq.seq_list,viterbi_pred_train)
-eval_posterior_train = hmm.evaluate_corpus(train_seq.seq_list,posterior_pred_train)
+viterbi_pred_train = hmm.viterbi_decode_corpus(train_seq)
+posterior_pred_train = hmm.posterior_decode_corpus(train_seq)
+eval_viterbi_train =   hmm.evaluate_corpus(train_seq, viterbi_pred_train)
+eval_posterior_train = hmm.evaluate_corpus(train_seq, posterior_pred_train)
 print "Train Set Accuracy: Posterior Decode %.3f, Viterbi Decode: %.3f"%(eval_posterior_train,eval_viterbi_train)
 
 
 
 
-viterbi_pred_test = hmm.viterbi_decode_corpus(test_seq.seq_list)
-posterior_pred_test = hmm.posterior_decode_corpus(test_seq.seq_list)
-eval_viterbi_test =   hmm.evaluate_corpus(test_seq.seq_list,viterbi_pred_test)
-eval_posterior_test = hmm.evaluate_corpus(test_seq.seq_list,posterior_pred_test)
+viterbi_pred_test = hmm.viterbi_decode_corpus(test_seq)
+posterior_pred_test = hmm.posterior_decode_corpus(test_seq)
+eval_viterbi_test =   hmm.evaluate_corpus(test_seq,viterbi_pred_test)
+eval_posterior_test = hmm.evaluate_corpus(test_seq,posterior_pred_test)
 print "Test Set Accuracy: Posterior Decode %.3f, Viterbi Decode: %.3f"%(eval_posterior_test,eval_viterbi_test)
 
 
@@ -138,9 +138,9 @@ best_smothing = hmm.pick_best_smoothing(train_seq,dev_seq,[10,1,0.1,0])
 
 
 hmm.train_supervised(train_seq,smoothing=best_smothing)
-viterbi_pred_test = hmm.viterbi_decode_corpus(test_seq.seq_list)
-posterior_pred_test = hmm.posterior_decode_corpus(test_seq.seq_list)
-eval_viterbi_test =   hmm.evaluate_corpus(test_seq.seq_list,viterbi_pred_test)
-eval_posterior_test = hmm.evaluate_corpus(test_seq.seq_list,posterior_pred_test)
+viterbi_pred_test = hmm.viterbi_decode_corpus(test_seq)
+posterior_pred_test = hmm.posterior_decode_corpus(test_seq)
+eval_viterbi_test =   hmm.evaluate_corpus(test_seq, viterbi_pred_test)
+eval_posterior_test = hmm.evaluate_corpus(test_seq, posterior_pred_test)
 print "Best Smoothing %f --  Test Set Accuracy: Posterior Decode %.3f, Viterbi Decode: %.3f"%(best_smothing,eval_posterior_test,eval_viterbi_test)
 

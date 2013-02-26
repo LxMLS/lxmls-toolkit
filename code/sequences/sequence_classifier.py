@@ -49,28 +49,32 @@ class SequenceClassifier():
         num_states = self.get_num_states() # Number of states.
         length = len(sequence.x) # Length of the sequence.
         
+#        pdb.set_trace()
+        
         # Compute scores given the observation sequence.
         initial_scores, transition_scores, final_scores, emission_scores = \
             self.compute_scores(sequence)
             
         # Run the forward algorithm.
-        likelihood, forward = self.decoder.run_forward(initial_scores,
-                                                       transition_scores,
-                                                       final_scores,
-                                                       emission_scores)
+        log_likelihood, forward = self.decoder.run_forward(initial_scores,
+                                                           transition_scores,
+                                                           final_scores,
+                                                           emission_scores)
+#        print log_likelihood
 
         # Run the backward algorithm.
-        likelihood, backward = self.decoder.run_backward(initial_scores,
-                                                         transition_scores,
-                                                         final_scores,
-                                                         emission_scores)
+        log_likelihood, backward = self.decoder.run_backward(initial_scores,
+                                                             transition_scores,
+                                                             final_scores,
+                                                             emission_scores)
+#        print log_likelihood
 
         # Multiply the forward and backward variables to obtain the
-        # state posteriors.
+        # state posteriors (sum in log-space).
         state_posteriors = np.zeros([length, num_states]) # State posteriors. 
-        for pos in  xrange(length):
-            state_posteriors[pos,:] = forward[pos,:] * backward[pos,:]
-            state_posteriors[pos,:] /= likelihood
+        for pos in xrange(length):
+            state_posteriors[pos,:] = forward[pos,:] + backward[pos,:]
+            state_posteriors[pos,:] -= log_likelihood
  
         # Use the forward and backward variables along with the transition 
         # and emission scores to obtain the transition posteriors.
@@ -79,12 +83,15 @@ class SequenceClassifier():
             for prev_state in xrange(num_states):
                 for state in xrange(num_states):
                     transition_posteriors[pos, state, prev_state] = \
-                        forward[pos, prev_state] * \
-                        transition_scores[pos, state, prev_state] * \
-                        emission_scores[pos+1, state] * \
+                        forward[pos, prev_state] + \
+                        transition_scores[pos, state, prev_state] + \
+                        emission_scores[pos+1, state] + \
                         backward[pos+1, state]
-                    transition_posteriors[pos, state, prev_state] /= likelihood
+                    transition_posteriors[pos, state, prev_state] -= log_likelihood
                         
+        state_posteriors = np.exp(state_posteriors)
+        transition_posteriors = np.exp(transition_posteriors)
+        
         return state_posteriors, transition_posteriors
         
 
