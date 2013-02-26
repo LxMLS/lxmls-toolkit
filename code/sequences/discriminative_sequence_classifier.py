@@ -48,7 +48,7 @@ class DiscriminativeSequenceClassifier(sc.SequenceClassifier):
              score = 0.0
              for feat_id in initial_features:
                  score += self.parameters[feat_id]
-             initial_scores[tag_id] = self.my_exp(score)
+             initial_scores[tag_id] = score
         
         # Intermediate position.
         for pos in xrange(length):
@@ -57,7 +57,7 @@ class DiscriminativeSequenceClassifier(sc.SequenceClassifier):
                  score = 0.0
                  for feat_id in emission_features:
                      score += self.parameters[feat_id]
-                 emission_scores[pos, tag_id] = self.my_exp(score)
+                 emission_scores[pos, tag_id] = score
             if pos > 0: 
                 for tag_id in xrange(num_states):
                     for prev_tag_id in xrange(num_states):
@@ -73,7 +73,7 @@ class DiscriminativeSequenceClassifier(sc.SequenceClassifier):
              score = 0.0
              for feat_id in final_features:
                  score += self.parameters[feat_id]
-             final_scores[prev_tag_id] = self.my_exp(score)
+             final_scores[prev_tag_id] = score
 
         return initial_scores, transition_scores, final_scores, emission_scores
 
@@ -324,39 +324,39 @@ class DiscriminativeSequenceClassifier(sc.SequenceClassifier):
 
     
 
-    def my_exp(self,number):
-        '''
-        Returns 1 in case of overflow
-        '''
-        try:
-            value = number #np.exp(number)
-        except:
-            print "Overflow computing exp"
-            print number
-            pdb.set_trace()
-            print self.parameters[edge_f_list]
-            value = 1
-        return value
+#    def my_exp(self,number):
+#        '''
+#        Returns 1 in case of overflow
+#        '''
+#        try:
+#            value = number #np.exp(number)
+#        except:
+#            print "Overflow computing exp"
+#            print number
+#            pdb.set_trace()
+#            print self.parameters[edge_f_list]
+#            value = 1
+#        return value
 
 
-def ee(number):
-    try:
-        value = exp(number)
-    except:
-        print "Overflow computing exp"
-        print number
-        print self.parameters[edge_f_list]
-        value = 1
-    return value
-
-def text_exp3():
-    for i in xrange(100000):
-        ee(2)
-
-def test_exp():
-    for i in xrange(100000):
-        exp(2)
-
-def test_exp2():
-    for i in xrange(100000):
-        np.exp(2)
+#def ee(number):
+#    try:
+#        value = exp(number)
+#    except:
+#        print "Overflow computing exp"
+#        print number
+#        print self.parameters[edge_f_list]
+#        value = 1
+#    return value
+#
+#def text_exp3():
+#    for i in xrange(100000):
+#        ee(2)
+#
+#def test_exp():
+#    for i in xrange(100000):
+#        exp(2)
+#
+#def test_exp2():
+#    for i in xrange(100000):
+#        np.exp(2)

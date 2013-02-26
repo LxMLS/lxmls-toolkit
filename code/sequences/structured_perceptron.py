@@ -1,19 +1,19 @@
+#import sys
+#import numpy as np
+#import matplotlib.pyplot as plt
+#import scipy.optimize.lbfgsb as opt2
+#sys.path.append("util/" )
+
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
-import scipy.optimize.lbfgsb as opt2
-sys.path.append("util/" )
+#sys.path.append("util/" )
+#from my_math_utils import *
+##from forward_backward import forward_backward,sanity_check_forward_backward
+#sys.path.append("sequences/" )
+import discriminative_sequence_classifier as dsc
 
 import pdb
-
-import sys
-import numpy as np
-import matplotlib.pyplot as plt
-sys.path.append("util/" )
-from my_math_utils import *
-from forward_backward import forward_backward,sanity_check_forward_backward
-sys.path.append("sequences/" )
-import discriminative_sequence_classifier as dsc
 
 class StructuredPerceptron(dsc.DiscriminativeSequenceClassifier):
     ''' Implements a first order CRF'''
@@ -102,7 +102,7 @@ class StructuredPerceptron(dsc.DiscriminativeSequenceClassifier):
                 prev_y_t_true = sequence.y[pos-1]
 #                pdb.set_trace()
                 prev_y_t_hat = y_hat[pos-1]
-                if(y_t_true != y_t_hat or  prev_y_t_true !=  prev_y_t_hat):
+                if(y_t_true != y_t_hat or prev_y_t_true != prev_y_t_hat):
                     true_transition_features = self.feature_mapper.get_transition_features(sequence, pos, y_t_true, prev_y_t_true)
                     self.parameters[true_transition_features] += self.learning_rate                                
                     hat_transition_features = self.feature_mapper.get_transition_features(sequence, pos, y_t_hat, prev_y_t_hat)
@@ -114,7 +114,8 @@ class StructuredPerceptron(dsc.DiscriminativeSequenceClassifier):
                         
             #else:
                 #print "no errors at pos %i"%(pos)
-
+                
+        pos = len(sequence.x)
         y_t_true = sequence.y[pos-1]
         y_t_hat = y_hat[pos-1]
 

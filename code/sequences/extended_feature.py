@@ -7,21 +7,21 @@ from id_feature import IDFeatures
 #######################
 class ExtendedFeatures(IDFeatures):
 
-    def add_emission_features(self, sequence, pos, y, features):
-        '''Add word-tag pair feature.'''
-        x = sequence.x[pos]
-        # Get tag name from ID.
-        y_name = self.dataset.y_dict.get_label_name(y)
-        # Get word name from ID.
-        x_name = self.dataset.x_dict.get_label_name(x)
-        # Generate feature name.
-        feat_name = "id:%s::%s"%(x_name,y_name)
-        # Get feature ID from name.
-        feat_id = self.add_feature(feat_name)
-        # Append feature.
-        if feat_id != -1:
-            features.append(feat_id)
-        return features
+#    def add_emission_features(self, sequence, pos, y, features):
+#        '''Add word-tag pair feature.'''
+#        x = sequence.x[pos]
+#        # Get tag name from ID.
+#        y_name = self.dataset.y_dict.get_label_name(y)
+#        # Get word name from ID.
+#        x_name = self.dataset.x_dict.get_label_name(x)
+#        # Generate feature name.
+#        feat_name = "id:%s::%s"%(x_name,y_name)
+#        # Get feature ID from name.
+#        feat_id = self.add_feature(feat_name)
+#        # Append feature.
+#        if feat_id != -1:
+#            features.append(feat_id)
+#        return features
     
     def add_emission_features(self, sequence, pos, y, features):
         x = sequence.x[pos]
