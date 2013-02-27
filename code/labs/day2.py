@@ -3,6 +3,7 @@ sys.path.append('.')
 import readers.simple_sequence as ssr
 import sequences.hmm as hmmc
 import readers.pos_corpus as pcc
+import sequences.confusion_matrix as cm
 import pdb
 
 
@@ -50,7 +51,7 @@ print "Exercise 2.4"
 #exercise 2.5
 print "Exercise 2.5"
 print "State Posteriors"
-state_posteriors, _ = hmm.compute_posteriors(simple.train.seq_list[0])
+state_posteriors, _, _ = hmm.compute_posteriors(simple.train.seq_list[0])
 print state_posteriors
 
 
@@ -144,3 +145,10 @@ eval_viterbi_test =   hmm.evaluate_corpus(test_seq, viterbi_pred_test)
 eval_posterior_test = hmm.evaluate_corpus(test_seq, posterior_pred_test)
 print "Best Smoothing %f --  Test Set Accuracy: Posterior Decode %.3f, Viterbi Decode: %.3f"%(best_smothing,eval_posterior_test,eval_viterbi_test)
 
+
+#pdb.set_trace()
+
+confusion_matrix = cm.build_confusion_matrix(test_seq.seq_list, viterbi_pred_test, 
+                                             len(corpus.tag_dict), hmm.get_num_states())
+cm.plot_confusion_bar_graph(confusion_matrix, corpus.tag_dict, 
+                            xrange(hmm.get_num_states()), 'Confusion matrix')

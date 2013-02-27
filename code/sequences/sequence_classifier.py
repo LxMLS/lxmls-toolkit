@@ -117,7 +117,7 @@ class SequenceClassifier():
         the state posteriors, which are computed with the forward-backward
         algorithm.'''
 
-        state_posteriors, _ = self.compute_posteriors(sequence)
+        state_posteriors, _, _ = self.compute_posteriors(sequence)
         best_states =  np.argmax(state_posteriors, axis=1)
         predicted_sequence =  sequence.copy_sequence()
         predicted_sequence.y = best_states
