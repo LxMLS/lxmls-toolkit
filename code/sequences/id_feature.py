@@ -127,7 +127,7 @@ class IDFeatures:
             if pos > 0:            
                 prev_tag = sequence.y[pos-1]
                 features = []
-                features = self.add_transition_features(sequence, pos, tag, prev_tag, features)            
+                features = self.add_transition_features(sequence, pos-1, tag, prev_tag, features)            
                 transition_features.append(features)
                 
         ## Take care of final position
@@ -159,7 +159,7 @@ class IDFeatures:
     #f(t,y_t,y_(t-1),X)
     ##Speed up of code
     def get_transition_features(self, sequence, pos, y, y_prev):
-        assert(pos > 0 and pos < len(sequence.x)), pdb.set_trace()
+        assert(pos >= 0 and pos < len(sequence.x)), pdb.set_trace()
 
         if(y not in self.edge_feature_cache):
             self.edge_feature_cache[y]={}
@@ -283,7 +283,7 @@ class IDFeatures:
         Creates a unique id if its the first time the feature is visited
         or returns the existing id otherwise
         """
-        assert pos < len(sequence.x), pdb.set_trace()
+        assert pos < len(sequence.x)-1, pdb.set_trace()
 
         # Get label name from ID.
         y_name = self.dataset.y_dict.get_label_name(y)

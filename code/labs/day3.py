@@ -1,7 +1,7 @@
 
 
 import sequences.structured_perceptron as spc
-#import sequences.crf_batch as crfc
+import sequences.crf_batch as crfc
 import readers.pos_corpus as pcc
 import sequences.id_feature as idfc
 import sequences.extended_feature as exfc
@@ -55,30 +55,34 @@ pdb.set_trace()
 
 # print "CRF Exercise"
 
+feature_mapper = idfc.IDFeatures(train_seq)
+feature_mapper.build_features()
 
-crf = crfc.CRF_batch(corpus,id_f)
-crf.train_supervised(train_seq.seq_list)
+crf = crfc.CRF_batch(corpus.word_dict, corpus.tag_dict, feature_mapper)
+crf.train_supervised(train_seq)
 
-pred_train = crf.viterbi_decode_corpus(train_seq.seq_list)
-pred_dev = crf.viterbi_decode_corpus(dev_seq.seq_list)
-pred_test = crf.viterbi_decode_corpus(test_seq.seq_list)
+pred_train = crf.viterbi_decode_corpus(train_seq)
+pred_dev = crf.viterbi_decode_corpus(dev_seq)
+pred_test = crf.viterbi_decode_corpus(test_seq)
 
-eval_train = crf.evaluate_corpus(train_seq.seq_list,pred_train)
-eval_dev = crf.evaluate_corpus(dev_seq.seq_list,pred_dev)
-eval_test = crf.evaluate_corpus(test_seq.seq_list,pred_test)
+eval_train = crf.evaluate_corpus(train_seq, pred_train)
+eval_dev = crf.evaluate_corpus(dev_seq, pred_dev)
+eval_test = crf.evaluate_corpus(test_seq, pred_test)
 
 print "CRF - ID Features Accuracy Train: %.3f Dev: %.3f Test: %.3f"%(eval_train,eval_dev,eval_test)
 
+feature_mapper = exfc.ExtendedFeatures(train_seq)
+feature_mapper.build_features()
 
-crf = crfc.CRF_batch(corpus,ex_f)
-crf.train_supervised(train_seq.seq_list)
+crf = crfc.CRF_batch(corpus.word_dict, corpus.tag_dict, feature_mapper)
+crf.train_supervised(train_seq)
 
-pred_train = crf.viterbi_decode_corpus(train_seq.seq_list)
-pred_dev = crf.viterbi_decode_corpus(dev_seq.seq_list)
-pred_test = crf.viterbi_decode_corpus(test_seq.seq_list)
+pred_train = crf.viterbi_decode_corpus(train_seq)
+pred_dev = crf.viterbi_decode_corpus(dev_seq)
+pred_test = crf.viterbi_decode_corpus(test_seq)
 
-eval_train = crf.evaluate_corpus(train_seq.seq_list,pred_train)
-eval_dev = crf.evaluate_corpus(dev_seq.seq_list,pred_dev)
-eval_test = crf.evaluate_corpus(test_seq.seq_list,pred_test)
+eval_train = crf.evaluate_corpus(train_seq, pred_train)
+eval_dev = crf.evaluate_corpus(dev_seq, pred_dev)
+eval_test = crf.evaluate_corpus(test_seq, pred_test)
 
 print "CRF - Extended Features Accuracy Train: %.3f Dev: %.3f Test: %.3f"%(eval_train,eval_dev,eval_test)

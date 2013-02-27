@@ -37,6 +37,22 @@ class SequenceClassifier():
         ''' Compute emission and transition scores for the decoder.'''
         raise NotImplementedError
     
+    
+    def compute_output_score(self, sequence, states):
+        length = len(sequence.x) # Length of the sequence.
+
+        # Compute scores given the observation sequence.
+        initial_scores, transition_scores, final_scores, emission_scores = \
+            self.compute_scores(sequence)
+
+        score = 0.0
+        score += initial_scores[states[0]]
+        for pos in xrange(length): 
+             score += emission_scores[pos, states[pos]]
+             if pos > 0:
+                 score += transition_scores[pos-1, states[pos], states[pos-1]]
+        score += final_scores[states[length-1]]
+        return score
 
     def compute_posteriors(self, sequence):
         '''Compute the state and transition posteriors:
@@ -92,7 +108,7 @@ class SequenceClassifier():
         state_posteriors = np.exp(state_posteriors)
         transition_posteriors = np.exp(transition_posteriors)
         
-        return state_posteriors, transition_posteriors
+        return state_posteriors, transition_posteriors, log_likelihood
         
 
     def posterior_decode(self, sequence):
