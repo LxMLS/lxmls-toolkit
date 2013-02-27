@@ -146,7 +146,7 @@ eval_posterior_test = hmm.evaluate_corpus(test_seq, posterior_pred_test)
 print "Best Smoothing %f --  Test Set Accuracy: Posterior Decode %.3f, Viterbi Decode: %.3f"%(best_smothing,eval_posterior_test,eval_viterbi_test)
 
 
-pdb.set_trace()
+#pdb.set_trace()
 # Train with EM.
 hmm.train_EM(train_seq, best_smothing, 20, evaluate=True)
     

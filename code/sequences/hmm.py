@@ -41,13 +41,14 @@ class HMM(sc.SequenceClassifier):
         
                 
     def train_EM(self, dataset, smoothing=0, num_epochs=10, evaluate=True):
-        pdb.set_trace()
+#        pdb.set_trace()
+        self.initialize_random()
+
         if evaluate:
             acc = self.evaluate_EM(dataset)
-            print "Init acc %f"%(acc)
+            print "Initial accuracy: %f"%(acc)
             
         for t in xrange(1, num_epochs):
-            print "Iter %i"%t
             #E-Step
             total_log_likelihood = 0.0
             self.clear_counts(smoothing)
@@ -56,13 +57,13 @@ class HMM(sc.SequenceClassifier):
                 self.update_counts(sequence, state_posteriors, transition_posteriors)
                 total_log_likelihood += log_likelihood
             #self.model.sanity_check_counts(seq_list,smoothing=smoothing)
-            print "Iter: %i Log Likelihood %f"%(t, total_log_likelihood)
+            print "Iter: %i Log Likelihood: %f"%(t, total_log_likelihood)
             #M-Step
             self.compute_parameters()
             if evaluate:
                  ### Evaluate accuracy at this iteration
                 acc = self.evaluate_EM(dataset)
-                print "Iter: %i acc %f"%(t,acc)
+                print "Iter: %i Accuracy: %f"%(t,acc)
                 
                 
     def evaluate_EM(self, dataset):
@@ -74,11 +75,11 @@ class HMM(sc.SequenceClassifier):
         best = cm.get_best_assignment(confusion_matrix)
 #        print best
         new_pred = []
-        for sequence in dataset.seq_list:
-            pred_seq = pred[sequence.size()]
+        for i, sequence in enumerate(dataset.seq_list):
+            pred_seq = pred[i]
             new_seq = pred_seq.copy_sequence()
-            for i, y_hat in enumerate(new_seq.y):
-                new_seq.y[i] = best[y_hat]
+            for j, y_hat in enumerate(new_seq.y):
+                new_seq.y[j] = best[y_hat]
             new_pred.append(new_seq)
 #        pdb.set_trace()
         acc = self.evaluate_corpus(dataset, new_pred)
@@ -114,17 +115,22 @@ class HMM(sc.SequenceClassifier):
             self.final_counts[sequence.y[-1]] += 1
 
 
-#    ## Initializes the parameter randomnly
-#    def initialize_random(self):
-#        jitter = 1
-#        self.init_counts.fill(1)
-#        self.init_counts +=  jitter*np.random.rand(self.init_counts.shape[0],self.init_counts.shape[1])
-#        self.transition_counts.fill(1)
-#        self.transition_counts +=  jitter*np.random.rand(self.transition_counts.shape[0],self.transition_counts.shape[1])
-#        self.observation_counts.fill(1)
-#        self.observation_counts +=   jitter*np.random.rand(self.observation_counts.shape[0],self.observation_counts.shape[1])
-#        self.update_params()
-#        self.clear_counts()
+    ## Initializes the parameter randomnly
+    def initialize_random(self):
+        jitter = 1
+        num_states = self.get_num_states()
+        num_observations = self.get_num_observations()
+
+        self.initial_counts.fill(1)
+        self.initial_counts +=  jitter*np.random.rand(num_states)
+        self.transition_counts.fill(1)
+        self.transition_counts +=  jitter*np.random.rand(num_states, num_states)
+        self.emission_counts.fill(1)
+        self.emission_counts +=   jitter*np.random.rand(num_observations, num_states)
+        self.final_counts.fill(1)
+        self.final_counts +=  jitter*np.random.rand(num_states)
+        self.compute_parameters()
+        self.clear_counts()
 
         
     def clear_counts(self, smoothing = 0):
@@ -144,7 +150,7 @@ class HMM(sc.SequenceClassifier):
         for y in xrange(num_states):
             self.initial_counts[y] += state_posteriors[0, y]
         for pos in xrange(length):
-            x = seq.x[pos]
+            x = sequence.x[pos]
             for y in xrange(num_states):
                 self.emission_counts[x, y] += state_posteriors[pos, y]
                 if pos > 0:

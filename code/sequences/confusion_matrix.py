@@ -50,7 +50,7 @@ def get_best_assignment(conf_matrix):
     for i,(cluster,cluster_dist) in enumerate(conf_matrix.items()):
         value_aux = dict_max(cluster_dist)
         if value_aux != [] and value_aux != 0:
-            print value_aux
+#            print value_aux
             value,tag = value_aux
             best_tags[cluster] = tag
         else:
