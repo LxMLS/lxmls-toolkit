@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import sequence_classifier as sc
+import sequences.confusion_matrix as cm
 from log_domain import *
 
 import pdb
@@ -39,21 +40,65 @@ class HMM(sc.SequenceClassifier):
         self.emission_counts = np.zeros([num_observations, num_states])
         
                 
+    def train_EM(self, dataset, smoothing=0, num_epochs=10, evaluate=True):
+        pdb.set_trace()
+        if evaluate:
+            acc = self.evaluate_EM(dataset)
+            print "Init acc %f"%(acc)
+            
+        for t in xrange(1, num_epochs):
+            print "Iter %i"%t
+            #E-Step
+            total_log_likelihood = 0.0
+            self.clear_counts(smoothing)
+            for sequence in dataset.seq_list:
+                state_posteriors, transition_posteriors, log_likelihood = self.compute_posteriors(sequence)
+                self.update_counts(sequence, state_posteriors, transition_posteriors)
+                total_log_likelihood += log_likelihood
+            #self.model.sanity_check_counts(seq_list,smoothing=smoothing)
+            print "Iter: %i Log Likelihood %f"%(t, total_log_likelihood)
+            #M-Step
+            self.compute_parameters()
+            if evaluate:
+                 ### Evaluate accuracy at this iteration
+                acc = self.evaluate_EM(dataset)
+                print "Iter: %i acc %f"%(t,acc)
+                
+                
+    def evaluate_EM(self, dataset):
+        ### Evaluate accuracy at initial iteration
+        pred = self.viterbi_decode_corpus(dataset)
+#        pdb.set_trace()
+        confusion_matrix = cm.build_confusion_matrix(dataset.seq_list, pred, 
+                                                     self.get_num_states(), self.get_num_states())
+        best = cm.get_best_assignment(confusion_matrix)
+#        print best
+        new_pred = []
+        for sequence in dataset.seq_list:
+            pred_seq = pred[sequence.size()]
+            new_seq = pred_seq.copy_sequence()
+            for i, y_hat in enumerate(new_seq.y):
+                new_seq.y[i] = best[y_hat]
+            new_pred.append(new_seq)
+#        pdb.set_trace()
+        acc = self.evaluate_corpus(dataset, new_pred)
+        return acc
+                
 
-    def train_supervised(self, sequence_list, smoothing=0):
+    def train_supervised(self, dataset, smoothing=0):
         ''' Train an HMM from a list of sequences containing observations
         and the gold states. This is just counting and normalizing.'''
         # Set all counts to zeros (optionally, smooth).
         self.clear_counts(smoothing)
         # Count occurrences of events.
-        self.collect_counts_from_corpus(sequence_list)
+        self.collect_counts_from_corpus(dataset)
         # Normalize to get probabilities.
         self.compute_parameters()
 
         
-    def collect_counts_from_corpus(self, sequence_list):
+    def collect_counts_from_corpus(self, dataset):
         ''' Collects counts from a labeled corpus.'''
-        for sequence in sequence_list.seq_list:
+        for sequence in dataset.seq_list:
             # Take care of first position.
             self.initial_counts[sequence.y[0]] += 1
             self.emission_counts[sequence.x[0], sequence.y[0]] += 1
@@ -90,6 +135,27 @@ class HMM(sc.SequenceClassifier):
         self.emission_counts.fill(smoothing)
 
 
+    def update_counts(self, sequence, state_posteriors, transition_posteriors):
+        ''' Used in the E-step in EM.'''
+        num_states = self.get_num_states() # Number of states.
+        length = len(sequence.x) # Length of the sequence.
+
+        ## Take care of initial probs
+        for y in xrange(num_states):
+            self.initial_counts[y] += state_posteriors[0, y]
+        for pos in xrange(length):
+            x = seq.x[pos]
+            for y in xrange(num_states):
+                self.emission_counts[x, y] += state_posteriors[pos, y]
+                if pos > 0:
+                    for y_prev in xrange(num_states):
+                        self.transition_counts[y, y_prev] += transition_posteriors[pos-1, y, y_prev]
+
+        ##Final position
+        for y in xrange(num_states):
+            self.final_counts[y] += state_posteriors[length-1, y]
+        
+        
     def compute_parameters(self):
         ''' Estimate the HMM parameters by normalizing the counts.'''
         # Normalize the initial counts.

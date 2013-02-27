@@ -170,8 +170,8 @@ class SequenceClassifier():
         correct = 0.0
         for i, sequence in enumerate(dataset.seq_list):
             pred = predictions[i]
-            for i,y_hat in enumerate(pred.y):
-                if(sequence.y[i] == y_hat):
+            for j, y_hat in enumerate(pred.y):
+                if(sequence.y[j] == y_hat):
                     correct += 1
                 total += 1
         return correct/total
