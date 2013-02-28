@@ -12,8 +12,8 @@ import pdb
 #Exercise 2.1
 print "Exercise 2.1"
 simple = ssr.SimpleSequence()
-simple.train
-simple.test
+print simple.train
+print simple.test
 
 
 #exercise 2.2
@@ -135,7 +135,7 @@ eval_posterior_test = hmm.evaluate_corpus(test_seq,posterior_pred_test)
 print "Test Set Accuracy: Posterior Decode %.3f, Viterbi Decode: %.3f"%(eval_posterior_test,eval_viterbi_test)
 
 
-best_smothing = hmm.pick_best_smoothing(train_seq, dev_seq, [0.1]) #[10,1,0.1,0])
+best_smothing = hmm.pick_best_smoothing(train_seq, dev_seq, [10,1,0.1,0])
 
 
 hmm.train_supervised(train_seq, smoothing=best_smothing)
