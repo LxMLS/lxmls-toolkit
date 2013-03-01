@@ -487,10 +487,10 @@ class HMM(sc.SequenceClassifier):
         print self.transition_probs
         cax = plt.imshow(self.transition_probs[0:-1,:], interpolation='nearest',aspect='auto')
         cbar = plt.colorbar(cax, ticks=[-1, 0, 1])
-        print "Number os states %i"%self.nr_states
-        print self.dataset.int_to_tag
-        plt.xticks(np.arange(0,self.nr_states),self.dataset.int_to_tag,rotation=90)
-        plt.yticks(np.arange(0,self.nr_states),self.dataset.int_to_tag)
+        print "Number os states %i"%self.get_num_states()
+        print self.state_labels
+        plt.xticks(np.arange(0, self.get_num_states()), self.state_labels.names, rotation=90)
+        plt.yticks(np.arange(0, self.get_num_states()), self.state_labels.names)
         plt.show()
 
     def pick_best_smoothing(self,train,test,smooth_values):
