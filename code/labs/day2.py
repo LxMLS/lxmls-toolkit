@@ -51,7 +51,12 @@ print "Exercise 2.4"
 #exercise 2.5
 print "Exercise 2.5"
 print "State Posteriors"
-state_posteriors, _, _ = hmm.compute_posteriors(simple.train.seq_list[0])
+initial_scores, transition_scores, final_scores, emission_scores = \
+    hmm.compute_scores(simple.train.seq_list[0])
+state_posteriors, _, _ = hmm.compute_posteriors(initial_scores,
+                                                transition_scores,
+                                                final_scores,
+                                                emission_scores)
 print state_posteriors
 
 

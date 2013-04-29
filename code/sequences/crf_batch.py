@@ -17,7 +17,7 @@ class CRF_batch(dsc.DiscriminativeSequenceClassifier):
     ''' Implements a first order CRF'''
 
     def __init__(self, observation_labels, state_labels, feature_mapper,
-                 regularizer=0.01):
+                 regularizer=0.00001):
         dsc.DiscriminativeSequenceClassifier.__init__(self, observation_labels, state_labels, feature_mapper)
         self.regularizer = regularizer
 
@@ -26,7 +26,7 @@ class CRF_batch(dsc.DiscriminativeSequenceClassifier):
 #        pdb.set_trace()
 #        num_examples = dataset.size()
 #        numeric_gradient_flag = False
-        emp_counts = self.get_empirical_counts(dataset)
+        emp_counts = self.get_empirical_counts(dataset) / len(dataset.seq_list)
 #        import pdb
 #        pdb.set_trace()
         #analytic_gradient,numeric_gradient = self.check_gradient(self.parameters,sequence_list,emp_counts)
@@ -125,6 +125,9 @@ class CRF_batch(dsc.DiscriminativeSequenceClassifier):
             seq_obj,seq_lik = self.get_objective_seq(parameters, sequence, exp_counts)
             objective += seq_obj
             likelihoods += seq_lik
+        objective /= len(dataset.seq_list)
+        likelihoods /= len(dataset.seq_list)
+        exp_counts /= len(dataset.seq_list)
         objective -= 0.5*self.regularizer*np.dot(parameters,parameters)
         objective -= likelihoods
         #print emp_counts
@@ -161,11 +164,24 @@ class CRF_batch(dsc.DiscriminativeSequenceClassifier):
 
     def get_objective_seq(self, parameters, sequence, exp_counts):
          
-        state_posteriors, transition_posteriors, log_likelihood = self.compute_posteriors(sequence)
+        # Compute scores given the observation sequence.
+        initial_scores, transition_scores, final_scores, emission_scores = \
+            self.compute_scores(sequence)
+
+        state_posteriors, transition_posteriors, log_likelihood = \
+            self.compute_posteriors(initial_scores, transition_scores,
+                                    final_scores, emission_scores)
+
+#        state_posteriors, transition_posteriors, log_likelihood = self.compute_posteriors(sequence)
          
 #        pdb.set_trace()
 
-        seq_objective = self.compute_output_score(sequence, sequence.y)
+#        seq_objective = self.compute_output_score(sequence, sequence.y)
+        seq_objective = self.compute_output_score(sequence.y,
+                                                  initial_scores,
+                                                  transition_scores,
+                                                  final_scores,
+                                                  emission_scores)
 
 #         seq_objective = 1.0
 #         # Compute sequence objective looking at the gold sequence.

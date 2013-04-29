@@ -53,7 +53,15 @@ class HMM(sc.SequenceClassifier):
             total_log_likelihood = 0.0
             self.clear_counts(smoothing)
             for sequence in dataset.seq_list:
-                state_posteriors, transition_posteriors, log_likelihood = self.compute_posteriors(sequence)
+                # Compute scores given the observation sequence.
+                initial_scores, transition_scores, final_scores, emission_scores = \
+                    self.compute_scores(sequence)
+                
+                state_posteriors, transition_posteriors, log_likelihood = \
+                    self.compute_posteriors(initial_scores,
+                                            transition_scores,
+                                            final_scores,
+                                            emission_scores)
                 self.update_counts(sequence, state_posteriors, transition_posteriors)
                 total_log_likelihood += log_likelihood
             #self.model.sanity_check_counts(seq_list,smoothing=smoothing)

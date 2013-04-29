@@ -38,12 +38,25 @@ class SequenceClassifier():
         raise NotImplementedError
     
     
-    def compute_output_score(self, sequence, states):
-        length = len(sequence.x) # Length of the sequence.
+#    def compute_output_score(self, sequence, states):
+#        length = len(sequence.x) # Length of the sequence.
+#
+#        # Compute scores given the observation sequence.
+#        initial_scores, transition_scores, final_scores, emission_scores = \
+#            self.compute_scores(sequence)
+#
+#        score = 0.0
+#        score += initial_scores[states[0]]
+#        for pos in xrange(length): 
+#             score += emission_scores[pos, states[pos]]
+#             if pos > 0:
+#                 score += transition_scores[pos-1, states[pos], states[pos-1]]
+#        score += final_scores[states[length-1]]
+#        return score
 
-        # Compute scores given the observation sequence.
-        initial_scores, transition_scores, final_scores, emission_scores = \
-            self.compute_scores(sequence)
+    def compute_output_score(self, states, initial_scores, transition_scores, 
+                             final_scores, emission_scores):
+        length = np.size(emission_scores, 0) # Length of the sequence.
 
         score = 0.0
         score += initial_scores[states[0]]
@@ -54,7 +67,65 @@ class SequenceClassifier():
         score += final_scores[states[length-1]]
         return score
 
-    def compute_posteriors(self, sequence):
+#    def compute_posteriors(self, sequence):
+#        '''Compute the state and transition posteriors:
+#        - The state posteriors are the probability of each state
+#        occurring at each position given the sequence of observations.
+#        - The transition posteriors are the joint probability of two states
+#        in consecutive positions given the sequence of observations.
+#        Both quantities are computed via the forward-backward algorithm.'''
+#
+#        num_states = self.get_num_states() # Number of states.
+#        length = len(sequence.x) # Length of the sequence.
+#        
+##        pdb.set_trace()
+#        
+#        # Compute scores given the observation sequence.
+#        initial_scores, transition_scores, final_scores, emission_scores = \
+#            self.compute_scores(sequence)
+#            
+#        # Run the forward algorithm.
+#        log_likelihood, forward = self.decoder.run_forward(initial_scores,
+#                                                           transition_scores,
+#                                                           final_scores,
+#                                                           emission_scores)
+##        print log_likelihood
+#
+#        # Run the backward algorithm.
+#        log_likelihood, backward = self.decoder.run_backward(initial_scores,
+#                                                             transition_scores,
+#                                                             final_scores,
+#                                                             emission_scores)
+##        print log_likelihood
+#
+#        # Multiply the forward and backward variables to obtain the
+#        # state posteriors (sum in log-space).
+#        state_posteriors = np.zeros([length, num_states]) # State posteriors. 
+#        for pos in xrange(length):
+#            state_posteriors[pos,:] = forward[pos,:] + backward[pos,:]
+#            state_posteriors[pos,:] -= log_likelihood
+# 
+#        # Use the forward and backward variables along with the transition 
+#        # and emission scores to obtain the transition posteriors.
+#        transition_posteriors = np.zeros([length-1, num_states, num_states])
+#        for pos in xrange(length-1):
+#            for prev_state in xrange(num_states):
+#                for state in xrange(num_states):
+#                    transition_posteriors[pos, state, prev_state] = \
+#                        forward[pos, prev_state] + \
+#                        transition_scores[pos, state, prev_state] + \
+#                        emission_scores[pos+1, state] + \
+#                        backward[pos+1, state]
+#                    transition_posteriors[pos, state, prev_state] -= log_likelihood
+#                        
+#        state_posteriors = np.exp(state_posteriors)
+#        transition_posteriors = np.exp(transition_posteriors)
+#        
+#        return state_posteriors, transition_posteriors, log_likelihood
+        
+
+    def compute_posteriors(self, initial_scores, transition_scores,
+                           final_scores, emission_scores):
         '''Compute the state and transition posteriors:
         - The state posteriors are the probability of each state
         occurring at each position given the sequence of observations.
@@ -62,15 +133,11 @@ class SequenceClassifier():
         in consecutive positions given the sequence of observations.
         Both quantities are computed via the forward-backward algorithm.'''
 
-        num_states = self.get_num_states() # Number of states.
-        length = len(sequence.x) # Length of the sequence.
+        length = np.size(emission_scores, 0) # Length of the sequence.
+        num_states = np.size(emission_scores, 1) # Number of states.
         
 #        pdb.set_trace()
         
-        # Compute scores given the observation sequence.
-        initial_scores, transition_scores, final_scores, emission_scores = \
-            self.compute_scores(sequence)
-            
         # Run the forward algorithm.
         log_likelihood, forward = self.decoder.run_forward(initial_scores,
                                                            transition_scores,
@@ -109,7 +176,7 @@ class SequenceClassifier():
         transition_posteriors = np.exp(transition_posteriors)
         
         return state_posteriors, transition_posteriors, log_likelihood
-        
+
 
     def posterior_decode(self, sequence):
         '''Compute the sequence of states that are individually the most
@@ -117,7 +184,14 @@ class SequenceClassifier():
         the state posteriors, which are computed with the forward-backward
         algorithm.'''
 
-        state_posteriors, _, _ = self.compute_posteriors(sequence)
+        # Compute scores given the observation sequence.
+        initial_scores, transition_scores, final_scores, emission_scores = \
+            self.compute_scores(sequence)
+            
+        state_posteriors, _, _ = self.compute_posteriors(initial_scores,
+                                                         transition_scores,
+                                                         final_scores, 
+                                                         emission_scores)
         best_states =  np.argmax(state_posteriors, axis=1)
         predicted_sequence =  sequence.copy_sequence()
         predicted_sequence.y = best_states

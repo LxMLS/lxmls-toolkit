@@ -32,15 +32,17 @@ class StructuredPerceptron(dsc.DiscriminativeSequenceClassifier):
         num_examples = dataset.size()
         #perm = np.random.permutation(nr_x)
         for epoch in xrange(self.num_epochs):
-             incorrect = 0
-             total = 0
+             num_labels_total = 0
+             num_mistakes_total = 0
              for i in xrange(num_examples):
                 #print "iter %i" %( round_nr*nr_x + nr)
                 #seq = sequence_list[perm[nr]]
                 sequence = dataset.seq_list[i]
-                total,incorrect = self.process_one_example(sequence, total, incorrect)
+                num_labels, num_mistakes = self.perceptron_update(sequence)
+                num_labels_total += num_labels
+                num_mistakes_total += num_mistakes
              self.params_per_epoch.append(self.parameters.copy())   
-             acc = 1.0 - 1.0*incorrect/total
+             acc = 1.0 - float(num_mistakes_total)/float(num_labels_total)
              print "Epoch: %i Accuracy: %f" %(epoch, acc) 
         self.trained = True
         
@@ -53,7 +55,9 @@ class StructuredPerceptron(dsc.DiscriminativeSequenceClassifier):
 
 
 
-    def process_one_example(self, sequence, total, incorrect):
+    def perceptron_update(self, sequence):
+        num_labels = 0
+        num_mistakes = 0
         
 #        y_hat = self.viterbi_decode_log_raw(seq)
         predicted_sequence, _ = self.viterbi_decode(sequence)
@@ -68,7 +72,6 @@ class StructuredPerceptron(dsc.DiscriminativeSequenceClassifier):
         y_t_hat = y_hat[0]
 
         if y_t_true != y_t_hat:
-            incorrect += 1
             true_initial_features = self.feature_mapper.get_initial_features(sequence, y_t_true)
             self.parameters[true_initial_features] += self.learning_rate
             #print "increasing parameters for pos %i word %s tag %s"%(pos, self.dataset.int_to_word[seq.x[pos]],self.dataset.int_to_pos[seq.y[pos]])
@@ -83,9 +86,9 @@ class StructuredPerceptron(dsc.DiscriminativeSequenceClassifier):
             y_t_hat = y_hat[pos]
             
             # Update emission features.
-            total += 1
+            num_labels += 1
             if y_t_true != y_t_hat:
-                incorrect += 1
+                num_mistakes += 1
                 true_emission_features = self.feature_mapper.get_emission_features(sequence, pos, y_t_true)
                 self.parameters[true_emission_features] += self.learning_rate
                 #print "increasing parameters for pos %i word %s tag %s"%(pos, self.dataset.int_to_word[seq.x[pos]],self.dataset.int_to_pos[seq.y[pos]])
@@ -128,7 +131,7 @@ class StructuredPerceptron(dsc.DiscriminativeSequenceClassifier):
             self.parameters[hat_final_features] -= self.learning_rate
 
 
-        return total, incorrect
+        return num_labels, num_mistakes
 
 
     def save_model(self,dir):

@@ -162,10 +162,10 @@ class IDFeatures:
         assert(pos >= 0 and pos < len(sequence.x)), pdb.set_trace()
 
         if(y not in self.edge_feature_cache):
-            self.edge_feature_cache[y]={}
+            self.edge_feature_cache[y] = {}
         if(y_prev not in self.edge_feature_cache[y]): 
             edge_idx = []
-            edge = self.add_transition_features(sequence, pos, y, y_prev, edge_idx)            
+            edge_idx = self.add_transition_features(sequence, pos, y, y_prev, edge_idx)            
             self.edge_feature_cache[y][y_prev] = edge_idx
         return self.edge_feature_cache[y][y_prev]
 
@@ -173,7 +173,7 @@ class IDFeatures:
     def get_initial_features(self, sequence, y):
        if(y not in self.initial_state_feature_cache):
            edge_idx = []
-           edge =  self.add_initial_features(sequence, y, edge_idx)
+           edge_idx =  self.add_initial_features(sequence, y, edge_idx)
            self.initial_state_feature_cache[y] = edge_idx
        return self.initial_state_feature_cache[y]
 
@@ -181,7 +181,7 @@ class IDFeatures:
     def get_final_features(self, sequence, y_prev):
         if(y_prev not in self.final_state_feature_cache):
             edge_idx = []
-            edge = self.add_final_features(sequence, y_prev, edge_idx)            
+            edge_idx = self.add_final_features(sequence, y_prev, edge_idx)            
             self.final_state_feature_cache[y_prev] = edge_idx
         return self.final_state_feature_cache[y_prev]
 
