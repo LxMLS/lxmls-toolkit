@@ -20,7 +20,7 @@ class CRFOnline(dsc.DiscriminativeSequenceClassifier):
 
     def __init__(self, observation_labels, state_labels, feature_mapper, 
                  regularizer=0.00001,
-                 num_epochs=10, initial_learning_rate=1.0, averaged=True):
+                 num_epochs=10, initial_learning_rate=10.0, averaged=True):
         dsc.DiscriminativeSequenceClassifier.__init__(self, observation_labels, state_labels, feature_mapper)
         self.regularizer = regularizer
         self.num_epochs = num_epochs

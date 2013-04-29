@@ -18,42 +18,38 @@ feature_mapper = idfc.IDFeatures(train_seq)
 feature_mapper.build_features()
 
 
-
 print "Perceptron Exercise"
 
 sp = spc.StructuredPerceptron(corpus.word_dict, corpus.tag_dict, feature_mapper)
 sp.num_epochs = 20
 sp.train_supervised(train_seq)
 
-if True:
-    pred_train = sp.viterbi_decode_corpus(train_seq)
-    pred_dev = sp.viterbi_decode_corpus(dev_seq)
-    pred_test = sp.viterbi_decode_corpus(test_seq)
-    
-    eval_train = sp.evaluate_corpus(train_seq, pred_train)
-    eval_dev = sp.evaluate_corpus(dev_seq, pred_dev)
-    eval_test = sp.evaluate_corpus(test_seq, pred_test)
+pred_train = sp.viterbi_decode_corpus(train_seq)
+pred_dev = sp.viterbi_decode_corpus(dev_seq)
+pred_test = sp.viterbi_decode_corpus(test_seq)
 
-    print "Structured Perceptron - ID Features Accuracy Train: %.3f Dev: %.3f Test: %.3f"%(eval_train,eval_dev,eval_test)
+eval_train = sp.evaluate_corpus(train_seq, pred_train)
+eval_dev = sp.evaluate_corpus(dev_seq, pred_dev)
+eval_test = sp.evaluate_corpus(test_seq, pred_test)
+
+print "Structured Perceptron - ID Features Accuracy Train: %.3f Dev: %.3f Test: %.3f"%(eval_train,eval_dev,eval_test)
 
 
-if True:
+feature_mapper = exfc.ExtendedFeatures(train_seq)
+feature_mapper.build_features()
+sp = spc.StructuredPerceptron(corpus.word_dict, corpus.tag_dict, feature_mapper)
+sp.num_epochs = 20
+sp.train_supervised(train_seq)
 
-    feature_mapper = exfc.ExtendedFeatures(train_seq)
-    feature_mapper.build_features()
-    sp = spc.StructuredPerceptron(corpus.word_dict, corpus.tag_dict, feature_mapper)
-    sp.num_epochs = 20
-    sp.train_supervised(train_seq)
-    
-    pred_train = sp.viterbi_decode_corpus(train_seq)
-    pred_dev = sp.viterbi_decode_corpus(dev_seq)
-    pred_test = sp.viterbi_decode_corpus(test_seq)
-    
-    eval_train = sp.evaluate_corpus(train_seq, pred_train)
-    eval_dev = sp.evaluate_corpus(dev_seq, pred_dev)
-    eval_test = sp.evaluate_corpus(test_seq, pred_test)
-    
-    print "Structured Perceptron - Extended Features Accuracy Train: %.3f Dev: %.3f Test: %.3f"%(eval_train,eval_dev,eval_test)
+pred_train = sp.viterbi_decode_corpus(train_seq)
+pred_dev = sp.viterbi_decode_corpus(dev_seq)
+pred_test = sp.viterbi_decode_corpus(test_seq)
+
+eval_train = sp.evaluate_corpus(train_seq, pred_train)
+eval_dev = sp.evaluate_corpus(dev_seq, pred_dev)
+eval_test = sp.evaluate_corpus(test_seq, pred_test)
+
+print "Structured Perceptron - Extended Features Accuracy Train: %.3f Dev: %.3f Test: %.3f"%(eval_train,eval_dev,eval_test)
 
 
 #pdb.set_trace()
@@ -67,75 +63,73 @@ print "Online CRF Exercise"
 
 crf_online = crfo.CRFOnline(corpus.word_dict, corpus.tag_dict, feature_mapper)
 crf_online.num_epochs = 20
-crf_online.initial_learning_rate = 100 #1.0/crf_online.regularizer
+#    crf_online.initial_learning_rate = 10 #100 #1.0/crf_online.regularizer
 crf_online.train_supervised(train_seq)
-    
-if True:
-    pred_train = crf_online.viterbi_decode_corpus(train_seq)
-    pred_dev = crf_online.viterbi_decode_corpus(dev_seq)
-    pred_test = crf_online.viterbi_decode_corpus(test_seq)
-    
-    eval_train = crf_online.evaluate_corpus(train_seq, pred_train)
-    eval_dev = crf_online.evaluate_corpus(dev_seq, pred_dev)
-    eval_test = crf_online.evaluate_corpus(test_seq, pred_test)
 
-    print "Online CRF - ID Features Accuracy Train: %.3f Dev: %.3f Test: %.3f"%(eval_train,eval_dev,eval_test)
+pred_train = crf_online.viterbi_decode_corpus(train_seq)
+pred_dev = crf_online.viterbi_decode_corpus(dev_seq)
+pred_test = crf_online.viterbi_decode_corpus(test_seq)
+
+eval_train = crf_online.evaluate_corpus(train_seq, pred_train)
+eval_dev = crf_online.evaluate_corpus(dev_seq, pred_dev)
+eval_test = crf_online.evaluate_corpus(test_seq, pred_test)
+
+print "Online CRF - ID Features Accuracy Train: %.3f Dev: %.3f Test: %.3f"%(eval_train,eval_dev,eval_test)
+
+
+crf = crfc.CRF_batch(corpus.word_dict, corpus.tag_dict, feature_mapper)
+crf.train_supervised(train_seq)
+
+pred_train = crf.viterbi_decode_corpus(train_seq)
+pred_dev = crf.viterbi_decode_corpus(dev_seq)
+pred_test = crf.viterbi_decode_corpus(test_seq)
+
+eval_train = crf.evaluate_corpus(train_seq, pred_train)
+eval_dev = crf.evaluate_corpus(dev_seq, pred_dev)
+eval_test = crf.evaluate_corpus(test_seq, pred_test)
+
+print "CRF - ID Features Accuracy Train: %.3f Dev: %.3f Test: %.3f"%(eval_train,eval_dev,eval_test)
+
+
+#pdb.set_trace()
+    
+    
+feature_mapper = exfc.ExtendedFeatures(train_seq)
+feature_mapper.build_features()
+
+
+
+print "Online CRF Exercise"
+
+crf_online = crfo.CRFOnline(corpus.word_dict, corpus.tag_dict, feature_mapper)
+crf_online.num_epochs = 20
+#    for eta in [1, 10, 100, 1000]:
+#    crf_online.initial_learning_rate = 10 #1.0/crf_online.regularizer
+crf_online.train_supervised(train_seq)
+
+pred_train = crf_online.viterbi_decode_corpus(train_seq)
+pred_dev = crf_online.viterbi_decode_corpus(dev_seq)
+pred_test = crf_online.viterbi_decode_corpus(test_seq)
+
+eval_train = crf_online.evaluate_corpus(train_seq, pred_train)
+eval_dev = crf_online.evaluate_corpus(dev_seq, pred_dev)
+eval_test = crf_online.evaluate_corpus(test_seq, pred_test)
+
+print "Online CRF - Extended Features Accuracy Train: %.3f Dev: %.3f Test: %.3f"%(eval_train,eval_dev,eval_test)
 
 #pdb.set_trace()
 
-if True:
 
+crf = crfc.CRF_batch(corpus.word_dict, corpus.tag_dict, feature_mapper)
+crf.train_supervised(train_seq)
 
-    crf = crfc.CRF_batch(corpus.word_dict, corpus.tag_dict, feature_mapper)
-    crf.train_supervised(train_seq)
-    
-    pred_train = crf.viterbi_decode_corpus(train_seq)
-    pred_dev = crf.viterbi_decode_corpus(dev_seq)
-    pred_test = crf.viterbi_decode_corpus(test_seq)
-    
-    eval_train = crf.evaluate_corpus(train_seq, pred_train)
-    eval_dev = crf.evaluate_corpus(dev_seq, pred_dev)
-    eval_test = crf.evaluate_corpus(test_seq, pred_test)
-    
-    print "CRF - ID Features Accuracy Train: %.3f Dev: %.3f Test: %.3f"%(eval_train,eval_dev,eval_test)
-    
-    
-    #pdb.set_trace()
-    
-    
-    feature_mapper = exfc.ExtendedFeatures(train_seq)
-    feature_mapper.build_features()
-    
-    print "Online CRF Exercise"
-    
-    crf_online = crfo.CRFOnline(corpus.word_dict, corpus.tag_dict, feature_mapper)
-    crf_online.num_epochs = 20
-    crf_online.initial_learning_rate = 100 #1.0/crf_online.regularizer
-    crf_online.train_supervised(train_seq)
-    
-    pred_train = crf_online.viterbi_decode_corpus(train_seq)
-    pred_dev = crf_online.viterbi_decode_corpus(dev_seq)
-    pred_test = crf_online.viterbi_decode_corpus(test_seq)
-    
-    eval_train = crf_online.evaluate_corpus(train_seq, pred_train)
-    eval_dev = crf_online.evaluate_corpus(dev_seq, pred_dev)
-    eval_test = crf_online.evaluate_corpus(test_seq, pred_test)
-    
-    print "Online CRF - Extended Features Accuracy Train: %.3f Dev: %.3f Test: %.3f"%(eval_train,eval_dev,eval_test)
-    
-    #pdb.set_trace()
-    
-    
-    crf = crfc.CRF_batch(corpus.word_dict, corpus.tag_dict, feature_mapper)
-    crf.train_supervised(train_seq)
-    
-    pred_train = crf.viterbi_decode_corpus(train_seq)
-    pred_dev = crf.viterbi_decode_corpus(dev_seq)
-    pred_test = crf.viterbi_decode_corpus(test_seq)
-    
-    eval_train = crf.evaluate_corpus(train_seq, pred_train)
-    eval_dev = crf.evaluate_corpus(dev_seq, pred_dev)
-    eval_test = crf.evaluate_corpus(test_seq, pred_test)
-    
-    print "CRF - Extended Features Accuracy Train: %.3f Dev: %.3f Test: %.3f"%(eval_train,eval_dev,eval_test)
+pred_train = crf.viterbi_decode_corpus(train_seq)
+pred_dev = crf.viterbi_decode_corpus(dev_seq)
+pred_test = crf.viterbi_decode_corpus(test_seq)
+
+eval_train = crf.evaluate_corpus(train_seq, pred_train)
+eval_dev = crf.evaluate_corpus(dev_seq, pred_dev)
+eval_test = crf.evaluate_corpus(test_seq, pred_test)
+
+print "CRF - Extended Features Accuracy Train: %.3f Dev: %.3f Test: %.3f"%(eval_train,eval_dev,eval_test)
 
