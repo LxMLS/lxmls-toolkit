@@ -2,15 +2,17 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+# This class generates a 2D dataset with two classes, "positive" and "negative".
+# Each class follows a Gaussian distribution.
 class SimpleDataSet():
     ''' A simple two dimentional dataset for visualization purposes. The date set contains points from two gaussians with mean u_i and std_i'''
 
     def __init__(self,nr_examples=100,g1 = [[-5,-5],1], g2 = [[5,5],1],balance=0.5,split=[0.8,0,0.2]):
-        nr_positive = nr_examples*balance
-        nr_negative = nr_examples - nr_positive
-        self.mean1 = g1[0]
-        self.mean2 = g2[0]
-        self.variance1 = g1[1]
+        nr_positive = nr_examples*balance # number of examples of "positive" class
+        nr_negative = nr_examples - nr_positive # number of examples of "negative" class
+        self.mean1 = g1[0] # mean of positive class
+        self.mean2 = g2[0] # mean of negative class
+        self.variance1 = g1[1] # 
         self.variance2 = g2[1]
         self.balance = balance
         self.nr_points = nr_examples
@@ -75,7 +77,7 @@ class SimpleDataSet():
         
         
         axis.legend()
-        fig.show()
+#        fig.show()
         return fig,axis
 
     def add_line(self,fig,axis,params,name,colour):
@@ -85,7 +87,7 @@ class SimpleDataSet():
         y_star = ((params[1,1]-params[1,0])*x + (params[0,1] - params[0,0]))/(params[2,0] -params[2,1])
         axis.plot(x,y_star,'g--',c=colour, label=name, linewidth=2)
         axis.legend()
-        fig.show()
+#        fig.show()
         return fig,axis
 
     
