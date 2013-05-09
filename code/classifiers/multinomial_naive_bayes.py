@@ -16,18 +16,29 @@ class MultinomialNaiveBayes(lc.LinearClassifier):
         self.smooth_param = 100
         
     def train(self,x,y):
-        nr_x,nr_f = x.shape
         # nr_x = no. of documents
-        # nr_f = no. of words
-        nr_c = np.unique(y).shape[0]
-        # nr_c = no. of classes
-        prior = np.zeros(nr_c)
-#        ind_per_class = {}
+        # nr_f = no. of words        
+        nr_x,nr_f = x.shape
+        
+        # classes = a list of possible classes
         classes = np.unique(y)
-#        for i in xrange(nr_c):
-#            idx,_ = np.nonzero(y == classes[i])
-#            ind_per_class = idx
+        # nr_c = no. of classes
+        nr_c = np.unique(y).shape[0]
+        
+        # initialization of the prior and likelihood variables
+        prior = np.zeros(nr_c)
         likelihood = np.zeros((nr_f,nr_c))
+
+        # TODO: This is where you have to write your code!
+        # You need to compute the values of the prior and likelihood parameters
+        # and place them in the variables called "prior" and "likelihood".
+        # Examples:
+            # prior[0] is the prior probability of a document being of class 0
+            # likelihood[4, 0] is the likelihood of the fifth(*) feature being active, given that the document is of class 0
+            # (*) recall that Python starts indices at 0, so an index of 4 corresponds to the fifth feature!
+        
+        ############################
+        # Code to be deleted
         sums = np.zeros((nr_f,1))
         for i in xrange(nr_c):
             idx,_ = np.nonzero(y == classes[i]) 
@@ -44,6 +55,8 @@ class MultinomialNaiveBayes(lc.LinearClassifier):
                     likelihood[f,i] = (self.smooth_param + likelihood[f,i])/(nr_f*self.smooth_param + sums[f,0]) # Add-one smoothing
                 else:
                     likelihood[f,i] = likelihood[f,i]/sums[f,0] 
+        # End of code to be deleted
+        ############################
 
         params = np.zeros((nr_f+1,nr_c))
         for i in xrange(nr_c):
