@@ -1,23 +1,20 @@
-import sys
 import numpy as np
 import matplotlib.pyplot as plt
-from util.my_math_utils import *
-from viterbi import run_viterbi
-from forward_backward import run_forward,run_backward,forward_backward,sanity_check_forward_backward
+import sequence_classifier as sc
+import sequences.confusion_matrix as cm
+from log_domain import *
+
 import pdb
 
 
-class HMM():
+class HMM(sc.SequenceClassifier):
     ''' Implements a first order HMM.'''
 
     def __init__(self, observation_labels, state_labels):
         '''Initialize an HMM. observation_labels and state_labels are the sets
         of observations and states, respectively. They are both LabelDictionary
         objects.'''
-        self.observation_labels = observation_labels
-        self.state_labels = state_labels
-        
-        self.trained = False
+        sc.SequenceClassifier.__init__(self, observation_labels, state_labels)
         
         num_states = self.get_num_states()
         num_observations = self.get_num_observations()
@@ -42,31 +39,75 @@ class HMM():
         self.final_counts = np.zeros(num_states)
         self.emission_counts = np.zeros([num_observations, num_states])
         
-        
-    def get_num_states(self):
-        ''' Return the number of states.'''
-        return len(self.state_labels)
+                
+    def train_EM(self, dataset, smoothing=0, num_epochs=10, evaluate=True):
+#        pdb.set_trace()
+        self.initialize_random()
 
-        
-    def get_num_observations(self):
-        ''' Return the number of observations (e.g. word types).'''
-        return len(self.observation_labels)
-        
+        if evaluate:
+            acc = self.evaluate_EM(dataset)
+            print "Initial accuracy: %f"%(acc)
+            
+        for t in xrange(1, num_epochs):
+            #E-Step
+            total_log_likelihood = 0.0
+            self.clear_counts(smoothing)
+            for sequence in dataset.seq_list:
+                # Compute scores given the observation sequence.
+                initial_scores, transition_scores, final_scores, emission_scores = \
+                    self.compute_scores(sequence)
+                
+                state_posteriors, transition_posteriors, log_likelihood = \
+                    self.compute_posteriors(initial_scores,
+                                            transition_scores,
+                                            final_scores,
+                                            emission_scores)
+                self.update_counts(sequence, state_posteriors, transition_posteriors)
+                total_log_likelihood += log_likelihood
+            #self.model.sanity_check_counts(seq_list,smoothing=smoothing)
+            print "Iter: %i Log Likelihood: %f"%(t, total_log_likelihood)
+            #M-Step
+            self.compute_parameters()
+            if evaluate:
+                 ### Evaluate accuracy at this iteration
+                acc = self.evaluate_EM(dataset)
+                print "Iter: %i Accuracy: %f"%(t,acc)
+                
+                
+    def evaluate_EM(self, dataset):
+        ### Evaluate accuracy at initial iteration
+        pred = self.viterbi_decode_corpus(dataset)
+#        pdb.set_trace()
+        confusion_matrix = cm.build_confusion_matrix(dataset.seq_list, pred, 
+                                                     self.get_num_states(), self.get_num_states())
+        best = cm.get_best_assignment(confusion_matrix)
+#        print best
+        new_pred = []
+        for i, sequence in enumerate(dataset.seq_list):
+            pred_seq = pred[i]
+            new_seq = pred_seq.copy_sequence()
+            for j, y_hat in enumerate(new_seq.y):
+                new_seq.y[j] = best[y_hat]
+            new_pred.append(new_seq)
+#        pdb.set_trace()
+        acc = self.evaluate_corpus(dataset, new_pred)
+        return acc
+                
 
-    def train_supervised(self, sequence_list, smoothing=0):
+    def train_supervised(self, dataset, smoothing=0):
         ''' Train an HMM from a list of sequences containing observations
         and the gold states. This is just counting and normalizing.'''
         # Set all counts to zeros (optionally, smooth).
         self.clear_counts(smoothing)
         # Count occurrences of events.
-        self.collect_counts_from_corpus(sequence_list)
+        self.collect_counts_from_corpus(dataset)
         # Normalize to get probabilities.
         self.compute_parameters()
 
         
-    def collect_counts_from_corpus(self, sequence_list):
+    def collect_counts_from_corpus(self, dataset):
         ''' Collects counts from a labeled corpus.'''
-        for sequence in sequence_list.seq_list:
+        for sequence in dataset.seq_list:
             # Take care of first position.
             self.initial_counts[sequence.y[0]] += 1
             self.emission_counts[sequence.x[0], sequence.y[0]] += 1
@@ -82,17 +123,22 @@ class HMM():
             self.final_counts[sequence.y[-1]] += 1
 
 
-#    ## Initializes the parameter randomnly
-#    def initialize_random(self):
-#        jitter = 1
-#        self.init_counts.fill(1)
-#        self.init_counts +=  jitter*np.random.rand(self.init_counts.shape[0],self.init_counts.shape[1])
-#        self.transition_counts.fill(1)
-#        self.transition_counts +=  jitter*np.random.rand(self.transition_counts.shape[0],self.transition_counts.shape[1])
-#        self.observation_counts.fill(1)
-#        self.observation_counts +=   jitter*np.random.rand(self.observation_counts.shape[0],self.observation_counts.shape[1])
-#        self.update_params()
-#        self.clear_counts()
+    ## Initializes the parameter randomnly
+    def initialize_random(self):
+        jitter = 1
+        num_states = self.get_num_states()
+        num_observations = self.get_num_observations()
+
+        self.initial_counts.fill(1)
+        self.initial_counts +=  jitter*np.random.rand(num_states)
+        self.transition_counts.fill(1)
+        self.transition_counts +=  jitter*np.random.rand(num_states, num_states)
+        self.emission_counts.fill(1)
+        self.emission_counts +=   jitter*np.random.rand(num_observations, num_states)
+        self.final_counts.fill(1)
+        self.final_counts +=  jitter*np.random.rand(num_states)
+        self.compute_parameters()
+        self.clear_counts()
 
         
     def clear_counts(self, smoothing = 0):
@@ -103,6 +149,27 @@ class HMM():
         self.emission_counts.fill(smoothing)
 
 
+    def update_counts(self, sequence, state_posteriors, transition_posteriors):
+        ''' Used in the E-step in EM.'''
+        num_states = self.get_num_states() # Number of states.
+        length = len(sequence.x) # Length of the sequence.
+
+        ## Take care of initial probs
+        for y in xrange(num_states):
+            self.initial_counts[y] += state_posteriors[0, y]
+        for pos in xrange(length):
+            x = sequence.x[pos]
+            for y in xrange(num_states):
+                self.emission_counts[x, y] += state_posteriors[pos, y]
+                if pos > 0:
+                    for y_prev in xrange(num_states):
+                        self.transition_counts[y, y_prev] += transition_posteriors[pos-1, y, y_prev]
+
+        ##Final position
+        for y in xrange(num_states):
+            self.final_counts[y] += state_posteriors[length-1, y]
+        
+        
     def compute_parameters(self):
         ''' Estimate the HMM parameters by normalizing the counts.'''
         # Normalize the initial counts.
@@ -190,22 +257,22 @@ class HMM():
     def compute_scores(self, sequence):
         num_states = self.get_num_states()
         length = len(sequence.x)
-        emission_scores = np.zeros([length, num_states])
-        initial_scores = np.zeros(num_states)
-        transition_scores = np.zeros([length-1, num_states, num_states])
-        final_scores = np.zeros(num_states)
+        emission_scores = np.zeros([length, num_states]) + logzero()
+        initial_scores = np.zeros(num_states) + logzero()
+        transition_scores = np.zeros([length-1, num_states, num_states]) + logzero()
+        final_scores = np.zeros(num_states) + logzero()
 
         # Initial position.
-        initial_scores[:] = self.initial_probs
+        initial_scores[:] = np.log(self.initial_probs)
         
         # Intermediate position.
         for pos in xrange(length):
-            emission_scores[pos,:] = self.emission_probs[sequence.x[pos], :]
+            emission_scores[pos,:] = np.log(self.emission_probs[sequence.x[pos], :])
             if pos > 0: 
-                transition_scores[pos-1,:,:] = self.transition_probs
+                transition_scores[pos-1,:,:] = np.log(self.transition_probs)
 
         # Final position.
-        final_scores[:] = self.final_probs
+        final_scores[:] = np.log(self.final_probs)
 
         return initial_scores, transition_scores, final_scores, emission_scores
 
@@ -226,22 +293,17 @@ class HMM():
 #        return node_potentials,edge_potentials
 
 
-    def get_seq_prob(self,seq,node_potentials,edge_potentials):
-        nr_pos = len(seq.x)
-        #print "Node %i %i %.2f"%(0,seq.y[0],node_potentials[0,seq.y[0]])
-        value = node_potentials[0,seq.y[0]]
-        for pos in np.arange(1,nr_pos,1):
-            value *= node_potentials[seq.y[pos],pos]
-            #print "Node %i %i %.2f"%(pos,seq.y[pos],node_potentials[pos,seq.y[pos]])
-            value *= edge_potentials[seq.y[pos-1],seq.y[pos],pos-1]
-            #print "Edge Node %i %i %i %.2f"%(pos-1,seq.y[pos-1],seq.y[pos],edge_potentials[pos-1,seq.y[pos-1],seq.y[pos]])
-        return value
+#    def get_seq_prob(self,seq,node_potentials,edge_potentials):
+#        nr_pos = len(seq.x)
+#        #print "Node %i %i %.2f"%(0,seq.y[0],node_potentials[0,seq.y[0]])
+#        value = node_potentials[0,seq.y[0]]
+#        for pos in np.arange(1,nr_pos,1):
+#            value *= node_potentials[seq.y[pos],pos]
+#            #print "Node %i %i %.2f"%(pos,seq.y[pos],node_potentials[pos,seq.y[pos]])
+#            value *= edge_potentials[seq.y[pos-1],seq.y[pos],pos-1]
+#            #print "Edge Node %i %i %i %.2f"%(pos-1,seq.y[pos-1],seq.y[pos],edge_potentials[pos-1,seq.y[pos-1],seq.y[pos]])
+#        return value
     
-
-    def forward_backward(self, seq):
-        initial_scores, transition_scores, final_scores, emission_scores = self.compute_scores(seq)
-        forward, backward = forward_backward(initial_scores, transition_scores, final_scores, emission_scores)
-        return forward, backward
 
 #    def forward_backward(self,seq):
 #        node_potentials,edge_potentials = self.build_potentials(seq)
@@ -249,58 +311,58 @@ class HMM():
 ##        sanity_check_forward_backward(forward,backward)
 #        return forward,backward
 
-    def sanity_check_fb(self,forward,backward):
-        return sanity_check_forward_backward(forward,backward)
+#    def sanity_check_fb(self,forward,backward):
+#        return sanity_check_forward_backward(forward,backward)
 
 
-    def compute_posteriors(self, sequence):
-        '''Compute the state and transition posteriors:
-        - The state posteriors are the probability of each state
-        occurring at each position given the sequence of observations.
-        - The transition posteriors are the joint probability of two states
-        in consecutive positions given the sequence of observations.
-        Both quantities are computed via the forward-backward algorithm.'''
-
-        num_states = self.get_num_states() # Number of states.
-        length = len(sequence.x) # Length of the sequence.
-        
-        # Compute scores given the observation sequence.
-        initial_scores, transition_scores, final_scores, emission_scores = \
-            self.compute_scores(sequence)
-            
-        # Run the forward algorithm.
-        likelihood, forward = run_forward(initial_scores,
-                                          transition_scores,
-                                          final_scores,
-                                          emission_scores)
-
-        # Run the backward algorithm.
-        likelihood, backward = run_backward(initial_scores,
-                                            transition_scores,
-                                            final_scores,
-                                            emission_scores)
-
-        # Multiply the forward and backward variables to obtain the
-        # state posteriors.
-        state_posteriors = np.zeros([length, num_states]) # State posteriors. 
-        for pos in  xrange(length):
-            state_posteriors[pos,:] = forward[pos,:] * backward[pos,:]
-            state_posteriors[pos,:] /= likelihood
- 
-        # Use the forward and backward variables along with the transition 
-        # and emission scores to obtain the transition posteriors.
-        transition_posteriors = np.zeros([length-1, num_states, num_states])
-        for pos in xrange(length-1):
-            for prev_state in xrange(num_states):
-                for state in xrange(num_states):
-                    transition_posteriors[pos, state, prev_state] = \
-                        forward[pos, prev_state] * \
-                        transition_scores[pos, state, prev_state] * \
-                        emission_scores[pos+1, state] * \
-                        backward[pos+1, state]
-                    transition_posteriors[pos, state, prev_state] /= likelihood
-                        
-        return state_posteriors, transition_posteriors
+#    def compute_posteriors(self, sequence):
+#        '''Compute the state and transition posteriors:
+#        - The state posteriors are the probability of each state
+#        occurring at each position given the sequence of observations.
+#        - The transition posteriors are the joint probability of two states
+#        in consecutive positions given the sequence of observations.
+#        Both quantities are computed via the forward-backward algorithm.'''
+#
+#        num_states = self.get_num_states() # Number of states.
+#        length = len(sequence.x) # Length of the sequence.
+#        
+#        # Compute scores given the observation sequence.
+#        initial_scores, transition_scores, final_scores, emission_scores = \
+#            self.compute_scores(sequence)
+#            
+#        # Run the forward algorithm.
+#        likelihood, forward = run_forward(initial_scores,
+#                                          transition_scores,
+#                                          final_scores,
+#                                          emission_scores)
+#
+#        # Run the backward algorithm.
+#        likelihood, backward = run_backward(initial_scores,
+#                                            transition_scores,
+#                                            final_scores,
+#                                            emission_scores)
+#
+#        # Multiply the forward and backward variables to obtain the
+#        # state posteriors.
+#        state_posteriors = np.zeros([length, num_states]) # State posteriors. 
+#        for pos in  xrange(length):
+#            state_posteriors[pos,:] = forward[pos,:] * backward[pos,:]
+#            state_posteriors[pos,:] /= likelihood
+# 
+#        # Use the forward and backward variables along with the transition 
+#        # and emission scores to obtain the transition posteriors.
+#        transition_posteriors = np.zeros([length-1, num_states, num_states])
+#        for pos in xrange(length-1):
+#            for prev_state in xrange(num_states):
+#                for state in xrange(num_states):
+#                    transition_posteriors[pos, state, prev_state] = \
+#                        forward[pos, prev_state] * \
+#                        transition_scores[pos, state, prev_state] * \
+#                        emission_scores[pos+1, state] * \
+#                        backward[pos+1, state]
+#                    transition_posteriors[pos, state, prev_state] /= likelihood
+#                        
+#        return state_posteriors, transition_posteriors
         
 
 #    def get_node_posteriors_aux(self,seq,forward,backward,node_potentials,edge_potentials,likelihood):
@@ -366,65 +428,65 @@ class HMM():
     
         
 
-    def posterior_decode(self, sequence):
-        '''Compute the sequence of states that are individually the most
-        probable, given the observations. This is done by maximizing
-        the state posteriors, which are computed with the forward-backward
-        algorithm.'''
-
-        state_posteriors, _ = self.compute_posteriors(sequence)
-        best_states =  np.argmax(state_posteriors, axis=1)
-        predicted_sequence =  sequence.copy_sequence()
-        predicted_sequence.y = best_states
-        return predicted_sequence
-
-    
-    def posterior_decode_corpus(self,seq_list):
-        predictions = []
-        for seq in seq_list:
-            predictions.append(self.posterior_decode(seq))
-        return predictions
-
-
-    
-    
-    def viterbi_decode(self, sequence):
-        '''Compute the most likely sequence of states given the observations,
-        by running the Viterbi algorithm.'''
-
-        # Compute scores given the observation sequence.
-        initial_scores, transition_scores, final_scores, emission_scores = \
-            self.compute_scores(sequence)
-            
-        # Run the forward algorithm.
-        best_states, total_score = run_viterbi(initial_scores,
-                                               transition_scores,
-                                               final_scores,
-                                               emission_scores)
-
-        predicted_sequence =  sequence.copy_sequence()
-        predicted_sequence.y = best_states
-        return predicted_sequence, total_score
-
-
-
-    def viterbi_decode_corpus(self,seq_list):
-        predictions = []
-        for seq in seq_list:
-            predicted_sequence, _ = self.viterbi_decode(seq)
-            predictions.append(predicted_sequence)
-        return predictions
-
-    def evaluate_corpus(self,seq_list,predictions):
-        total = 0.0
-        correct = 0.0
-        for i,seq in enumerate(seq_list):
-            pred = predictions[i]
-            for i,y_hat in enumerate(pred.y):
-                if(seq.y[i] == y_hat):
-                    correct += 1
-                total += 1
-        return correct/total
+#    def posterior_decode(self, sequence):
+#        '''Compute the sequence of states that are individually the most
+#        probable, given the observations. This is done by maximizing
+#        the state posteriors, which are computed with the forward-backward
+#        algorithm.'''
+#
+#        state_posteriors, _ = self.compute_posteriors(sequence)
+#        best_states =  np.argmax(state_posteriors, axis=1)
+#        predicted_sequence =  sequence.copy_sequence()
+#        predicted_sequence.y = best_states
+#        return predicted_sequence
+#
+#    
+#    def posterior_decode_corpus(self,seq_list):
+#        predictions = []
+#        for seq in seq_list:
+#            predictions.append(self.posterior_decode(seq))
+#        return predictions
+#
+#
+#    
+#    
+#    def viterbi_decode(self, sequence):
+#        '''Compute the most likely sequence of states given the observations,
+#        by running the Viterbi algorithm.'''
+#
+#        # Compute scores given the observation sequence.
+#        initial_scores, transition_scores, final_scores, emission_scores = \
+#            self.compute_scores(sequence)
+#            
+#        # Run the forward algorithm.
+#        best_states, total_score = run_viterbi(initial_scores,
+#                                               transition_scores,
+#                                               final_scores,
+#                                               emission_scores)
+#
+#        predicted_sequence =  sequence.copy_sequence()
+#        predicted_sequence.y = best_states
+#        return predicted_sequence, total_score
+#
+#
+#
+#    def viterbi_decode_corpus(self,seq_list):
+#        predictions = []
+#        for seq in seq_list:
+#            predicted_sequence, _ = self.viterbi_decode(seq)
+#            predictions.append(predicted_sequence)
+#        return predictions
+#
+#    def evaluate_corpus(self,seq_list,predictions):
+#        total = 0.0
+#        correct = 0.0
+#        for i,seq in enumerate(seq_list):
+#            pred = predictions[i]
+#            for i,y_hat in enumerate(pred.y):
+#                if(seq.y[i] == y_hat):
+#                    correct += 1
+#                total += 1
+#        return correct/total
 
     ######
     # Plot the transition matrix for a given HMM
@@ -433,27 +495,27 @@ class HMM():
         print self.transition_probs
         cax = plt.imshow(self.transition_probs[0:-1,:], interpolation='nearest',aspect='auto')
         cbar = plt.colorbar(cax, ticks=[-1, 0, 1])
-        print "Number os states %i"%self.nr_states
-        print self.dataset.int_to_tag
-        plt.xticks(np.arange(0,self.nr_states),self.dataset.int_to_tag,rotation=90)
-        plt.yticks(np.arange(0,self.nr_states),self.dataset.int_to_tag)
+        print "Number os states %i"%self.get_num_states()
+        print self.state_labels
+        plt.xticks(np.arange(0, self.get_num_states()), self.state_labels.names, rotation=90)
+        plt.yticks(np.arange(0, self.get_num_states()), self.state_labels.names)
         plt.show()
 
     def pick_best_smoothing(self,train,test,smooth_values):
         max_smooth = 0
         max_acc = 0
         for i in smooth_values:
-               self.train_supervised(train,smoothing=i)
-               viterbi_pred_train = self.viterbi_decode_corpus(train.seq_list)
-               posterior_pred_train = self.posterior_decode_corpus(train.seq_list)
-               eval_viterbi_train =   self.evaluate_corpus(train.seq_list,viterbi_pred_train)
-               eval_posterior_train = self.evaluate_corpus(train.seq_list,posterior_pred_train)
+               self.train_supervised(train, smoothing=i)
+               viterbi_pred_train = self.viterbi_decode_corpus(train)
+               posterior_pred_train = self.posterior_decode_corpus(train)
+               eval_viterbi_train =   self.evaluate_corpus(train, viterbi_pred_train)
+               eval_posterior_train = self.evaluate_corpus(train, posterior_pred_train)
                print "Smoothing %f --  Train Set Accuracy: Posterior Decode %.3f, Viterbi Decode: %.3f"%(i,eval_posterior_train,eval_viterbi_train)
 
-               viterbi_pred_test = self.viterbi_decode_corpus(test.seq_list)
-               posterior_pred_test = self.posterior_decode_corpus(test.seq_list)
-               eval_viterbi_test =   self.evaluate_corpus(test.seq_list,viterbi_pred_test)
-               eval_posterior_test = self.evaluate_corpus(test.seq_list,posterior_pred_test)
+               viterbi_pred_test = self.viterbi_decode_corpus(test)
+               posterior_pred_test = self.posterior_decode_corpus(test)
+               eval_viterbi_test =   self.evaluate_corpus(test, viterbi_pred_test)
+               eval_posterior_test = self.evaluate_corpus(test, posterior_pred_test)
                print "Smoothing %f -- Test Set Accuracy: Posterior Decode %.3f, Viterbi Decode: %.3f"%(i,eval_posterior_test,eval_viterbi_test)
                if(eval_posterior_test > max_acc):
                    max_acc = eval_posterior_test

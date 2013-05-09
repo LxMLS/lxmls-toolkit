@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from util.my_math_utils import *
 from itertools import izip
 import operator
+import pdb
 
 ## Colour for each pos tag
 tag_colors = {
@@ -20,14 +21,17 @@ tag_colors = {
     'ADJ':'DarkSeaGreen',
     'VERB':'Red'}
 
-def build_confusion_matrix(truth_seq,prediction_seq,nr_true_pos,nr_states):
+def build_confusion_matrix(truth_seq, prediction_seq, nr_true_pos, nr_states):
     matrix = {}
     for i in xrange(nr_true_pos):
         matrix[i] = {}
+
+#    pdb.set_trace()
+
     for i,seq in enumerate(truth_seq):
         pred = prediction_seq[i]
         for i,y_hat in enumerate(pred.y):
-            y_hat = y_hat[0]
+#            y_hat = y_hat[0]
             y_truth = seq.y[i]
             if(y_hat not in matrix):
                 matrix[y_hat] = {}
@@ -46,7 +50,7 @@ def get_best_assignment(conf_matrix):
     for i,(cluster,cluster_dist) in enumerate(conf_matrix.items()):
         value_aux = dict_max(cluster_dist)
         if value_aux != [] and value_aux != 0:
-            print value_aux
+#            print value_aux
             value,tag = value_aux
             best_tags[cluster] = tag
         else:
@@ -112,7 +116,7 @@ def plot_confusion_bar_graph(matrix,pos_list,clusters,title):
     conf_matrix_per_tag = split_matrix_by_best_tag(matrix,mapping)
     i  =0
 
-    print matrix
+#    print matrix
     
     for cluster in clusters:
         # Tags for each cluster
@@ -123,7 +127,9 @@ def plot_confusion_bar_graph(matrix,pos_list,clusters,title):
         for tag,value in sorted_tags:
             if(tag not in rects):
                 rects[tag] = {}
-            tag_name = pos_list[tag]
+#            pdb.set_trace()
+#            tag_name = pos_list[tag]
+            tag_name = pos_list.get_label_name(tag)
             tag_name = tag_name.upper()
             aux = fig.bar(xlocations[i],value,bottom=bottom,linewidth=0,color=tag_colors[tag_name],edgecolor=tag_colors[tag_name])
             rects[tag][0] = aux
@@ -132,7 +138,9 @@ def plot_confusion_bar_graph(matrix,pos_list,clusters,title):
     fig.set_xticks(xlocations+0.4)
     best_tags_names = []
     for i in mapping:
-        best_tags_names.append(pos_list[mapping[i]])
+        tag = mapping[i]
+        tag_name = pos_list.get_label_name(tag)        
+        best_tags_names.append(tag_name)
     #print best_tags_names
     fig.set_xticklabels(best_tags_names)
     fig.legend(map(lambda t: rects[t][0], clusters), pos_list,mode="expand",ncol=6,frameon=False)

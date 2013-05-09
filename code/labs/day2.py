@@ -3,6 +3,7 @@ sys.path.append('.')
 import readers.simple_sequence as ssr
 import sequences.hmm as hmmc
 import readers.pos_corpus as pcc
+import sequences.confusion_matrix as cm
 import pdb
 
 
@@ -11,8 +12,8 @@ import pdb
 #Exercise 2.1
 print "Exercise 2.1"
 simple = ssr.SimpleSequence()
-simple.train
-simple.test
+print simple.train
+print simple.test
 
 
 #exercise 2.2
@@ -43,14 +44,19 @@ print hmm.emission_probs
 #exercise 2.4
 print "Exercise 2.4"
 ## See forward_backward.py file
-forward,backward =  hmm.forward_backward(simple.train.seq_list[0])
-print "Likelihoods per position"
-print hmm.sanity_check_fb(forward,backward)
+#forward,backward =  hmm.forward_backward(simple.train.seq_list[0])
+#print "Likelihoods per position"
+#print hmm.sanity_check_fb(forward,backward)
 
 #exercise 2.5
 print "Exercise 2.5"
 print "State Posteriors"
-state_posteriors, _ = hmm.compute_posteriors(simple.train.seq_list[0])
+initial_scores, transition_scores, final_scores, emission_scores = \
+    hmm.compute_scores(simple.train.seq_list[0])
+state_posteriors, _, _ = hmm.compute_posteriors(initial_scores,
+                                                transition_scores,
+                                                final_scores,
+                                                emission_scores)
 print state_posteriors
 
 
@@ -98,7 +104,7 @@ print y_pred, score
 print "Truth test 1"
 print simple.test.seq_list[1]
 
-pdb.set_trace()
+#pdb.set_trace()
 
 # RIGHT NOW, WHOEVER COMPLETED VITERBI KNOWS ONLY THAT THEIR PREDICTED SEQUENCES MATCH 
 # THE ONES IN THE GUIDE. BUT THESE DOES NOT MEAN THAT THERE IS NOT A BUG 
@@ -118,29 +124,41 @@ dev_seq = corpus.read_sequence_list_conll("../data/dev-22.conll",max_sent_len=15
 hmm = hmmc.HMM(corpus.word_dict, corpus.tag_dict)
 hmm.train_supervised(train_seq)
 
-viterbi_pred_train = hmm.viterbi_decode_corpus(train_seq.seq_list)
-posterior_pred_train = hmm.posterior_decode_corpus(train_seq.seq_list)
-eval_viterbi_train =   hmm.evaluate_corpus(train_seq.seq_list,viterbi_pred_train)
-eval_posterior_train = hmm.evaluate_corpus(train_seq.seq_list,posterior_pred_train)
+viterbi_pred_train = hmm.viterbi_decode_corpus(train_seq)
+posterior_pred_train = hmm.posterior_decode_corpus(train_seq)
+eval_viterbi_train =   hmm.evaluate_corpus(train_seq, viterbi_pred_train)
+eval_posterior_train = hmm.evaluate_corpus(train_seq, posterior_pred_train)
 print "Train Set Accuracy: Posterior Decode %.3f, Viterbi Decode: %.3f"%(eval_posterior_train,eval_viterbi_train)
 
 
 
 
-viterbi_pred_test = hmm.viterbi_decode_corpus(test_seq.seq_list)
-posterior_pred_test = hmm.posterior_decode_corpus(test_seq.seq_list)
-eval_viterbi_test =   hmm.evaluate_corpus(test_seq.seq_list,viterbi_pred_test)
-eval_posterior_test = hmm.evaluate_corpus(test_seq.seq_list,posterior_pred_test)
+viterbi_pred_test = hmm.viterbi_decode_corpus(test_seq)
+posterior_pred_test = hmm.posterior_decode_corpus(test_seq)
+eval_viterbi_test =   hmm.evaluate_corpus(test_seq,viterbi_pred_test)
+eval_posterior_test = hmm.evaluate_corpus(test_seq,posterior_pred_test)
 print "Test Set Accuracy: Posterior Decode %.3f, Viterbi Decode: %.3f"%(eval_posterior_test,eval_viterbi_test)
 
 
-best_smothing = hmm.pick_best_smoothing(train_seq,dev_seq,[10,1,0.1,0])
+best_smothing = hmm.pick_best_smoothing(train_seq, dev_seq, [10,1,0.1,0])
 
 
-hmm.train_supervised(train_seq,smoothing=best_smothing)
-viterbi_pred_test = hmm.viterbi_decode_corpus(test_seq.seq_list)
-posterior_pred_test = hmm.posterior_decode_corpus(test_seq.seq_list)
-eval_viterbi_test =   hmm.evaluate_corpus(test_seq.seq_list,viterbi_pred_test)
-eval_posterior_test = hmm.evaluate_corpus(test_seq.seq_list,posterior_pred_test)
+hmm.train_supervised(train_seq, smoothing=best_smothing)
+viterbi_pred_test = hmm.viterbi_decode_corpus(test_seq)
+posterior_pred_test = hmm.posterior_decode_corpus(test_seq)
+eval_viterbi_test =   hmm.evaluate_corpus(test_seq, viterbi_pred_test)
+eval_posterior_test = hmm.evaluate_corpus(test_seq, posterior_pred_test)
 print "Best Smoothing %f --  Test Set Accuracy: Posterior Decode %.3f, Viterbi Decode: %.3f"%(best_smothing,eval_posterior_test,eval_viterbi_test)
 
+
+#pdb.set_trace()
+# Train with EM.
+hmm.train_EM(train_seq, best_smothing, 20, evaluate=True)
+    
+    
+#pdb.set_trace()
+
+confusion_matrix = cm.build_confusion_matrix(test_seq.seq_list, viterbi_pred_test, 
+                                             len(corpus.tag_dict), hmm.get_num_states())
+cm.plot_confusion_bar_graph(confusion_matrix, corpus.tag_dict, 
+                            xrange(hmm.get_num_states()), 'Confusion matrix')

@@ -13,6 +13,7 @@ class DependencyParser():
     '''
     def __init__(self):
         self.trained = False
+        self.projective = False
         self.language = ""
         self.weights = []
         self.decoder = DependencyDecoder()
@@ -37,7 +38,10 @@ class DependencyParser():
             for instance in self.reader.train_instances:
                 feats = self.features.create_features(instance)
                 scores = self.features.compute_scores(feats, self.weights)
-                heads_pred = self.decoder.parse_nonproj(scores)
+                if self.projective:
+                    heads_pred = self.decoder.parse_proj(scores)
+                else:
+                    heads_pred = self.decoder.parse_nonproj(scores)
                 #print [heads_pred, instance.heads]
                 for m in range(np.size(heads_pred)):
                     if heads_pred[m] != instance.heads[m]: # mistake
@@ -122,7 +126,10 @@ class DependencyParser():
         for instance in self.reader.test_instances:
             feats = self.features.create_features(instance)
             scores = self.features.compute_scores(feats, self.weights)
-            heads_pred = self.decoder.parse_nonproj(scores)
+            if self.projective:
+                heads_pred = self.decoder.parse_proj(scores)
+            else:
+                heads_pred = self.decoder.parse_nonproj(scores)
             #print [heads_pred, instance.heads]
             for m in range(np.size(heads_pred)):
                 if heads_pred[m] != instance.heads[m]: # mistake

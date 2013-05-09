@@ -1,12 +1,13 @@
 
-from abstract_feature_class import AbstractFeatureClass
+from sequences.label_dictionary import *
+#from abstract_feature_class import AbstractFeatureClass
 import pdb
 
 #################
 ### Replicates the same features as the HMM
 ### One for word/tag and tag/tag pair
 #################
-class IDFeatures(AbstractFeatureClass):
+class IDFeatures:
     '''
         Base class to extract features from a particular dataset.
 
@@ -25,6 +26,40 @@ class IDFeatures(AbstractFeatureClass):
     '''
 
         
+    def __init__(self, dataset):
+        '''dataset is a sequence list.'''
+        self.feature_dict = LabelDictionary()
+#        self.feature_names = []
+#        self.nr_feats = 0
+        self.feature_list = []
+
+        self.add_features = False
+        self.dataset = dataset
+
+        #Speed up
+        self.node_feature_cache = {}
+        self.initial_state_feature_cache = {}
+        self.final_state_feature_cache = {}
+        self.edge_feature_cache = {}
+
+
+    def get_num_features(self):
+        return len(self.feature_dict)
+
+
+    def build_features(self):
+        '''
+        Generic function to build features for a given dataset.
+        Iterates through all sentences in the dataset and extracts its features,
+        saving the node/edge features in feature list.
+        '''
+        self.add_features = True
+        for sequence in self.dataset.seq_list:
+           initial_features, transition_features, final_features, emission_features = \
+               self.get_sequence_features(sequence)
+           self.feature_list.append([initial_features, transition_features, final_features, emission_features])
+#        self.nr_feats = len(self.feature_names)
+        self.add_features = False
 
 #    def get_seq_features(self,seq):
 #        '''
@@ -63,7 +98,7 @@ class IDFeatures(AbstractFeatureClass):
 #        seq_edge_features.append(final_idx)
 #        return seq_node_features,seq_edge_features
 
-    def get_seq_features(self, sequence):
+    def get_sequence_features(self, sequence):
         '''
         Returns the features for a given sequence.
         For a sequence of size N returns:
@@ -73,45 +108,47 @@ class IDFeatures(AbstractFeatureClass):
         - Entry N contains the final features
         - Entry i contains entries mapping the transition from i-1 to i.
         '''
-        seq_node_features = []
-        seq_edge_features = []
+        emission_features = []
+        initial_features = []
+        transition_features = []
+        final_features = []
+
         ## Take care of first position
-        init_idx = []
-        node_idx = []
-        node_idx = self.add_node_features(sequence, 0, sequence.y[0],node_idx)
-        init_idx = self.add_initial_features(sequence, sequence.y[0], init_idx)
-        seq_node_features.append(node_idx)
-        seq_edge_features.append(init_idx)
+        features = []
+        features = self.add_initial_features(sequence, sequence.y[0], features)
+        initial_features.append(features)
+
         ## Take care of middle positions
-        for i,tag in enumerate(sequence.y[1:]):
-            idx = []
-            edge_idx = []
-            j = i+1
-            #print i,j
-            prev_tag = sequence.y[j-1]
-            edge_idx = self.add_edge_features(sequence, j, tag, prev_tag, edge_idx)            
-            idx = self.add_node_features(sequence, j, tag, idx)
-            seq_node_features.append(idx)
-            seq_edge_features.append(edge_idx)
+        for pos, tag in enumerate(sequence.y):
+            features = []
+            features = self.add_emission_features(sequence, pos, sequence.y[pos], features)
+            emission_features.append(features)
+
+            if pos > 0:            
+                prev_tag = sequence.y[pos-1]
+                features = []
+                features = self.add_transition_features(sequence, pos-1, tag, prev_tag, features)            
+                transition_features.append(features)
+                
         ## Take care of final position
-        final_idx = []
-        tag = sequence.y[-1]
-        final_idx = self.add_final_features(sequence, tag, final_idx)
-        seq_edge_features.append(final_idx)
-        return seq_node_features,seq_edge_features
+        features = []
+        features = self.add_final_features(sequence, sequence.y[-1], features)
+        final_features.append(features)
+
+        return initial_features, transition_features, final_features, emission_features
 
 
     #f(t,y_t,X)
     # Add the word identity and if position is
     # the first also adds the tag position
-    def get_node_features(self, sequence, pos, y):
+    def get_emission_features(self, sequence, pos, y):
         all_feat = []
         x = sequence.x[pos]
         if(x not in self.node_feature_cache):
             self.node_feature_cache[x] = {}
         if(y not in self.node_feature_cache[x]):
             node_idx = []
-            node_idx = self.add_node_features(sequence, pos, y, node_idx)
+            node_idx = self.add_emission_features(sequence, pos, y, node_idx)
             self.node_feature_cache[x][y] = node_idx
         idx = self.node_feature_cache[x][y]
         all_feat = idx[:]
@@ -121,27 +158,32 @@ class IDFeatures(AbstractFeatureClass):
 
     #f(t,y_t,y_(t-1),X)
     ##Speed up of code
-    def get_edge_features(self, sequence, pos, y, y_prev):
-        if(pos == 0):
-           if(y not in self.initial_state_feature_cache):
-               edge_idx = []
-               edge =  self.add_init_state_features(seq,y,edge_idx)
-               self.initial_state_feature_cache[y] = edge_idx
-           return self.initial_state_feature_cache[y]
-        elif(pos == len(seq.x)):
-            if(y_prev not in self.final_state_feature_cache):
-                edge_idx = []
-                edge = self.add_final_state_features(seq,y_prev,edge_idx)            
-                self.final_state_feature_cache[y_prev] = edge_idx
-            return self.final_state_feature_cache[y_prev]
-        else:
-            if(y not in self.edge_feature_cache):
-                self.edge_feature_cache[y]={}
-            if(y_prev not in self.edge_feature_cache[y]): 
-                edge_idx = []
-                edge = self.add_edge_features(seq,pos,y,y_prev,edge_idx)            
-                self.edge_feature_cache[y][y_prev] = edge_idx
-            return self.edge_feature_cache[y][y_prev]
+    def get_transition_features(self, sequence, pos, y, y_prev):
+        assert(pos >= 0 and pos < len(sequence.x)), pdb.set_trace()
+
+        if(y not in self.edge_feature_cache):
+            self.edge_feature_cache[y] = {}
+        if(y_prev not in self.edge_feature_cache[y]): 
+            edge_idx = []
+            edge_idx = self.add_transition_features(sequence, pos, y, y_prev, edge_idx)            
+            self.edge_feature_cache[y][y_prev] = edge_idx
+        return self.edge_feature_cache[y][y_prev]
+
+
+    def get_initial_features(self, sequence, y):
+       if(y not in self.initial_state_feature_cache):
+           edge_idx = []
+           edge_idx =  self.add_initial_features(sequence, y, edge_idx)
+           self.initial_state_feature_cache[y] = edge_idx
+       return self.initial_state_feature_cache[y]
+
+
+    def get_final_features(self, sequence, y_prev):
+        if(y_prev not in self.final_state_feature_cache):
+            edge_idx = []
+            edge_idx = self.add_final_features(sequence, y_prev, edge_idx)            
+            self.final_state_feature_cache[y_prev] = edge_idx
+        return self.final_state_feature_cache[y_prev]
 
 
 #    def add_init_state_features(self,seq,y,init_idx):
@@ -197,7 +239,7 @@ class IDFeatures(AbstractFeatureClass):
 #            idx.append(nr_feat)
 #        return idx
 
-    def add_node_features(self, sequence, pos, y, features):
+    def add_emission_features(self, sequence, pos, y, features):
         '''Add word-tag pair feature.'''
         x = sequence.x[pos]
         # Get tag name from ID.
@@ -236,12 +278,12 @@ class IDFeatures(AbstractFeatureClass):
 #            print edge_idx
 #        return edge_idx
 
-    def add_edge_features(self, sequence, pos, y, y_prev, features):
+    def add_transition_features(self, sequence, pos, y, y_prev, features):
         """ Adds a feature to the edge feature list.
         Creates a unique id if its the first time the feature is visited
         or returns the existing id otherwise
         """
-        assert pos < len(sequence.x), pdb.set_trace()
+        assert pos < len(sequence.x)-1, pdb.set_trace()
 
         # Get label name from ID.
         y_name = self.dataset.y_dict.get_label_name(y)
@@ -296,57 +338,57 @@ class IDFeatures(AbstractFeatureClass):
     ###### Printing functions ##############
 
 
-    def get_sequence_feat_str(self,seq):
-        seq_nr = seq.nr
-        node_f_list = self.feature_list[seq_nr][0]
-        edge_f_list = self.feature_list[seq_nr][1]
-
-        word = seq.x[0]
-        word_n = self.dataset.int_to_word[word]
-        tag = seq.y[0]
-        tag_n = self.dataset.int_to_tag[tag]
-        txt = ""
-        for i,tag in enumerate(seq.y):
-            word = seq.x[i]
-            word_n = self.dataset.int_to_word[word]
-            tag_n = self.dataset.int_to_tag[tag]
-            txt += "%i %s/%s NF: "%(i,word_n,tag_n)
-            for nf in node_f_list[i]:
-                txt+="%s "%self.feature_names[nf]
-            if(edge_f_list[i] != []):
-                txt += "EF: "
-                for nf in edge_f_list[i]:
-                    txt+="%s "%self.feature_names[nf]
-            txt +="\n"
-        return txt
-
-    def print_sequence_features(self,seq):
-        txt = ""
-        for i,tag in enumerate(seq.y):
-            word = seq.x[i]
-            word_n = self.dataset.int_to_word[word]
-            tag_n = self.dataset.int_to_tag[tag]
-            txt += "%i %s/%s NF: "%(i,word_n,tag_n)
-            if(i > 0):
-                prev_tag = seq.y[i-1]
-                edge_f_list = self.get_edge_features(seq,i,tag,prev_tag)
-            else:
-                edge_f_list = self.get_edge_features(seq,i,tag,-1)
-            node_f_list = self.get_node_features(seq,i,tag)
-            for nf in node_f_list:
-                txt+="%s "%self.feature_names[nf]
-            if(edge_f_list != []):
-                txt += "EF: "
-                for nf in edge_f_list:
-                    txt+="%s "%self.feature_names[nf]
-            txt +="\n"
-        ## Add last position
-        pos = len(seq.x)
-        prev_tag = seq.y[pos-1]
-        txt += "%i %s/%s NF: EF: "%(pos,-1,-1)
-        edge_f_list = self.get_edge_features(seq,pos,-1,prev_tag)
-        for nf in edge_f_list:
-            txt+="%s "%self.feature_names[nf]
-        txt +="\n"
-        return txt
-
+#    def get_sequence_feat_str(self,seq):
+#        seq_nr = seq.nr
+#        node_f_list = self.feature_list[seq_nr][0]
+#        edge_f_list = self.feature_list[seq_nr][1]
+#
+#        word = seq.x[0]
+#        word_n = self.dataset.int_to_word[word]
+#        tag = seq.y[0]
+#        tag_n = self.dataset.int_to_tag[tag]
+#        txt = ""
+#        for i,tag in enumerate(seq.y):
+#            word = seq.x[i]
+#            word_n = self.dataset.int_to_word[word]
+#            tag_n = self.dataset.int_to_tag[tag]
+#            txt += "%i %s/%s NF: "%(i,word_n,tag_n)
+#            for nf in node_f_list[i]:
+#                txt+="%s "%self.feature_names[nf]
+#            if(edge_f_list[i] != []):
+#                txt += "EF: "
+#                for nf in edge_f_list[i]:
+#                    txt+="%s "%self.feature_names[nf]
+#            txt +="\n"
+#        return txt
+#
+#    def print_sequence_features(self,seq):
+#        txt = ""
+#        for i,tag in enumerate(seq.y):
+#            word = seq.x[i]
+#            word_n = self.dataset.int_to_word[word]
+#            tag_n = self.dataset.int_to_tag[tag]
+#            txt += "%i %s/%s NF: "%(i,word_n,tag_n)
+#            if(i > 0):
+#                prev_tag = seq.y[i-1]
+#                edge_f_list = self.get_edge_features(seq,i,tag,prev_tag)
+#            else:
+#                edge_f_list = self.get_edge_features(seq,i,tag,-1)
+#            node_f_list = self.get_node_features(seq,i,tag)
+#            for nf in node_f_list:
+#                txt+="%s "%self.feature_names[nf]
+#            if(edge_f_list != []):
+#                txt += "EF: "
+#                for nf in edge_f_list:
+#                    txt+="%s "%self.feature_names[nf]
+#            txt +="\n"
+#        ## Add last position
+#        pos = len(seq.x)
+#        prev_tag = seq.y[pos-1]
+#        txt += "%i %s/%s NF: EF: "%(pos,-1,-1)
+#        edge_f_list = self.get_edge_features(seq,pos,-1,prev_tag)
+#        for nf in edge_f_list:
+#            txt+="%s "%self.feature_names[nf]
+#        txt +="\n"
+#        return txt
+#
