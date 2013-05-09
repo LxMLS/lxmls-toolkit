@@ -1,19 +1,18 @@
-###### Exercises for pratica class 1
+###### Exercises for labs class 1
 import sys, pdb
-sys.path.append("readers/" )
-sys.path.append("classifiers/" )
+sys.path.append("." )
 
-import simple_data_set as sds
-import sentiment_reader as srs
-import linear_classifier as lcc
-import perceptron as percc
-import mira as mirac
-import gaussian_naive_bayes as gnbc
-import multinomial_naive_bayes as mnb
-import max_ent_batch as mebc
-import max_ent_online as meoc
-import svm as svmc
-import naive_bayes as nb
+import readers.simple_data_set as sds
+import readers.sentiment_reader as srs
+import classifiers.linear_classifier as lcc
+import classifiers.perceptron as percc
+import classifiers.mira as mirac
+import classifiers.gaussian_naive_bayes as gnbc
+import classifiers.multinomial_naive_bayes as mnb
+import classifiers.max_ent_batch as mebc
+import classifiers.max_ent_online as meoc
+import classifiers.svm as svmc
+import classifiers.naive_bayes as nb
 import run_all_classifiers as run_all_c
 
 
