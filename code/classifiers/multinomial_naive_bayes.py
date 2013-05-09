@@ -37,7 +37,7 @@ class MultinomialNaiveBayes(lc.LinearClassifier):
             # likelihood[4, 0] is the likelihood of the fifth(*) feature being active, given that the document is of class 0
             # (*) recall that Python starts indices at 0, so an index of 4 corresponds to the fifth feature!
         
-        ############################
+        ###########################
         # Code to be deleted
         sums = np.zeros((nr_f,1))
         for i in xrange(nr_c):
@@ -56,7 +56,7 @@ class MultinomialNaiveBayes(lc.LinearClassifier):
                 else:
                     likelihood[f,i] = likelihood[f,i]/sums[f,0] 
         # End of code to be deleted
-        ############################
+        ###########################
 
         params = np.zeros((nr_f+1,nr_c))
         for i in xrange(nr_c):
