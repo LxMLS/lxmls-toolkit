@@ -26,12 +26,9 @@ def build_confusion_matrix(truth_seq, prediction_seq, nr_true_pos, nr_states):
     for i in xrange(nr_true_pos):
         matrix[i] = {}
 
-#    pdb.set_trace()
-
     for i,seq in enumerate(truth_seq):
         pred = prediction_seq[i]
         for i,y_hat in enumerate(pred.y):
-#            y_hat = y_hat[0]
             y_truth = seq.y[i]
             if(y_hat not in matrix):
                 matrix[y_hat] = {}
@@ -50,7 +47,6 @@ def get_best_assignment(conf_matrix):
     for i,(cluster,cluster_dist) in enumerate(conf_matrix.items()):
         value_aux = dict_max(cluster_dist)
         if value_aux != [] and value_aux != 0:
-#            print value_aux
             value,tag = value_aux
             best_tags[cluster] = tag
         else:
@@ -128,7 +124,6 @@ def plot_confusion_bar_graph(matrix,pos_list,clusters,title):
                 rects[tag] = {}
             tag_name = pos_list.get_label_name(tag)
             tag_name = tag_name.upper()
-            print "Going for cluster %i and tag %s with name %s"%(cluster,tag,tag_name)
             aux = fig.bar(xlocations[i],value,bottom=bottom,linewidth=0,color=tag_colors[tag_name],edgecolor=tag_colors[tag_name])
             rects[tag][0] = aux
             bottom += value
