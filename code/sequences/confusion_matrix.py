@@ -113,7 +113,6 @@ def plot_confusion_bar_graph(matrix,pos_list,clusters,title):
     
     rects = {}
 
-    conf_matrix_per_tag = split_matrix_by_best_tag(matrix,mapping)
     i  =0
 
 #    print matrix
@@ -127,10 +126,9 @@ def plot_confusion_bar_graph(matrix,pos_list,clusters,title):
         for tag,value in sorted_tags:
             if(tag not in rects):
                 rects[tag] = {}
-#            pdb.set_trace()
-#            tag_name = pos_list[tag]
             tag_name = pos_list.get_label_name(tag)
             tag_name = tag_name.upper()
+            print "Going for cluster %i and tag %s with name %s"%(cluster,tag,tag_name)
             aux = fig.bar(xlocations[i],value,bottom=bottom,linewidth=0,color=tag_colors[tag_name],edgecolor=tag_colors[tag_name])
             rects[tag][0] = aux
             bottom += value
@@ -143,6 +141,8 @@ def plot_confusion_bar_graph(matrix,pos_list,clusters,title):
         best_tags_names.append(tag_name)
     #print best_tags_names
     fig.set_xticklabels(best_tags_names)
-    fig.legend(map(lambda t: rects[t][0], clusters), pos_list,mode="expand",ncol=6,frameon=False)
+    pos_list2 = sorted(pos_list.iteritems(),key=lambda x: x[1])
+    color_list = [x[0] for x in pos_list2]
+    fig.legend(map(lambda t: rects[t][0], clusters), color_list,mode="expand",ncol=6,frameon=False)
     fig.autoscale()
     plt.show()

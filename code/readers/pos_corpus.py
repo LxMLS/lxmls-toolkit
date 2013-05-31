@@ -51,8 +51,6 @@ class PostagCorpus:
         
         
 
-
-
 #    ###########
 #    ## Add a sequence list to the corpus for training
 #    ###########
@@ -79,7 +77,6 @@ class PostagCorpus:
         instance_list = self.read_conll_instances(train_file,max_sent_len,max_nr_sent,mapping)
         seq_list = SequenceList(self.word_dict, self.tag_dict)
         for sent_x,sent_y in instance_list:
-#            pdb.set_trace()            
             seq_list.add_sequence(sent_x,sent_y)
         return seq_list
     
@@ -117,7 +114,7 @@ class PostagCorpus:
                 ex_x = []
                 ex_y = []
             else:
-                pos = toks[3]
+                pos = toks[4]
                 word = toks[1]
                 pos = pos.lower()
                 if(pos not in mapping):

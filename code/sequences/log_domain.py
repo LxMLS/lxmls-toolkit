@@ -43,21 +43,21 @@ def logsum_pair(logx, logy):
 #        return logy + np.log(1 + np.exp(logx-logy))
         
         
-#def logsum2(logv):
-#    '''
-#    Return log(v[0]+v[1]+...), avoiding arithmetic underflow/overflow.
-#    '''
-#    res = logzero()
-#    for val in logv:
-#        res = logsum_pair(res, val)
-#    return res
-
 def logsum(logv):
     '''
     Return log(v[0]+v[1]+...), avoiding arithmetic underflow/overflow.
     '''
-    c = np.max(logv)
-    return c + np.log(np.sum(np.exp(logv - c)))
+    res = logzero()
+    for val in logv:
+        res = logsum_pair(res, val)
+    return res
+
+#def logsum(logv):
+#    '''
+#    Return log(v[0]+v[1]+...), avoiding arithmetic underflow/overflow.
+#    '''
+#    c = np.max(logv)
+#    return c + np.log(np.sum(np.exp(logv - c)))
 #    res2 = logsum2(logv)
 #    import pdb
 #    assert (res-res2)**2 < 1e-6, pdb.set_trace()

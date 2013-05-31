@@ -150,11 +150,17 @@ eval_viterbi_test =   hmm.evaluate_corpus(test_seq, viterbi_pred_test)
 eval_posterior_test = hmm.evaluate_corpus(test_seq, posterior_pred_test)
 print "Best Smoothing %f --  Test Set Accuracy: Posterior Decode %.3f, Viterbi Decode: %.3f"%(best_smothing,eval_posterior_test,eval_viterbi_test)
 
+confusion_matrix = cm.build_confusion_matrix(test_seq.seq_list, viterbi_pred_test, 
+                                             len(corpus.tag_dict), hmm.get_num_states())
+cm.plot_confusion_bar_graph(confusion_matrix, corpus.tag_dict, 
+                            range(hmm.get_num_states()), 'Confusion matrix')
+
 
 #pdb.set_trace()
 # Train with EM.
 hmm.train_EM(train_seq, best_smothing, 20, evaluate=True)
-    
+
+
     
 #pdb.set_trace()
 
