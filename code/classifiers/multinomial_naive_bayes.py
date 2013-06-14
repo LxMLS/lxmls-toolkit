@@ -12,7 +12,7 @@ class MultinomialNaiveBayes(lc.LinearClassifier):
         self.trained = False
         self.likelihood = 0
         self.prior = 0
-        self.smooth = True
+        self.smooth = False
         self.smooth_param = 1
         
     def train(self,x,y):
