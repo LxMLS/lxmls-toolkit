@@ -21,3 +21,8 @@ Installation
         - pip install -r pip-requirements.txt
         - pip install .
 
+Folders
+
+    - "Labs" is the folder which will be given to the students
+    - "Code" is our folder for testing; it contains the solutions
+    - "lxmls" is an old folder; you probably don't need it
