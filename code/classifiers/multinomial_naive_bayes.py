@@ -16,18 +16,18 @@ class MultinomialNaiveBayes(lc.LinearClassifier):
         self.smooth_param = 100
         
     def train(self,x,y):
-        # nr_x = no. of documents
-        # nr_f = no. of words        
-        nr_x,nr_f = x.shape
+        # n_docs = no. of documents
+        # n_words = no. of words        
+        n_docs,n_words = x.shape
         
         # classes = a list of possible classes
         classes = np.unique(y)
-        # nr_c = no. of classes
-        nr_c = np.unique(y).shape[0]
+        # n_classes = no. of classes
+        n_classes = np.unique(y).shape[0]
         
         # initialization of the prior and likelihood variables
-        prior = np.zeros(nr_c)
-        likelihood = np.zeros((nr_f,nr_c))
+        prior = np.zeros(n_classes)
+        likelihood = np.zeros((n_words,n_classes))
 
         # TODO: This is where you have to write your code!
         # You need to compute the values of the prior and likelihood parameters
@@ -39,27 +39,27 @@ class MultinomialNaiveBayes(lc.LinearClassifier):
         
         ###########################
         # Code to be deleted
-        sums = np.zeros((nr_f,1))
-        for i in xrange(nr_c):
-            idx,_ = np.nonzero(y == classes[i]) 
-            prior[i] = 1.0*len(idx)/len(y) # prior = fraction of documents with this class
+        sums = np.zeros((n_words,1))
+        for i in xrange(n_classes):
+            docs_in_class,_ = np.nonzero(y == classes[i]) # docs_in_class = indices of documents in class i
+            prior[i] = 1.0*len(docs_in_class)/n_docs # prior = fraction of documents with this class
 
-            value = x[idx,:].sum(0)
-            sums[:,0] += value # sums = total number of counts of each word
-            likelihood[:,i] = value # likelihood = count of occurrences of a word in a class
+            word_count_in_class = x[docs_in_class,:].sum(0) # word_count_in_class = count of word occurrences in documents of class i
+            sums[:,0] += word_count_in_class # sums = total number of counts of each word
+            likelihood[:,i] = word_count_in_class # likelihood = count of occurrences of a word in a class
                                     # NOTE: at this point this is a count, not a likelihood
                 
-        for f in xrange(nr_f):
-            for i in xrange(nr_c):
+        for f in xrange(n_words):
+            for i in xrange(n_classes):
                 if self.smooth:
-                    likelihood[f,i] = (self.smooth_param + likelihood[f,i])/(nr_f*self.smooth_param + sums[f,0]) # Add-one smoothing
+                    likelihood[f,i] = (self.smooth_param + likelihood[f,i])/(n_words*self.smooth_param + sums[f,0]) # Add-one smoothing
                 else:
                     likelihood[f,i] = likelihood[f,i]/sums[f,0] 
         # End of code to be deleted
         ###########################
 
-        params = np.zeros((nr_f+1,nr_c))
-        for i in xrange(nr_c):
+        params = np.zeros((n_words+1,n_classes))
+        for i in xrange(n_classes):
             params[0,i] = np.log(prior[i])
             params[1:,i] = np.nan_to_num(np.log(likelihood[:,i]))
         self.likelihood = likelihood
