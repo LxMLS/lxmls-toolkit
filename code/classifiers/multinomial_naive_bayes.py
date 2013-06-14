@@ -13,11 +13,11 @@ class MultinomialNaiveBayes(lc.LinearClassifier):
         self.likelihood = 0
         self.prior = 0
         self.smooth = True
-        self.smooth_param = 100
+        self.smooth_param = 1
         
     def train(self,x,y):
         # n_docs = no. of documents
-        # n_words = no. of words        
+        # n_words = no. of unique words    
         n_docs,n_words = x.shape
         
         # classes = a list of possible classes
@@ -39,22 +39,16 @@ class MultinomialNaiveBayes(lc.LinearClassifier):
         
         ###########################
         # Code to be deleted
-        sums = np.zeros((n_words,1))
         for i in xrange(n_classes):
             docs_in_class,_ = np.nonzero(y == classes[i]) # docs_in_class = indices of documents in class i
             prior[i] = 1.0*len(docs_in_class)/n_docs # prior = fraction of documents with this class
 
             word_count_in_class = x[docs_in_class,:].sum(0) # word_count_in_class = count of word occurrences in documents of class i
-            sums[:,0] += word_count_in_class # sums = total number of counts of each word
-            likelihood[:,i] = word_count_in_class # likelihood = count of occurrences of a word in a class
-                                    # NOTE: at this point this is a count, not a likelihood
-                
-        for f in xrange(n_words):
-            for i in xrange(n_classes):
-                if self.smooth:
-                    likelihood[f,i] = (self.smooth_param + likelihood[f,i])/(n_words*self.smooth_param + sums[f,0]) # Add-one smoothing
-                else:
-                    likelihood[f,i] = likelihood[f,i]/sums[f,0] 
+            total_words_in_class = word_count_in_class.sum() # total_words_in_class = total number of words in documents of class i
+            if self.smooth == False:
+                likelihood[:,i] = word_count_in_class/total_words_in_class # likelihood = count of occurrences of a word in a class
+            else:
+                likelihood[:,i] = (word_count_in_class + self.smooth_param) / (total_words_in_class + self.smooth_param*n_words)
         # End of code to be deleted
         ###########################
 
