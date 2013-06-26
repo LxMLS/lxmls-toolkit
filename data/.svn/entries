@@ -1,40 +1,0 @@
-10
-
-dir
-222
-svn://camoes.lx.it.pt:4000/share/svnshare/LxMLS/data
-svn://camoes.lx.it.pt:4000/share/svnshare/LxMLS
-
-
-
-2011-07-23T13:17:48.647617Z
-222
-jgraca
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-eade323b-ed16-4af3-9f26-162387751313
-
-sentiment
-dir
-
-ptb-conll
-dir
-
-deppars
-dir
-
-treebanks
-dir
-

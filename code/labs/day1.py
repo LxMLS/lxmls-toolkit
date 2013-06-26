@@ -9,6 +9,7 @@ import classifiers.perceptron as percc
 import classifiers.mira as mirac
 import classifiers.gaussian_naive_bayes as gnbc
 import classifiers.multinomial_naive_bayes as mnb
+reload(mnb) # this allows you to edit the module and run this script again without rebooting Python
 import classifiers.max_ent_batch as mebc
 import classifiers.max_ent_online as meoc
 import classifiers.svm as svmc
@@ -68,6 +69,7 @@ fig,axis = sd.add_line(fig,axis,params_nb_sd,"Naive Bayes","red")
 
 # Print these two accuracies to the terminal
 print "Naive Bayes Simple Dataset Accuracy train: %f test: %f"%(acc_train,acc_test)
+print
 
 # Same as above, but for the perceptron classifier (instead of Naive Bayes)
 perc = percc.Perceptron()
@@ -78,6 +80,7 @@ y_pred_test = perc.test(sd.test_X,params_perc_sd)
 acc_test = perc.evaluate(sd.test_y, y_pred_test)
 fig,axis = sd.add_line(fig,axis,params_perc_sd,"Perceptron","blue")
 print "Perceptron Simple Dataset Accuracy train: %f test: %f"%(acc_train,acc_test)
+print
 
 # Same as above, but for the MIRA classifier
 mira = mirac.Mira()
@@ -88,6 +91,7 @@ y_pred_test = mira.test(sd.test_X,params_mira_sd)
 acc_test = mira.evaluate(sd.test_y, y_pred_test)
 fig,axis = sd.add_line(fig,axis,params_mira_sd,"Mira","green")
 print "Mira Simple Dataset Accuracy train: %f test: %f"%(acc_train,acc_test)
+print
 
 # Same as above, but for the Maximum Entropy classifier, batch version
 me_lbfgs = mebc.MaxEnt_batch()
@@ -98,6 +102,7 @@ y_pred_test = me_lbfgs.test(sd.test_X,params_meb_sd)
 acc_test = me_lbfgs.evaluate(sd.test_y, y_pred_test)
 fig,axis = sd.add_line(fig,axis,params_meb_sd,"Max-Ent-Batch","orange")
 print "Max-Ent batch Simple Dataset Accuracy train: %f test: %f"%(acc_train,acc_test)
+print
 
 # Same as above, but for the Maximum Entropy classifier, online version
 me_sgd = meoc.MaxEnt_online()
@@ -108,6 +113,7 @@ y_pred_test = me_sgd.test(sd.test_X,params_meo_sd)
 acc_test = me_sgd.evaluate(sd.test_y, y_pred_test)
 fig,axis = sd.add_line(fig,axis,params_meo_sd,"Max-Ent-Online","magenta")
 print "Max-Ent Online Simple Dataset Accuracy train: %f test: %f"%(acc_train,acc_test)
+print
 
 # Same as above, but for the SVM classifier
 svm = svmc.SVM()
@@ -118,6 +124,7 @@ y_pred_test = svm.test(sd.test_X,params_svm_sd)
 acc_test = svm.evaluate(sd.test_y, y_pred_test)
 fig,axis = sd.add_line(fig,axis,params_svm_sd,"SVM","yellow")
 print "SVM Online Simple Dataset Accuracy train: %f test: %f"%(acc_train,acc_test)
+print
 
 ####### End of exercise 3.1 #########
 
@@ -148,6 +155,7 @@ acc_test = mnb.evaluate(scr.test_y, y_pred_test)
 # Print these two accuracies to the terminal
 # You should get 0.656250 on the train set and 0.622500 on the test set
 print "Multinomial Naive Bayes Amazon Sentiment Accuracy train: %f test: %f"%(acc_train,acc_test)
+print
 
 # Same as above, but for the perceptron classifier (instead of Naive Bayes)
 params_perc_sc = perc.train(scr.train_X,scr.train_y)
@@ -156,6 +164,7 @@ acc_train = perc.evaluate(scr.train_y, y_pred_train)
 y_pred_test = perc.test(scr.test_X,params_perc_sc)
 acc_test = perc.evaluate(scr.test_y, y_pred_test)
 print "Perceptron Amazon Sentiment Accuracy train: %f test: %f"%(acc_train,acc_test)
+print
 
 # Same as above, but for the MIRA classifier
 params_mira_sc = mira.train(scr.train_X,scr.train_y)
@@ -164,6 +173,7 @@ acc_train = mira.evaluate(scr.train_y, y_pred_train)
 y_pred_test = mira.test(scr.test_X,params_mira_sc)
 acc_test = mira.evaluate(scr.test_y, y_pred_test)
 print "Mira Amazon Sentiment Accuracy train: %f test: %f"%(acc_train,acc_test)
+print
 
 # Same as above, but for the Maximum Entropy classifier, batch version
 params_meb_sc = me_lbfgs.train(scr.train_X,scr.train_y)
@@ -172,6 +182,7 @@ acc_train = me_lbfgs.evaluate(scr.train_y, y_pred_train)
 y_pred_test = me_lbfgs.test(scr.test_X,params_meb_sc)
 acc_test = me_lbfgs.evaluate(scr.test_y, y_pred_test)
 print "Max-Ent Batch Amazon Sentiment Accuracy train: %f test: %f"%(acc_train,acc_test)
+print
 
 # Same as above, but for the Maximum Entropy classifier, online version
 params_meo_sc = me_sgd.train(scr.train_X,scr.train_y)
@@ -180,6 +191,7 @@ acc_train = me_sgd.evaluate(scr.train_y, y_pred_train)
 y_pred_test = me_sgd.test(scr.test_X,params_meo_sc)
 acc_test = me_sgd.evaluate(scr.test_y, y_pred_test)
 print "Max-Ent Online Amazon Sentiment Accuracy train: %f test: %f"%(acc_train,acc_test)
+print
 
 # Same as above, but for the SVM classifier
 params_svm_sc = svm.train(scr.train_X,scr.train_y)
@@ -188,3 +200,4 @@ acc_train = svm.evaluate(scr.train_y, y_pred_train)
 y_pred_test = svm.test(scr.test_X,params_svm_sc)
 acc_test = svm.evaluate(scr.test_y, y_pred_test)
 print "SVM Online Amazon Sentiment Accuracy train: %f test: %f"%(acc_train,acc_test)
+print
