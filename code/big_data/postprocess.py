@@ -7,8 +7,8 @@ def load_counts(ifile):
         for line in iinput:
             word, count = line.strip().split()
             word = word[1:-1]
-            counts[word] = float(count)
-            total_kmers += float(count)
+            counts[word] = float(count + 1) # the +1 implements add-one smoothing
+            total_kmers += float(count + 1)
     return counts, total_kmers
 
 def score(counts_pt, total_trimers_pt, counts_en, total_trimers_en, test_sentence):
