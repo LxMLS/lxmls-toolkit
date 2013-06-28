@@ -18,3 +18,6 @@ class WordCount(MRJob):
     def reducer(self, key, cs):
         yield key, sum(cs)
 
+wc = WordCount()
+wc.run()
+
