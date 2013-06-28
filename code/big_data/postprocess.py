@@ -1,26 +1,46 @@
+import math
+
 def load_counts(ifile):
     counts = {}
-    with open(ifile) as input:
-        for line in input:
+    total_kmers = 0.0
+    with open(ifile) as iinput:
+        for line in iinput:
             word, count = line.strip().split()
             word = word[1:-1]
             counts[word] = float(count)
-    return counts
+            total_kmers += float(count)
+    return counts, total_kmers
 
-def score(counts_pt, counts_en, test):
+def score(counts_pt, total_trimers_pt, counts_en, total_trimers_en, test_sentence):
     val = 1.
-    for i in xrange(len(test)-3):
-        tri = test[i:i+3]
-        tri_pt = counts_pt.get(tri, 1.)
-        tri_en = counts_en.get(tri, 1.)
-        val *= tri_pt/tr_en
-    return val
+    for i in xrange(len(test_sentence)-3):
+        tri = test_sentence[i:i+3]
+        tri_pt = counts_pt.get(tri, 1.0) # this will attempt to get counts from the dictionary; if it fails, it will return 1.0
+        log_prob_tri_pt = math.log10(tri_pt/total_trimers_pt)
+        tri_en = counts_en.get(tri, 1.0)
+        log_prob_tri_en = math.log10(tri_en/total_trimers_en)
 
-counts_pt = load_counts('output.pt.txt')
-counts_en = load_counts('output.en.txt')
+        val += log_prob_tri_pt-log_prob_tri_en
+        
+    if val >= 0:
+        language = "PT"
+    else:
+        language = "EN"
+    if abs(val) >= 5:
+        print "This is a", language, "sentence."
+    else:
+        print "This seems to be a", language, "sentence, but I'm not sure."
+    print "Log-ratio:", val
+
+
+
+
+
+counts_pt, total_trimers_pt = load_counts('output.pt.txt')
+counts_en, total_trimers_en = load_counts('output.en.txt')
 
 while True:
-    test = raw_input("Type a test sentence? ")
-    if not test: break
-    print score(counts_pt, counts_en, test)
+    test_sentence = raw_input("Type a test sentence and press ENTER:\n")
+    if not test_sentence: break
+    score(counts_pt, total_trimers_pt, counts_en, total_trimers_en, test_sentence)
 
