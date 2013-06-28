@@ -1,0 +1,9 @@
+# Run wordcount locally
+python big_data/wordcount.py ../data/en_test.txt
+
+# Run wordcount on Amazon
+# IMPORTANT: you must export your AWS_ACCESS_KEY and AWS_SECRET_KEY variables before running this!
+# python big_data/wordcount.py -r emr ../data/en_test.txt --num-ec2-instances 2 --aws-region eu-west-1
+
+# Run language detection locally
+
