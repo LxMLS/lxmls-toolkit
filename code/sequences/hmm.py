@@ -255,11 +255,9 @@ class HMM(sc.SequenceClassifier):
 
 
     def compute_scores(self, sequence):
-	# Number of states of the HMM
-        num_states = self.get_num_states()
-	# Length of the sequence
-        length = len(sequence.x)
-
+        length = len(sequence.x) # Length of the sequence.
+        num_states = self.get_num_states() # Number of states of the HMM.
+        
         # Initial position.
         initial_scores = np.log(self.initial_probs)
         
