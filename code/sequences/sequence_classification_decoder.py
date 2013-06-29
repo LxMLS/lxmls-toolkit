@@ -34,11 +34,10 @@ class SequenceClassificationDecoder():
         # Forward loop.
         for pos in xrange(1,length):
             for current_state in xrange(num_states):
+		# Note the fact that multiplication in log domain turns a sum and sum turns a logsum
                 forward[pos, current_state] = \
                         logsum(forward[pos-1, :] + transition_scores[pos-1, current_state, :])
                 forward[pos, current_state] += emission_scores[pos, current_state]
-
-#        pdb.set_trace()   
 
         # Termination.
         log_likelihood = logsum(forward[length-1,:] + final_scores)

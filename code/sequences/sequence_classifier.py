@@ -136,28 +136,24 @@ class SequenceClassifier():
         length = np.size(emission_scores, 0) # Length of the sequence.
         num_states = np.size(emission_scores, 1) # Number of states.
         
-#        pdb.set_trace()
-        
         # Run the forward algorithm.
         log_likelihood, forward = self.decoder.run_forward(initial_scores,
                                                            transition_scores,
                                                            final_scores,
                                                            emission_scores)
-#        print log_likelihood
 
         # Run the backward algorithm.
         log_likelihood, backward = self.decoder.run_backward(initial_scores,
                                                              transition_scores,
                                                              final_scores,
                                                              emission_scores)
-#        print log_likelihood
 
-        # Multiply the forward and backward variables to obtain the
-        # state posteriors (sum in log-space).
-        state_posteriors = np.zeros([length, num_states]) # State posteriors. 
-        for pos in xrange(length):
-            state_posteriors[pos,:] = forward[pos,:] + backward[pos,:]
-            state_posteriors[pos,:] -= log_likelihood
+        # Multiply the forward and backward variables and divide by the 
+        # likelihood to obtain the state posteriors (sum/subtract in log-space).
+	# Note that log_likelihood is just a scalar whereas forward, backward
+	# are matrices. Python is smart enough to replicate log_likelihood
+        # to form a matrix of the right size. This is called broadcasting. 
+        state_posteriors = forward + backward - log_likelihood
  
         # Use the forward and backward variables along with the transition 
         # and emission scores to obtain the transition posteriors.

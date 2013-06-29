@@ -1,16 +1,13 @@
 import sys
-sys.path.append("readers/" )
-sys.path.append("classifiers/" )
 
-import simple_data_set as sds
-
-import linear_classifier as lcc
-import naive_bayes as nbc
-import perceptron as percc
-import svm as svmc
-import mira as mirac
-import max_ent_batch as mec_batch
-import max_ent_online as mec_online
+import readers.simple_data_set as sds
+import classifiers.linear_classifier as lcc
+import classifiers.naive_bayes as nbc
+import classifiers.perceptron as percc
+import classifiers.svm as svmc
+import classifiers.mira as mirac
+import classifiers.max_ent_batch as mec_batch
+import classifiers.max_ent_online as mec_online
 
 
 
