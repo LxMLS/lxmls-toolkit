@@ -98,13 +98,6 @@ class DependencyDecoder():
                 complete_spans[s][t][1] = max(values)
                 backtrack[s][t][1][1] = s + 1 + np.argmax(values)
                 
-#        h = 0
-#        m = backtrack[0][nw][1]
-#        while 1:
-#            m = backtrack[0][nw][1]
-#            heads[m] = h
-
-#        pdb.set_trace()
         value = complete_spans[0][nw][1]
         heads = -np.ones(nw+1, dtype=int)
         self.get_dep_string(backtrack, 0, nw, 1, 1, heads)
@@ -114,27 +107,14 @@ class DependencyDecoder():
             h = heads[m]
             value_proj += scores[h,m]
         
-#        print value, value_proj
-#        pdb.set_trace()        
-#        return heads, value
         return heads
 
-#    def get_dep_string(self, backtrack, s, t, direction, complete):
-#        r = backtrack[s][t][direction][complete]
-#        if r == s or r == t: return ''
-#        if complete == 0:
-#            return self.get_dep_string(backtrack, s, r, 1, 1) + ' ' + \
-#                self.get_dep_string(backtrack, r+1, t, 0, 1)
-#        elif direction == 0:
-#            return self.get_dep_string(backtrack, s, r, 0, 1) + ' ' + \
-#                self.get_dep_string(backtrack, r, t, 0, 0) + ' ' + \
-#                str(s) + '|' + str(t)
-#        else:
-#            return str(t) + '|' + str(s) + ' ' + \
-#                self.get_dep_string(backtrack, s, r, 1, 0) + ' ' + \
-#                self.get_dep_string(backtrack, r, t, 1, 1)
+
 
     def get_dep_string(self, backtrack, s, t, direction, complete, heads):
+        '''
+        Backtracking step in Eisner's algorithm.
+        '''
         if s == t: return # ''
         if complete:
             r = backtrack[s][t][direction][complete]
@@ -142,14 +122,10 @@ class DependencyDecoder():
                 self.get_dep_string(backtrack, s, r, 0, 1, heads)
                 self.get_dep_string(backtrack, r, t, 0, 0, heads)
                 return
-#                return self.get_dep_string(backtrack, s, r, 0, 1) + ' ' + \
-#                    self.get_dep_string(backtrack, r, t, 0, 0)
             else:
                 self.get_dep_string(backtrack, s, r, 1, 0, heads)
                 self.get_dep_string(backtrack, r, t, 1, 1, heads)
                 return
-#                return self.get_dep_string(backtrack, s, r, 1, 0) + ' ' + \
-#                    self.get_dep_string(backtrack, r, t, 1, 1)
         else:
             r = backtrack[s][t][direction][complete]
             if direction == 0:
@@ -157,19 +133,11 @@ class DependencyDecoder():
                 self.get_dep_string(backtrack, s, r, 1, 1, heads)
                 self.get_dep_string(backtrack, r+1, t, 0, 1, heads)
                 return
-#                print str(t) + '->' + str(s)
-#                return self.get_dep_string(backtrack, s, r, 1, 1) + ' ' + \
-#                    self.get_dep_string(backtrack, r+1, t, 0, 1) + ' ' + \
-#                    str(s) + '|' + str(t)
             else:
                 heads[t] = s
                 self.get_dep_string(backtrack, s, r, 1, 1, heads)
                 self.get_dep_string(backtrack, r+1, t, 0, 1, heads)
                 return
-#                print str(s) + '->' + str(t)
-#                return str(t) + '|' + str(s) + ' ' + \
-#                    self.get_dep_string(backtrack, s, r, 1, 1) + ' ' + \
-#                    self.get_dep_string(backtrack, r+1, t, 0, 1)
 
                 
     def parse_nonproj(self, scores):
