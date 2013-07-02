@@ -52,6 +52,7 @@ def partial_seq(sequence, initial_probabilities, transition_probabilities, emiss
     return log_likelihood, initial_counts, transition_counts, emission_counts, final_counts
 
 def reduce_partials(partials, smoothing):
+    partials = list(partials)
     res = []
     for pi in xrange(5):
         res.append(sum(p[pi] for p in partials))
