@@ -154,10 +154,7 @@ class SequenceClassifier():
 
         # Multiply the forward and backward variables to obtain the
         # state posteriors (sum in log-space).
-        state_posteriors = np.zeros([length, num_states]) # State posteriors. 
-        for pos in xrange(length):
-            state_posteriors[pos,:] = forward[pos,:] + backward[pos,:]
-            state_posteriors[pos,:] -= log_likelihood
+        state_posteriors = forward + backward - log_likelihood
  
         # Use the forward and backward variables along with the transition 
         # and emission scores to obtain the transition posteriors.
