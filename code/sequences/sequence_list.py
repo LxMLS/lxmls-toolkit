@@ -1,7 +1,22 @@
 import sequence as seq
 import pdb
 
-class SequenceList:
+class _SequenceIterator(object):
+    def __init__(self, seq):
+        self.seq = seq
+        self.pos = 0
+
+    def __iter__(self):
+        return self
+
+    def next(self):
+        if self.pos >= len(self.seq):
+            raise StopIteration
+        r = self.seq[self.pos]
+        self.pos += 1
+        return r
+
+class SequenceList(object):
     def __init__(self, x_dict, y_dict):
         self.x_dict = x_dict
         self.y_dict = y_dict
@@ -12,6 +27,16 @@ class SequenceList:
 
     def __repr__(self):
         return repr(self.seq_list)
+
+    def __len__(self):
+        return len(self.seq_list)
+
+
+    def __getitem__(self, ix):
+        return self.seq_list[ix]
+
+    def __iter__(self):
+        return _SequenceIterator(self)
 
 
     def size(self):
@@ -54,13 +79,3 @@ class SequenceList:
                 seq_y.append(int(y))
             self.add_sequence(seq_x,seq_y)
         seq_fn.close()
-        
-#    ## Returns all sentences with a given word
-#    def find_sentences_with_word(self,word):
-#        seq_idx = []
-#        target_w = self.x_dict[word]
-#        for sequence in self.seq_list:
-#            for word in sequence.x:
-#                if word == target_w:
-#                    seq_idx.append(sequence.nr)
-#        return seq_idx
