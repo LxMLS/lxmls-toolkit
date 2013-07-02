@@ -8,20 +8,6 @@ import pdb
 
 
 
-dp = depp.DependencyParser()
-dp.features.use_lexical = True
-dp.features.use_distance = True
-dp.features.use_contextual = True
-dp.read_data("english")
-dp.projective = True
-dp.train_perceptron(10)
-dp.test()
-
-pdb.set_trace()
-
-
-
-
 print "Exercise 6.1"
 
 dp = depp.DependencyParser()
@@ -63,4 +49,18 @@ print "Exercise 6.4"
 dp.read_data("english")
 dp.train_perceptron(10)
 dp.test()
+
+goon = raw_input("Enter to go on to next exercise:")
+
+print "Exercise 6.5"
+
+dp = depp.DependencyParser()
+dp.features.use_lexical = True
+dp.features.use_distance = True
+dp.features.use_contextual = True
+dp.read_data("english")
+dp.projective = True
+dp.train_perceptron(10)
+dp.test()
+
 
