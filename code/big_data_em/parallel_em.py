@@ -4,16 +4,46 @@ import sys
 sys.path.append('..')
 import numpy as np
 import readers.pos_corpus as pcc
+import pickle
 
 from em_lib import *
 
-corpus = pcc.PostagCorpus()
-train_seq = corpus.read_sequence_list_conll("../../data/train-02-21.conll",max_sent_len=15,max_nr_sent=1000)
-num_states = len(corpus.tag_dict)
-num_observations = len(corpus.word_dict)
-num_observation_labels = len(corpus.tag_dict)
-num_observations = len(corpus.word_dict)
+mapping = {}
+for line in open('../readers/en-ptb.map'):
+    coarse,fine = line.strip().split("\t")
+    mapping[coarse.lower()] = fine.lower()
+
+word_dict, tag_dict = pickle.load(open('word_tag_dict.pkl'))
+num_states = len(tag_dict)
+num_observations = len(word_dict)
+num_observation_labels = len(tag_dict)
+num_observations = len(word_dict)
 smoothing = 0.1
+
+def load_seq(s):
+    from sequences.sequence_list import SequenceList
+    seq_list = SequenceList(word_dict, tag_dict)
+    ex_x = []
+    ex_y = []
+    contents = s.decode('string-escape').split('\n')
+    for line in contents:
+        toks = line.split()
+        if len(toks) < 2:
+            continue
+        pos = toks[4]
+        word = toks[1]
+        pos = pos.lower()
+
+        assert pos in mapping
+        assert word in word_dict
+
+        pos = mapping[pos]
+        assert pos in tag_dict
+
+        ex_x.append(word)
+        ex_y.append(pos)
+    seq_list.add_sequence(ex_x, ex_y)
+    return seq_list[0]
 
 class EMStep(MRJob):
     INTERNAL_PROTOCOL   = PickleProtocol
@@ -33,8 +63,8 @@ class EMStep(MRJob):
 
         self.transition_probabilities = np.random.random((num_states, num_states))
         self.transition_probabilities /= self.transition_probabilities.sum(1)[:,None]
-    def mapper(self, key, doci):
-        seq = train_seq[int(doci)-1]
+    def mapper(self, key, s):
+        seq = load_seq(s)
         r = partial_seq(seq, self.initial_probabilities, self.transition_probabilities, self.emission_probabilities, self.final_probabilities)
         yield 'result', r
 
