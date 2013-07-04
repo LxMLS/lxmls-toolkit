@@ -1,7 +1,7 @@
 import sys
 import pdb
 
-class Sequence:
+class Sequence(object):
     def __init__(self, sequence_list, x, y, nr):
         self.x = x
         self.y = y
@@ -10,6 +10,9 @@ class Sequence:
 
     def size(self):
         '''Returns the size of the sequence.'''
+        return len(self.x)
+
+    def __len__(self):
         return len(self.x)
 
     def copy_sequence(self):

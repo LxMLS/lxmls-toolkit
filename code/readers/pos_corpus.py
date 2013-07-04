@@ -3,12 +3,13 @@ import gzip
 from sequences.label_dictionary import *
 from sequences.sequence import *
 from sequences.sequence_list import *
+from os.path import dirname
 
 #from nltk.corpus import brown
 
 
 ## Directory where the data files are located.
-data_dir = "../../data/"
+data_dir = dirname(__file__)+"/../../data/"
 
 ### Train and test files for english WSJ part of the Penn Tree Bank
 en_train = data_dir+"train-02-21.conll"
@@ -21,7 +22,7 @@ pt_dev = ""
 pt_test = data_dir+"pt_test.txt"
 
 
-class PostagCorpus:
+class PostagCorpus(object):
 
     def __init__(self):
         # Word dictionary.
@@ -67,10 +68,10 @@ class PostagCorpus:
 
     ## Read a text file in conll format and return a sequence list
     ## 
-    def read_sequence_list_conll(self,train_file,mapping_file="readers/en-ptb.map",max_sent_len=100000,max_nr_sent=100000):
+    def read_sequence_list_conll(self,train_file,mapping_file=("%s/en-ptb.map" % dirname(__file__)),max_sent_len=100000,max_nr_sent=100000):
         ##Build mapping of postags:
         mapping = {}
-        if(mapping_file != None):
+        if mapping_file is not None:
             for line in open(mapping_file):
                 coarse,fine = line.strip().split("\t")
                 mapping[coarse.lower()] = fine.lower()        

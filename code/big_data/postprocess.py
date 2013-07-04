@@ -1,12 +1,13 @@
-import math
+import math, pdb
 
 def load_counts(ifile):
     counts = {}
     total_kmers = 0.0
     with open(ifile) as iinput:
         for line in iinput:
-            word, count = line.strip().split()
+            word, count = line.strip().split('\t')
             word = word[1:-1]
+            count = int(count)
             counts[word] = float(count + 1) # the +1 implements add-one smoothing
             total_kmers += float(count + 1)
     return counts, total_kmers
@@ -30,7 +31,7 @@ def score(counts_pt, total_trimers_pt, counts_en, total_trimers_en, test_sentenc
         print "This is a", language, "sentence."
     else:
         print "This seems to be a", language, "sentence, but I'm not sure."
-    print "Log-ratio:", val
+    print "Log-ratio:", abs(val)
 
 
 
