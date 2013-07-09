@@ -1,9 +1,10 @@
 import sys
 import numpy as np
-from sequences.viterbi import viterbi
-from sequences.forward_backward import forward_backward,sanity_check_forward_backward
-from util.my_math_utils import *
-from sequences.confusion_matrix import *
+from viterbi import viterbi
+from forward_backward import forward_backward,sanity_check_forward_backward
+sys.path.append("util/" )
+from my_math_utils import *
+from confusion_matrix import *
 
 class EM():
 
