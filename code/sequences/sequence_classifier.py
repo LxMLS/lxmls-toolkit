@@ -150,8 +150,8 @@ class SequenceClassifier():
 
         # Multiply the forward and backward variables and divide by the 
         # likelihood to obtain the state posteriors (sum/subtract in log-space).
-	# Note that log_likelihood is just a scalar whereas forward, backward
-	# are matrices. Python is smart enough to replicate log_likelihood
+	    # Note that log_likelihood is just a scalar whereas forward, backward
+	    # are matrices. Python is smart enough to replicate log_likelihood
         # to form a matrix of the right size. This is called broadcasting. 
         state_posteriors = forward + backward - log_likelihood
  
