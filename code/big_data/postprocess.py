@@ -35,8 +35,6 @@ def score(counts_pt, total_trimers_pt, counts_en, total_trimers_en, test_sentenc
 
 
 
-
-
 counts_pt, total_trimers_pt = load_counts('output.pt.txt')
 counts_en, total_trimers_en = load_counts('output.en.txt')
 

@@ -1,7 +1,7 @@
 from mrjob.job import MRJob
 from mrjob.protocol import PickleProtocol, PickleValueProtocol
 import sys
-sys.path.append('..')
+sys.path.append('.')
 import numpy as np
 import readers.pos_corpus as pcc
 import pickle
@@ -9,7 +9,7 @@ import pickle
 from em_lib import *
 
 mapping = {}
-for line in open('../readers/en-ptb.map'):
+for line in open('readers/en-ptb.map'):
     coarse,fine = line.strip().split("\t")
     mapping[coarse.lower()] = fine.lower()
 
@@ -64,6 +64,8 @@ class EMStep(MRJob):
         self.transition_probabilities = np.random.random((num_states, num_states))
         self.transition_probabilities /= self.transition_probabilities.sum(1)[:,None]
     def mapper(self, key, s):
+        if s == '':
+            return
         seq = load_seq(s)
         r = partial_seq(seq, self.initial_probabilities, self.transition_probabilities, self.emission_probabilities, self.final_probabilities)
         yield 'result', r
