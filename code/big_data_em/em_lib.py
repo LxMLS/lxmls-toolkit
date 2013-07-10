@@ -1,3 +1,4 @@
+from scipy import sparse
 import sequences.sequence_classification_decoder as scd
 import numpy as np
 def partial_seq(sequence, initial_probabilities, transition_probabilities, emission_probabilities, final_probabilities):
@@ -49,7 +50,7 @@ def partial_seq(sequence, initial_probabilities, transition_probabilities, emiss
     final_counts = np.zeros(final_probabilities.shape)
     for y in xrange(num_states):
         final_counts[y] += state_posteriors[length-1, y]
-    return log_likelihood, initial_counts, transition_counts, emission_counts, final_counts
+    return log_likelihood, initial_counts, transition_counts, sparse.csc_matrix(emission_counts), final_counts
 
 def reduce_partials(partials, smoothing):
     partials = list(partials)
@@ -57,6 +58,7 @@ def reduce_partials(partials, smoothing):
     for pi in xrange(5):
         res.append(sum(p[pi] for p in partials))
     total_log_likelihood,initial_counts, transition_counts, emission_counts,final_counts = res
+    emission_counts = emission_counts.toarray()
     initial_counts += smoothing
     transition_counts += smoothing
     final_counts += smoothing
