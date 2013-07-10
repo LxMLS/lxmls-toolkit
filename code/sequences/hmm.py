@@ -255,24 +255,22 @@ class HMM(sc.SequenceClassifier):
 
 
     def compute_scores(self, sequence):
-        num_states = self.get_num_states()
-        length = len(sequence.x)
-        emission_scores = np.zeros([length, num_states]) + logzero()
-        initial_scores = np.zeros(num_states) + logzero()
-        transition_scores = np.zeros([length-1, num_states, num_states]) + logzero()
-        final_scores = np.zeros(num_states) + logzero()
-
+        length = len(sequence.x) # Length of the sequence.
+        num_states = self.get_num_states() # Number of states of the HMM.
+        
         # Initial position.
-        initial_scores[:] = np.log(self.initial_probs)
+        initial_scores = np.log(self.initial_probs)
         
         # Intermediate position.
+        emission_scores = np.zeros([length, num_states]) + logzero()
+        transition_scores = np.zeros([length-1, num_states, num_states]) + logzero()
         for pos in xrange(length):
             emission_scores[pos,:] = np.log(self.emission_probs[sequence.x[pos], :])
             if pos > 0: 
                 transition_scores[pos-1,:,:] = np.log(self.transition_probs)
 
         # Final position.
-        final_scores[:] = np.log(self.final_probs)
+        final_scores = np.log(self.final_probs)
 
         return initial_scores, transition_scores, final_scores, emission_scores
 
