@@ -23,7 +23,7 @@ def as_escaped(ifname):
 
 
 corpus = pcc.PostagCorpus()
-train_seq = corpus.read_sequence_list_conll("../data/train-02-21.conll",max_sent_len=15,max_nr_sent=1000)
+train_seq = corpus.read_sequence_list_conll("../data/train-02-21.conll")
 pickle.dump((corpus.word_dict, corpus.tag_dict), open('word_tag_dict.pkl','w'))
 
 with open('encoded.txt','w') as output:
