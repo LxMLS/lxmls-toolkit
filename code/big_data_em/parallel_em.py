@@ -50,19 +50,23 @@ class EMStep(MRJob):
     OUTPUT_PROTOCOL     = PickleValueProtocol
     def __init__(self, *args, **kwargs):
         MRJob.__init__(self, *args, **kwargs)
-        self.initial_counts = np.zeros(num_states)
+        from os import path
+        if path.exists('initial-matrices.pkl'):
+            import pickle
+            values = pickle.loads(open('initial-matrices.pkl').read().decode('string-escape'))
+            _, self.initial_probabilities, self.transition_probabilities, self.emission_probabilities,self.final_probabilities = values
+        else:
+            self.emission_probabilities = np.random.random((num_observations, num_states))
+            self.emission_probabilities /= self.emission_probabilities.sum(1)[:,None]
 
-        self.emission_probabilities = np.random.random((num_observations, num_states))
-        self.emission_probabilities /= self.emission_probabilities.sum(1)[:,None]
+            self.initial_probabilities = np.random.random(num_states)
+            self.initial_probabilities /= self.initial_probabilities.sum()
 
-        self.initial_probabilities = np.random.random(num_states)
-        self.initial_probabilities /= self.initial_probabilities.sum()
+            self.final_probabilities = np.random.random(num_states)
+            self.final_probabilities /= self.final_probabilities.sum()
 
-        self.final_probabilities = np.random.random(num_states)
-        self.final_probabilities /= self.final_probabilities.sum()
-
-        self.transition_probabilities = np.random.random((num_states, num_states))
-        self.transition_probabilities /= self.transition_probabilities.sum(1)[:,None]
+            self.transition_probabilities = np.random.random((num_states, num_states))
+            self.transition_probabilities /= self.transition_probabilities.sum(1)[:,None]
     def mapper(self, key, s):
         if s == '':
             return
