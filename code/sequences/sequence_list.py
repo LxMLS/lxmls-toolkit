@@ -79,3 +79,6 @@ class SequenceList(object):
                 seq_y.append(int(y))
             self.add_sequence(seq_x,seq_y)
         seq_fn.close()
+
+    
+

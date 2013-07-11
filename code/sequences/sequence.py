@@ -25,7 +25,7 @@ class Sequence(object):
         '''Returns a new sequence equal to the previous but with y set to newy'''
         s = Sequence(self.sequence_list, self.x, new_y, self.nr)
         return s
-    
+
     def __str__(self):
         rep = ""
         for i, xi in enumerate(self.x):
