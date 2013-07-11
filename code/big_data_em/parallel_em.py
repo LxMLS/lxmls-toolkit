@@ -9,19 +9,6 @@ import pickle
 from em_lib import *
 from sequences.hmm import HMM
 
-<<<<<<< HEAD
-=======
-mapping = {}
-for line in open('readers/en-ptb.map'):
-    coarse,fine = line.strip().split("\t")
-    mapping[coarse.lower()] = fine.lower()
-
-word_dict, tag_dict = pickle.load(open('word_tag_dict.pkl'))
-num_states = len(tag_dict)
-num_observations = len(word_dict)
-smoothing = 0.1
->>>>>>> e7d504aa2eada97bed855649fe6b812fffcf321c
-
 # Function to load a sequence from a single line.
 def load_seq(s):
     from sequences.sequence_list import SequenceList
@@ -46,28 +33,8 @@ class EMStep(MRJob):
     OUTPUT_PROTOCOL     = PickleValueProtocol
     def __init__(self, *args, **kwargs):
         MRJob.__init__(self, *args, **kwargs)
-<<<<<<< HEAD
         self.hmm = hmm
 
-=======
-        from os import path
-        if path.exists('initial-matrices.pkl'):
-            import pickle
-            values = pickle.loads(open('initial-matrices.pkl').read().decode('string-escape'))
-            _, self.initial_probabilities, self.transition_probabilities, self.emission_probabilities,self.final_probabilities = values
-        else:
-            self.emission_probabilities = np.random.random((num_observations, num_states))
-            self.emission_probabilities /= self.emission_probabilities.sum(1)[:,None]
-
-            self.initial_probabilities = np.random.random(num_states)
-            self.initial_probabilities /= self.initial_probabilities.sum()
-
-            self.final_probabilities = np.random.random(num_states)
-            self.final_probabilities /= self.final_probabilities.sum()
-
-            self.transition_probabilities = np.random.random((num_states, num_states))
-            self.transition_probabilities /= self.transition_probabilities.sum(1)[:,None]
->>>>>>> e7d504aa2eada97bed855649fe6b812fffcf321c
     def mapper(self, key, s):
         seq = load_seq(s)
         r = partial_seq(seq, self.hmm)
