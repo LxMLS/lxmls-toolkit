@@ -5,8 +5,12 @@ import readers.pos_corpus as pcc
 import pickle
 
 corpus = pcc.PostagCorpus()
+<<<<<<< HEAD
 train_seq = corpus.read_sequence_list_conll("../data/train-02-21.conll",max_sent_len=15,max_nr_sent=1000)
 
+=======
+train_seq = corpus.read_sequence_list_conll("../data/train-02-21.conll")
+>>>>>>> e7d504aa2eada97bed855649fe6b812fffcf321c
 pickle.dump((corpus.word_dict, corpus.tag_dict), open('word_tag_dict.pkl','w'))
 
 with open('encoded.txt','w') as output:
