@@ -16,8 +16,6 @@ for line in open('readers/en-ptb.map'):
 word_dict, tag_dict = pickle.load(open('word_tag_dict.pkl'))
 num_states = len(tag_dict)
 num_observations = len(word_dict)
-num_observation_labels = len(tag_dict)
-num_observations = len(word_dict)
 smoothing = 0.1
 
 def load_seq(s):
