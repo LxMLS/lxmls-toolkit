@@ -112,6 +112,7 @@ def plot_confusion_bar_graph(matrix,pos_list,clusters,title):
     i  =0
 
 #    print matrix
+
     
     for cluster in clusters:
         # Tags for each cluster

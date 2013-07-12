@@ -140,15 +140,15 @@ eval_posterior_test = hmm.evaluate_corpus(test_seq,posterior_pred_test)
 print "Test Set Accuracy: Posterior Decode %.3f, Viterbi Decode: %.3f"%(eval_posterior_test,eval_viterbi_test)
 
 
-best_smothing = hmm.pick_best_smoothing(train_seq, dev_seq, [10,1,0.1,0])
+best_smoothing = hmm.pick_best_smoothing(train_seq, dev_seq, [10,1,0.1,0])
 
 
-hmm.train_supervised(train_seq, smoothing=best_smothing)
+hmm.train_supervised(train_seq, smoothing=best_smoothing)
 viterbi_pred_test = hmm.viterbi_decode_corpus(test_seq)
 posterior_pred_test = hmm.posterior_decode_corpus(test_seq)
 eval_viterbi_test =   hmm.evaluate_corpus(test_seq, viterbi_pred_test)
 eval_posterior_test = hmm.evaluate_corpus(test_seq, posterior_pred_test)
-print "Best Smoothing %f --  Test Set Accuracy: Posterior Decode %.3f, Viterbi Decode: %.3f"%(best_smothing,eval_posterior_test,eval_viterbi_test)
+print "Best Smoothing %f --  Test Set Accuracy: Posterior Decode %.3f, Viterbi Decode: %.3f"%(best_smoothing,eval_posterior_test,eval_viterbi_test)
 
 
 #pdb.set_trace()
