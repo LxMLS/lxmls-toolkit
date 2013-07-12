@@ -155,10 +155,11 @@ print "------------"
 
 corpus = pcc.PostagCorpus()
 train_seq = corpus.read_sequence_list_conll("../data/train-02-21.conll",max_sent_len=15,max_nr_sent=1000)
-test_seq = corpus.read_sequence_list_conll("../data/test-23.conll",max_sent_len=15,max_nr_sent=1000)
-dev_seq = corpus.read_sequence_list_conll("../data/dev-22.conll",max_sent_len=15,max_nr_sent=1000)
+test_seq = corpus.read_sequence_list_conll("../data/test-23.conll",max_sent_len=15,max_nr_sent=400)
+dev_seq = corpus.read_sequence_list_conll("../data/dev-22.conll",max_sent_len=15,max_nr_sent=200)
 hmm = hmmc.HMM(corpus.word_dict, corpus.tag_dict)
 hmm.train_supervised(train_seq)
+hmm.print_transition_matrix()
 
 viterbi_pred_train = hmm.viterbi_decode_corpus(train_seq)
 posterior_pred_train = hmm.posterior_decode_corpus(train_seq)
@@ -184,9 +185,9 @@ print "Best Smoothing %f --  Test Set Accuracy: Posterior Decode %.3f, Viterbi D
 
 confusion_matrix = cm.build_confusion_matrix(test_seq.seq_list, viterbi_pred_test, 
                                              len(corpus.tag_dict), hmm.get_num_states())
+
 cm.plot_confusion_bar_graph(confusion_matrix, corpus.tag_dict, 
                             range(hmm.get_num_states()), 'Confusion matrix')
-
 
 
 print "------------"
