@@ -153,7 +153,10 @@ class SequenceClassifier():
 	    # Note that log_likelihood is just a scalar whereas forward, backward
 	    # are matrices. Python is smart enough to replicate log_likelihood
         # to form a matrix of the right size. This is called broadcasting. 
-        state_posteriors = forward + backward - log_likelihood
+        state_posteriors = np.zeros([length, num_states]) # State posteriors. 
+        for pos in xrange(length):
+            state_posteriors[pos,:] = forward[pos,:] + backward[pos,:]
+            state_posteriors[pos,:] -= log_likelihood
  
         # Use the forward and backward variables along with the transition 
         # and emission scores to obtain the transition posteriors.
