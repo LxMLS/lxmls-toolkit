@@ -490,11 +490,11 @@ class HMM(sc.SequenceClassifier):
     # Plot the transition matrix for a given HMM
     ######
     def print_transition_matrix(self):
-        print self.transition_probs
+#        print self.transition_probs
         cax = plt.imshow(self.transition_probs[0:-1,:], interpolation='nearest',aspect='auto')
         cbar = plt.colorbar(cax, ticks=[-1, 0, 1])
-        print "Number os states %i"%self.get_num_states()
-        print self.state_labels
+#        print "Number of states %i"%self.get_num_states()
+#        print self.state_labels
         plt.xticks(np.arange(0, self.get_num_states()), self.state_labels.names, rotation=90)
         plt.yticks(np.arange(0, self.get_num_states()), self.state_labels.names)
         plt.show()
