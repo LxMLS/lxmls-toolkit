@@ -1,7 +1,7 @@
 configparser==3.2.0r3
 pyyaml
-http://nltk.googlecode.com/files/nltk-2.0.1rc1.tar.gz
+nltk
 numpy
-git+https://github.com/matplotlib/matplotlib.git#egg=matplotlib
 scipy
+matplotlib
 mrjob
