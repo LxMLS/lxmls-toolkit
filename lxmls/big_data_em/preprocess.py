@@ -1,7 +1,5 @@
-import sys
-sys.path.append('.')
 import numpy as np
-import readers.pos_corpus as pcc
+import lxmls.readers.pos_corpus as pcc
 import pickle
 
 corpus = pcc.PostagCorpus()

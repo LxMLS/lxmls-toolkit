@@ -17,6 +17,10 @@ print reqs
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
+package_data = {
+    'lxmls.readers' : ['*.map']
+}
+
 setup(
     name="LXMLS_Toolkit",
     version="0.0.1",
@@ -33,5 +37,6 @@ setup(
         "License :: OSI Approved :: MIT License",
     ],
     packages=find_packages(exclude=("labs", "labs.*")),
-    install_requires=reqs
+    install_requires=reqs,
+    package_data=package_data,
 )

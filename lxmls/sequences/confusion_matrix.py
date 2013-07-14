@@ -1,7 +1,6 @@
 import sys
 import numpy as np
-import matplotlib.pyplot as plt
-from util.my_math_utils import *
+from lxmls.util.my_math_utils import *
 from itertools import izip
 import operator
 import pdb
@@ -22,6 +21,7 @@ tag_colors = {
     'VERB':'Red'}
 
 def build_confusion_matrix(truth_seq, prediction_seq, nr_true_pos, nr_states):
+    import matplotlib.pyplot as plt
     matrix = {}
     for i in xrange(nr_true_pos):
         matrix[i] = {}

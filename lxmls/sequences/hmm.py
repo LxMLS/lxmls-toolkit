@@ -1,8 +1,7 @@
 import numpy as np
-import matplotlib.pyplot as plt
-import sequence_classifier as sc
-import sequences.confusion_matrix as cm
-from log_domain import *
+import lxmls.sequences.sequence_classifier as sc
+import lxmls.sequences.confusion_matrix as cm
+from lxmls.sequences.log_domain import *
 
 import pdb
 
