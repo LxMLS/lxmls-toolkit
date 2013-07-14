@@ -1,9 +1,5 @@
 #!/usr/bin/env bash
 
-# Export AWS authentication variables
-#export AWS_ACCESS_KEY_ID=AKIAJVYESLKCU75UVLPQ
-#export AWS_SECRET_ACCESS_KEY=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
-
 # Run parallel EM locally
 python big_data_em/preprocess.py # this creates a file called encoded.txt
 
@@ -12,6 +8,7 @@ num_iterations=20
 rm -f parameters.txt
 for ((i=0; i<${num_iterations}; i++ ))
 do
+    # Note: add "-r local" when the lxmls module is installed.
     python big_data_em/parallel_em.py < encoded.txt > parameters_new.txt
     mv parameters_new.txt parameters.txt
     echo "Iteration $i"

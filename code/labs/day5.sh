@@ -1,9 +1,5 @@
 #!/usr/bin/env bash
 
-# Export AWS authentication variables
-export AWS_ACCESS_KEY_ID=AKIAJVYESLKCU75UVLPQ
-export AWS_SECRET_ACCESS_KEY=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
-
 # Run wordcount locally
 python big_data/wordcount.py ../data/wikipedia/en_perline001.txt > results_local_wordcount.txt
 
