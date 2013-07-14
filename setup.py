@@ -1,6 +1,14 @@
 import os
 from setuptools import setup, find_packages
+from pip.req import parse_requirements
 
+
+# parse_requirements() returns generator of pip.req.InstallRequirement objects
+install_reqs = parse_requirements("pip-requirements.txt")
+
+# reqs is a list of requirement
+reqs = [str(ir.req) for ir in install_reqs]
+print reqs
 
 # Utility function to read the README file.
 # Used for the long_description.  It's nice, because now 1) we have a top level
@@ -12,25 +20,18 @@ def read(fname):
 setup(
     name="LXMLS_Toolkit",
     version="0.0.1",
-    author="Joao Graca",
-    author_email="gracaninja@gmail.com",
+    author="LXMLS-team",
+    author_email="lxmls-2013-org@googlegroups.com",
     description=("Machine Learning and Natural Language toolkit"),
-    license="BSD",
+    license="MIT",
     keywords="machine learning",
     url="https://github.com/gracaninja/lxmls-toolkit",
     long_description=read('README.txt'),
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Topic :: Utilities",
-        "License :: OSI Approved :: BSD License",
+        "License :: OSI Approved :: MIT License",
     ],
-    packages=find_packages(exclude=("code", "code.*")),
-    install_requires=[
-        "pyyaml",
-        "configparser >= 3.2.0",
-        "nltk",
-        "matplotlib",
-        "numpy",
-        "scipy"
-    ]
+    packages=find_packages(exclude=("labs", "labs.*")),
+    install_requires=reqs
 )
