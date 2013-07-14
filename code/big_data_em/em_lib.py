@@ -18,7 +18,7 @@ def partial_seq(sequence, hmm):
                                final_scores,
                                emission_scores)
 
-    emission_counts = np.zeros((num_observations, num_states))
+    emission_counts = {} #np.zeros((num_observations, num_states))
     initial_counts = np.zeros((num_states))
     transition_counts = np.zeros((num_states, num_states))
     final_counts = np.zeros((num_states))
@@ -30,8 +30,10 @@ def partial_seq(sequence, hmm):
     ## Take care of emission and transition counts.
     for pos in xrange(length):
         x = sequence.x[pos]
+        if x not in emission_counts:
+            emission_counts[x] = np.zeros(num_states)
         for y in xrange(num_states):
-            emission_counts[x, y] += state_posteriors[pos, y]
+            emission_counts[x][y] += state_posteriors[pos, y]
             if pos > 0:
                 for y_prev in xrange(num_states):
                     transition_counts[y, y_prev] += transition_posteriors[pos-1, y, y_prev]
@@ -40,7 +42,7 @@ def partial_seq(sequence, hmm):
     for y in xrange(num_states):
         final_counts[y] += state_posteriors[length-1, y]
 
-    return log_likelihood, initial_counts, transition_counts, final_counts, sparse.csc_matrix(emission_counts)
+    return log_likelihood, initial_counts, transition_counts, final_counts, emission_counts
 
 
 def reduce_partials(partials, hmm, smoothing):

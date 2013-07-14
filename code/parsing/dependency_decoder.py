@@ -100,7 +100,7 @@ class DependencyDecoder():
                 
         value = complete_spans[0][nw][1]
         heads = -np.ones(nw+1, dtype=int)
-        self.get_dep_string(backtrack, 0, nw, 1, 1, heads)
+        self.backtrack_eisner(backtrack, 0, nw, 1, 1, heads)
 
         value_proj = 0.0
         for m in xrange(1,nw+1):
@@ -110,33 +110,33 @@ class DependencyDecoder():
         return heads
 
 
-
-    def get_dep_string(self, backtrack, s, t, direction, complete, heads):
+    def backtrack_eisner(self, backtrack, s, t, direction, complete, heads):
         '''
         Backtracking step in Eisner's algorithm.
         '''
-        if s == t: return # ''
+        if s == t:
+            return
         if complete:
             r = backtrack[s][t][direction][complete]
             if direction == 0:
-                self.get_dep_string(backtrack, s, r, 0, 1, heads)
-                self.get_dep_string(backtrack, r, t, 0, 0, heads)
+                self.backtrack_eisner(backtrack, s, r, 0, 1, heads)
+                self.backtrack_eisner(backtrack, r, t, 0, 0, heads)
                 return
             else:
-                self.get_dep_string(backtrack, s, r, 1, 0, heads)
-                self.get_dep_string(backtrack, r, t, 1, 1, heads)
+                self.backtrack_eisner(backtrack, s, r, 1, 0, heads)
+                self.backtrack_eisner(backtrack, r, t, 1, 1, heads)
                 return
         else:
             r = backtrack[s][t][direction][complete]
             if direction == 0:
                 heads[s] = t
-                self.get_dep_string(backtrack, s, r, 1, 1, heads)
-                self.get_dep_string(backtrack, r+1, t, 0, 1, heads)
+                self.backtrack_eisner(backtrack, s, r, 1, 1, heads)
+                self.backtrack_eisner(backtrack, r+1, t, 0, 1, heads)
                 return
             else:
                 heads[t] = s
-                self.get_dep_string(backtrack, s, r, 1, 1, heads)
-                self.get_dep_string(backtrack, r+1, t, 0, 1, heads)
+                self.backtrack_eisner(backtrack, s, r, 1, 1, heads)
+                self.backtrack_eisner(backtrack, r+1, t, 0, 1, heads)
                 return
 
                 
