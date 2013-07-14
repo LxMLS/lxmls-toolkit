@@ -4,13 +4,11 @@ import sys
 sys.path.append('.')
 import numpy as np
 import readers.pos_corpus as pcc
+from sequences.hmm import HMM
 import pickle
 
-from em_lib import *
-from sequences.hmm import HMM
-
 # Function to load a sequence from a single line.
-def load_seq(s):
+def load_sequence(s, word_dict, tag_dict):
     from sequences.sequence_list import SequenceList
     seq_list = SequenceList(word_dict, tag_dict)
     words = []
@@ -27,46 +25,140 @@ def load_seq(s):
     return seq_list[0]
 
 
+# Run forward-backward on a single sentence.
+def predict_sequence(sequence, hmm):
+    num_states = hmm.get_num_states() # Number of states.
+    num_observations = hmm.get_num_observations() # Number of observation symbols.
+    length = len(sequence.x) # Length of the sequence.
+
+    # Compute scores given the observation sequence.
+    initial_scores, transition_scores, final_scores, emission_scores = \
+                    hmm.compute_scores(sequence)
+
+    state_posteriors, transition_posteriors, log_likelihood = \
+        hmm.compute_posteriors(initial_scores,
+                               transition_scores,
+                               final_scores,
+                               emission_scores)
+
+    emission_counts = {}
+    initial_counts = np.zeros((num_states))
+    transition_counts = np.zeros((num_states, num_states))
+    final_counts = np.zeros((num_states))
+
+    ## Take care of initial position counts.
+    for y in xrange(num_states):
+        initial_counts[y] += state_posteriors[0, y]
+
+    ## Take care of emission and transition counts.
+    for pos in xrange(length):
+        x = sequence.x[pos]
+        if x not in emission_counts:
+            emission_counts[x] = np.zeros(num_states)
+        for y in xrange(num_states):
+            emission_counts[x][y] += state_posteriors[pos, y]
+            if pos > 0:
+                for y_prev in xrange(num_states):
+                    transition_counts[y, y_prev] += transition_posteriors[pos-1, y, y_prev]
+
+    ## Take care of final position counts.
+    for y in xrange(num_states):
+        final_counts[y] += state_posteriors[length-1, y]
+
+    return log_likelihood, initial_counts, transition_counts, final_counts, emission_counts
+
+
+# Load the HMM parameters stored in a text file.
+def load_parameters(filename, hmm, smoothing):
+    hmm.clear_counts(smoothing)
+
+    f = open(filename)
+    for line in f:
+        if '\t' not in line:
+            continue
+        event, count = line.strip().split('\t')
+        count = float(count)
+        event = event[1:-1]
+        fields = event.split(' ')
+        if fields[0] == 'initial':
+            y = hmm.state_labels.get_label_id(fields[1])
+            hmm.initial_counts[y] += count
+        elif fields[0] == 'transition':
+            y = hmm.state_labels.get_label_id(fields[1])
+            y_prev = hmm.state_labels.get_label_id(fields[2])
+            hmm.transition_counts[y][y_prev] += count
+        elif fields[0] == 'final':
+            y = hmm.state_labels.get_label_id(fields[1])
+            hmm.final_counts[y] += count            
+        elif fields[0] == 'emission':
+            x = hmm.observation_labels.get_label_id(fields[1].decode('string-escape'))
+            y = hmm.state_labels.get_label_id(fields[2])
+            hmm.emission_counts[x][y] += count
+        else:
+            continue;
+
+    f.close()
+
+    hmm.compute_parameters()
+    
+
 # A single iteration of the distributed EM algorithm.
 class EMStep(MRJob):
     INTERNAL_PROTOCOL   = PickleProtocol
-    OUTPUT_PROTOCOL     = PickleValueProtocol
+    #OUTPUT_PROTOCOL     = PickleValueProtocol
     def __init__(self, *args, **kwargs):
         MRJob.__init__(self, *args, **kwargs)
-        self.hmm = hmm
+ 
+        # Load the word and tag dictionaries.
+        word_dict, tag_dict = pickle.load(open('word_tag_dict.pkl'))
+
+        # Create HMM object.
+        self.hmm = HMM(word_dict, tag_dict)
+
+        from os import path
+        filename = 'parameters.txt'
+        if path.exists(filename):
+            # Load the HMM parameters from a text file.
+            load_parameters(filename, self.hmm, smoothing=0.1)
+        else:
+            # Initialize the HMM parameters randomly.
+            self.hmm.initialize_random()
+
+
+
 
     def mapper(self, key, s):
-        seq = load_seq(s)
-        r = partial_seq(seq, self.hmm)
-        yield 'result', r
+        seq = load_sequence(s, self.hmm.observation_labels, self.hmm.state_labels)
 
-    def reducer(self, _, partials):
-        total_log_likelihood = reduce_partials(partials, self.hmm, smoothing)
-        print 'Log-likelihood:', total_log_likelihood
-        yield 'result', _ 
+        log_likelihood, initial_counts, transition_counts, final_counts,\
+            emission_counts = predict_sequence(seq, self.hmm)
 
+        num_states = self.hmm.get_num_states() # Number of states.
 
+        yield 'log-likelihood', log_likelihood
+        yield 'initial', initial_counts
+        for y in xrange(num_states):
+            yield 'transition ' + self.hmm.state_labels.get_label_name(y), transition_counts[y,:]
+        for x in emission_counts:
+            yield 'emission ' + self.hmm.observation_labels.get_label_name(x), emission_counts[x]
+        yield 'final', final_counts
 
-# Load the word and tag dictionaries.
-word_dict, tag_dict = pickle.load(open('word_tag_dict.pkl'))
+    def reducer(self, key, counts):
+        s = sum(counts)
+        if key == 'log-likelihood':
+            total_log_likelihood = s
+            print 'Log-likelihood:', total_log_likelihood
+        else:
+            num_states = self.hmm.get_num_states() # Number of states.
+            for y in xrange(num_states):
+                yield key + ' ' + self.hmm.state_labels.get_label_name(y), s[y] 
+            
 
-# Initialize the HMM parameters randomly.
-hmm = HMM(word_dict, tag_dict)
-hmm.initialize_random()
-
-# Set the smoothing coefficient.
-smoothing = 0.1
-
-# Run 10 iterations of distributed EM.
+            
+# Run one iteration of distributed EM.
 em_step = EMStep()
-for iteration in xrange(10):
-    em_step.run()
+em_step.run()
 
-# Evaluate the final model.
-corpus = pcc.PostagCorpus()
-train_seq = corpus.read_sequence_list_conll("../data/train-02-21.conll",max_sent_len=15,max_nr_sent=1000)
-acc = hmm.evaluate_EM(train_seq)
-print acc
 
 
 
