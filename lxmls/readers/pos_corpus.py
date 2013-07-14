@@ -1,8 +1,8 @@
 import codecs
 import gzip
-from sequences.label_dictionary import *
-from sequences.sequence import *
-from sequences.sequence_list import *
+from lxmls.sequences.label_dictionary import *
+from lxmls.sequences.sequence import *
+from lxmls.sequences.sequence_list import *
 from os.path import dirname
 
 #from nltk.corpus import brown

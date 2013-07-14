@@ -1,10 +1,8 @@
 from mrjob.job import MRJob
 from mrjob.protocol import PickleProtocol, PickleValueProtocol
-import sys
-sys.path.append('.')
 import numpy as np
-import readers.pos_corpus as pcc
-from sequences.hmm import HMM
+import lxmls.readers.pos_corpus as pcc
+from lxmls.sequences.hmm import HMM
 import pickle
 
 # Function to load a sequence from a single line.
