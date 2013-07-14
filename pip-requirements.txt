@@ -4,3 +4,4 @@ http://nltk.googlecode.com/files/nltk-2.0.1rc1.tar.gz
 numpy
 git+https://github.com/matplotlib/matplotlib.git#egg=matplotlib
 scipy
+mrjob
