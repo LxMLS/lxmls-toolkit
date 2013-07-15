@@ -4,10 +4,28 @@ import numpy as np
 import lxmls.readers.pos_corpus as pcc
 from lxmls.sequences.hmm import HMM
 import pickle
+# Load the word and tag dictionaries.
+word_dict, tag_dict = pickle.load(open('word_tag_dict.pkl'))
 
-# Function to load a sequence from a single line.
 def load_sequence(s, word_dict, tag_dict):
-    from sequences.sequence_list import SequenceList
+    '''
+    seq = load_sequence(s, word_dict, tag_dict)
+
+    Load a sequence from a single line
+
+    word_dict & tag_dict should be loaded from the file ``word_tag_dict.pkl``
+
+    Parameters
+    ----------
+    s : str
+    word_dict : dict
+    tag_dict : dict
+
+    Returns
+    -------
+    seq : Sequence object
+    '''
+    from lxmls.sequences.sequence_list import SequenceList
     seq_list = SequenceList(word_dict, tag_dict)
     words = []
     tags = []
@@ -23,8 +41,26 @@ def load_sequence(s, word_dict, tag_dict):
     return seq_list[0]
 
 
-# Run forward-backward on a single sentence.
 def predict_sequence(sequence, hmm):
+    '''
+    log_likelihood, initial_counts, transition_counts, final_counts,\
+            emission_counts = predict_sequence(seq, hmm)
+
+    Run forward-backward on a single sentence.
+
+    Parameters
+    ----------
+    seq : Sequence object
+    hmm: HMM object
+
+    Returns
+    -------
+    log_likelihood : float
+    initial_counts : np.ndarray
+    transition_counts : ndarray
+    final_counts : ndarray
+    emission_counts : ndarray
+    '''
     num_states = hmm.get_num_states() # Number of states.
     num_observations = hmm.get_num_observations() # Number of observation symbols.
     length = len(sequence.x) # Length of the sequence.
@@ -66,8 +102,21 @@ def predict_sequence(sequence, hmm):
     return log_likelihood, initial_counts, transition_counts, final_counts, emission_counts
 
 
-# Load the HMM parameters stored in a text file.
 def load_parameters(filename, hmm, smoothing):
+    '''
+    load_parameters(filename, hmm, smoothing)
+
+    Load the HMM parameters stored in a text file.
+
+    Parameters
+    ----------
+    filename : str
+        Filename
+    hmm : HMM object
+        Will be overwritten
+    smoothing : float
+        Smoothing factor to use
+    '''
     hmm.clear_counts(smoothing)
 
     f = open(filename)
