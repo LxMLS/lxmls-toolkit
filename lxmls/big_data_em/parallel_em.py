@@ -156,9 +156,6 @@ class EMStep(MRJob):
     def __init__(self, *args, **kwargs):
         MRJob.__init__(self, *args, **kwargs)
  
-        # Load the word and tag dictionaries.
-        word_dict, tag_dict = pickle.load(open('word_tag_dict.pkl'))
-
         # Create HMM object.
         self.hmm = HMM(word_dict, tag_dict)
 
