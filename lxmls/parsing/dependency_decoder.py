@@ -60,7 +60,8 @@ class DependencyDecoder():
         # Initialize CKY table.
         complete_spans = np.zeros([nw+1, nw+1, 2]) # s, t, direction (right=1). 
         incomplete_spans = np.zeros([nw+1, nw+1, 2]) # s, t, direction (right=1). 
-        backtrack = -np.ones([nw+1, nw+1, 2, 2], dtype=int) # s, t, direction (right=1), complete=1. 
+        complete_backtrack = -np.ones([nw+1, nw+1, 2], dtype=int) # s, t, direction (right=1). 
+        incomplete_backtrack = -np.ones([nw+1, nw+1, 2], dtype=int) # s, t, direction (right=1). 
         
         # Loop from smaller items to larger items.
         for k in xrange(1,nw+1):
@@ -76,13 +77,13 @@ class DependencyDecoder():
                     for r in xrange(s,t):
                         values[r-s] = complete_spans[s][r][1] + complete_spans[r+1][t][0] + scores[t,s]
                     incomplete_spans[s][t][0] = max(values)
-                    backtrack[s][t][0][0] = s + np.argmax(values)
+                    incomplete_backtrack[s][t][0] = s + np.argmax(values)
                 
                 values = np.zeros(k)
                 for r in xrange(s,t):
                     values[r-s] = complete_spans[s][r][1] + complete_spans[r+1][t][0] + scores[s,t]
                 incomplete_spans[s][t][1] = max(values)
-                backtrack[s][t][1][0] = s + np.argmax(values)
+                incomplete_backtrack[s][t][1] = s + np.argmax(values)
 
                 # Second, create complete items.
                 if s >= 0: # remove this
@@ -90,17 +91,17 @@ class DependencyDecoder():
                     for r in xrange(s,t):
                         values[r-s] = complete_spans[s][r][0] + incomplete_spans[r][t][0]
                     complete_spans[s][t][0] = max(values)
-                    backtrack[s][t][0][1] = s + np.argmax(values)
+                    complete_backtrack[s][t][0] = s + np.argmax(values)
                 
                 values = np.zeros(k)
                 for r in xrange(s+1,t+1):
                     values[r-s-1] = incomplete_spans[s][r][1] + complete_spans[r][t][1]
                 complete_spans[s][t][1] = max(values)
-                backtrack[s][t][1][1] = s + 1 + np.argmax(values)
+                complete_backtrack[s][t][1] = s + 1 + np.argmax(values)
                 
         value = complete_spans[0][nw][1]
         heads = -np.ones(nw+1, dtype=int)
-        self.backtrack_eisner(backtrack, 0, nw, 1, 1, heads)
+        self.backtrack_eisner(incomplete_backtrack, complete_backtrack, 0, nw, 1, 1, heads)
 
         value_proj = 0.0
         for m in xrange(1,nw+1):
@@ -110,33 +111,45 @@ class DependencyDecoder():
         return heads
 
 
-    def backtrack_eisner(self, backtrack, s, t, direction, complete, heads):
+    def backtrack_eisner(self, incomplete_backtrack, complete_backtrack, s, t, direction, complete, heads):
         '''
         Backtracking step in Eisner's algorithm.
+        - incomplete_backtrack is a (NW+1)-by-(NW+1) numpy array indexed by a start position,
+        an end position, and a direction flag (0 means left, 1 means right). This array contains
+        the arg-maxes of each step in the Eisner algorithm when building *incomplete* spans.
+        - complete_backtrack is a (NW+1)-by-(NW+1) numpy array indexed by a start position,
+        an end position, and a direction flag (0 means left, 1 means right). This array contains
+        the arg-maxes of each step in the Eisner algorithm when building *complete* spans.
+        - s is the current start of the span
+        - t is the current end of the span
+        - direction is 0 (left attachment) or 1 (right attachment)
+        - complete is 1 if the current span is complete, and 0 otherwise
+        - heads is a (NW+1)-sized numpy array of integers which is a placeholder for storing the 
+        head of each word.
         '''
         if s == t:
             return
         if complete:
-            r = backtrack[s][t][direction][complete]
+            r = complete_backtrack[s][t][direction]
             if direction == 0:
-                self.backtrack_eisner(backtrack, s, r, 0, 1, heads)
-                self.backtrack_eisner(backtrack, r, t, 0, 0, heads)
+                self.backtrack_eisner(incomplete_backtrack, complete_backtrack, s, r, 0, 1, heads)
+                self.backtrack_eisner(incomplete_backtrack, complete_backtrack, r, t, 0, 0, heads)
                 return
             else:
-                self.backtrack_eisner(backtrack, s, r, 1, 0, heads)
-                self.backtrack_eisner(backtrack, r, t, 1, 1, heads)
+                self.backtrack_eisner(incomplete_backtrack, complete_backtrack, s, r, 1, 0, heads)
+                self.backtrack_eisner(incomplete_backtrack, complete_backtrack, r, t, 1, 1, heads)
                 return
         else:
-            r = backtrack[s][t][direction][complete]
+            r = incomplete_backtrack[s][t][direction]
             if direction == 0:
                 heads[s] = t
-                self.backtrack_eisner(backtrack, s, r, 1, 1, heads)
-                self.backtrack_eisner(backtrack, r+1, t, 0, 1, heads)
+                self.backtrack_eisner(incomplete_backtrack, complete_backtrack, s, r, 1, 1, heads)
+                self.backtrack_eisner(incomplete_backtrack, complete_backtrack, r+1, t, 0, 1, heads)
                 return
             else:
                 heads[t] = s
-                self.backtrack_eisner(backtrack, s, r, 1, 1, heads)
-                self.backtrack_eisner(backtrack, r+1, t, 0, 1, heads)
+                self.backtrack_eisner(incomplete_backtrack, complete_backtrack, s, r, 1, 1, heads)
+                self.backtrack_eisner(incomplete_backtrack, complete_backtrack, r+1, t, 0, 1, heads)
                 return
 
                 
