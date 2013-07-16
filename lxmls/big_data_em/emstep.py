@@ -183,7 +183,7 @@ class EMStep(MRJob):
         from os import path
         filename = 'hmm.pkl'
         if path.exists(filename):
-            self.hmm = pickle.load(open(filename).read().decode('string-escape'))
+            self.hmm = pickle.loads(open(filename).read().decode('string-escape'))
         else:
             # Initialize the HMM parameters randomly.
             self.hmm = HMM(word_dict, tag_dict)
