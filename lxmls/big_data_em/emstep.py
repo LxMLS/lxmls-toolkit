@@ -168,8 +168,8 @@ def combine_partials(counts, hmm):
         hmm.log_likelihood += partial[0]
         hmm.initial_counts += partial[1]
         hmm.transition_counts += partial[2]
-        hmm.emission_counts += partial[3]
-        hmm.final_counts += partial[4]
+        hmm.final_counts += partial[3]
+        hmm.emission_counts += partial[4]
 
 
 # A single iteration of the distributed EM algorithm.
