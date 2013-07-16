@@ -223,9 +223,7 @@ class EMStep(MRJob):
 # Load the word and tag dictionaries.
 word_dict, tag_dict = pickle.load(open('word_tag_dict.pkl'))
 
-em_step = EMStep()
-em_step.run()
-
-
-
+if __name__ == '__main__':
+    em_step = EMStep()
+    em_step.run()
 
