@@ -179,16 +179,14 @@ class EMStep(MRJob):
     def __init__(self, *args, **kwargs):
         MRJob.__init__(self, *args, **kwargs)
 
-        # Create HMM object.
-        self.hmm = HMM(word_dict, tag_dict)
 
         from os import path
-        filename = 'parameters.txt'
+        filename = 'hmm.pkl'
         if path.exists(filename):
-            # Load the HMM parameters from a text file.
-            load_parameters(filename, self.hmm, smoothing=0.1)
+            self.hmm = pickle.load(open(filename).read().decode('string-escape'))
         else:
             # Initialize the HMM parameters randomly.
+            self.hmm = HMM(word_dict, tag_dict)
             self.hmm.initialize_random()
 
         self.log_likelihood = 0
