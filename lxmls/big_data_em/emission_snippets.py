@@ -12,7 +12,11 @@ for y in xrange(num_states):
     yield 'final ' + name_y, final_counts[y]
     yield 'initial ' + name_y, initial_counts[y]
 
-for x in emission_counts:
-    for y in xrange(num_states):
-        yield key + ' ' + self.hmm.state_labels.get_label_name(y), emission_counts[x,y]
+for w in xrange(emission_counts):
+    name_w = self.hmm.state_labels.get_label_name(w)
+    if emission_counts[w].any():
+        for s in xrange(num_states):
+            name_s = self.hmm.state_labels.get_label_name(s)
+            if emission_counts[w,s]:
+                yield 'emission %s %s' % (name_w, name_s), emission_counts[w,s]
 
