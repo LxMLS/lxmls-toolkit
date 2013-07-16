@@ -1,6 +1,5 @@
 
 import numpy as np
-import matplotlib.pyplot as plt
 
 # This class generates a 2D dataset with two classes, "positive" and "negative".
 # Each class follows a Gaussian distribution.
@@ -57,6 +56,7 @@ class SimpleDataSet():
         return params
         
     def plot_data(self,params=np.array([]),name="Naive Bayes", print_bayes_opt = True):
+        import matplotlib.pyplot as plt
         fig = plt.figure()
         fig.suptitle(self.get_name())
         axis = fig.add_subplot(1,1,1)
