@@ -4,8 +4,6 @@ import numpy as np
 import lxmls.readers.pos_corpus as pcc
 from lxmls.sequences.hmm import HMM
 import pickle
-# Load the word and tag dictionaries.
-word_dict, tag_dict = pickle.load(open('word_tag_dict.pkl'))
 
 def load_sequence(s, word_dict, tag_dict):
     '''
@@ -75,7 +73,7 @@ def predict_sequence(sequence, hmm):
                                final_scores,
                                emission_scores)
 
-    emission_counts = {}
+    emission_counts = np.zeros((num_observations, num_states))
     initial_counts = np.zeros((num_states))
     transition_counts = np.zeros((num_states, num_states))
     final_counts = np.zeros((num_states))
@@ -87,10 +85,8 @@ def predict_sequence(sequence, hmm):
     ## Take care of emission and transition counts.
     for pos in xrange(length):
         x = sequence.x[pos]
-        if x not in emission_counts:
-            emission_counts[x] = np.zeros(num_states)
         for y in xrange(num_states):
-            emission_counts[x][y] += state_posteriors[pos, y]
+            emission_counts[x,y] += state_posteriors[pos, y]
             if pos > 0:
                 for y_prev in xrange(num_states):
                     transition_counts[y, y_prev] += transition_posteriors[pos-1, y, y_prev]
@@ -136,7 +132,7 @@ def load_parameters(filename, hmm, smoothing):
             hmm.transition_counts[y][y_prev] += count
         elif fields[0] == 'final':
             y = hmm.state_labels.get_label_id(fields[1])
-            hmm.final_counts[y] += count            
+            hmm.final_counts[y] += count
         elif fields[0] == 'emission':
             x = hmm.observation_labels.get_label_id(fields[1].decode('string-escape'))
             y = hmm.state_labels.get_label_id(fields[2])
@@ -147,31 +143,57 @@ def load_parameters(filename, hmm, smoothing):
     f.close()
 
     hmm.compute_parameters()
-    
+
+
+# The students need to write this:
+def combine_partials(counts, hmm):
+    '''
+    combine_partials(counts, hmm)
+
+    This function should combine the results of calling predict_sequence many
+    times and assign to the hmm member objects
+
+    Parameters
+    ----------
+    counts : list of tuples
+        This is a list of results from the ``predict_sequence`` functions
+
+    '''
+    hmm.log_likelihood = 0
+    hmm.initial_counts = 0
+    hmm.transition_counts = 0
+    hmm.emission_counts = 0
+    hmm.final_counts = 0
+    for partial in counts:
+        hmm.log_likelihood += partial[0]
+        hmm.initial_counts += partial[1]
+        hmm.transition_counts += partial[2]
+        hmm.final_counts += partial[3]
+        hmm.emission_counts += partial[4]
+
 
 # A single iteration of the distributed EM algorithm.
 class EMStep(MRJob):
     INTERNAL_PROTOCOL   = PickleProtocol
-    #OUTPUT_PROTOCOL     = PickleValueProtocol
+    OUTPUT_PROTOCOL     = PickleValueProtocol
     def __init__(self, *args, **kwargs):
         MRJob.__init__(self, *args, **kwargs)
- 
-        # Load the word and tag dictionaries.
-        word_dict, tag_dict = pickle.load(open('word_tag_dict.pkl'))
 
-        # Create HMM object.
-        self.hmm = HMM(word_dict, tag_dict)
 
         from os import path
-        filename = 'parameters.txt'
+        filename = 'hmm.pkl'
         if path.exists(filename):
-            # Load the HMM parameters from a text file.
-            load_parameters(filename, self.hmm, smoothing=0.1)
+            self.hmm = pickle.loads(open(filename).read().decode('string-escape'))
         else:
             # Initialize the HMM parameters randomly.
+            self.hmm = HMM(word_dict, tag_dict)
             self.hmm.initialize_random()
 
-
+        self.log_likelihood = 0
+        self.initial_counts = 0
+        self.emission_counts = 0
+        self.transition_counts = 0
+        self.final_counts = 0
 
 
     def mapper(self, key, s):
@@ -180,32 +202,28 @@ class EMStep(MRJob):
         log_likelihood, initial_counts, transition_counts, final_counts,\
             emission_counts = predict_sequence(seq, self.hmm)
 
-        num_states = self.hmm.get_num_states() # Number of states.
+        self.log_likelihood += log_likelihood
+        self.initial_counts += initial_counts
+        self.emission_counts += emission_counts
+        self.transition_counts += transition_counts
+        self.final_counts += final_counts
 
-        yield 'log-likelihood', log_likelihood
-        yield 'initial', initial_counts
-        for y in xrange(num_states):
-            yield 'transition ' + self.hmm.state_labels.get_label_name(y), transition_counts[y,:]
-        for x in emission_counts:
-            yield 'emission ' + self.hmm.observation_labels.get_label_name(x), emission_counts[x]
-        yield 'final', final_counts
+    def mapper_final(self):
+        yield 'result', (self.log_likelihood,
+                        self.initial_counts,
+                        self.transition_counts,
+                        self.final_counts,
+                        self.emission_counts)
 
     def reducer(self, key, counts):
-        s = sum(counts)
-        if key == 'log-likelihood':
-            total_log_likelihood = s
-            print 'Log-likelihood:', total_log_likelihood
-        else:
-            num_states = self.hmm.get_num_states() # Number of states.
-            for y in xrange(num_states):
-                yield key + ' ' + self.hmm.state_labels.get_label_name(y), s[y] 
-            
+        combine_partials(counts, self.hmm)
+        self.hmm.compute_parameters()
+        yield 'hmm', self.hmm
 
-            
-# Run one iteration of distributed EM.
-em_step = EMStep()
-em_step.run()
+# Load the word and tag dictionaries.
+word_dict, tag_dict = pickle.load(open('word_tag_dict.pkl'))
 
-
-
+if __name__ == '__main__':
+    em_step = EMStep()
+    em_step.run()
 
