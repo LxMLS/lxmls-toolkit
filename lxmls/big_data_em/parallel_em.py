@@ -202,14 +202,31 @@ class EMStep(MRJob):
             # Initialize the HMM parameters randomly.
             self.hmm.initialize_random()
 
+        self.log_likelihood = 0
+        self.initial_counts = 0
+        self.emission_counts = 0
+        self.transition_counts = 0
+        self.final_counts = 0
+
 
     def mapper(self, key, s):
         seq = load_sequence(s, self.hmm.observation_labels, self.hmm.state_labels)
 
         log_likelihood, initial_counts, transition_counts, final_counts,\
             emission_counts = predict_sequence(seq, self.hmm)
-        r = predict_sequence(seq, self.hmm)
-        yield 'result', r
+
+        self.log_likelihood += log_likelihood
+        self.initial_counts += initial_counts
+        self.emission_counts += emission_counts
+        self.transition_counts += transition_counts
+        self.final_counts += final_counts
+
+    def mapper_final(self):
+        yield 'result', (self.log_likelihood,
+                        self.initial_counts,
+                        self.transition_counts,
+                        self.final_counts,
+                        self.emission_counts)
 
     def reducer(self, key, counts):
         log_likelihood, self.hmm.initial_counts, self.hmm.transition_counts, self.hmm.final_counts,\
