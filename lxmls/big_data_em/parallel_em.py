@@ -4,8 +4,6 @@ import numpy as np
 import lxmls.readers.pos_corpus as pcc
 from lxmls.sequences.hmm import HMM
 import pickle
-# Load the word and tag dictionaries.
-word_dict, tag_dict = pickle.load(open('word_tag_dict.pkl'))
 
 def load_sequence(s, word_dict, tag_dict):
     '''
@@ -148,39 +146,30 @@ def load_parameters(filename, hmm, smoothing):
 
 
 # The students need to write this:
-def combine_partials(counts):
+def combine_partials(counts, hmm):
     '''
-
-    log_likelihood, initial_counts, transition_counts, emission_counts, final_counts = combine_partials(counts)
+    combine_partials(counts, hmm)
 
     This function should combine the results of calling predict_sequence many
-    times.
+    times and assign to the hmm member objects
 
     Parameters
     ----------
     counts : list of tuples
         This is a list of results from the ``predict_sequence`` functions
 
-    Returns
-    -------
-    log_likelihood : float
-    initial_counts : np.ndarray
-    transition_counts : ndarray
-    final_counts : ndarray
-    emission_counts : ndarray
     '''
-    log_likelihood = 0
-    initial_counts = 0
-    transition_counts = 0
-    emission_counts = 0
-    final_counts = 0
+    hmm.log_likelihood = 0
+    hmm.initial_counts = 0
+    hmm.transition_counts = 0
+    hmm.emission_counts = 0
+    hmm.final_counts = 0
     for partial in counts:
-        log_likelihood += partial[0]
-        initial_counts += partial[1]
-        transition_counts += partial[2]
-        emission_counts += partial[3]
-        final_counts += partial[4]
-    return log_likelihood, initial_counts, transition_counts, emission_counts, final_counts
+        hmm.log_likelihood += partial[0]
+        hmm.initial_counts += partial[1]
+        hmm.transition_counts += partial[2]
+        hmm.emission_counts += partial[3]
+        hmm.final_counts += partial[4]
 
 
 # A single iteration of the distributed EM algorithm.
@@ -229,13 +218,13 @@ class EMStep(MRJob):
                         self.emission_counts)
 
     def reducer(self, key, counts):
-        log_likelihood, self.hmm.initial_counts, self.hmm.transition_counts, self.hmm.final_counts,\
-            self.hmm.emission_counts = combine_partials(counts)
+        combine_partials(counts, self.hmm)
         self.hmm.compute_parameters()
-        print log_likelihood
         yield 'hmm', self.hmm
 
-# Run one iteration of distributed EM.
+# Load the word and tag dictionaries.
+word_dict, tag_dict = pickle.load(open('word_tag_dict.pkl'))
+
 em_step = EMStep()
 em_step.run()
 
