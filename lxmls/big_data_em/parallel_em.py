@@ -75,7 +75,7 @@ def predict_sequence(sequence, hmm):
                                final_scores,
                                emission_scores)
 
-    emission_counts = {}
+    emission_counts = np.zeros((num_observations, num_states))
     initial_counts = np.zeros((num_states))
     transition_counts = np.zeros((num_states, num_states))
     final_counts = np.zeros((num_states))
@@ -87,10 +87,8 @@ def predict_sequence(sequence, hmm):
     ## Take care of emission and transition counts.
     for pos in xrange(length):
         x = sequence.x[pos]
-        if x not in emission_counts:
-            emission_counts[x] = np.zeros(num_states)
         for y in xrange(num_states):
-            emission_counts[x][y] += state_posteriors[pos, y]
+            emission_counts[x,y] += state_posteriors[pos, y]
             if pos > 0:
                 for y_prev in xrange(num_states):
                     transition_counts[y, y_prev] += transition_posteriors[pos-1, y, y_prev]
@@ -136,7 +134,7 @@ def load_parameters(filename, hmm, smoothing):
             hmm.transition_counts[y][y_prev] += count
         elif fields[0] == 'final':
             y = hmm.state_labels.get_label_id(fields[1])
-            hmm.final_counts[y] += count            
+            hmm.final_counts[y] += count
         elif fields[0] == 'emission':
             x = hmm.observation_labels.get_label_id(fields[1].decode('string-escape'))
             y = hmm.state_labels.get_label_id(fields[2])
@@ -147,15 +145,51 @@ def load_parameters(filename, hmm, smoothing):
     f.close()
 
     hmm.compute_parameters()
-    
+
+
+# The students need to write this:
+def combine_partials(counts):
+    '''
+
+    log_likelihood, initial_counts, transition_counts, emission_counts, final_counts = combine_partials(counts)
+
+    This function should combine the results of calling predict_sequence many
+    times.
+
+    Parameters
+    ----------
+    counts : list of tuples
+        This is a list of results from the ``predict_sequence`` functions
+
+    Returns
+    -------
+    log_likelihood : float
+    initial_counts : np.ndarray
+    transition_counts : ndarray
+    final_counts : ndarray
+    emission_counts : ndarray
+    '''
+    log_likelihood = 0
+    initial_counts = 0
+    transition_counts = 0
+    emission_counts = 0
+    final_counts = 0
+    for partial in counts:
+        log_likelihood += partial[0]
+        initial_counts += partial[1]
+        transition_counts += partial[2]
+        emission_counts += partial[3]
+        final_counts += partial[4]
+    return log_likelihood, initial_counts, transition_counts, emission_counts, final_counts
+
 
 # A single iteration of the distributed EM algorithm.
 class EMStep(MRJob):
     INTERNAL_PROTOCOL   = PickleProtocol
-    #OUTPUT_PROTOCOL     = PickleValueProtocol
+    OUTPUT_PROTOCOL     = PickleValueProtocol
     def __init__(self, *args, **kwargs):
         MRJob.__init__(self, *args, **kwargs)
- 
+
         # Create HMM object.
         self.hmm = HMM(word_dict, tag_dict)
 
@@ -169,36 +203,21 @@ class EMStep(MRJob):
             self.hmm.initialize_random()
 
 
-
-
     def mapper(self, key, s):
         seq = load_sequence(s, self.hmm.observation_labels, self.hmm.state_labels)
 
         log_likelihood, initial_counts, transition_counts, final_counts,\
             emission_counts = predict_sequence(seq, self.hmm)
-
-        num_states = self.hmm.get_num_states() # Number of states.
-
-        yield 'log-likelihood', log_likelihood
-        yield 'initial', initial_counts
-        for y in xrange(num_states):
-            yield 'transition ' + self.hmm.state_labels.get_label_name(y), transition_counts[y,:]
-        for x in emission_counts:
-            yield 'emission ' + self.hmm.observation_labels.get_label_name(x), emission_counts[x]
-        yield 'final', final_counts
+        r = predict_sequence(seq, self.hmm)
+        yield 'result', r
 
     def reducer(self, key, counts):
-        s = sum(counts)
-        if key == 'log-likelihood':
-            total_log_likelihood = s
-            print 'Log-likelihood:', total_log_likelihood
-        else:
-            num_states = self.hmm.get_num_states() # Number of states.
-            for y in xrange(num_states):
-                yield key + ' ' + self.hmm.state_labels.get_label_name(y), s[y] 
-            
+        log_likelihood, self.hmm.initial_counts, self.hmm.transition_counts, self.hmm.final_counts,\
+            self.hmm.emission_counts = combine_partials(counts)
+        self.hmm.compute_parameters()
+        print log_likelihood
+        yield 'hmm', self.hmm
 
-            
 # Run one iteration of distributed EM.
 em_step = EMStep()
 em_step.run()
