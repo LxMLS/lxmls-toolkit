@@ -1,5 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
 import sequence_classification_decoder as scd
 
 import pdb

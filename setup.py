@@ -1,14 +1,15 @@
 import os
 from setuptools import setup, find_packages
-from pip.req import parse_requirements
+try:
+    from pip.req import parse_requirements
+    # parse_requirements() returns generator of pip.req.InstallRequirement objects
+    install_reqs = parse_requirements("pip-requirements.txt")
+    # install_requires is a list of requirement
+    install_requires = [str(ir.req) for ir in install_reqs]
+except:
+    # This is a bit of an ugly hack, but pip is not installed on EMR
+    install_requires = []
 
-
-# parse_requirements() returns generator of pip.req.InstallRequirement objects
-install_reqs = parse_requirements("pip-requirements.txt")
-
-# reqs is a list of requirement
-reqs = [str(ir.req) for ir in install_reqs]
-print reqs
 
 # Utility function to read the README file.
 # Used for the long_description.  It's nice, because now 1) we have a top level
@@ -37,6 +38,6 @@ setup(
         "License :: OSI Approved :: MIT License",
     ],
     packages=find_packages(exclude=("labs", "labs.*")),
-    install_requires=reqs,
+    install_requires=install_requires,
     package_data=package_data,
 )
