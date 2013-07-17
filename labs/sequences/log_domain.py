@@ -5,13 +5,12 @@ import numpy as np
 ############################################################################
 
 def logzero():
-    return -1e20
-#    return -np.inf
+    return -np.inf
 
 def safe_log(x):
-    y       = np.zeros(x.shape)	+ logzero()
-    y[x>0]  = np.log(x[x>0]) 
-    return y
+    if x == 0:
+        return logzero()
+    return np.log(x)
     
 def logsum_pair(logx, logy):
     '''

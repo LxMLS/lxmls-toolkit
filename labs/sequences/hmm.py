@@ -263,16 +263,16 @@ class HMM(sc.SequenceClassifier):
         final_scores = np.zeros(num_states) + logzero()
 
         # Initial position.
-        initial_scores = safe_log(self.initial_probs)
+        initial_scores[:] = np.log(self.initial_probs)
         
         # Intermediate position.
         for pos in xrange(length):
-            emission_scores[pos,:] = safe_log(self.emission_probs[sequence.x[pos], :])
+            emission_scores[pos,:] = np.log(self.emission_probs[sequence.x[pos], :])
             if pos > 0: 
-                transition_scores[pos-1,:,:] = safe_log(self.transition_probs)
+                transition_scores[pos-1,:,:] = np.log(self.transition_probs)
 
         # Final position.
-        final_scores = safe_log(self.final_probs)
+        final_scores[:] = np.log(self.final_probs)
 
         return initial_scores, transition_scores, final_scores, emission_scores
 
