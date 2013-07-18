@@ -1,6 +1,6 @@
 import sys
 import numpy as np
-import linear_classifier as lc
+import lxmls.classifiers.linear_classifier as lc
 
 class Perceptron(lc.LinearClassifier):
 

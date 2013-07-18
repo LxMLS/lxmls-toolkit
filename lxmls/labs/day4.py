@@ -1,8 +1,8 @@
 ###### Exercises for lab day 4 Parsing.
 import sys
-sys.path.append("parsing/" )
+sys.path.append('.')
 
-import dependency_parser as depp
+import lxmls.parsing.dependency_parser as depp
 import pdb
 
 print "Exercise 4.4.1"

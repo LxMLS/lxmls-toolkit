@@ -17,10 +17,9 @@ class LabelDictionary(dict):
         self[name] = label_id
         self.names.append(name)
         return label_id
-        
+
     def get_label_name(self, label_id):
         return self.names[label_id]
-        
+
     def get_label_id(self, name):
         return self[name]
-        

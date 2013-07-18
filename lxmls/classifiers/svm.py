@@ -1,7 +1,7 @@
 import sys
 import numpy as np
-import linear_classifier as lc
-from util.my_math_utils import *
+import lxmls.classifiers.linear_classifier as lc
+from lxmls.util.my_math_utils import *
 
 class SVM(lc.LinearClassifier):
 

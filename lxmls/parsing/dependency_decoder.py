@@ -188,26 +188,6 @@ class DependencyDecoder():
             pr = final_edges[key]
             heads[ch] = pr
 
-        #ok = False
-        #for m in range(np.size(heads)):
-        #    if heads[m] == 0:
-        #        ok = True
-        #        break
-        #if not ok and np.size(heads) < 5:
-        #    heads[1000000] = -1
-
-
-#        heads_proj, value_proj = self.parse_proj(scores)
-#        value_nonproj = 0.0
-#        for m in xrange(1,nw+1):
-#            h = heads[m]
-#            value_nonproj += scores[h,m]
-
-#        print value_nonproj
-#        print heads
-#        print heads_proj
-#        pdb.set_trace()
-
         return heads
 
 
@@ -218,9 +198,6 @@ class DependencyDecoder():
 
         # need to construct for each node list of nodes they represent (here only!)
         nw = np.size(curr_nodes) - 1;
-
-
-
 
         # create best graph
         par = -np.ones(nw+1, int)

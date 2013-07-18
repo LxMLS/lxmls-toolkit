@@ -1,8 +1,8 @@
 import numpy as np
 import scipy as scipy
-import linear_classifier as lc
+import lxmls.classifiers.linear_classifier as lc
 import sys
-from distributions.gaussian import *
+from lxmls.distributions.gaussian import *
 
 
 class MultinomialNaiveBayes(lc.LinearClassifier):
