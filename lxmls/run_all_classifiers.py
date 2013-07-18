@@ -1,17 +1,11 @@
-import sys
-sys.path.append("readers/" )
-sys.path.append("classifiers/" )
-
-import simple_data_set as sds
-
-import linear_classifier as lcc
-import naive_bayes as nbc
-import perceptron as percc
-import svm as svmc
-import mira as mirac
-import max_ent_batch as mec_batch
-import max_ent_online as mec_online
-
+import lxmls.readers.simple_data_set as sds
+import lxmls.classifiers.linear_classifier as lcc
+import lxmls.classifiers.naive_bayes as nbc
+import lxmls.classifiers.perceptron as percc
+import lxmls.classifiers.svm as svmc
+import lxmls.classifiers.mira as mirac
+import lxmls.classifiers.max_ent_batch as mec_batch
+import lxmls.classifiers.max_ent_online as mec_online
 
 
 def run_all_classifiers(dataset):
@@ -26,7 +20,7 @@ def run_all_classifiers(dataset):
     evaluation2 = nb.evaluate(predict2,dataset.test_y)
     print "Accuracy train: %f test: %f"%(evaluation,evaluation2)
     fig,axis = dataset.add_line(fig,axis,params_nb,"Naive Bayes","red")
-    
+
     print "Perceptron"
     perc = percc.Perceptron()
     params_perc =  perc.train(dataset.train_X,dataset.train_y)

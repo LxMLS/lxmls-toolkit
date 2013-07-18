@@ -1,4 +1,3 @@
-
 import numpy as np
 
 # This class generates a 2D dataset with two classes, "positive" and "negative".

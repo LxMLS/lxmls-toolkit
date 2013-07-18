@@ -100,20 +100,17 @@ def sort_conf_matrix_by_purity(conf_matrix):
 
 
 def plot_confusion_bar_graph(matrix,pos_list,clusters,title):
+    import matplotlib.pyplot as plt
     ## Get the mapping
     mapping = get_best_assignment(matrix)
     ## Figure details
     fig_aux = plt.figure()
     fig = fig_aux.add_subplot(1, 1, 1)
     xlocations = np.array(range(len(clusters)))
-    
     rects = {}
+    i = 0
 
-    i  =0
-
-#    print matrix
-
-    
+    # print matrix
     for cluster in clusters:
         # Tags for each cluster
         cluster_tags = matrix[cluster]
@@ -128,12 +125,12 @@ def plot_confusion_bar_graph(matrix,pos_list,clusters,title):
             aux = fig.bar(xlocations[i],value,bottom=bottom,linewidth=0,color=tag_colors[tag_name],edgecolor=tag_colors[tag_name])
             rects[tag][0] = aux
             bottom += value
-        i += 1        
+        i += 1
     fig.set_xticks(xlocations+0.4)
     best_tags_names = []
     for i in mapping:
         tag = mapping[i]
-        tag_name = pos_list.get_label_name(tag)        
+        tag_name = pos_list.get_label_name(tag)
         best_tags_names.append(tag_name)
     #print best_tags_names
     fig.set_xticklabels(best_tags_names)

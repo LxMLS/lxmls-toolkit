@@ -42,9 +42,6 @@ class DependencyWriter():
 
             conll_file_out.write(line_out)
             conll_file_out.write("\n")
-            
+
         conll_file_out.close()
         conll_file.close()
-
-
-

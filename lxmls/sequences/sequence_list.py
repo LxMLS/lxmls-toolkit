@@ -1,4 +1,4 @@
-import sequence as seq
+import lxmls.sequences.sequence as seq
 import pdb
 
 class _SequenceIterator(object):
@@ -79,6 +79,3 @@ class SequenceList(object):
                 seq_y.append(int(y))
             self.add_sequence(seq_x,seq_y)
         seq_fn.close()
-
-    
-

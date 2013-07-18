@@ -1,11 +1,10 @@
 import sys
 import numpy as np
-from dependency_reader import * 
-from dependency_writer import * 
-from dependency_features import * 
-from dependency_decoder import * 
-from util.my_math_utils import *
-
+from lxmls.parsing.dependency_reader import *
+from lxmls.parsing.dependency_writer import *
+from lxmls.parsing.dependency_features import *
+from lxmls.parsing.dependency_decoder import *
+from lxmls.util.my_math_utils import *
 
 class DependencyParser():
     '''
@@ -25,7 +24,7 @@ class DependencyParser():
         self.language = language
         self.reader.load(language)
         self.features.create_dictionary(self.reader.train_instances)
-        
+
     def train_perceptron(self, n_epochs):
         '''Trains the parser by running the averaged perceptron algorithm for n_epochs.''' 
         self.weights = np.zeros(self.features.n_feats)
@@ -42,7 +41,7 @@ class DependencyParser():
                     heads_pred = self.decoder.parse_proj(scores)
                 else:
                     heads_pred = self.decoder.parse_nonproj(scores)
-                #print [heads_pred, instance.heads]
+
                 for m in range(np.size(heads_pred)):
                     if heads_pred[m] != instance.heads[m]: # mistake
                         for f in feats[instance.heads[m]][m]: 
@@ -56,14 +55,8 @@ class DependencyParser():
                         n_mistakes += 1
                     n_tokens += 1
                 n_instances += 1
-                #if n_instances % 100 == 0:
-                #    print "Training accuracy after {0} instances: {1}".format(n_instances, np.double(n_tokens - n_mistakes)/np.double(n_tokens))
             print "Training accuracy: {0}".format(np.double(n_tokens - n_mistakes)/np.double(n_tokens))
             total += self.weights   
-            #weights = self.weights 
-            #self.weights = total / (epoch+1.0)
-            #self.test()
-            #self.weights = weights
 
         self.weights = total / np.double(n_epochs)
 
@@ -71,7 +64,6 @@ class DependencyParser():
         '''Trains the parser by running the online MaxEnt algorithm for n_epochs, regularization coefficient sigma, 
         and initial stepsize eta0 (which anneals as O(1/(sigma*t))).''' 
         self.weights = np.zeros(self.features.n_feats)
-        #total = np.zeros(self.features.n_feats)
         t = 0
         t0 = 1.0 / (sigma * eta0)
         for epoch in range(n_epochs):
@@ -115,8 +107,6 @@ class DependencyParser():
 
             print "Training objective: {0}".format(objective / n_instances)
 
-            #self.test()
-
 
     def test(self):
         n_mistakes = 0
@@ -130,7 +120,7 @@ class DependencyParser():
                 heads_pred = self.decoder.parse_proj(scores)
             else:
                 heads_pred = self.decoder.parse_nonproj(scores)
-            #print [heads_pred, instance.heads]
+
             for m in range(np.size(heads_pred)):
                 if heads_pred[m] != instance.heads[m]: # mistake
                     for f in feats[instance.heads[m]][m]: 
@@ -146,5 +136,3 @@ class DependencyParser():
         print "Test accuracy ({0} test instances): {1}".format(n_instances, np.double(n_tokens - n_mistakes)/np.double(n_tokens))
 
         self.writer.save(self.language, arr_heads_pred)
-        
-

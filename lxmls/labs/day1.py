@@ -2,19 +2,19 @@
 import sys, pdb
 sys.path.append("." )
 
-import readers.simple_data_set as sds
-import readers.sentiment_reader as srs
-import classifiers.linear_classifier as lcc
-import classifiers.perceptron as percc
-import classifiers.mira as mirac
-import classifiers.gaussian_naive_bayes as gnbc
-import classifiers.multinomial_naive_bayes as mnb
+import lxmls.readers.simple_data_set as sds
+import lxmls.readers.sentiment_reader as srs
+import lxmls.classifiers.linear_classifier as lcc
+import lxmls.classifiers.perceptron as percc
+import lxmls.classifiers.mira as mirac
+import lxmls.classifiers.gaussian_naive_bayes as gnbc
+import lxmls.classifiers.multinomial_naive_bayes as mnb
 reload(mnb) # this allows you to edit the module and run this script again without rebooting Python
-import classifiers.max_ent_batch as mebc
-import classifiers.max_ent_online as meoc
-import classifiers.svm as svmc
-import classifiers.naive_bayes as nb
-import run_all_classifiers as run_all_c
+import lxmls.classifiers.max_ent_batch as mebc
+import lxmls.classifiers.max_ent_online as meoc
+import lxmls.classifiers.svm as svmc
+import lxmls.classifiers.naive_bayes as nb
+import lxmls.run_all_classifiers as run_all_c
 
 
 #### Exercise 3.1: run all classifiers on 2D data ####
