@@ -42,6 +42,6 @@ python lxmls/big_data/postprocess.py
 
 echo "Run language detection on Amazon (see in $0, Line $LINENO)"
 echo ""
-echo "python kmers.py -r emr s3://lxmls-labs/en_perline01.txt --num-ec2-instances 10 --aws-region eu-west-1 > output.en.txt"
-echo "python kmers.py -r emr s3://lxmls-labs/pt_perline10.txt --num-ec2-instances 10 --aws-region eu-west-1 > output.pt.txt"
+echo "python kmers.py en_perline001.txt > output.en.txt"
+echo "python kmers.py pt_perline01.txt > output.pt.txt"
 echo "python postprocess.py"
