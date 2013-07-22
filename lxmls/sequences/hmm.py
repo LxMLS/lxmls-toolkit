@@ -197,7 +197,7 @@ class HMM(sc.SequenceClassifier):
     ######
     def print_transition_matrix(self):
         import matplotlib.pyplot as plt
-        cax = plt.imshow(self.transition_probs[0:-1,:], interpolation='nearest',aspect='auto')
+        cax = plt.imshow(self.transition_probs, interpolation='nearest',aspect='auto')
         cbar = plt.colorbar(cax, ticks=[-1, 0, 1])
         plt.xticks(np.arange(0, self.get_num_states()), self.state_labels.names, rotation=90)
         plt.yticks(np.arange(0, self.get_num_states()), self.state_labels.names)
