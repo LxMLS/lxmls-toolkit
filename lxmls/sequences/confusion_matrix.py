@@ -137,5 +137,5 @@ def plot_confusion_bar_graph(matrix,pos_list,clusters,title):
     pos_list2 = sorted(pos_list.iteritems(),key=lambda x: x[1])
     color_list = [x[0] for x in pos_list2]
     fig.legend(map(lambda t: rects[t][0], clusters), color_list,mode="expand",ncol=6)
-    fig.autoscale()
+    #fig.autoscale()
     plt.show()
