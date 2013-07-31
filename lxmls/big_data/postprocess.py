@@ -13,7 +13,7 @@ def load_counts(ifile):
     return counts, total_kmers
 
 def score(counts_pt, total_trimers_pt, counts_en, total_trimers_en, test_sentence):
-    val = 1.
+    val = 0.
     for i in xrange(len(test_sentence)-3):
         tri = test_sentence[i:i+3]
         tri_pt = counts_pt.get(tri, 1.0) # this will attempt to get counts from the dictionary; if it fails, it will return 1.0
