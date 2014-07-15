@@ -64,7 +64,7 @@ def build_dicts(domain):
     for line in pos_file:
         nr_pos += 1
         toks = line.split(" ")
-        for feat in toks[1:-1]:
+        for feat in toks[0:-1]:
             name,counts = feat.split(":")
             if(name not in feat_counts):
                 feat_counts[name] = 0
@@ -75,7 +75,7 @@ def build_dicts(domain):
     for line in neg_file:
         nr_neg += 1
         toks = line.split(" ")
-        for feat in toks[1:-1]:
+        for feat in toks[0:-1]:
             name,counts = feat.split(":")
             if(name not in feat_counts):
                 feat_counts[name] = 0
@@ -117,7 +117,7 @@ def build_dicts(domain):
     nr_pos = 0
     for line in pos_file:
         toks = line.split(" ")
-        for feat in toks[1:-1]:
+        for feat in toks[0:-1]:
             name,counts = feat.split(":")
             if(name in feat_dict):
                 #print "adding %s with counts %s"%(name,counts)
@@ -127,7 +127,7 @@ def build_dicts(domain):
     nr_neg = 0
     for line in neg_file:
         toks = line.split(" ")
-        for feat in toks[1:-1]:
+        for feat in toks[0:-1]:
 
             name,counts = feat.split(":")
             if(name in feat_dict):
