@@ -50,66 +50,8 @@ class DependencyDecoder():
         '''
         Parse using Eisner's algorithm.
         '''
-        nr, nc = np.shape(scores)
-        if nr != nc:
-            raise ValueError("scores must be a squared matrix with nw+1 rows")
-            return []
-
-        nw = nr - 1 # Number of words (excluding root).
-        
-        # Initialize CKY table.
-        complete_spans = np.zeros([nw+1, nw+1, 2]) # s, t, direction (right=1). 
-        incomplete_spans = np.zeros([nw+1, nw+1, 2]) # s, t, direction (right=1). 
-        complete_backtrack = -np.ones([nw+1, nw+1, 2], dtype=int) # s, t, direction (right=1). 
-        incomplete_backtrack = -np.ones([nw+1, nw+1, 2], dtype=int) # s, t, direction (right=1). 
-        
-        # Loop from smaller items to larger items.
-        for k in xrange(1,nw+1):
-            for s in xrange(nw+1):
-                t = s+k
-                if t > nw: break
-                
-                # First, create incomplete items.
-                if s == 0:
-                    incomplete_spans[s][t][0] = -np.inf
-                else:
-                    values = np.zeros(k)
-                    for r in xrange(s,t):
-                        values[r-s] = complete_spans[s][r][1] + complete_spans[r+1][t][0] + scores[t,s]
-                    incomplete_spans[s][t][0] = max(values)
-                    incomplete_backtrack[s][t][0] = s + np.argmax(values)
-                
-                values = np.zeros(k)
-                for r in xrange(s,t):
-                    values[r-s] = complete_spans[s][r][1] + complete_spans[r+1][t][0] + scores[s,t]
-                incomplete_spans[s][t][1] = max(values)
-                incomplete_backtrack[s][t][1] = s + np.argmax(values)
-
-                # Second, create complete items.
-                if s >= 0: # remove this
-                    values = np.zeros(k)
-                    for r in xrange(s,t):
-                        values[r-s] = complete_spans[s][r][0] + incomplete_spans[r][t][0]
-                    complete_spans[s][t][0] = max(values)
-                    complete_backtrack[s][t][0] = s + np.argmax(values)
-                
-                values = np.zeros(k)
-                for r in xrange(s+1,t+1):
-                    values[r-s-1] = incomplete_spans[s][r][1] + complete_spans[r][t][1]
-                complete_spans[s][t][1] = max(values)
-                complete_backtrack[s][t][1] = s + 1 + np.argmax(values)
-                
-        value = complete_spans[0][nw][1]
-        heads = -np.ones(nw+1, dtype=int)
-        self.backtrack_eisner(incomplete_backtrack, complete_backtrack, 0, nw, 1, 1, heads)
-
-        value_proj = 0.0
-        for m in xrange(1,nw+1):
-            h = heads[m]
-            value_proj += scores[h,m]
-        
-        return heads
-
+        ## Exercise 4.3.6
+        pass
 
     def backtrack_eisner(self, incomplete_backtrack, complete_backtrack, s, t, direction, complete, heads):
         '''
