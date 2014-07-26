@@ -42,8 +42,8 @@ def download_and_replace(url, target_file):
 
 # CONFIGURATION
 
-master_URL = 'https://github.com/ramon-astudillo/lxmls-toolkit/blob/master/'
-labs_URL   = 'https://github.com/ramon-astudillo/lxmls-toolkit/blob/labs/'
+master_URL = 'https://github.com/gracaninja/lxmls-toolkit/blob/master/'
+labs_URL   = 'https://github.com/gracaninja/lxmls-toolkit/blob/labs/'
 
 # FILES TO BE REPLACED FOR THAT DAY
 code_day = {
