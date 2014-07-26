@@ -42,8 +42,8 @@ def download_and_replace(url, target_file):
 
 # CONFIGURATION
 
-master_URL = 'https://github.com/gracaninja/lxmls-toolkit/blob/master/'
-labs_URL   = 'https://github.com/gracaninja/lxmls-toolkit/blob/labs/'
+master_URL = 'https://github.com/gracaninja/lxmls-toolkit/raw/master/'
+labs_URL   = 'https://github.com/gracaninja/lxmls-toolkit/raw/student/'
 
 # FILES TO BE REPLACED FOR THAT DAY
 code_day = {
@@ -56,14 +56,24 @@ code_day = {
            }
 
 # ARGUMENT PROCESSING
-if ((len(sys.argv) != 2) or \
-    (sys.argv[1] not in ['day0', 'day1', 'day2', 'day3', 'day4', 'day5', 'day6'])):
+if ((len(sys.argv) == 2) and 
+    (sys.argv[1] in ['day0', 'day1', 'day2', 'day3', 'day4', 'day5', 'day6'])): 
+    undo_flag = 0
+    day       = sys.argv[1]
+elif ((len(sys.argv) == 3) and 
+      (sys.argv[1] == '--undo') and
+      (sys.argv[2] in ['day0', 'day1', 'day2', 'day3', 'day4', 'day5', 'day6'])): 
+    undo_flag = 1
+    day       = sys.argv[2]
+
+else:
     print ("\nUsage:\n"
            "\n"
-           "python solve.py day<day number>\n"
+           "python solve.py day<day number>         # To solve exercise \n"
+           "\n"
+           "python solve.py --undo day<day number>  # To undo solve\n"
            "" )
     exit(1)
-day = sys.argv[1]
 
 # CHECK THERE ARE FILES TO SAVE
 if day in code_day:
@@ -74,5 +84,8 @@ else:
 
 # OVERWRITE THE FILES TO SOLVE THEM
 for pyfile in code_day[day]:
-    download_and_replace(master_URL + pyfile, pyfile)
+    if undo_flag:
+        download_and_replace(labs_URL + pyfile, pyfile)
+    else:
+        download_and_replace(master_URL + pyfile, pyfile)
     print "Solving: %s" % pyfile 

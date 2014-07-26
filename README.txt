@@ -12,5 +12,11 @@ Dependencies
 
 Installation
 
-    For the labs, you need to intall modules as:
+    -For the labs, you need to intall modules as:
         - pip install -r pip-requirements.txt
+    -You do not need to install the lxmls tools, just work from this folder
+
+Solving exercises from previous days
+    -You can solve and reset exercises from previous days with e.g.
+        - python ./solve.py day1  
+        - python --undo ./solve.py day1  
