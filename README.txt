@@ -17,6 +17,7 @@ Installation
     -You do not need to install the lxmls tools, just work from this folder
 
 Solving exercises from previous days
+
     -You can solve and reset exercises from previous days with e.g.
         - python ./solve.py day1  
-        - python --undo ./solve.py day1  
+        - python ./solve.py --undo day1  
