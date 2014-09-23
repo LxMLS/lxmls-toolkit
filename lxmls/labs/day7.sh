@@ -7,10 +7,11 @@ Deep learning day exercises to be run from ./lxmls-toolkit/ folder as
 
 import sys
 sys.path.append('.')
+import time
 
-######################
-print "\nExercise 7.1"
-######################
+print "\n######################",
+print "\n   Exercise 7.1"
+print "######################"
 import numpy as np
 import lxmls.readers.sentiment_reader as srs  
 scr       = srs.SentimentCorpus("books")
@@ -22,22 +23,25 @@ import lxmls.deep_learning.sgd as sgd
 I = train_set[0].shape[0] 
 mlp = dl.MLP(geometry=(I, 2), actvfunc=['softmax'])
 #
-sgd.SGD_train(mlp, train_set=train_set, batch_size=10, n_iter=20)
+sgd.SGD_train(mlp, train_set=train_set, batch_size=5, n_iter=5)
 acc_train = sgd.class_acc(mlp.forward(train_set[0]), train_set[1])[0]
 acc_test  = sgd.class_acc(mlp.forward(test_set[0]), test_set[1])[0]
 print "Log-linear Model Amazon Sentiment Accuracy train: %f test: %f"%(acc_train,acc_test)
 
-######################
-print "\nExercise 7.2"
-######################
+print "\n######################",
+print "\n   Exercise 7.2"
+print "######################"
 geometry=(I, 20, 2)
 mlp = dl.MLP(geometry=geometry)
-sgd.SGD_train(mlp, train_set=train_set, batch_size=10, n_iter=20)
+sgd.SGD_train(mlp, train_set=train_set, batch_size=5, n_iter=5)
 acc_train = sgd.class_acc(mlp.forward(train_set[0]), train_set[1])[0]
 acc_test  = sgd.class_acc(mlp.forward(test_set[0]), test_set[1])[0]
 print "MLP %s Model Amazon Sentiment Accuracy train: %f test: %f"%(geometry, acc_train,acc_test)
 
-print "\nExercise 7.3"
+
+print "\n######################",
+print "\n   Exercise 7.3"
+print "######################"
 import numpy as np
 x        = test_set[0]        # Test set 
 W1, w1   = mlp.weights[0]     # Weigths and bias of fist layer 
@@ -63,9 +67,9 @@ print ""
 print layer1(x)
 
 
-######################
-print "\nExercise 7.4"
-######################
+print "\n######################",
+print "\n   Exercise 7.4"
+print "######################"
 mlp_a = dl.MLP(geometry=geometry)
 mlp_b = dl.TheanoMLP(geometry=geometry)
 #
@@ -77,9 +81,9 @@ print ""
 print mlp_b.forward(test_set[0])[:,:10]
 
 
-######################
-print "\nExercise 7.5"
-######################
+print "\n######################",
+print "\n   Exercise 7.5"
+print "######################"
 W2, w2 = mlp.weights[1] # Weigths and bias of second (and last!) layer
 # Second layer symbolic variables
 symb_W2 = theano.shared(value=W2, name='W2', borrow=True)
@@ -94,22 +98,48 @@ symb_F = -T.sum(T.log(symb_tilde_z2[T.arange(symb_y.shape[0]), symb_y]))
 symb_nabla_F = T.grad(symb_F, symb_W1)
 nabla_F      = theano.function([symb_x, symb_y], symb_nabla_F)
 
-print "\nExercise 7.6"
-import time
+print "\n######################",
+print "\n   Exercise 7.6"
+print "######################"
 geometry=(I, 20, 2)
 mlp1 = dl.MLP(geometry=geometry)
 mlp2 = dl.TheanoMLP(geometry=geometry)
 mlp3 = dl.TheanoMLP(geometry=geometry)
 #
-mlp3.compile_train(train_set=train_set, batch_size=10)
+mlp3.compile_train(train_set=train_set, batch_size=5)
 #
 init_t = time.clock()
-sgd.SGD_train(mlp1, train_set=train_set, batch_size=10, n_iter=20)
+sgd.SGD_train(mlp1, train_set=train_set, batch_size=5, n_iter=5)
 print "\nNumpy version took %2.2f\n" % (time.clock() - init_t)
 init_t = time.clock()
-sgd.SGD_train(mlp2, train_set=train_set, batch_size=10, n_iter=20)
+sgd.SGD_train(mlp2, train_set=train_set, batch_size=5, n_iter=5)
 print "\nCompiled gradient version took %2.2f\n" % (time.clock() - init_t)
 init_t = time.clock()
-sgd.SGD_train(mlp3, n_iter=20)
-print "\nCompiled batch update version took %2.2f\n" % (time.clock() - init_t)
+sgd.SGD_train(mlp3, n_iter=5)
+print "\nTheano compiled batch update version took %2.2f\n" % (time.clock() - init_t)
 init_t = time.clock()
+
+print "\n######################",
+print "\n   Exercise 7.7"
+print "######################"
+# Use spare models
+from scipy import sparse as ssp
+geometry         = (I, 20, 2)
+sparse_train_set = (ssp.csc_matrix(train_set[0]), train_set[1])
+sparse_test_set  = (ssp.csc_matrix(test_set[0]), test_set[1])
+mlp4             = dl.MLP(geometry=geometry, sparse_input=True)
+init_t           = time.clock()
+sgd.SGD_train(mlp4, train_set=sparse_train_set, batch_size=5, n_iter=5)
+print "\nNumpy Sparse version took %2.2f\n" % (time.clock() - init_t)
+acc_train        = sgd.class_acc(mlp4.forward(sparse_train_set[0]), sparse_train_set[1])[0]
+acc_test         = sgd.class_acc(mlp4.forward(sparse_test_set[0]), sparse_test_set[1])[0]
+print "Log-linear Model Amazon Sentiment Accuracy train: %f test: %f"%(acc_train, acc_test)
+
+mlp5      = dl.TheanoMLP(geometry=geometry, sparse_input=True)
+mlp5.compile_train(train_set=sparse_train_set, batch_size=5) # <-- this has yetb to work
+init_t    = time.clock()
+sgd.SGD_train(mlp5, train_set=sparse_train_set, batch_size=5, n_iter=5)
+print "\nTheano compiled batch update Sparse version took %2.2f\n" % (time.clock() - init_t)
+acc_train = sgd.class_acc(mlp5.forward(sparse_train_set[0]), sparse_train_set[1])[0]
+acc_test  = sgd.class_acc(mlp5.forward(sparse_test_set[0]), sparse_test_set[1])[0]
+print "Log-linear Model Amazon Sentiment Accuracy train: %f test: %f"%(acc_train, acc_test)
