@@ -196,7 +196,7 @@ class MLP():
         with open(model_path, 'wb') as fid: 
             cPickle.dump(self, fid, cPickle.HIGHEST_PROTOCOL)
 
-    def plot_weights(self, show=True):
+    def plot_weights(self, show=True, aspect='auto'):
        '''
        Plots the weights of the newtwork
        '''
@@ -204,9 +204,13 @@ class MLP():
        plt.figure()
        for n, w in enumerate(self.weights):
            plt.subplot(2, self.n_layers, n+1)
-           plt.imshow(w[0]) 
+           plt.imshow(w[0], aspect=aspect, interpolation='nearest') 
+           plt.title('Layer %d Weight' % n)
+           plt.colorbar()
            plt.subplot(2, self.n_layers, self.n_layers + (n+1))
            plt.plot(w[1])
+           plt.title('Layer %d Bias' % n)
+           plt.colorbar()
        if show:
            plt.show() 
 
