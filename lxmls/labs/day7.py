@@ -1,8 +1,36 @@
 #!/usr/bin/python
 '''
-Deep learning day exercises to be run from ./lxmls-toolkit/ folder as
+Deep learning day exercises corresponding to Chapter 7 of the LxMLS guide.
+They must be run from ./lxmls-toolkit/ folder as
 
-./lxmls/labs/day7.sh
+./lxmls/labs/day7.py
+
+These are the solutions of the exercises. Students of the LxMLS school should
+work with the student branch and ignore this.
+
+In any case, to inspect this code you may want to use some debugging tools.
+Have look at day0 of the lxmls_guide for some references. The simplest approach
+is the pdb module included by default in Python. To insert a break point write
+i your code
+
+import pdb
+ipdb.set_trace()
+
+In Table 1 of day 0 of the guide you can find some useful commands to browse 
+through the code while in debug mode.
+
+An alternative to pdb is ipdb. This works exactly the same but has colors and
+autocomplete. You can install it with pip
+
+sudo pip install ipdb
+
+There is also a little modification you can do to get ipdb show more lines of
+context in debug mode, see
+
+http://stackoverflow.com/questions/6240887/how-can-i-make-ipdb-show-more-lines-of-context-while-debugging
+
+For a more matlab-like environment you can use Spider or ipython. If you port
+ this to ipython notebook let me know! (ramon@astudillo.com)
 '''
 
 import sys
