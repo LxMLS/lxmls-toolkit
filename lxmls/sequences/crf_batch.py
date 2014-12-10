@@ -1,7 +1,7 @@
 import sys
 import numpy as np
 from scipy import optimize
-import lxmls.classifiers.discriminative_sequence_classifier as dsc
+import lxmls.sequences.discriminative_sequence_classifier as dsc
 import pdb
 
 class CRF_batch(dsc.DiscriminativeSequenceClassifier):
