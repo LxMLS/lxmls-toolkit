@@ -23,9 +23,9 @@ def gradient_descent(start_x,func,grad):
     for i in xrange(max_iter):
         x_old = x_new
         #Use beta iguals to -1 for gradient descent 
-        x_new = x_old - step_size * get_grad(x_new)
-        f_x_new = get_y(x_new)
-        f_x_old = get_y(x_old)
+        x_new = x_old - step_size * grad(x_new)
+        f_x_new = func(x_new)
+        f_x_old = func(x_old)
         res.append([x_new,f_x_new])
         if(abs(f_x_new -f_x_old) < prec):
             print "change in function values to small, leaving"
