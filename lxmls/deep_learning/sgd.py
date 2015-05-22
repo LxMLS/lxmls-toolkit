@@ -61,12 +61,9 @@ def SGD_train(mlp, devel_set=None, train_set=None, n_iter=20, batch_size=None,
                  # Update with SGD rule
                  for m in np.arange(mlp.n_layers):
                      # Watch out for sparse matrix
-                     if mlp.sparse_input and m == 0:
-                         mlp.weights[m][0] = mlp.weights[m][0] - lrate*delta_weights[m][0]
-                     else:
-                         mlp.weights[m][0] -= lrate*delta_weights[m][0]
+                     mlp.weights[m][0] -= lrate*delta_weights[m][0]
                      # Bias
-                     mlp.weights[m][1] -=  lrate*delta_weights[m][1]
+                     mlp.weights[m][1] -= lrate*delta_weights[m][1]
 
              # INFO
              sys.stdout.write("\rBatch %d/%d (%d%%) " % (n+1, n_batch, (n+1)*100.0/n_batch))

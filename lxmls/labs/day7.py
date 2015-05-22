@@ -146,28 +146,3 @@ init_t = time.clock()
 sgd.SGD_train(mlp3, n_iter=5)
 print "\nTheano compiled batch update version took %2.2f\n" % (time.clock() - init_t)
 init_t = time.clock()
-
-print "\n######################",
-print "\n   Exercise 7.7"
-print "######################"
-# Use spare models
-from scipy import sparse as ssp
-geometry         = (I, 20, 2)
-sparse_train_set = (ssp.csc_matrix(train_set[0]), train_set[1])
-sparse_test_set  = (ssp.csc_matrix(test_set[0]), test_set[1])
-mlp4             = dl.MLP(geometry=geometry, sparse_input=True)
-init_t           = time.clock()
-sgd.SGD_train(mlp4, train_set=sparse_train_set, batch_size=5, n_iter=5)
-print "\nNumpy Sparse version took %2.2f\n" % (time.clock() - init_t)
-acc_train        = sgd.class_acc(mlp4.forward(sparse_train_set[0]), sparse_train_set[1])[0]
-acc_test         = sgd.class_acc(mlp4.forward(sparse_test_set[0]), sparse_test_set[1])[0]
-print "Log-linear Model Amazon Sentiment Accuracy train: %f test: %f"%(acc_train, acc_test)
-
-mlp5      = dl.TheanoMLP(geometry=geometry, sparse_input=True)
-mlp5.compile_train(train_set=sparse_train_set, batch_size=5) # <-- this has yetb to work
-init_t    = time.clock()
-sgd.SGD_train(mlp5, train_set=sparse_train_set, batch_size=5, n_iter=5)
-print "\nTheano compiled batch update Sparse version took %2.2f\n" % (time.clock() - init_t)
-acc_train = sgd.class_acc(mlp5.forward(sparse_train_set[0]), sparse_train_set[1])[0]
-acc_test  = sgd.class_acc(mlp5.forward(sparse_test_set[0]), sparse_test_set[1])[0]
-print "Log-linear Model Amazon Sentiment Accuracy train: %f test: %f"%(acc_train, acc_test)

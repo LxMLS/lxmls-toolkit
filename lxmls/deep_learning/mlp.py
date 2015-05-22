@@ -3,10 +3,6 @@ from scipy.misc import logsumexp
 import cPickle  # To store classes on files
 import theano
 import theano.tensor as T
-from theano import sparse
-# For sparse matrices
-from scipy import sparse as ssp 
-
 
 def index2onehot(index, N):
     '''
@@ -33,8 +29,7 @@ class MLP():
     '''
     Basic MLP with forward-pass and gradient computation
     '''
-    def __init__(self, geometry=None, weights=None, actvfunc=None, rng=None,
-                 sparse_input=None):
+    def __init__(self, geometry=None, weights=None, actvfunc=None, rng=None):
         '''
         Input: geometry  tuple with sizes of layer
         Input: weights   list of lists containing each weight, bias pair for
@@ -43,8 +38,6 @@ class MLP():
                          function 
         Input: rng       Random seed
         '''  
-
-        self.sparse_input = sparse_input
 
         # CHECK THE PARAMETERS ARE IN THE RIGHT FORMAT
         self.sanity_checks(geometry, weights, actvfunc)
@@ -77,11 +70,8 @@ class MLP():
             activations = [x]  
         for n, W, activ in zip(np.arange(self.n_layers), self.weights, 
                                self.actvfunc):
-            # Linear transformation (sparse or not)
-            if self.sparse_input and n == 0:
-                z = np.array(W[0].dot(x) + W[1])
-            else:
-                z = np.dot(W[0], x) + W[1]
+            # Linear transformation 
+            z = np.dot(W[0], x) + W[1]
             # Non-linear transformation 
             if activ == "sigmoid":
                 x = 1.0/(1+np.exp(-z)) 
@@ -115,21 +105,11 @@ class MLP():
                e  = np.dot(self.weights[n+1][0].T, e)
                e *= np.multiply(activations[n+1], (1-activations[n+1]))
            # Compute the weight gradient from the errors
-           # Note that for a sparse input layer we only store the gradient for
-           # were the active inputs are involved
-           if self.sparse_input and n == 0:
-               delta_W = ssp.csc_matrix(self.weights[n][0].shape) 
-               e       = ssp.csc_matrix(e)
-               for l in np.arange(e.shape[1]):
-                  delta_W = delta_W + e[:, l] * activations[n][:, l].T
-               # Bias gradient
-               delta_w = e.sum(1) 
-           else:
-               delta_W = np.zeros(self.weights[n][0].shape)
-               for l in np.arange(e.shape[1]):
-                  delta_W += np.outer(e[:, l], activations[n][:, l])
-               # Bias gradient
-               delta_w = np.sum(e, 1, keepdims=True)
+           delta_W = np.zeros(self.weights[n][0].shape)
+           for l in np.arange(e.shape[1]):
+              delta_W += np.outer(e[:, l], activations[n][:, l])
+           # Bias gradient
+           delta_w = np.sum(e, 1, keepdims=True)
            # Store this gradients 
            delta_weights[n] = [delta_W, delta_w]
        return delta_weights 
@@ -146,9 +126,6 @@ class MLP():
                    low=-np.sqrt(6. / (n_in + n_out)),
                    high=np.sqrt(6. / (n_in + n_out)),
                    size=(n_out, n_in)))
-           # Use sparse weights 
-           if self.sparse_input and n == 0:
-               layer_weights = ssp.csc_matrix(layer_weights) 
            if actvfunc[n] == 'sigmoid':
                layer_weights *= 4
            elif actvfunc[n] == 'softmax':
@@ -220,14 +197,11 @@ class TheanoMLP(MLP):
     '''
     MLP VERSION USING THEANO
     '''
-    def __init__(self, geometry=None, weights=None, actvfunc=None, rng=None, 
-                 sparse_input=False):
+    def __init__(self, geometry=None, weights=None, actvfunc=None, rng=None):
 
         # Initialize MLP as ususal
         MLP.__init__(self, geometry=geometry, weights=weights, 
                      actvfunc=actvfunc, rng=rng)
-
-        self.sparse_input = sparse_input
 
         # Compile forward pass and cost gradients
         self.compile_forward() 
@@ -245,39 +219,20 @@ class TheanoMLP(MLP):
         '''
         # These will store the outputs at each layer including the initial 
         # input and the weights respectively
-
-        # Use sparse matrices for the first layer if solicited 
-        if self.sparse_input:
-            self.tilde_z = [sparse.csc_matrix(name='x')]
-        else:
-            self.tilde_z = [T.matrix('x')]
+        self.tilde_z = [T.matrix('x')]
         self.params  = []
-        for n, W, activ in zip(np.arange(self.n_layers), self.weights, self.actvfunc):
-            # Use sparse matrices for the first layer if solicited 
-            if self.sparse_input and n == 0:
-                th_W = sparse.shared(ssp.csc_matrix(W[0]), 
-                                     name='W%d' % n, borrow=True)
-                th_b = theano.shared(value=W[1], name='b%d' % n, borrow=True, 
-                                     broadcastable=(False, True))
-
-                # Linear transformation
-                z = sparse.dot(th_W, self.tilde_z[-1]) + th_b
-
-            else:
-                # Turn weights into theano shared vars 
-                th_W = theano.shared(value=W[0], name='W%d' % n, borrow=True)
-                th_b = theano.shared(value=W[1], name='b%d' % n, borrow=True, 
-                                     broadcastable=(False, True))
-                # Linear transformation
-                z = T.dot(th_W, self.tilde_z[-1]) + th_b
+        for W, activ in zip(self.weights, self.actvfunc):
+            # Turn weights into theano shared vars 
+            _W = theano.shared(value=W[0], borrow=True)
+            _b = theano.shared(value=W[1], borrow=True, broadcastable=(False, True))
+            # Linear transformation
+            z = T.dot(_W, self.tilde_z[-1]) + _b
             # Non-linear transformation 
             if activ == "sigmoid":
-                tmp = T.nnet.sigmoid(z)
+                self.tilde_z.append(T.nnet.sigmoid(z))
             elif activ == "softmax": 
-                tmp = T.nnet.softmax(z.T).T
-            # Store values for this layer
-            self.tilde_z.append(tmp)
-            self.params.append([th_W, th_b])
+                self.tilde_z.append(T.nnet.softmax(z.T).T)
+            self.params.append([_W, _b])
         # Get a function returning the forward pass
         self.th_forward = theano.function([self.tilde_z[0]], self.tilde_z[-1]) 
 
@@ -286,7 +241,7 @@ class TheanoMLP(MLP):
         Compile the gradients of training cost as a theano function
         '''       
         # Labels considered as indicator vectors
-        self.y         = T.ivector('y')         
+        self.y = T.ivector('y')         
         # Symbolic average negative log-likelihood using the soft-max output
         self.F = -T.sum(T.log(self.tilde_z[-1].T)[T.arange(self.y.shape[0]), 
                                                   self.y]) 
@@ -318,31 +273,22 @@ class TheanoMLP(MLP):
         # Convert the train and devel sets into a shared dataset
         train_set2=[[], []]
 
-        # Take into account sparse inputs
-        if self.sparse_input:
-            train_set2[0] = sparse.shared(train_set[0])
-        else:
-            train_set2[0] = theano.shared(np.asarray(train_set[0],
-                                                    dtype=theano.config.floatX),
-                                         borrow=True)
+        train_set2[0] = theano.shared(np.asarray(train_set[0],
+                                                 dtype=theano.config.floatX),
+                                      borrow=True)
         train_set2[1] = T.cast(theano.shared(np.asarray(train_set[1],
-                                                dtype=theano.config.floatX),
-                                     borrow=True), 'int32')
+                                             dtype=theano.config.floatX),
+                                             borrow=True), 'int32')
         index = T.lscalar() # Symbolic index to a batch
 
         # Pack the update rules for ach parameters into a list
         updates = []
         for n, param, grad in zip(np.arange(self.n_layers), self.params, self.grads):
-            if self.sparse_input and n == 0:
-                updates.append((param[0], param[0] - lrate * sparse.csc_from_dense(grad[0])))
-                updates.append((param[1], param[1] - lrate * sparse.csc_from_dense(grad[1])))
-            else:
-                updates.append((param[0], param[0] - lrate * grad[0]))
-                updates.append((param[1], param[1] - lrate * grad[1]))
+            updates.append((param[0], param[0] - lrate * grad[0]))
+            updates.append((param[1], param[1] - lrate * grad[1]))
 
         self.train_batch = theano.function(inputs=[index], outputs=self.F,
             updates=updates,
             givens={
                 self.tilde_z[0]: train_set2[0][:, index*batch_size:(index + 1)*batch_size],
                 self.y: train_set2[1][index * batch_size:(index + 1) * batch_size]})
-        self.train_batch(0)
