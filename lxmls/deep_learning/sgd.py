@@ -1,6 +1,8 @@
 import sys
 import numpy as np
 import time
+import theano
+import theano.tensor as T
 
 def class_acc(hat_y, y_ref):
     '''
@@ -14,26 +16,39 @@ def class_acc(hat_y, y_ref):
     cr       = np.sum((np.argmax(hat_y, 0) == y_ref).astype(int))*1.0/y_ref.shape[0]
     return (cr, p_dev)
 
+def sanity_checks(batch_up, n_batch, bsize, lrate, train_set):
 
-def SGD_train(mlp, devel_set=None, train_set=None, n_iter=20, batch_size=None, 
-              lrate=0.01):
-    '''
-    Stochastic Gradient Descent training
-    '''
+    if batch_up:
 
-    # In the manual mode we need to define train set, batch size and
-    if getattr(mlp, "train_batch", None):
-        n_batch = mlp.n_batch
+        if not n_batch:
+            raise ValueError, ("If you use compiled batch update you need to "
+                               "specify n_batch")
+        if bsize or lrate or train_set:
+            raise ValueError, ("If you use compiled batch update you can not"
+                               "specify bsize, lrate and train_set")
     else:
-        if (not train_set) or (not batch_size):
-            raise ValueError, ("In manual mode you need to define train_set"
-                               "and batch_size") 
-        # Get sizes and check for coherence 
-        L       = train_set[0].shape[1]   
-        n_batch = L/batch_size         
-        if L < batch_size:
-            raise ValueError, ("Batch size %d too large for %d train examples"
-                               % (batch_size, L)) 
+
+        if not bsize or not lrate or not train_set:
+            raise ValueError, ("If compiled batch not used you need to specity"
+                               "bsize, lrate and train_set")
+
+def SGD_train(model, n_iter, bsize=None, lrate=None, train_set=None, 
+              batch_up=None, n_batch=None, devel_set=None, model_dbg=None):
+
+    # SANITY CHECKS: 
+    sanity_checks(batch_up, n_batch, bsize, lrate, train_set)
+
+    if not batch_up:
+        train_x, train_y = train_set
+
+        # Number of mini batches
+        n_batch = train_x.shape[1]/bsize + 1
+
+        # Check for Theano vars
+        if getattr(model, "_forward", None):
+            shared_vars = True
+        else:
+            shared_vars = False
 
     # For each iteration run backpropagation in a batch of examples. For
     # each batch, sum up all gradients and update each weights with the
@@ -44,34 +59,42 @@ def SGD_train(mlp, devel_set=None, train_set=None, n_iter=20, batch_size=None,
         # This will hold the posterior of train data for each epoch
         p_train   = 0
         init_time = time.clock()
-        for n in np.arange(n_batch): 
+        for j in np.arange(n_batch): 
 
-             # Compiled batch update          
-             if getattr(mlp, "train_batch", None):
-                 # This updates the model parameters as well!!
-                 p_train += -mlp.train_batch(n)
+             if batch_up:
+                 # Compiled batch update          
+                 p_train += -batch_up(j)
 
-             # Manual batch update          
              else:
-                 # Get an index to elements of this batch
-                 idx = np.arange(n*batch_size, np.minimum((n+1)*batch_size, L)) 
-                 # Get gradients for each layer and this batch
-                 delta_weights = mlp.backprop_grad(train_set[0][:, idx], 
-                                                   train_set[1][idx])
-                 # Update with SGD rule
-                 for m in np.arange(mlp.n_layers):
-                     # Watch out for sparse matrix
-                     mlp.weights[m][0] -= lrate*delta_weights[m][0]
-                     # Bias
-                     mlp.weights[m][1] -= lrate*delta_weights[m][1]
 
+                 # Manual batch update          
+
+                 # Mini batch
+                 batch_x = train_x[:, j*bsize:(j+1)*bsize]
+                 batch_y = train_y[j*bsize:(j+1)*bsize]
+
+                 # Get gradients for each layer and this batch
+                 nabla_params = model.grads(batch_x, batch_y) 
+
+                 # Update each parameter with SGD rule
+                 for m in np.arange(len(model.params)):
+                     if shared_vars: 
+                         # Parameters as theano shared variables
+                         model.params[m].set_value(model.params[m].get_value() 
+                                                   - lrate*nabla_params[m])
+                     else:
+                         # Parameters as numpy array 
+                         model.params[m] -= lrate*nabla_params[m]
+    
              # INFO
-             sys.stdout.write("\rBatch %d/%d (%d%%) " % (n+1, n_batch, (n+1)*100.0/n_batch))
+             sys.stdout.write("\rBatch %d/%d (%d%%) " % 
+                              (j+1, n_batch, (j+1)*100.0/n_batch))
              sys.stdout.flush()
         batch_time = time.clock() - init_time
+
         # Check probability of devel set 
         if devel_set:
-            corr, p_devel = class_acc(mlp.forward(devel_set[0]), devel_set[1])
+            corr, p_devel = class_acc(model.forward(devel_set[0]), devel_set[1])
             if prev_p_devel:
                 delta_p_devel = p_devel - prev_p_devel 
             else:

@@ -37,112 +37,287 @@ import sys
 sys.path.append('.')
 import time
 
+from ipdb import set_trace
+
 print "\n######################",
 print "\n   Exercise 7.1"
 print "######################"
+
+# TODO: Find another corpus (SemEval?) and cleaner parameter extraction
 import numpy as np
 import lxmls.readers.sentiment_reader as srs  
-scr       = srs.SentimentCorpus("books")
-train_set = (scr.train_X.T, scr.train_y[:,0].astype(np.int32))
-test_set  = (scr.test_X.T, scr.test_y[:,0].astype(np.int32))
-###
+scr     = srs.SentimentCorpus("books")
+train_x = scr.train_X.T
+train_y = scr.train_y[:, 0]
+test_x  = scr.test_X.T
+test_y  = scr.test_y[:, 0]
+
+# Define MLP (log linear)
 import lxmls.deep_learning.mlp as dl
+I        = train_x.shape[0] 
+# Model parameters
+geometry = [I, 2]
+actvfunc = ['softmax'] 
+# Instantiate model
+mlp      = dl.NumpyMLP(geometry, actvfunc)
+
+# Train
 import lxmls.deep_learning.sgd as sgd
-I = train_set[0].shape[0] 
-mlp = dl.MLP(geometry=(I, 2), actvfunc=['softmax'])
-#
-sgd.SGD_train(mlp, train_set=train_set, batch_size=5, n_iter=5)
-acc_train = sgd.class_acc(mlp.forward(train_set[0]), train_set[1])[0]
-acc_test  = sgd.class_acc(mlp.forward(test_set[0]), test_set[1])[0]
+# Train parameters
+lrate  = 0.01
+bsize  = 5 
+n_iter = 5
+# Instantiate model
+sgd.SGD_train(mlp, n_iter, bsize=bsize, lrate=lrate, train_set=(train_x, train_y))
+
+acc_train = sgd.class_acc(mlp.forward(train_x), train_y)[0]
+acc_test  = sgd.class_acc(mlp.forward(test_x), test_y)[0]
 print "Log-linear Model Amazon Sentiment Accuracy train: %f test: %f"%(acc_train,acc_test)
 
 print "\n######################",
 print "\n   Exercise 7.2"
-print "######################"
-geometry=(I, 20, 2)
-mlp = dl.MLP(geometry=geometry)
-sgd.SGD_train(mlp, train_set=train_set, batch_size=5, n_iter=5)
-acc_train = sgd.class_acc(mlp.forward(train_set[0]), train_set[1])[0]
-acc_test  = sgd.class_acc(mlp.forward(test_set[0]), test_set[1])[0]
+print "######################\n"
+
+# Define MLP
+# Model parameters
+geometry = [I, 20, 2]
+actvfunc = ['sigmoid', 'softmax'] 
+# Instantiate model
+mlp      = dl.NumpyMLP(geometry, actvfunc)
+
+# Train
+sgd.SGD_train(mlp, n_iter, bsize=bsize, lrate=lrate, train_set=(train_x, train_y))
+acc_train = sgd.class_acc(mlp.forward(train_x), train_y)[0]
+acc_test  = sgd.class_acc(mlp.forward(test_x), test_y)[0]
 print "MLP %s Model Amazon Sentiment Accuracy train: %f test: %f"%(geometry, acc_train,acc_test)
 
 
 print "\n######################",
 print "\n   Exercise 7.3"
 print "######################"
+
+# Numpy code
 import numpy as np
-x        = test_set[0]        # Test set 
-W1, w1   = mlp.weights[0]     # Weigths and bias of fist layer 
-z1       = np.dot(W1, x) + w1 # Linear transformation
+x        = test_x             # Test set 
+W1, b1   = mlp.params[0:2]    # Weigths and bias of fist layer 
+z1       = np.dot(W1, x) + b1 # Linear transformation
 tilde_z1 = 1/(1+np.exp(-z1))  # Non-linear transformation  
-#
+
+# Theano code. 
+# NOTE: We use undescore to denote symbolic equivalents to Numpy variables. 
+# This is no Python convention!.
 import theano
 import theano.tensor as T
-symb_x = T.matrix('x')
-symb_W1 = theano.shared(value=W1, name='W1', borrow=True)
-symb_w1 = theano.shared(value=w1, name='w1', borrow=True, broadcastable=(False, True)) 
-#
-symb_z1       = T.dot(symb_W1, symb_x) + symb_w1
-symb_tilde_z1 = T.nnet.sigmoid(symb_z1)
-#
-layer1 = theano.function([symb_x], symb_tilde_z1)
+_x  = T.matrix('x')
+_W1 = theano.shared(value=W1, name='W1', borrow=True)
+_b1 = theano.shared(value=b1, name='b1', borrow=True, 
+                    broadcastable=(False, True)) 
 
-print ""
-print "These two should be the same"
-print ""
-print tilde_z1
-print ""
-print layer1(x)
+# Perceptron
+_z1       = T.dot(_W1, _x) + _b1
+_tilde_z1 = T.nnet.sigmoid(_z1)
+# Keep in mind that naming variables is useful when debugging
+_z1.name       = 'z1'
+_tilde_z1.name = 'tilde_z1'
 
+# Compile
+layer1 = theano.function([_x], _tilde_z1)
+
+# Show computation graph
+print "\nThis is my symbolic perceptron\n"
+theano.printing.debugprint(_tilde_z1)
+
+# Check Numpy and Theano mactch
+if np.abs(tilde_z1 - layer1(x)).max() < 1e-12:
+    print "\nNumpy and Theano Perceptrons are equivalent"
+else:
+    set_trace()
+    raise ValueError, "Numpy and Theano Perceptrons are different"
 
 print "\n######################",
 print "\n   Exercise 7.4"
 print "######################"
-mlp_a = dl.MLP(geometry=geometry)
-mlp_b = dl.TheanoMLP(geometry=geometry)
-#
-print ""
-print "These two should be the same"
-print ""
-print mlp_a.forward(test_set[0])[:,:10] 
-print ""
-print mlp_b.forward(test_set[0])[:,:10]
+mlp_a = dl.NumpyMLP(geometry, actvfunc)
+mlp_b = dl.TheanoMLP(geometry, actvfunc)
 
+# To debug layer by layer, you may use
+#
+#     fwd1          = mlp_a.forward(test_x[:, :10], allOuts=True)
+#
+#     mlp_b_forward = theano.function([_x], mlp_b._forward(_x, allOuts=True)) 
+#     fwd2          = mlp_b_forward(test_x[:, :10])
+#
+# Or e.g. to see the graph up to the second variable
+#
+#     theano.printing.debugprint(mlp_b._forward([_x], allOuts=True)[1])
+#
+# Be sure to check also the parameters of the model e.g.
+#
+#     mlp_a.params[0]
+#
+#     mlp_b.params[0].get_value()
+
+# Show computation graph
+print "\nThis is my symbolic forward\n"
+theano.printing.debugprint(mlp_b._forward(T.matrix('x')))
+
+# Check Numpy and Theano match
+resa = mlp_a.forward(test_x)[:,:10]
+resb = mlp_b.forward(test_x)[:,:10]
+if np.abs(resa - resb).max() < 1e-12:
+    print "\nNumpy and Theano Forward pass are equivalent"
+else:
+    set_trace()
+    raise ValueError, "Numpy and Theano Forward are different"
+
+# FOR DEBUGGING PURPOSES
+# Check Numpy and Theano match
+resas = mlp_a.grads(test_x[:, :10], test_y[:10])
+resbs = mlp_b.grads(test_x[:, :10], test_y[:10]) 
+if np.max([np.abs(ra - rb).max() for ra, rb in zip(resas, resbs)]) < 1e-12:
+    print "DEBUG: Numpy and Theano Gradients pass are equivalent"
+else:
+    set_trace()
+    raise ValueError, "\nDEBUG: Numpy and Theano Gradients are different"
 
 print "\n######################",
 print "\n   Exercise 7.5"
 print "######################"
-W2, w2 = mlp.weights[1] # Weigths and bias of second (and last!) layer
+
+W2, b2 = mlp_a.params[2:4] 
+
 # Second layer symbolic variables
-symb_W2 = theano.shared(value=W2, name='W2', borrow=True)
-symb_w2 = theano.shared(value=w2, name='w2', borrow=True, broadcastable=(False, True)) # Second layer symbolic expressions
-symb_z2       = T.dot(symb_W2, symb_tilde_z1) + symb_w2
-symb_tilde_z2 = T.nnet.softmax(symb_z2.T)
-#
-symb_y = T.ivector('y')
-#
-symb_F = -T.sum(T.log(symb_tilde_z2[T.arange(symb_y.shape[0]), symb_y]))
-#
-symb_nabla_F = T.grad(symb_F, symb_W1)
-nabla_F      = theano.function([symb_x, symb_y], symb_nabla_F)
+_W2 = theano.shared(value=W2, name='W2', borrow=True)
+_b2 = theano.shared(value=b2, name='b2', borrow=True, 
+                    broadcastable=(False, True)) 
+_z2       = T.dot(_W2, _tilde_z1) + _b2
+_tilde_z2 = T.nnet.softmax(_z2.T).T
+
+# Ground truth
+_y = T.ivector('y')
+
+# Cost
+_F = -T.mean(T.log(_tilde_z2[_y, T.arange(_y.shape[0])]))
+
+# Gradient
+_nabla_F = T.grad(_F, _W1)
+nabla_F  = theano.function([_x, _y], _nabla_F)
+
+# Print computation graph
+print "\nThis is my softmax classification cost\n"
+theano.printing.debugprint(_F)
+
+## FOR DEBUGGING PURPOSES
+#print "\nThis is my classification cost weight gradient\n"
+#theano.printing.debugprint(nabla_F)
 
 print "\n######################",
 print "\n   Exercise 7.6"
 print "######################"
-geometry=(I, 20, 2)
-mlp1 = dl.MLP(geometry=geometry)
-mlp2 = dl.TheanoMLP(geometry=geometry)
-mlp3 = dl.TheanoMLP(geometry=geometry)
+
+# Understanding the mini-batch function and givens/updates parameters
+
+# Cast data into the types and shapes used in the theano graph
+# IMPORTANT: This is the main source of errors when beginning with theano
+train_x = train_x.astype(theano.config.floatX)
+train_y = train_y.astype('int32')
+
+# Store data as shared variables
+# NOTE: This will push the data into the GPU memory when used
+_train_x = theano.shared(train_x, 'train_x', borrow=True)
+_train_y = theano.shared(train_y, 'train_y', borrow=True)
+
+# Create a symbolic variable returning a batch of samples
+_i             = T.lscalar()
+get_tr_batch_y = theano.function([_i], _train_y[_i:(_i+1)*bsize]) 
+
+# Check Numpy and Theano match
+i = 3
+resa = train_y[i:(i+1)*bsize]
+resb = get_tr_batch_y(i) 
+if np.abs(resa - resb).max() < 1e-12:
+    print "\nNumpy and Theano  Mini-Batch pass are equivalent\n"
+else:
+    set_trace()
+    raise ValueError, "Numpy and Theano Mini-Batch are different"
+
+# Compare Numpy, Theano and Theano compiled
+
+# Numpy
+geometry = [I, 20, 2]
+actvfunc = ['sigmoid', 'softmax'] 
+mlp1     = dl.NumpyMLP(geometry, actvfunc)
 #
-mlp3.compile_train(train_set=train_set, batch_size=5)
+init_t = time.clock()
+sgd.SGD_train(mlp1, n_iter, bsize=bsize, lrate=lrate, train_set=(train_x, train_y))
+print "\nNumpy version took %2.2f" % (time.clock() - init_t)
+acc_train = sgd.class_acc(mlp1.forward(train_x), train_y)[0]
+acc_test  = sgd.class_acc(mlp1.forward(test_x), test_y)[0]
+print "Amazon Sentiment Accuracy train: %f test: %f\n" % (acc_train, acc_test)
+
+# Theano grads 
+mlp2     = dl.TheanoMLP(geometry, actvfunc)
+init_t = time.clock()
+sgd.SGD_train(mlp2, n_iter, bsize=bsize, lrate=lrate, train_set=(train_x, train_y), model_dbg=mlp1)
+print "\nCompiled gradient version took %2.2f" % (time.clock() - init_t)
+acc_train = sgd.class_acc(mlp2.forward(train_x), train_y)[0]
+acc_test  = sgd.class_acc(mlp2.forward(test_x), test_y)[0]
+print "Amazon Sentiment Accuracy train: %f test: %f\n" % (acc_train, acc_test)
+
+# Theano compiled batch
+
+# Cast data into the types and shapes used in the theano graph
+# IMPORTANT: This is the main source of errors when beginning with theano
+train_x = train_x.astype(theano.config.floatX)
+train_y = train_y.astype('int32')
+# Store data as shared variables
+# NOTE: This will push the data into the GPU memory when used
+_train_x = theano.shared(train_x, 'train_x', borrow=True)
+_train_y = theano.shared(train_y, 'train_y', borrow=True)
+
+# Model
+mlp3     = dl.TheanoMLP(geometry, actvfunc)
+
+# Define givens variables to be used in the batch update
+# Get symbolic variables returning a mini-batch of data 
+
+# Define updates variable. This is a list of gradient descent updates 
+# The output is a list following theano.function updates parameter. This
+# consists on a list of tuples with each parameter and update rule
+_x      = T.matrix('x')
+_y      = T.ivector('y')
+_F      = mlp3._cost(_x, _y)
+updates = [(par, par - lrate*T.grad(_F, par)) for par in mlp3.params]
+
+# Givens maps input and target to a mini-batch of inputs and targets 
+_j      = T.lscalar()
+givens  = { _x : _train_x[:, _j:(_j+1)*bsize], _y : _train_y[_j:(_j+1)*bsize] }
+
+# Define the batch update function. This will return the cost of each batch
+# and update the MLP parameters at the same time using updates
+
+batch_up = theano.function([_j], _F, updates=updates, givens=givens)
+n_batch  = train_x.shape[1]/bsize  + 1
+
+# TODO: Debug this. @Ramon: Batch version is much slower than numpy and 
+# gradient versions. Comp graphs for cost and grads seem to be the same,
+# data as well.
 #
+# Compare with commit
+#
+# a029e0efd2741dcc176744a31452d83360c0f22d
+
+#import time
+#init = time.clock()
+#[batch_up(i) for i in range(n_batch)]
+#print time.clock() - init
+#set_trace()
+
 init_t = time.clock()
-sgd.SGD_train(mlp1, train_set=train_set, batch_size=5, n_iter=5)
-print "\nNumpy version took %2.2f\n" % (time.clock() - init_t)
+sgd.SGD_train(mlp3, n_iter, batch_up=batch_up, n_batch=n_batch)
+print "\nTheano compiled batch update version took %2.2f" % (time.clock() - init_t)
 init_t = time.clock()
-sgd.SGD_train(mlp2, train_set=train_set, batch_size=5, n_iter=5)
-print "\nCompiled gradient version took %2.2f\n" % (time.clock() - init_t)
-init_t = time.clock()
-sgd.SGD_train(mlp3, n_iter=5)
-print "\nTheano compiled batch update version took %2.2f\n" % (time.clock() - init_t)
-init_t = time.clock()
+
+acc_train = sgd.class_acc(mlp3.forward(train_x), train_y)[0]
+acc_test  = sgd.class_acc(mlp3.forward(test_x), test_y)[0]
+print "Amazon Sentiment Accuracy train: %f test: %f\n"%(acc_train,acc_test)
