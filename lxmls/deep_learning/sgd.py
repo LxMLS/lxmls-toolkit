@@ -81,7 +81,7 @@ def SGD_train(model, n_iter, bsize=None, lrate=None, train_set=None,
                      if shared_vars: 
                          # Parameters as theano shared variables
                          model.params[m].set_value(model.params[m].get_value() 
-                                                   - lrate*nabla_params[m])
+                                                   - lrate*np.array(nabla_params[m]))
                      else:
                          # Parameters as numpy array 
                          model.params[m] -= lrate*nabla_params[m]
