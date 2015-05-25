@@ -61,18 +61,14 @@ actvfunc = ['softmax']
 # Instantiate model
 mlp      = dl.NumpyMLP(geometry, actvfunc)
 
-# Train
-import lxmls.deep_learning.sgd as sgd
-# Train parameters
-lrate  = 0.01
-bsize  = 5 
-n_iter = 5
-# Instantiate model
-sgd.SGD_train(mlp, n_iter, bsize=bsize, lrate=lrate, train_set=(train_x, train_y))
-
-acc_train = sgd.class_acc(mlp.forward(train_x), train_y)[0]
-acc_test  = sgd.class_acc(mlp.forward(test_x), test_y)[0]
-print "Log-linear Model Amazon Sentiment Accuracy train: %f test: %f"%(acc_train,acc_test)
+# Play with the untrained MLP forward
+hat_train_y = mlp.forward(train_x) 
+hat_test_y  = mlp.forward(test_x) 
+# Compute accuracy
+import lxmls.deep_learning.sgd as sgd 
+acc_train = sgd.class_acc(hat_train_y, train_y)[0]
+acc_test  = sgd.class_acc(hat_test_y, test_y)[0]
+print "Untrained Log-linear Accuracy train: %f test: %f"%(acc_train,acc_test)
 
 print "\n######################",
 print "\n   Exercise 7.2"
@@ -85,6 +81,10 @@ actvfunc = ['sigmoid', 'softmax']
 # Instantiate model
 mlp      = dl.NumpyMLP(geometry, actvfunc)
 
+# Model parameters
+n_iter = 5
+bsize  = 5
+lrate  = 0.01
 # Train
 sgd.SGD_train(mlp, n_iter, bsize=bsize, lrate=lrate, train_set=(train_x, train_y))
 acc_train = sgd.class_acc(mlp.forward(train_x), train_y)[0]
