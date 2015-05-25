@@ -1,5 +1,3 @@
-import sys
-sys.path.append('.')
 import numpy as np
 import lxmls.readers.pos_corpus as pcc
 from os import path

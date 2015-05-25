@@ -22,7 +22,7 @@ class MaxEnt_batch(lc.LinearClassifier):
         init_parameters = np.zeros((nr_f,nr_c),dtype=float)
         emp_counts = np.zeros((nr_f,nr_c))
         classes_idx = []
-        for c,c_i in enumerate(classes):
+        for c_i, c in enumerate(classes):
             idx,_ = np.nonzero(y == c)
             classes_idx.append(idx)
             emp_counts[:,c_i] = x[idx,:].sum(0)            
