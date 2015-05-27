@@ -113,33 +113,10 @@ class NumpyMLP():
            if n != self.n_layers-1:
                W_next = self.params[2*(n+1)]
 
-           # IF THERE IS CODE BELOW THIS IN THE FOR, YOU ARE NOT IN THE
-           # STUDENT VERSION.
-            
-           # If it is the last layer, compute the average cost gradient
-           # Otherwise, propagate the error backwards from the next layer
-           if n == self.n_layers-1:
-               # NOTE: This assumes cross entropy cost
-               if self.actvfunc[n] == 'sigmoid':
-                   e = (activations[n+1] - y)
-                   # TODO: Once version is satable use average /y.shape[1] 
-               elif self.actvfunc[n] == 'softmax':
-                   I  = index2onehot(y, W.shape[0])
-                   e  = (activations[n+1] - I)      
-                   # TODO: Once version is satable use average /y.shape[1] 
+           # Complete Exercise 7.2 
+           raise NotImplementedError, "Complete Exercise 7.2" 
 
-           else:
-               e  = np.dot(W_next.T, e)
-               e *= activations[n+1]*(1-activations[n+1])
-
-           # Weight gradient 
-           nabla_W = np.zeros(W.shape)
-           for l in np.arange(e.shape[1]):
-              nabla_W += np.outer(e[:, l], activations[n][:, l])
-           # Bias gradient
-           nabla_b = np.sum(e, 1, keepdims=True)
-
-           # Store this gradients 
+           # Store the gradients 
            nabla_params[2*n]   = nabla_W
            nabla_params[2*n+1] = nabla_b
 
@@ -316,30 +293,8 @@ class TheanoMLP(NumpyMLP):
         # Input
         tilde_z = x
 
-        for n in range(self.n_layers):
-
-            # Get weigths and bias (always in even and odd positions)
-            W = self.params[2*n]
-            b = self.params[2*n+1]
- 
-            # Linear transformation
-            z = T.dot(W, tilde_z) + b
-
-            # Keep in mind that naming variables is useful when debugging
-            # see e.g. theano.printing.debugprint(tilde_z)
-            z.name = 'z%d' % (n+1)
-
-            # Non-linear transformation 
-            if self.actvfunc[n] == "sigmoid":
-                tilde_z = T.nnet.sigmoid(z)
-            elif self.actvfunc[n] == "softmax": 
-                tilde_z = T.nnet.softmax(z.T).T
-
-            # Name variable
-            tilde_z.name = 'tilde_z%d' % (n+1)
-
-            if allOuts:
-                activations.append(tilde_z)
+        # Complete Exercise 7.4 
+        raise NotImplementedError, "Complete Exercise 7.4" 
 
         if allOuts:
             tilde_z = activations
