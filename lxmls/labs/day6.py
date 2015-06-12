@@ -232,11 +232,11 @@ _train_y = theano.shared(train_y, 'train_y', borrow=True)
 
 # Create a symbolic variable returning a batch of samples
 _i             = T.lscalar()
-get_tr_batch_y = theano.function([_i], _train_y[_i:(_i+1)*bsize]) 
+get_tr_batch_y = theano.function([_i], _train_y[_i*bsize:(_i+1)*bsize]) 
 
 # Check Numpy and Theano match
 i = 3
-resa = train_y[i:(i+1)*bsize]
+resa = train_y[i*bsize:(i+1)*bsize]
 resb = get_tr_batch_y(i) 
 #if np.abs(resa - resb).max() < 1e-12:
 if np.allclose(resa, resb):
@@ -295,7 +295,8 @@ updates = [(par, par - lrate*T.grad(_F, par)) for par in mlp3.params]
 
 # Givens maps input and target to a mini-batch of inputs and targets 
 _j      = T.lscalar()
-givens  = { _x : _train_x[:, _j:(_j+1)*bsize], _y : _train_y[_j:(_j+1)*bsize] }
+givens  = { _x : _train_x[:, _j*bsize:(_j+1)*bsize], 
+            _y : _train_y[_j*bsize:(_j+1)*bsize] }
 
 # Define the batch update function. This will return the cost of each batch
 # and update the MLP parameters at the same time using updates
