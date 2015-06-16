@@ -128,7 +128,6 @@ print "\nThis is my symbolic perceptron\n"
 theano.printing.debugprint(_tilde_z1)
 
 # Check Numpy and Theano mactch
-#if np.abs(tilde_z1 - layer1(x.astype(theano.config.floatX))).max() < 1e-12:
 if np.allclose(tilde_z1, layer1(x.astype(theano.config.floatX))):
     print "\nNumpy and Theano Perceptrons are equivalent"
 else:
@@ -165,7 +164,6 @@ theano.printing.debugprint(mlp_b._forward(T.matrix('x')))
 # Check Numpy and Theano match
 resa = mlp_a.forward(test_x)[:,:10]
 resb = mlp_b.forward(test_x)[:,:10]
-#if np.abs(resa - resb).max() < 1e-12:
 if np.allclose(resa, resb):
     print "\nNumpy and Theano Forward pass are equivalent"
 else:
@@ -176,7 +174,6 @@ else:
 # Check Numpy and Theano match
 resas = mlp_a.grads(test_x[:, :10], test_y[:10])
 resbs = mlp_b.grads(test_x[:, :10], test_y[:10]) 
-#if np.max([np.abs(ra - rb).max() for ra, rb in zip(resas, resbs)]) < 1e-12:
 if np.all([np.allclose(ra, rb) for ra, rb in zip(resas, resbs)]):
     print "DEBUG: Numpy and Theano Gradients pass are equivalent"
 else:
@@ -238,7 +235,6 @@ get_tr_batch_y = theano.function([_i], _train_y[_i*bsize:(_i+1)*bsize])
 i = 3
 resa = train_y[i*bsize:(i+1)*bsize]
 resb = get_tr_batch_y(i) 
-#if np.abs(resa - resb).max() < 1e-12:
 if np.allclose(resa, resb):
     print "\nNumpy and Theano  Mini-Batch pass are equivalent\n"
 else:
