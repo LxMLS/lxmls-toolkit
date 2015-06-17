@@ -40,6 +40,10 @@ class StructuredPerceptron(dsc.DiscriminativeSequenceClassifier):
 
 
     def perceptron_update(self, sequence):
+
+        ###########################
+        # Solution to Exercise 3.3 
+ 
         num_labels = 0
         num_mistakes = 0
 
@@ -94,6 +98,8 @@ class StructuredPerceptron(dsc.DiscriminativeSequenceClassifier):
 
         return num_labels, num_mistakes
 
+        # End of solution to Exercise 3.3 
+        ###########################
 
     def save_model(self,dir):
         fn = open(dir+"parameters.txt",'w')

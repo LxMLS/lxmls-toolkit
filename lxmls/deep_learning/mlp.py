@@ -113,8 +113,8 @@ class NumpyMLP():
            if n != self.n_layers-1:
                W_next = self.params[2*(n+1)]
 
-           # IF THERE IS CODE BELOW THIS IN THE FOR, YOU ARE NOT IN THE
-           # STUDENT VERSION.
+           ###########################
+           # Solution to Exercise 6.2 
             
            # If it is the last layer, compute the average cost gradient
            # Otherwise, propagate the error backwards from the next layer
@@ -139,7 +139,10 @@ class NumpyMLP():
            # Bias gradient
            nabla_b = np.sum(e, 1, keepdims=True)
 
-           # Store this gradients 
+           # End of solution to Exercise 6.2 
+           ###########################
+
+           # Store the gradients 
            nabla_params[2*n]   = nabla_W
            nabla_params[2*n+1] = nabla_b
 
