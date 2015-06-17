@@ -83,8 +83,9 @@ class SequenceClassificationDecoder():
     # Emission scoress: (length, num_states) array
     ######
     def run_viterbi(self, initial_scores, transition_scores, final_scores, emission_scores):
-        ## To implement on exercise 2.8
-        pass
+
+        # Complete Exercise 2.8 
+        raise NotImplementedError, "Complete Exercise 2.8" 
 
     def run_forward_backward(self, initial_scores, transition_scores, final_scores, emission_scores):
         log_likelihood, forward = self.run_forward(initial_scores, transition_scores, final_scores, emission_scores)

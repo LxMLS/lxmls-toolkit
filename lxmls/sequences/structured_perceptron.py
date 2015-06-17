@@ -40,8 +40,10 @@ class StructuredPerceptron(dsc.DiscriminativeSequenceClassifier):
 
 
     def perceptron_update(self, sequence):
-        ## Exercise 3.3
-        pass
+
+        # Complete Exercise 3.3 
+        raise NotImplementedError, "Complete Exercise 3.3" 
+
 
     def save_model(self,dir):
         fn = open(dir+"parameters.txt",'w')

@@ -113,8 +113,8 @@ class NumpyMLP():
            if n != self.n_layers-1:
                W_next = self.params[2*(n+1)]
 
-           # Complete Exercise 7.2 
-           raise NotImplementedError, "Complete Exercise 7.2" 
+           # Complete Exercise 6.2 
+           raise NotImplementedError, "Complete Exercise 6.2" 
 
            # Store the gradients 
            nabla_params[2*n]   = nabla_W
@@ -293,8 +293,8 @@ class TheanoMLP(NumpyMLP):
         # Input
         tilde_z = x
 
-        # Complete Exercise 7.4 
-        raise NotImplementedError, "Complete Exercise 7.4" 
+        # Complete Exercise 6.4 
+        raise NotImplementedError, "Complete Exercise 6.4" 
 
         if allOuts:
             tilde_z = activations

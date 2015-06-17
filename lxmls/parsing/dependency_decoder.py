@@ -50,8 +50,9 @@ class DependencyDecoder():
         '''
         Parse using Eisner's algorithm.
         '''
-        ## Exercise 4.3.6
-        pass
+
+        # Complete Exercise 4.3.6 
+        raise NotImplementedError, "Complete Exercise 4.3.6" 
 
     def backtrack_eisner(self, incomplete_backtrack, complete_backtrack, s, t, direction, complete, heads):
         '''
