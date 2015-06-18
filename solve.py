@@ -52,7 +52,8 @@ code_day = {
     'day2': ['lxmls/sequences/hmm.py',
              'lxmls/sequences/sequence_classification_decoder.py',
              'lxmls/sequences/structured_perceptron.py'],
-    'day3': ['lxmls/parsing/dependency_decoder.py']
+    'day3': ['lxmls/parsing/dependency_decoder.py'],
+    'day6': ['lxmls/deep_learning/mlp.py']
            }
 
 # ARGUMENT PROCESSING
