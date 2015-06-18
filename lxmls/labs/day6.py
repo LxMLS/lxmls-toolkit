@@ -171,14 +171,14 @@ else:
     #raise ValueError, "Numpy and Theano Forward are different"
 
 # FOR DEBUGGING PURPOSES
-# Check Numpy and Theano match
-resas = mlp_a.grads(test_x[:, :10], test_y[:10])
-resbs = mlp_b.grads(test_x[:, :10], test_y[:10]) 
-if np.all([np.allclose(ra, rb) for ra, rb in zip(resas, resbs)]):
-    print "DEBUG: Numpy and Theano Gradients pass are equivalent"
-else:
-    set_trace()
-    #raise ValueError, "\nDEBUG: Numpy and Theano Gradients are different"
+## Check Numpy and Theano match
+#resas = mlp_a.grads(test_x[:, :10], test_y[:10])
+#resbs = mlp_b.grads(test_x[:, :10], test_y[:10]) 
+#if np.all([np.allclose(ra, rb) for ra, rb in zip(resas, resbs)]):
+#    print "DEBUG: Numpy and Theano Gradients pass are equivalent"
+#else:
+#    set_trace()
+#    #raise ValueError, "\nDEBUG: Numpy and Theano Gradients are different"
 
 print "\n######################",
 print "\n   Exercise 7.5"
@@ -246,22 +246,22 @@ else:
 # Numpy
 geometry = [I, 20, 2]
 actvfunc = ['sigmoid', 'softmax'] 
-mlp1     = dl.NumpyMLP(geometry, actvfunc)
+mlp_a     = dl.NumpyMLP(geometry, actvfunc)
 #
 init_t = time.clock()
-sgd.SGD_train(mlp1, n_iter, bsize=bsize, lrate=lrate, train_set=(train_x, train_y))
-print "\nNumpy version took %2.2f" % (time.clock() - init_t)
-acc_train = sgd.class_acc(mlp1.forward(train_x), train_y)[0]
-acc_test  = sgd.class_acc(mlp1.forward(test_x), test_y)[0]
+sgd.SGD_train(mlp_a, n_iter, bsize=bsize, lrate=lrate, train_set=(train_x, train_y))
+print "\nNumpy version took %2.2f sec" % (time.clock() - init_t)
+acc_train = sgd.class_acc(mlp_a.forward(train_x), train_y)[0]
+acc_test  = sgd.class_acc(mlp_a.forward(test_x), test_y)[0]
 print "Amazon Sentiment Accuracy train: %f test: %f\n" % (acc_train, acc_test)
 
 # Theano grads 
-mlp2     = dl.TheanoMLP(geometry, actvfunc)
+mlp_b  = dl.TheanoMLP(geometry, actvfunc)
 init_t = time.clock()
-sgd.SGD_train(mlp2, n_iter, bsize=bsize, lrate=lrate, train_set=(train_x, train_y), model_dbg=mlp1)
-print "\nCompiled gradient version took %2.2f" % (time.clock() - init_t)
-acc_train = sgd.class_acc(mlp2.forward(train_x), train_y)[0]
-acc_test  = sgd.class_acc(mlp2.forward(test_x), test_y)[0]
+sgd.SGD_train(mlp_b, n_iter, bsize=bsize, lrate=lrate, train_set=(train_x, train_y))
+print "\nCompiled gradient version took %2.2f sec" % (time.clock() - init_t)
+acc_train = sgd.class_acc(mlp_b.forward(train_x), train_y)[0]
+acc_test  = sgd.class_acc(mlp_b.forward(test_x), test_y)[0]
 print "Amazon Sentiment Accuracy train: %f test: %f\n" % (acc_train, acc_test)
 
 # Theano compiled batch
@@ -276,7 +276,7 @@ _train_x = theano.shared(train_x, 'train_x', borrow=True)
 _train_y = theano.shared(train_y, 'train_y', borrow=True)
 
 # Model
-mlp3     = dl.TheanoMLP(geometry, actvfunc)
+mlp_c     = dl.TheanoMLP(geometry, actvfunc)
 
 # Define givens variables to be used in the batch update
 # Get symbolic variables returning a mini-batch of data 
@@ -286,8 +286,8 @@ mlp3     = dl.TheanoMLP(geometry, actvfunc)
 # consists on a list of tuples with each parameter and update rule
 _x      = T.matrix('x')
 _y      = T.ivector('y')
-_F      = mlp3._cost(_x, _y)
-updates = [(par, par - lrate*T.grad(_F, par)) for par in mlp3.params]
+_F      = mlp_c._cost(_x, _y)
+updates = [(par, par - lrate*T.grad(_F, par)) for par in mlp_c.params]
 
 # Givens maps input and target to a mini-batch of inputs and targets 
 _j      = T.lscalar()
@@ -299,25 +299,11 @@ givens  = { _x : _train_x[:, _j*bsize:(_j+1)*bsize],
 batch_up = theano.function([_j], _F, updates=updates, givens=givens)
 n_batch  = train_x.shape[1]/bsize  + 1
 
-# TODO: Debug this. @Ramon: Batch version is much slower than numpy and 
-# gradient versions. Comp graphs for cost and grads seem to be the same,
-# data as well.
-#
-# Compare with commit
-#
-# a029e0efd2741dcc176744a31452d83360c0f22d
-
-#import time
-#init = time.clock()
-#[batch_up(i) for i in range(n_batch)]
-#print time.clock() - init
-#set_trace()
-
 init_t = time.clock()
-sgd.SGD_train(mlp3, n_iter, batch_up=batch_up, n_batch=n_batch)
-print "\nTheano compiled batch update version took %2.2f" % (time.clock() - init_t)
+sgd.SGD_train(mlp_c, n_iter, batch_up=batch_up, n_batch=n_batch)
+print "\nTheano compiled batch update version took %2.2f sec" % (time.clock() - init_t)
 init_t = time.clock()
 
-acc_train = sgd.class_acc(mlp3.forward(train_x), train_y)[0]
-acc_test  = sgd.class_acc(mlp3.forward(test_x), test_y)[0]
+acc_train = sgd.class_acc(mlp_c.forward(train_x), train_y)[0]
+acc_test  = sgd.class_acc(mlp_c.forward(test_x), test_y)[0]
 print "Amazon Sentiment Accuracy train: %f test: %f\n"%(acc_train,acc_test)
