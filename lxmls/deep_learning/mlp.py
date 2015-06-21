@@ -55,13 +55,13 @@ class NumpyMLP():
         '''
         Forward pass
 
-        allOuts = True  return input and intermediate activations
+        allOuts = True  return intermediate activations
         ''' 
 
         # This will store activations at each layer and the input. This is 
         # needed to compute backpropagation 
         if allOuts:
-            activations = [x]  
+            activations = []  
         
         # Input 
         tilde_z = x
@@ -121,20 +121,24 @@ class NumpyMLP():
            if n == self.n_layers-1:
                # NOTE: This assumes cross entropy cost
                if self.actvfunc[n] == 'sigmoid':
-                   e = (activations[n+1] - y)/y.shape[0]
+                   e = (activations[n] - y)/y.shape[0]
                elif self.actvfunc[n] == 'softmax':
                    I  = index2onehot(y, W.shape[0])
-                   e  = (activations[n+1] - I)/y.shape[0]      
+                   e  = (activations[n] - I)/y.shape[0]      
 
            else:
                e  = np.dot(W_next.T, e)
                # This is correct but confusing n+1 is n in the guide
-               e *= activations[n+1]*(1-activations[n+1])
+               e *= activations[n]*(1-activations[n])
 
            # Weight gradient 
            nabla_W = np.zeros(W.shape)
            for l in np.arange(e.shape[1]):
-              nabla_W += np.outer(e[:, l], activations[n][:, l])
+              if n == 0:
+                  # For the first layer, the activation is the input 
+                  nabla_W += np.outer(e[:, l], x[:, l])
+              else:    
+                  nabla_W += np.outer(e[:, l], activations[n-1][:, l])
            # Bias gradient
            nabla_b = np.sum(e, 1, keepdims=True)
 
