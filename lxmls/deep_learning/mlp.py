@@ -121,15 +121,14 @@ class NumpyMLP():
            if n == self.n_layers-1:
                # NOTE: This assumes cross entropy cost
                if self.actvfunc[n] == 'sigmoid':
-                   e = (activations[n+1] - y)
-                   # TODO: Once version is satable use average /y.shape[1] 
+                   e = (activations[n+1] - y)/y.shape[0]
                elif self.actvfunc[n] == 'softmax':
                    I  = index2onehot(y, W.shape[0])
-                   e  = (activations[n+1] - I)      
-                   # TODO: Once version is satable use average /y.shape[1] 
+                   e  = (activations[n+1] - I)/y.shape[0]      
 
            else:
                e  = np.dot(W_next.T, e)
+               # This is correct but confusing n+1 is n in the guide
                e *= activations[n+1]*(1-activations[n+1])
 
            # Weight gradient 
@@ -354,8 +353,7 @@ class TheanoMLP(NumpyMLP):
         Symbolic average negative log-likelihood using the soft-max output
         '''
         p_y = self._forward(x)
-        # TODO: Replace sum() for mean() once code is stable
-        return -T.sum(T.log(p_y)[y, T.arange(y.shape[0])]) 
+        return -T.mean(T.log(p_y)[y, T.arange(y.shape[0])]) 
 
     def _grads(self, x, y):
         '''

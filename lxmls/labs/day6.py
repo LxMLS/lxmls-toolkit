@@ -84,7 +84,7 @@ mlp      = dl.NumpyMLP(geometry, actvfunc)
 # Model parameters
 n_iter = 5
 bsize  = 5
-lrate  = 0.01
+lrate  = 0.05
 # Train
 sgd.SGD_train(mlp, n_iter, bsize=bsize, lrate=lrate, train_set=(train_x, train_y))
 acc_train = sgd.class_acc(mlp.forward(train_x), train_y)[0]
