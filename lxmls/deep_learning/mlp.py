@@ -55,13 +55,13 @@ class NumpyMLP():
         '''
         Forward pass
 
-        allOuts = True  return input and intermediate activations
+        allOuts = True  return intermediate activations
         ''' 
 
         # This will store activations at each layer and the input. This is 
         # needed to compute backpropagation 
         if allOuts:
-            activations = [x]  
+            activations = []  
         
         # Input 
         tilde_z = x
@@ -306,8 +306,7 @@ class TheanoMLP(NumpyMLP):
         Symbolic average negative log-likelihood using the soft-max output
         '''
         p_y = self._forward(x)
-        # TODO: Replace sum() for mean() once code is stable
-        return -T.sum(T.log(p_y)[y, T.arange(y.shape[0])]) 
+        return -T.mean(T.log(p_y)[y, T.arange(y.shape[0])]) 
 
     def _grads(self, x, y):
         '''
