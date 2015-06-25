@@ -322,6 +322,8 @@ class TheanoMLP(NumpyMLP):
         # Input
         tilde_z = x
 
+        ###########################
+        # Solution to Exercise 6.4 
         for n in range(self.n_layers):
 
             # Get weigths and bias (always in even and odd positions)
@@ -346,6 +348,9 @@ class TheanoMLP(NumpyMLP):
 
             if allOuts:
                 activations.append(tilde_z)
+        # End of solution to Exercise 6.4 
+        ###########################
+
 
         if allOuts:
             tilde_z = activations
