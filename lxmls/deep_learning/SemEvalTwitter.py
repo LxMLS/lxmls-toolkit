@@ -13,7 +13,7 @@ tweets_2015_path  = 'DATA/twitter/datasets/tweets_2015.txt'
 
 #TODO: find a place to put the embeddings 
 #TODO: create a pruned version of the embeddings file containing only the needed vectors
-emb_path = '/Users/samir/Code/resources/WordModels/Embeddings/str_skip_200.txt'    
+emb_path = '/Users/samir/Code/resources/WordModels/Embeddings/str_skip_600.txt'    
 
 # VOCABULARY FEATURES 
 train_corpus_feat = 'DATA/twitter/features/semeval-pretokenized.pkl' 
@@ -201,7 +201,7 @@ class SemEvalReader:
         elif dataset == "tweets2014":
             X, _ = self.tweets2014
         elif dataset == "tweets2015":
-            X, _ = self.tweets2014
+            X, _ = self.tweets2015
         else:
             raise ValueError, ("Unknown dataset: %s" % dataset)
 
