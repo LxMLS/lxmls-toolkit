@@ -1,6 +1,5 @@
 #!/usr/bin/python
-import cPickle  # To store classes on files
-# DEBUG
+import cPickle
 from ipdb import set_trace
 import numpy as np
 import os
@@ -13,21 +12,17 @@ tweets_2015_path  = 'DATA/twitter/datasets/tweets_2015.txt'
 
 #TODO: find a place to put the embeddings 
 #TODO: create a pruned version of the embeddings file containing only the needed vectors
-emb_path = '/Users/samir/Code/resources/WordModels/Embeddings/str_skip_600.txt'    
+emb_path = '/Users/samir/Code/resources/WordModels/Embeddings/str_skip_200.txt'    
+pretrained_emb = 'DATA/twitter/features/E.pkl'
 
-# VOCABULARY FEATURES 
-train_corpus_feat = 'DATA/twitter/features/semeval-pretokenized.pkl' 
-eval_2013_feat    = 'DATA/twitter/features/official_tweets_2013.pkl' 
-eval_2014_feat    = 'DATA/twitter/features/official_tweets_2014.pkl'
-eval_2015_feat    = 'DATA/twitter/features/official_tweets_2015.pkl'
-pretrained_emb    = 'DATA/twitter/features/E.pkl'
 
-def FmesSemEval(gold, pred):
+def FmesSemEval(pred, gold):
     '''
     Compute SemEval metric
     Average F-measure of the positive and negative classes
-    '''
+    '''    
 
+    pred = np.argmax(pred, 0)
     # Confusion Matrix
     # This assumes the order (neut-sent, pos-sent, neg-sent)
     mapp     = np.array([ 1, 2, 0])
@@ -118,14 +113,14 @@ def split_train_dev(train_x, train_y, perc=0.8):
     
     return train_x, train_y, dev_x, dev_y 
 
-def extract_feats(corpus, wrd2idx):
+def extract_feats(corpus, wrd2idx, one_hot):
     '''
     Convert semeval corpus into binary format    
     '''
     # Extract data into matrix, take into account max size
-    x = [] 
+    X = [] 
     y = []
-
+    
     n_in  = 0
     n_out = 0
 
@@ -140,7 +135,7 @@ def extract_feats(corpus, wrd2idx):
                  # UNKNOWN
                  tmp_x.append(1)
                  n_out += 1        
-        x.append(tmp_x)
+        X.append(tmp_x)
         # TARGETS
         if tweet[0] == 'positive':
             y.append(0)
@@ -150,8 +145,11 @@ def extract_feats(corpus, wrd2idx):
             y.append(2)
         else:
             raise ValueError, ("Unexpected Label! %s" % tweet[0])
-            
-    return np.array(x), np.array(y)
+        
+    if one_hot:        
+        X = get_onehot(len(wrd2idx),X)
+
+    return np.array(X), np.array(y)
 
 def read_corpus(corpus_path):
 
@@ -160,9 +158,17 @@ def read_corpus(corpus_path):
 
     return corpus
 
+def get_onehot(vocab_size, dataset):
+        
+        X = np.zeros((vocab_size,len(dataset)))
+        for i, x in enumerate(dataset):
+            X[x,i] = 1
+            
+        return X
+
 class SemEvalReader:
 
-    def __init__(self):
+    def __init__(self, one_hot=True):
         
         train_raw = read_corpus(tweets_train_path)
         eval2013  = read_corpus(tweets_2013_path)
@@ -178,38 +184,18 @@ class SemEvalReader:
                     idx          += 1
         self.voc_size = len(self.wrd2idx)       
         #EXTRACT FEATURES
-        train_raw_x, train_raw_y = extract_feats(train_raw, self.wrd2idx) 
         #shuffle traininig data and split into train and dev
+        train_raw_x, train_raw_y = extract_feats(train_raw, self.wrd2idx, one_hot=False) 
         train_x, train_y, dev_x, dev_y = split_train_dev(train_raw_x, train_raw_y, perc=0.8)
+        if one_hot:
+            train_x = get_onehot(len(self.wrd2idx), train_x)
+            dev_x   = get_onehot(len(self.wrd2idx), dev_x)
+        
         self.train      = train_x, train_y
         self.dev        = dev_x, dev_y  
-        self.tweets2013 = extract_feats(eval2013, self.wrd2idx)
-        self.tweets2014 = extract_feats(eval2014, self.wrd2idx)
-        self.tweets2015 = extract_feats(eval2015, self.wrd2idx)
- 
-    def get_bow(self, dataset):
-
-        '''
-            Return the dataset as a bag-of-words matrix
-        '''
-        if dataset == "train":
-            X, _ = self.train
-        elif dataset == "dev":
-            X, _ = self.dev
-        elif dataset == "tweets2013":
-            X, _ = self.tweets2013
-        elif dataset == "tweets2014":
-            X, _ = self.tweets2014
-        elif dataset == "tweets2015":
-            X, _ = self.tweets2015
-        else:
-            raise ValueError, ("Unknown dataset: %s" % dataset)
-
-        bow = np.zeros((self.voc_size, len(X)))
-        for i, x in enumerate(X):
-            bow[x,i] = 1
-            
-        return bow
+        self.tweets2013 = extract_feats(eval2013, self.wrd2idx,one_hot)
+        self.tweets2014 = extract_feats(eval2014, self.wrd2idx,one_hot)
+        self.tweets2015 = extract_feats(eval2015, self.wrd2idx,one_hot)        
 
     def get_embedding(self):
         
