@@ -1,13 +1,10 @@
-from ipdb import set_trace
 import lxmls.deep_learning.mlp as dl 
 import lxmls.deep_learning.sgd as sgd
-import lxmls.deep_learning.PTB as PTB
 import lxmls.deep_learning.SemEvalTwitter as ST
 import numpy as np
 import theano
 from theano import tensor as T
 import time
-import cPickle
 
 # READ SEMEVAL DATA
 sr = ST.SemEvalReader()
@@ -38,7 +35,7 @@ _train_y = theano.shared(train_y, 'train_y', borrow=True)
 n_class = len(np.unique(train_y))
 I = train_x.shape[0]
 geometry = [I, 200, n_class]
-actvfunc = ['sigmoid', 'softmax'] 
+actvfunc = ['sigmoid', 'softmax']
 n_iter = 3
 bsize  = 5
 lrate  = 0.01
@@ -122,7 +119,7 @@ print "train: %f\ntweets 2015: %f\ntweets 2014: %f\ntweets 2013: %f\n"%(acc_trai
 print "\n###########################",
 print "\n PRETRAINED EMBEDDINGS (FIXED)"
 print "######################\n"
-mlp_e     = dl.TheanoMLP(geometry, actvfunc)
+mlp_e   = dl.TheanoMLP(geometry, actvfunc)
 _x      = T.matrix('x')
 _y      = T.ivector('y')
 _F      = mlp_e._cost(_x, _y)

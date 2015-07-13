@@ -135,7 +135,8 @@ def extract_feats(corpus, wrd2idx, one_hot):
                  # UNKNOWN
                  tmp_x.append(1)
                  n_out += 1        
-        X.append(tmp_x)
+        # X.append(tmp_x)
+        X.append(np.array(tmp_x).astype('int32'))
         # TARGETS
         if tweet[0] == 'positive':
             y.append(0)

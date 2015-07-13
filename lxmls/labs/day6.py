@@ -47,24 +47,25 @@ print "######################"
 import numpy as np
 import lxmls.readers.pos_corpus as pcc
 
-set_trace()
+# set_trace()
 
 # TODO: We need to compacify dictionaries to remove words not present in the
 # pruned data, include context, have single monolitic x, y matrices
-corpus    = pcc.PostagCorpus()
-train_seq = corpus.read_sequence_list_conll("data/train-02-21.conll",max_sent_len=15,max_nr_sent=1000)
-test_seq  = corpus.read_sequence_list_conll("data/test-23.conll",max_sent_len=15,max_nr_sent=1000)
-dev_seq   = corpus.read_sequence_list_conll("data/dev-22.conll",max_sent_len=15,max_nr_sent=1000)
+# corpus    = pcc.PostagCorpus()
+# train_seq = corpus.read_sequence_list_conll("data/train-02-21.conll",max_sent_len=15,max_nr_sent=1000)
+# test_seq  = corpus.read_sequence_list_conll("data/test-23.conll",max_sent_len=15,max_nr_sent=1000)
+# dev_seq   = corpus.read_sequence_list_conll("data/dev-22.conll",max_sent_len=15,max_nr_sent=1000)
+
+# set_trace()
+
+import lxmls.readers.sentiment_reader as srs  
+scr     = srs.SentimentCorpus("books")
+train_x = scr.train_X.T
+train_y = scr.train_y[:, 0]
+test_x  = scr.test_X.T
+test_y  = scr.test_y[:, 0]
 
 set_trace()
-
-#import lxmls.readers.sentiment_reader as srs  
-#scr     = srs.SentimentCorpus("books")
-#train_x = scr.train_X.T
-#train_y = scr.train_y[:, 0]
-#test_x  = scr.test_X.T
-#test_y  = scr.test_y[:, 0]
-
 
 # Define MLP (log linear)
 import lxmls.deep_learning.mlp as dl
