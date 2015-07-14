@@ -2,7 +2,7 @@
 import lxmls.deep_learning.SemEvalTwitter as ST
 import numpy as np
 import theano
-import lxmls.deep_learning.dnn as embSubspace
+from lxmls.deep_learning.embSubspace import embSubMLP
 
 # DEBUGGING
 from ipdb import set_trace
@@ -39,11 +39,11 @@ model_path = 'data/twitter/features/semeval.pkl'
 
 # Create or load model
 if DO_TRAIN:
-    nn  = embSubspace.embSubMLP(emb_path, n_h1=subsize)
+    nn  = embSubMLP(emb_path, n_h1=subsize)
     print "Training %s" % model_path    
     nn.train((train_x,train_y), (dev_x,dev_y), lrate, n_iter)
 else:
-    nn = embSubspace.embSubMLP(None, model_file=model_path)
+    nn = embSubMLP(None, model_file=model_path)
 
 ####################################
 #              TEST
