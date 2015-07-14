@@ -3,6 +3,7 @@ import cPickle
 from ipdb import set_trace
 import numpy as np
 import os
+import tarfile
 
 #DATASETS
 tweets_train_path = 'data/twitter/datasets/semeval_train.txt'  
@@ -10,43 +11,44 @@ tweets_2013_path  = 'data/twitter/datasets/tweets_2013.txt'
 tweets_2014_path  = 'data/twitter/datasets/tweets_2014.txt'
 tweets_2015_path  = 'data/twitter/datasets/tweets_2015.txt'
 
-#TODO: find a place to put the embeddings 
-#TODO: create a pruned version of the embeddings file containing only the needed vectors
-emb_path = '/Users/samir/Code/resources/WordModels/Embeddings/str_skip_200.txt'    
+# emb_path = '/Users/samir/Code/resources/WordModels/Embeddings/str_skip_600.txt'    
+emb_path = 'data/twitter/embeddings/str_skip_600.txt'
+emb_zip = 'data/twitter/embeddings/str_skip_600.tar.gz'    
 pretrained_emb = 'data/twitter/features/E.pkl'
 
-
-def FmesSemEval(pred, gold):
-    '''
-    Compute SemEval metric
-    Average F-measure of the positive and negative classes
-    '''    
-
-    pred = np.argmax(pred, 0)
+def get_confusionMatrix(pred, gold):
     # Confusion Matrix
     # This assumes the order (neut-sent, pos-sent, neg-sent)
     mapp     = np.array([ 1, 2, 0])
     conf_mat = np.zeros((3, 3))
     for y, hat_y in zip(gold, pred):        
         conf_mat[mapp[y], mapp[hat_y]] += 1
+
+    return conf_mat
+
+def FmesSemEval(pred=None, gold=None, confusionMatrix=None):
+    # This assumes the order (neut-sent, pos-sent, neg-sent)
+    if confusionMatrix is None:
+        assert pred is not None and gold is not None        
+        confusionMatrix = get_confusionMatrix(pred, gold)
     
     # POS-SENT 
     # True positives pos-sent
-    tp = conf_mat[1, 1]
+    tp = confusionMatrix[1, 1]
     # False postives pos-sent
-    fp = conf_mat[:, 1].sum() - tp
+    fp = confusionMatrix[:, 1].sum() - tp
     # False engatives pos-sent
-    fn = conf_mat[1, :].sum() - tp
+    fn = confusionMatrix[1, :].sum() - tp
     # Fmeasure binary
     FmesPosSent = Fmeasure(tp, fp, fn)
 
     # NEG-SENT 
     # True positives pos-sent
-    tp = conf_mat[2, 2]
+    tp = confusionMatrix[2, 2]
     # False postives pos-sent
-    fp = conf_mat[:, 2].sum() - tp
+    fp = confusionMatrix[:, 2].sum() - tp
     # False engatives pos-sent
-    fn = conf_mat[2, :].sum() - tp
+    fn = confusionMatrix[2, :].sum() - tp
     # Fmeasure binary
     FmesNegSent = Fmeasure(tp, fp, fn)
  
@@ -69,6 +71,7 @@ def Fmeasure(tp, fp, fn):
     else:
         return 0 
 
+
 def split_train_dev(train_x, train_y, perc=0.8):
     '''
     Split train set into train and dev
@@ -90,8 +93,7 @@ def split_train_dev(train_x, train_y, perc=0.8):
     # Divide into train/dev mantaining observed class distribution
     L_train_pos = int(len(data_pos_x)*perc)
     L_train_neg = int(len(data_neg_x)*perc)
-    L_train_neu = int(len(data_neu_x)*perc)
-    L_train     = L_train_pos + L_train_neg + L_train_neu
+    L_train_neu = int(len(data_neu_x)*perc)    
     # Compose datasets
     train_x = (data_pos_x[:L_train_pos] + data_neg_x[:L_train_neg] 
                + data_neu_x[:L_train_neu])
@@ -169,20 +171,26 @@ def get_onehot(vocab_size, dataset):
 
 class SemEvalReader:
 
-    def __init__(self, one_hot=True):
+    def __init__(self, one_hot=True, full_vocabulary=True):
         
         train_raw = read_corpus(tweets_train_path)
         eval2013  = read_corpus(tweets_2013_path)
         eval2014  = read_corpus(tweets_2014_path)
-        eval2015  = read_corpus(tweets_2015_path)
-        #GET DICTIONARY FOR ALL CORPORA
+        eval2015  = read_corpus(tweets_2015_path)        
+        
+        if full_vocabulary:
+            #GET DICTIONARY FOR ALL CORPORA
+            corpora = train_raw + eval2013 + eval2014 + eval2015
+        else:
+            corpora = train_raw
         self.wrd2idx = {}
         idx      = 0
-        for tweet in train_raw + eval2013 + eval2014 + eval2015:
+        # set_trace()
+        for tweet in corpora:
             for wrd in tweet[1]:
                 if wrd not in self.wrd2idx:
-                    self.wrd2idx[wrd]  = idx
-                    idx          += 1
+                    self.wrd2idx[wrd] = idx
+                    idx += 1
         self.voc_size = len(self.wrd2idx)       
         #EXTRACT FEATURES
         #shuffle traininig data and split into train and dev
@@ -204,14 +212,20 @@ class SemEvalReader:
             Return a matrix of pre-trained embeddings
         '''
         if not os.path.isfile(pretrained_emb):    
+            if not os.path.isfile(emb_path) and os.path.isfile(emb_zip):
+                print "Uncompressing word embeddings file..." 
+                tfile = tarfile.open(emb_zip, 'r:gz')
+                tfile.extractall(os.path.dirname(emb_path))
+            else:
+                raise IOError, ("Unable to find the word embeddings file")
             print "Extracting %s -> %s" % (emb_path, pretrained_emb)  
-
+            set_trace()
             with open(emb_path) as fid:
                 # Get emb size
                 _, emb_size = fid.readline().split()
                 # Get embeddings for all words in vocabulary
                 E = np.zeros((int(emb_size), self.voc_size))   
-                for line in fid.readlines():
+                for line in fid.readlines():                    
                     items = line.split()
                     wrd   = items[0]
                     if wrd in self.wrd2idx:
@@ -225,3 +239,18 @@ class SemEvalReader:
                 E = cPickle.load(fid)
 
         return E
+
+    def save_pruned_embeddings(self):
+
+        out_file = "data/twitter/embeddings/str_skip_600.txt"        
+
+        with open(emb_path) as fid:
+            with open(out_file,"w") as fod:
+                # Get emb size                
+                fod.write(fid.readline())
+                # Get embeddings for all words in vocabulary                
+                for line in fid.readlines():
+                    items = line.split()
+                    wrd   = items[0]
+                    if wrd in self.wrd2idx:
+                        fod.write(line)                        

@@ -8,6 +8,7 @@ import numpy as np
 import theano
 import sys
 import theano.tensor as T
+import SemEvalTwitter as ST
 
 model_path = 'data/twitter/features/semeval.pkl'
 
@@ -23,54 +24,11 @@ def init_W(size, rng):
     W = np.asarray(rng.uniform(low=-w0, high=w0, size=size))
     return theano.shared(W.astype(theano.config.floatX), borrow=True)
 
-def FmesSemEval(confusionMatrix):
-    # This assumes the order (neut-sent, pos-sent, neg-sent)
-
-    # POS-SENT 
-    # True positives pos-sent
-    tp = confusionMatrix[1, 1]
-    # False postives pos-sent
-    fp = confusionMatrix[:, 1].sum() - tp
-    # False engatives pos-sent
-    fn = confusionMatrix[1, :].sum() - tp
-    # Fmeasure binary
-    FmesPosSent = Fmeasure(tp, fp, fn)
-
-    # NEG-SENT 
-    # True positives pos-sent
-    tp = confusionMatrix[2, 2]
-    # False postives pos-sent
-    fp = confusionMatrix[:, 2].sum() - tp
-    # False engatives pos-sent
-    fn = confusionMatrix[2, :].sum() - tp
-    # Fmeasure binary
-    FmesNegSent = Fmeasure(tp, fp, fn)
- 
-    return (FmesPosSent + FmesNegSent)/2
-
-def Fmeasure(tp, fp, fn):
-    # Precision
-    if tp+fp:
-        precision = tp/(tp+fp)
-    else:
-        precision = 0 
-    # Recall
-    if tp+fn:
-        recall    = tp/(tp+fn)
-    else:
-        recall    = 0
-    # F-measure
-    if precision + recall:
-        return 2 * (precision * recall)/(precision + recall)
-    else:
-        return 0 
-
-
 class embSubMLP():
     '''
     Embedding subspace
     '''
-    def __init__(self, emb_path, n_h1=20, model_file=None, hidden=False):
+    def __init__(self, E, n_h1=20, model_file=None, hidden=False):
 
         self.hidden = hidden 
 
@@ -83,9 +41,7 @@ class embSubMLP():
             E = theano.shared(E, borrow=True)
             S = theano.shared(S, borrow=True)
             Y = theano.shared(Y, borrow=True)
-        else:            
-            with open(emb_path, 'rb') as fid:
-                E = cPickle.load(fid).astype(theano.config.floatX)
+        else:                        
             emb_size, voc_size = E.shape
             # This is fixed!
             E = theano.shared(E, borrow=True)
@@ -109,13 +65,12 @@ class embSubMLP():
     def compile(self):
         '''
         Forward pass and Gradients
-        '''    
+        '''            
         
-        # Get nicer names for parameters
         E, S, Y = [self.E] + self.params
         # FORWARD PASS
         # Embedding layer subspace
-        self.z0    = T.ivector()                   # tweet in one hot
+        self.z0 = T.ivector()                   # tweet in one hot
         # Use an intermediate sigmoid
         if self.hidden == True:
             z1b = E[:, self.z0]                   # embedding
@@ -147,24 +102,25 @@ class embSubMLP():
                           for W in self.params]
             cPickle.dump(param_list, fid, cPickle.HIGHEST_PROTOCOL)
 
-    def eval(self, eval_x, eval_y):
+    def evaluate(self, eval_x, eval_y):
 
         acc     = 0.
         mapp    = np.array([ 1, 2, 0])
-        ConfMat = np.zeros((3, 3))
+        conf_mat = np.zeros((3, 3))
         for j, x, y in zip(np.arange(len(eval_x)), eval_x, eval_y):
             # Prediction
             p_y   = self.forward(x)
             hat_y = np.argmax(p_y)
             # Confusion matrix
-            ConfMat[mapp[y[0]], mapp[hat_y]] += 1
+            conf_mat[mapp[y[0]], mapp[hat_y]] += 1
             # Accuracy
             acc    = (acc*j + (hat_y == y[0]).astype(float))/(j+1)
-            # INFO
-            sys.stdout.write("\rDevel %d/%d        " % (j+1, len(eval_x)))
-            sys.stdout.flush()   
 
-        return FmesSemEval(ConfMat), acc
+            # INFO
+            sys.stdout.write("\rTest %d/%d " % (j+1, len(eval_x)))
+            sys.stdout.flush()   
+        # set_trace()
+        return ST.FmesSemEval(confusionMatrix=conf_mat), acc
 
     def train(self, train, dev, lrate, n_iter):
         
@@ -180,9 +136,8 @@ class embSubMLP():
         ed   = (st + lens).astype('int32')
         x    = np.zeros((ed[-1], 1))
         for i, ins_x in enumerate(train_x):        
-            x[st[i]:ed[i]] = ins_x[:, None].astype('int32') 
+            x[st[i]:ed[i]] = ins_x[:, None].astype('int32')         
         
-        # FUNCTION FOR BATCH UPDATE
         # Train data and instance start and ends
         x  = theano.shared(x.astype('int32'), borrow=True) 
         y  = theano.shared(np.array(train_y).astype('int32'), borrow=True)
@@ -201,8 +156,7 @@ class embSubMLP():
         last_cr  = None
         best_cr  = [0, 0]
         for i in np.arange(n_iter):
-            # Training Epoch             
-            # COMPILED BATCH UPDATE 
+            # Training Epoch                         
             p_train = 0 
             for j in np.arange(len(train_x)).astype('int32'): 
                 p_train += train_batch(j) 
@@ -215,7 +169,7 @@ class embSubMLP():
                     sys.stdout.write("\rTraining %d/%d" % (j+1, len(train_x)))
                     sys.stdout.flush()   
 
-            Fm, cr = self.eval(dev_x, dev_y)            
+            Fm, cr = self.evaluate(dev_x, dev_y)            
             # INFO
             if last_cr:
                 # Keep bet model
