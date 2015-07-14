@@ -8,7 +8,7 @@ from theano import tensor as T
 import time
 
 print "\n######################",
-print "\n    MAX ENTROPY       "
+print "\n    		MAX ENTROPY" 
 print "######################\n"
 
 # READ SEMEVAL DATA
@@ -82,7 +82,7 @@ n_class = len(np.unique(train_y))
 I = train_x.shape[0]
 geometry = [I, 600, n_class]
 actvfunc = ['sigmoid', 'softmax']
-n_iter = 1
+n_iter = 6
 bsize  = 5
 lrate  = 0.01
 
@@ -102,12 +102,13 @@ sgd.SGD_train(mlp_c, n_iter, batch_up=batch_up, n_batch=n_batch, devel_set=(dev_
 print "\nTheano compiled batch update version took %2.2f sec" % (time.clock() - init_t)
 init_t = time.clock()
 
-#Evaluation
+#Predictions
 y_pred_train = np.argmax(mlp_c.forward(train_x),0)
 y_pred_t2015 = np.argmax(mlp_c.forward(t2015_x),0)
 y_pred_t2014 = np.argmax(mlp_c.forward(t2014_x),0)
 y_pred_t2013 = np.argmax(mlp_c.forward(t2013_x),0)
 
+#Evaluation
 Fmes_train = ST.FmesSemEval(pred=y_pred_train, 
 							gold=train_y)
 Fmes_t2015  = ST.FmesSemEval(pred=y_pred_t2015, 
@@ -151,12 +152,13 @@ sgd.SGD_train(mlp_d, n_iter, batch_up=batch_up, n_batch=n_batch, devel_set=(dev_
 print "\nTheano compiled batch update version took %2.2f sec" % (time.clock() - init_t)
 init_t = time.clock()
 
-#Evaluation
+#Predictions
 y_pred_train = np.argmax(mlp_d.forward(train_x),0)
 y_pred_t2015 = np.argmax(mlp_d.forward(t2015_x),0)
 y_pred_t2014 = np.argmax(mlp_d.forward(t2014_x),0)
 y_pred_t2013 = np.argmax(mlp_d.forward(t2013_x),0)
 
+#Evaluation
 Fmes_train = ST.FmesSemEval(pred=y_pred_train, 
 							gold=train_y)
 Fmes_t2015  = ST.FmesSemEval(pred=y_pred_t2015, 
