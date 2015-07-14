@@ -219,7 +219,7 @@ class SemEvalReader:
             else:
                 raise IOError, ("Unable to find the word embeddings file")
             print "Extracting %s -> %s" % (emb_path, pretrained_emb)  
-            set_trace()
+            
             with open(emb_path) as fid:
                 # Get emb size
                 _, emb_size = fid.readline().split()
@@ -242,8 +242,8 @@ class SemEvalReader:
 
     def save_pruned_embeddings(self):
 
-        out_file = "data/twitter/embeddings/str_skip_600.txt"        
-
+        out_file = "data/twitter/embeddings/str_skip_600.txt"
+        
         with open(emb_path) as fid:
             with open(out_file,"w") as fod:
                 # Get emb size                
