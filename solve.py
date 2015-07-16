@@ -87,6 +87,7 @@ else:
 for pyfile in code_day[day]:
     if undo_flag:
         download_and_replace(labs_URL + pyfile, pyfile)
+        print "Unsolving: %s" % pyfile 
     else:
         download_and_replace(master_URL + pyfile, pyfile)
-    print "Solving: %s" % pyfile 
+        print "Solving: %s" % pyfile 
