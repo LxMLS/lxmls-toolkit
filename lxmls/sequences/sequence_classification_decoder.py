@@ -84,8 +84,41 @@ class SequenceClassificationDecoder():
     ######
     def run_viterbi(self, initial_scores, transition_scores, final_scores, emission_scores):
 
+        # Length of the sequence
+        length = np.size(emission_scores, 0) 
+        
+        # Number of states
+        num_states = np.size(initial_scores) 
+        
+        # Variables storing the Viterbi scores.
+        viterbi_scores = np.zeros([length, num_states]) + logzero()
+
+        # Variables storing the paths to backtrack.
+        viterbi_paths = -np.ones([length, num_states], dtype=int)
+
+        # Most likely sequence.
+        best_path = -np.ones(length, dtype=int)
+
         # Complete Exercise 2.8 
         raise NotImplementedError, "Complete Exercise 2.8" 
+
+        #### Little guide of the implementation ####################################
+        # Initializatize the viterbi scores
+        #
+        # Do the double of the viterbi loop (lines 7 to 12 in the guide pdf)
+        # from 1 to length
+        #     from 0 to num_states
+        #       ...
+        #
+        # define the best_path and best_score
+        #
+        # backtrack the best_path using the viterbi paths (lines 17-18 pseudocode in the guide pdf)
+        #
+        # return best_path and best_score
+        ############################################################################
+        
+        return best_path, best_score
+
 
     def run_forward_backward(self, initial_scores, transition_scores, final_scores, emission_scores):
         log_likelihood, forward = self.run_forward(initial_scores, transition_scores, final_scores, emission_scores)
