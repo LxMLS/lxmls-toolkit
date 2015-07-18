@@ -1,6 +1,9 @@
 import numpy as np
 from lxmls.sequences.log_domain import *
 import pdb
+import numpy as np
+from lxmls.sequences.log_domain import *
+import pdb
 
 class SequenceClassificationDecoder():
     ''' Implements a sequence classification decoder.'''
@@ -8,32 +11,37 @@ class SequenceClassificationDecoder():
     def __init__(self):
         pass
 
-    ######
-    # Computes the forward trellis for a given sequence.
-    # Receives:
-    #
-    # Initial scores: (num_states) array
-    # Transition scores: (length-1, num_states, num_states) array
-    # Final scores: (num_states) array
-    # Emission scoress: (length, num_states) array
-    ######
-    def run_forward(self, initial_scores, transition_scores, final_scores, emission_scores):
-        length = np.size(emission_scores, 0) # Length of the sequence.
-        num_states = np.size(initial_scores) # Number of states.
+    def run_forward(self, in_scores, trans_scores, final_scores, em_scores):
+        '''
+        Computes the forward trellis for a given sequence.
+        Receives:
+
+        - in_scores:
+        - trans_scores:
+        - final_scores:
+        - em_scores:
+        :return:
+
+        '''
+
+        # Length of the sequence.
+        length = np.size(em_scores, 0)
+
+        # Number of states.
+        num_states = np.size(in_scores)
 
         # Forward variables.
         forward = np.zeros([length, num_states]) + logzero()
 
         # Initialization.
-        forward[0,:] = emission_scores[0,:] + initial_scores
+        forward[0,:] = em_scores[0,:] + in_scores
 
         # Forward loop.
         for pos in xrange(1,length):
             for current_state in xrange(num_states):
                 # Note the fact that multiplication in log domain turns a sum and sum turns a logsum
-                forward[pos, current_state] = \
-                        logsum(forward[pos-1, :] + transition_scores[pos-1, current_state, :])
-                forward[pos, current_state] += emission_scores[pos, current_state]
+                logv = forward[pos-1, :] + trans_scores[pos-1, current_state, :]
+                forward[pos, current_state] = logsum(logv) +  em_scores[pos, current_state]
 
         # Termination.
         log_likelihood = logsum(forward[length-1,:] + final_scores)
@@ -41,18 +49,26 @@ class SequenceClassificationDecoder():
         return log_likelihood, forward
 
 
-    ######
-    # Computes the backward trellis for a given sequence.
-    # Receives:
-    #
-    # Initial scores: (num_states) array
-    # Transition scores: (length-1, num_states, num_states) array
-    # Final scores: (num_states) array
-    # Emission scoress: (length, num_states) array
-    ######
-    def run_backward(self, initial_scores, transition_scores, final_scores, emission_scores):
-        length = np.size(emission_scores, 0) # Length of the sequence.
-        num_states = np.size(initial_scores) # Number of states.
+    def run_backward(self, in_scores, trans_scores, final_scores, em_scores):
+        '''
+        Computes the backward trellis for a given sequence.
+
+        Receives:
+        :param in_scores:   (num_states) array
+        :param trans_scores: (length-1, num_states, num_states) array
+        :param final_scores: (num_states) array
+        :param em_scores: (length, num_states) array
+
+        :return:
+         - log_likelihood
+         - backward
+
+        '''
+        # Length of the sequence.
+        length = np.size(em_scores, 0)
+
+        # Number of states.
+        num_states = np.size(in_scores)
 
         # Backward variables.
         backward = np.zeros([length, num_states]) + logzero()
@@ -63,29 +79,32 @@ class SequenceClassificationDecoder():
         # Backward loop.
         for pos in xrange(length-2,-1,-1):
             for current_state in xrange(num_states):
-                backward[pos, current_state] = \
-                    logsum(backward[pos+1, :] +
-                           transition_scores[pos, :, current_state] +
-                           emission_scores[pos+1, :])
+                backward[pos, current_state] = logsum(backward[pos+1, :] + trans_scores[pos, :, current_state] + em_scores[pos+1, :])
 
         # Termination.
-        log_likelihood = logsum(backward[0,:] + initial_scores + emission_scores[0,:])
+        log_likelihood = logsum(backward[0,:] + in_scores + em_scores[0,:])
 
         return log_likelihood, backward
 
-    ######
-    # Computes the viterbi trellis for a given sequence.
-    # Receives:
-    #
-    # Initial scores: (num_states) array
-    # Transition scores: (length-1, num_states, num_states) array
-    # Final scores: (num_states) array
-    # Emission scoress: (length, num_states) array
-    ######
-    def run_viterbi(self, in_scores, trans_scores, final_scores, em_scores):
 
+    def run_viterbi(self, in_scores, trans_scores, final_scores, em_scores):
+        '''
+        Computes the viterbi trellis for a given sequence.
+        Receives:
+
+        - in_scores: (num_states) array
+        - trans_scores: Transition scores: (length-1, num_states, num_states) array
+        - final_scores:   Final scores: (num_states) array
+        - em_scores:  Emission scoress: (length, num_states) array
+
+        :return:
+
+        - best_path
+        - best_score
+        '''
         # Length of the sequence.
         length = np.size(em_scores, 0)
+
         # Number of states
         num_states = np.size(in_scores)
 
@@ -118,6 +137,19 @@ class SequenceClassificationDecoder():
         return best_path, best_score
 
     def run_forward_backward(self, initial_scores, transition_scores, final_scores, emission_scores):
+        '''
+        Computes the forward and backguard computations
+
+        - in_scores: (num_states) array
+        - trans_scores: Transition scores: (length-1, num_states, num_states) array
+        - final_scores:   Final scores: (num_states) array
+        - em_scores:  Emission scoress: (length, num_states) array
+
+        :return:
+        - forward
+        - backward
+
+        '''
         log_likelihood, forward = self.run_forward(initial_scores, transition_scores, final_scores, emission_scores)
         print 'Log-Likelihood =', log_likelihood
 
