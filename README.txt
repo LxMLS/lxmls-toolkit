@@ -5,3 +5,5 @@ Summary
 
 Installation
     - Please read instructions in the Day 0 chapter of the LXMLS guide.
+
+Join the chat at https://gitter.im/LxMLS/lxmls-toolkit
