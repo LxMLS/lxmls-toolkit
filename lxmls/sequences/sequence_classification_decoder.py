@@ -4,7 +4,6 @@ import pdb
 import numpy as np
 from lxmls.sequences.log_domain import *
 import pdb
-
 class SequenceClassificationDecoder():
     ''' Implements a sequence classification decoder.'''
 
@@ -12,7 +11,7 @@ class SequenceClassificationDecoder():
         pass
 
     def run_forward(self, in_scores, trans_scores, final_scores, em_scores):
-        '''
+        """
         Computes the forward trellis for a given sequence.
         Receives:
 
@@ -21,9 +20,7 @@ class SequenceClassificationDecoder():
         - final_scores:
         - em_scores:
         :return:
-
-        '''
-
+        """
         # Length of the sequence.
         length = np.size(em_scores, 0)
 
@@ -50,7 +47,7 @@ class SequenceClassificationDecoder():
 
 
     def run_backward(self, in_scores, trans_scores, final_scores, em_scores):
-        '''
+        """
         Computes the backward trellis for a given sequence.
 
         Receives:
@@ -62,8 +59,7 @@ class SequenceClassificationDecoder():
         :return:
          - log_likelihood
          - backward
-
-        '''
+        """
         # Length of the sequence.
         length = np.size(em_scores, 0)
 
@@ -88,7 +84,7 @@ class SequenceClassificationDecoder():
 
 
     def run_viterbi(self, in_scores, trans_scores, final_scores, em_scores):
-        '''
+        """
         Computes the viterbi trellis for a given sequence.
         Receives:
 
@@ -101,7 +97,7 @@ class SequenceClassificationDecoder():
 
         - best_path
         - best_score
-        '''
+        """
         # Length of the sequence.
         length = np.size(em_scores, 0)
 
@@ -124,7 +120,7 @@ class SequenceClassificationDecoder():
         for i in xrange(1,length):
             for state in xrange(num_states):
                 vit_scores[i, state] = np.max(trans_scores[i-1, state, :] + vit_scores[i-1, :]) + em_scores[i, state]
-                vit_paths[i, state] = np.argmax(trans_scores[i-1, state, :] + vit_scores[i-1, :] )
+                vit_paths[i, state] = np.argmax(trans_scores[i-1, state, :] + vit_scores[i-1, :])
 
         # Termination.
         best_score = np.max(vit_scores[length-1,:] + final_scores)
@@ -137,7 +133,7 @@ class SequenceClassificationDecoder():
         return best_path, best_score
 
     def run_forward_backward(self, initial_scores, transition_scores, final_scores, emission_scores):
-        '''
+        """
         Computes the forward and backguard computations
 
         - in_scores: (num_states) array
@@ -148,8 +144,8 @@ class SequenceClassificationDecoder():
         :return:
         - forward
         - backward
+        """
 
-        '''
         log_likelihood, forward = self.run_forward(initial_scores, transition_scores, final_scores, emission_scores)
         print 'Log-Likelihood =', log_likelihood
 
@@ -157,3 +153,4 @@ class SequenceClassificationDecoder():
         print 'Log-Likelihood =', log_likelihood
 
         return forward, backward
+
