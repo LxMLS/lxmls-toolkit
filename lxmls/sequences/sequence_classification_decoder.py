@@ -15,11 +15,19 @@ class SequenceClassificationDecoder():
         Computes the forward trellis for a given sequence.
         Receives:
 
-        - in_scores:
-        - trans_scores:
-        - final_scores:
-        - em_scores:
-        :return:
+        Input:
+
+        - in_scores:   (num_states) array
+        - trans_scores: (length-1, num_states, num_states) array
+        - final_scores: (num_states) array
+        - em_scores: (length, num_states) array
+
+
+        Output:
+
+         - log_likelihood
+         - forward
+
         """
         # Length of the sequence.
         length = np.size(em_scores, 0)
@@ -50,13 +58,15 @@ class SequenceClassificationDecoder():
         """
         Computes the backward trellis for a given sequence.
 
-        Receives:
-        :param in_scores:   (num_states) array
-        :param trans_scores: (length-1, num_states, num_states) array
-        :param final_scores: (num_states) array
-        :param em_scores: (length, num_states) array
+        Input:
 
-        :return:
+        - in_scores:   (num_states) array
+        - trans_scores: (length-1, num_states, num_states) array
+        - final_scores: (num_states) array
+        - em_scores: (length, num_states) array
+
+        Output:
+
          - log_likelihood
          - backward
         """
@@ -88,12 +98,14 @@ class SequenceClassificationDecoder():
         Computes the viterbi trellis for a given sequence.
         Receives:
 
+        Input:
+
         - in_scores: (num_states) array
         - trans_scores: Transition scores: (length-1, num_states, num_states) array
         - final_scores:   Final scores: (num_states) array
         - em_scores:  Emission scoress: (length, num_states) array
 
-        :return:
+        Output:
 
         - best_path
         - best_score
@@ -136,12 +148,15 @@ class SequenceClassificationDecoder():
         """
         Computes the forward and backguard computations
 
+        Input:
+
         - in_scores: (num_states) array
         - trans_scores: Transition scores: (length-1, num_states, num_states) array
         - final_scores:   Final scores: (num_states) array
         - em_scores:  Emission scoress: (length, num_states) array
 
-        :return:
+        Output:
+
         - forward
         - backward
         """
