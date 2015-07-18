@@ -82,36 +82,38 @@ class SequenceClassificationDecoder():
     # Final scores: (num_states) array
     # Emission scoress: (length, num_states) array
     ######
-    def run_viterbi(self, initial_scores, transition_scores, final_scores, emission_scores):
-        length = np.size(emission_scores, 0) # Length of the sequence.
-        num_states = np.size(initial_scores) # Number of states.
+    def run_viterbi(self, in_scores, trans_scores, final_scores, em_scores):
+
+        # Length of the sequence.
+        length = np.size(em_scores, 0)
+        # Number of states
+        num_states = np.size(in_scores)
 
         # Variables storing the Viterbi scores.
-        viterbi_scores = np.zeros([length, num_states]) + logzero()
+        vit_scores = np.zeros([length, num_states]) + logzero()
 
         # Variables storing the paths to backtrack.
-        viterbi_paths = -np.ones([length, num_states], dtype=int)
+        vit_paths = -np.ones([length, num_states], dtype=int)
 
         # Most likely sequence.
         best_path = -np.ones(length, dtype=int)
 
         # Initialization.
-        vit_scores[0,:] = emission_scores[0,:] + initial_scores
+        vit_scores[0,:] = em_scores[0,:] + in_scores
 
         # Viterbi loop.
-        for pos in xrange(1,length):
-            for current_state in xrange(num_states):
-                vit_scores[pos, current_state] = np.max(transition_scores[pos-1, current_state, :] + vit_scores[pos-1, :]) + emission_scores[pos, current_state]
-                viterbi_paths[pos, current_state] = np.argmax(transition_scores[pos-1, current_state, :] + vit_scores[pos-1, :] )
-        
+        for i in xrange(1,length):
+            for state in xrange(num_states):
+                vit_scores[i, state] = np.max(trans_scores[i-1, state, :] + vit_scores[i-1, :]) + em_scores[i, state]
+                vit_paths[i, state] = np.argmax(trans_scores[i-1, state, :] + vit_scores[i-1, :] )
+
         # Termination.
         best_score = np.max(vit_scores[length-1,:] + final_scores)
         best_path[length-1] = np.argmax(final_scores + vit_scores[length-1,:] )
 
-
         # Backtrack.
-        for pos in xrange(length-2, -1, -1):
-            best_path[pos] = viterbi_paths[pos+1, best_path[pos+1]]
+        for i in xrange(length-2, -1, -1):
+            best_path[i] = vit_paths[i+1, best_path[i+1]]
 
         return best_path, best_score
 
