@@ -96,19 +96,18 @@ class SequenceClassificationDecoder():
         best_path = -np.ones(length, dtype=int)
 
         # Initialization.
-        viterbi_scores[0,:] = emission_scores[0,:] + initial_scores
+        vit_scores[0,:] = emission_scores[0,:] + initial_scores
 
         # Viterbi loop.
         for pos in xrange(1,length):
             for current_state in xrange(num_states):
-                viterbi_scores[pos, current_state] = \
-                    np.max(viterbi_scores[pos-1, :] + transition_scores[pos-1, current_state, :])
-                viterbi_scores[pos, current_state] += emission_scores[pos, current_state]
-                viterbi_paths[pos, current_state] = \
-                    np.argmax(viterbi_scores[pos-1, :] + transition_scores[pos-1, current_state, :])
+                vit_scores[pos, current_state] = np.max(transition_scores[pos-1, current_state, :] + vit_scores[pos-1, :]) + emission_scores[pos, current_state]
+                viterbi_paths[pos, current_state] = np.argmax(transition_scores[pos-1, current_state, :] + vit_scores[pos-1, :] )
+        
         # Termination.
-        best_score = np.max(viterbi_scores[length-1,:] + final_scores)
-        best_path[length-1] = np.argmax(viterbi_scores[length-1,:] + final_scores)
+        best_score = np.max(vit_scores[length-1,:] + final_scores)
+        best_path[length-1] = np.argmax(final_scores + vit_scores[length-1,:] )
+
 
         # Backtrack.
         for pos in xrange(length-2, -1, -1):
