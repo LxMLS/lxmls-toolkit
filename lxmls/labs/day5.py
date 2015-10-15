@@ -1,9 +1,9 @@
 #!/usr/bin/python
 '''
-Deep learning day exercises corresponding to Chapter 7 of the LxMLS guide.
+Deep learning day exercises corresponding to Chapter 5 of the LxMLS guide.
 They must be run from ./lxmls-toolkit/ folder as
 
-./lxmls/labs/day7.py
+./lxmls/labs/day5.py
 
 These are the solutions of the exercises. Students of the LxMLS school should
 work with the student branch and ignore this.
@@ -40,7 +40,7 @@ import time
 from ipdb import set_trace
 
 print "\n######################",
-print "\n   Exercise 7.1"
+print "\n   Exercise 5.1"
 print "######################"
 
 # TODO: Find another corpus (SemEval?) and cleaner parameter extraction
@@ -71,7 +71,7 @@ acc_test  = sgd.class_acc(hat_test_y, test_y)[0]
 print "Untrained Log-linear Accuracy train: %f test: %f"%(acc_train,acc_test)
 
 print "\n######################",
-print "\n   Exercise 7.2"
+print "\n   Exercise 5.2"
 print "######################\n"
 
 # Define MLP
@@ -93,7 +93,7 @@ print "MLP %s Model Amazon Sentiment Accuracy train: %f test: %f"%(geometry, acc
 
 
 print "\n######################",
-print "\n   Exercise 7.3"
+print "\n   Exercise 5.3"
 print "######################"
 
 # Numpy code
@@ -135,7 +135,7 @@ else:
     #raise ValueError, "Numpy and Theano Perceptrons are different"
 
 print "\n######################",
-print "\n   Exercise 7.4"
+print "\n   Exercise 5.4"
 print "######################"
 mlp_a = dl.NumpyMLP(geometry, actvfunc)
 mlp_b = dl.TheanoMLP(geometry, actvfunc)
@@ -181,7 +181,7 @@ else:
 #    #raise ValueError, "\nDEBUG: Numpy and Theano Gradients are different"
 
 print "\n######################",
-print "\n   Exercise 7.5"
+print "\n   Exercise 5.5"
 print "######################"
 
 W2, b2 = mlp_a.params[2:4] 
@@ -212,7 +212,7 @@ theano.printing.debugprint(_F)
 #theano.printing.debugprint(nabla_F)
 
 print "\n######################",
-print "\n   Exercise 7.6"
+print "\n   Exercise 5.6"
 print "######################"
 
 # Understanding the mini-batch function and givens/updates parameters

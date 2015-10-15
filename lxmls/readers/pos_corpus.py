@@ -7,20 +7,56 @@ from os.path import dirname
 
 #from nltk.corpus import brown
 
-
 ## Directory where the data files are located.
-data_dir = dirname(__file__)+"/../../data/"
+data_dir = dirname(__file__) + "/../../data/"
 
 ### Train and test files for english WSJ part of the Penn Tree Bank
-en_train = data_dir+"train-02-21.conll"
+en_train = data_dir + "train-02-21.conll"
 en_dev =  data_dir + "dev-22.conll"
-en_test = data_dir+"test-23.conll"
+en_test = data_dir + "test-23.conll"
 
 ### Train and test files for portuguese Floresta sintatica
-pt_train = data_dir+"pt_train.txt"
+pt_train = data_dir + "pt_train.txt"
 pt_dev = ""
-pt_test = data_dir+"pt_test.txt"
+pt_test = data_dir + "pt_test.txt"
 
+def compacify(train_seq, test_seq, dev_seq):
+    '''
+    Create a map for indices that is be compact (do not have unused indices)
+    '''
+    # Create a map for indices that is be compact (do not have unused indices)
+    x_map = list(set([x for se in train_seq for x in se.x]) | 
+                 set([x for se in test_seq for x in se.x]) | 
+                 set([x for se in dev_seq for x in se.x]))
+    y_map = list(set([y for se in train_seq for y in se.y]) | 
+                 set([y for se in test_seq for y in se.y]) | 
+                 set([y for se in dev_seq for y in se.y]))
+    
+    #import copy
+    #train_seq2, test_seq2, dev_seq2 = copy.deepcopy(train_seq), copy.deepcopy(test_seq), copy.deepcopy(dev_seq)
+    for corpus_seq in [train_seq, test_seq, dev_seq]:
+        # Remap all dictionary entries
+        for key, value in corpus_seq.x_dict.items():
+            if value in x_map:
+                corpus_seq.x_dict[key] = x_map.index(value)
+            else:
+                # Remove unused entries
+                corpus_seq.x_dict.pop(key,None)
+        # Remap all dictionary entries
+        for key, value in corpus_seq.y_dict.items():
+            if value in y_map:
+                corpus_seq.y_dict[key] = y_map.index(value)
+            else:
+                # Remove unused entries
+                corpus_seq.y_dict.pop(key,None)
+        for seq in corpus_seq:
+            seq.x = [x_map.index(i) for i in seq.x]
+            seq.y = [y_map.index(i) for i in seq.y]
+    ## Reverse
+    #tmap  = {v: k for k, v in train_seq.x_dict.items()}
+    #tmap2 = {v: k for k, v in train_seq2.x_dict.items()}
+    
+    return train_seq, test_seq, dev_seq
 
 class PostagCorpus(object):
 
@@ -31,54 +67,31 @@ class PostagCorpus(object):
         # POS tag dictionary.
         # Initialize noun to be tag zero so that it the default tag.
         self.tag_dict = LabelDictionary(['noun'])
-        
+
         # Initialize sequence list.
         self.sequence_list = SequenceList(self.word_dict, self.tag_dict)
 
-
-#        self.word_counts = {}
-
-#        self.word_dict = {}
-#        self.int_to_word = []
-#        self.tag_dict = {}
-#        self.int_to_tag = []
-#        ##Initialize noun to be tag zero so that it the default tag
-#        self.tag_dict["noun"] = 0
-#        self.int_to_tag = ["noun"]
-#        self.sequence_list = SequenceList(self.word_dict,self.int_to_word,self.tag_dict,self.int_to_tag) 
-#        self.word_counts = {}
-        
-        
-        
-        
-
-#    ###########
-#    ## Add a sequence list to the corpus for training
-#    ###########
-#    def add_sequence_list(self,seq_list):
-#        pdb.set_trace()
-#        for sequence in seq_list.seq_list:
-#            ##Add the sequence list
-#            self.sequence_list.add_sequence(sequence.x,sequence.y)
-#            #update the word counts
-#            for word in sequence.x:
-#                if word not in self.word_counts:
-#                    self.word_counts[word] = 0
-#                self.word_counts[word] +=1
-
     ## Read a text file in conll format and return a sequence list
     ## 
-    def read_sequence_list_conll(self,train_file,mapping_file=("%s/en-ptb.map" % dirname(__file__)),max_sent_len=100000,max_nr_sent=100000):
+    def read_sequence_list_conll(self, train_file, 
+                                 mapping_file=("%s/en-ptb.map" 
+                                               % dirname(__file__)),
+                                 max_sent_len=100000,
+                                 max_nr_sent=100000):
+
         ##Build mapping of postags:
         mapping = {}
         if mapping_file is not None:
             for line in open(mapping_file):
                 coarse,fine = line.strip().split("\t")
                 mapping[coarse.lower()] = fine.lower()        
-        instance_list = self.read_conll_instances(train_file,max_sent_len,max_nr_sent,mapping)
+        instance_list = self.read_conll_instances(train_file, 
+                                                  max_sent_len,
+                                                  max_nr_sent,mapping)
         seq_list = SequenceList(self.word_dict, self.tag_dict)
         for sent_x,sent_y in instance_list:
             seq_list.add_sequence(sent_x,sent_y)
+
         return seq_list
     
     ############################################
