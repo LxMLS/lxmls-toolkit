@@ -83,6 +83,10 @@ class SequenceClassificationDecoder():
     # Emission scoress: (length, num_states) array
     ######
     def run_viterbi(self, initial_scores, transition_scores, final_scores, emission_scores):
+
+        ###########################
+        # Solution to Exercise 2.8 
+
         length = np.size(emission_scores, 0) # Length of the sequence.
         num_states = np.size(initial_scores) # Number of states.
 
@@ -115,6 +119,9 @@ class SequenceClassificationDecoder():
             best_path[pos] = viterbi_paths[pos+1, best_path[pos+1]]
 
         return best_path, best_score
+
+        # End of solution to Exercise 2.8 
+        ###########################
 
     def run_forward_backward(self, initial_scores, transition_scores, final_scores, emission_scores):
         log_likelihood, forward = self.run_forward(initial_scores, transition_scores, final_scores, emission_scores)

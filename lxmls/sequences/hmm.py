@@ -137,6 +137,10 @@ class HMM(sc.SequenceClassifier):
 
     def update_counts(self, sequence, state_posteriors, transition_posteriors):
         ''' Used in the E-step in EM.'''
+
+        ###########################
+        # Solution to Exercise 2.10 
+
         num_states = self.get_num_states() # Number of states.
         length = len(sequence.x) # Length of the sequence.
 
@@ -155,22 +159,23 @@ class HMM(sc.SequenceClassifier):
         for y in xrange(num_states):
             self.final_counts[y] += state_posteriors[length-1, y]
 
+        # End of solution to Exercise 2.10 
+        ###########################
+
     def compute_parameters(self):
         ''' Estimate the HMM parameters by normalizing the counts.'''
+
         # Normalize the initial counts.
-        sum_initial = np.sum(self.initial_counts)
-        self.initial_probs = self.initial_counts / sum_initial
+        self.initial_probs = self.initial_counts / np.sum(self.initial_counts)
 
-        # Normalize the transition counts and the final counts.
-        sum_transition = np.sum(self.transition_counts, 0) + self.final_counts
-        num_states = self.get_num_states()
-        self.transition_probs = self.transition_counts / np.tile(sum_transition, [num_states, 1])
-        self.final_probs = self.final_counts / sum_transition
+        # Normalize transition counts
+        self.transition_probs = self.transition_counts / (np.sum(self.transition_counts, 0) + self.final_counts)
 
-        # Normalize the emission counts.
-        sum_emission = np.sum(self.emission_counts, 0)
-        num_observations = self.get_num_observations()
-        self.emission_probs = self.emission_counts / np.tile(sum_emission, [num_observations, 1])
+        # Normalize final counts
+        self.final_probs = self.final_counts / (np.sum(self.transition_counts, 0) + self.final_counts)
+
+        # Normalize emission counts
+        self.emission_probs = self.emission_counts / np.sum(self.emission_counts, 0)
 
     def compute_scores(self, sequence):
         length = len(sequence.x) # Length of the sequence.

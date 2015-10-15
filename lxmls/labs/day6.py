@@ -61,18 +61,14 @@ actvfunc = ['softmax']
 # Instantiate model
 mlp      = dl.NumpyMLP(geometry, actvfunc)
 
-# Train
-import lxmls.deep_learning.sgd as sgd
-# Train parameters
-lrate  = 0.01
-bsize  = 5 
-n_iter = 5
-# Instantiate model
-sgd.SGD_train(mlp, n_iter, bsize=bsize, lrate=lrate, train_set=(train_x, train_y))
-
-acc_train = sgd.class_acc(mlp.forward(train_x), train_y)[0]
-acc_test  = sgd.class_acc(mlp.forward(test_x), test_y)[0]
-print "Log-linear Model Amazon Sentiment Accuracy train: %f test: %f"%(acc_train,acc_test)
+# Play with the untrained MLP forward
+hat_train_y = mlp.forward(train_x) 
+hat_test_y  = mlp.forward(test_x) 
+# Compute accuracy
+import lxmls.deep_learning.sgd as sgd 
+acc_train = sgd.class_acc(hat_train_y, train_y)[0]
+acc_test  = sgd.class_acc(hat_test_y, test_y)[0]
+print "Untrained Log-linear Accuracy train: %f test: %f"%(acc_train,acc_test)
 
 print "\n######################",
 print "\n   Exercise 7.2"
@@ -85,6 +81,10 @@ actvfunc = ['sigmoid', 'softmax']
 # Instantiate model
 mlp      = dl.NumpyMLP(geometry, actvfunc)
 
+# Model parameters
+n_iter = 5
+bsize  = 5
+lrate  = 0.05
 # Train
 sgd.SGD_train(mlp, n_iter, bsize=bsize, lrate=lrate, train_set=(train_x, train_y))
 acc_train = sgd.class_acc(mlp.forward(train_x), train_y)[0]
@@ -128,7 +128,7 @@ print "\nThis is my symbolic perceptron\n"
 theano.printing.debugprint(_tilde_z1)
 
 # Check Numpy and Theano mactch
-if np.abs(tilde_z1 - layer1(x.astype(theano.config.floatX))).max() < 1e-12:
+if np.allclose(tilde_z1, layer1(x.astype(theano.config.floatX))):
     print "\nNumpy and Theano Perceptrons are equivalent"
 else:
     set_trace()
@@ -164,21 +164,21 @@ theano.printing.debugprint(mlp_b._forward(T.matrix('x')))
 # Check Numpy and Theano match
 resa = mlp_a.forward(test_x)[:,:10]
 resb = mlp_b.forward(test_x)[:,:10]
-if np.abs(resa - resb).max() < 1e-12:
+if np.allclose(resa, resb):
     print "\nNumpy and Theano Forward pass are equivalent"
 else:
     set_trace()
     #raise ValueError, "Numpy and Theano Forward are different"
 
 # FOR DEBUGGING PURPOSES
-# Check Numpy and Theano match
-resas = mlp_a.grads(test_x[:, :10], test_y[:10])
-resbs = mlp_b.grads(test_x[:, :10], test_y[:10]) 
-if np.max([np.abs(ra - rb).max() for ra, rb in zip(resas, resbs)]) < 1e-12:
-    print "DEBUG: Numpy and Theano Gradients pass are equivalent"
-else:
-    set_trace()
-    #raise ValueError, "\nDEBUG: Numpy and Theano Gradients are different"
+## Check Numpy and Theano match
+#resas = mlp_a.grads(test_x[:, :10], test_y[:10])
+#resbs = mlp_b.grads(test_x[:, :10], test_y[:10]) 
+#if np.all([np.allclose(ra, rb) for ra, rb in zip(resas, resbs)]):
+#    print "DEBUG: Numpy and Theano Gradients pass are equivalent"
+#else:
+#    set_trace()
+#    #raise ValueError, "\nDEBUG: Numpy and Theano Gradients are different"
 
 print "\n######################",
 print "\n   Exercise 7.5"
@@ -229,13 +229,13 @@ _train_y = theano.shared(train_y, 'train_y', borrow=True)
 
 # Create a symbolic variable returning a batch of samples
 _i             = T.lscalar()
-get_tr_batch_y = theano.function([_i], _train_y[_i:(_i+1)*bsize]) 
+get_tr_batch_y = theano.function([_i], _train_y[_i*bsize:(_i+1)*bsize]) 
 
 # Check Numpy and Theano match
 i = 3
-resa = train_y[i:(i+1)*bsize]
+resa = train_y[i*bsize:(i+1)*bsize]
 resb = get_tr_batch_y(i) 
-if np.abs(resa - resb).max() < 1e-12:
+if np.allclose(resa, resb):
     print "\nNumpy and Theano  Mini-Batch pass are equivalent\n"
 else:
     set_trace()
@@ -246,22 +246,22 @@ else:
 # Numpy
 geometry = [I, 20, 2]
 actvfunc = ['sigmoid', 'softmax'] 
-mlp1     = dl.NumpyMLP(geometry, actvfunc)
+mlp_a     = dl.NumpyMLP(geometry, actvfunc)
 #
 init_t = time.clock()
-sgd.SGD_train(mlp1, n_iter, bsize=bsize, lrate=lrate, train_set=(train_x, train_y))
-print "\nNumpy version took %2.2f" % (time.clock() - init_t)
-acc_train = sgd.class_acc(mlp1.forward(train_x), train_y)[0]
-acc_test  = sgd.class_acc(mlp1.forward(test_x), test_y)[0]
+sgd.SGD_train(mlp_a, n_iter, bsize=bsize, lrate=lrate, train_set=(train_x, train_y))
+print "\nNumpy version took %2.2f sec" % (time.clock() - init_t)
+acc_train = sgd.class_acc(mlp_a.forward(train_x), train_y)[0]
+acc_test  = sgd.class_acc(mlp_a.forward(test_x), test_y)[0]
 print "Amazon Sentiment Accuracy train: %f test: %f\n" % (acc_train, acc_test)
 
 # Theano grads 
-mlp2     = dl.TheanoMLP(geometry, actvfunc)
+mlp_b  = dl.TheanoMLP(geometry, actvfunc)
 init_t = time.clock()
-sgd.SGD_train(mlp2, n_iter, bsize=bsize, lrate=lrate, train_set=(train_x, train_y), model_dbg=mlp1)
-print "\nCompiled gradient version took %2.2f" % (time.clock() - init_t)
-acc_train = sgd.class_acc(mlp2.forward(train_x), train_y)[0]
-acc_test  = sgd.class_acc(mlp2.forward(test_x), test_y)[0]
+sgd.SGD_train(mlp_b, n_iter, bsize=bsize, lrate=lrate, train_set=(train_x, train_y))
+print "\nCompiled gradient version took %2.2f sec" % (time.clock() - init_t)
+acc_train = sgd.class_acc(mlp_b.forward(train_x), train_y)[0]
+acc_test  = sgd.class_acc(mlp_b.forward(test_x), test_y)[0]
 print "Amazon Sentiment Accuracy train: %f test: %f\n" % (acc_train, acc_test)
 
 # Theano compiled batch
@@ -276,7 +276,7 @@ _train_x = theano.shared(train_x, 'train_x', borrow=True)
 _train_y = theano.shared(train_y, 'train_y', borrow=True)
 
 # Model
-mlp3     = dl.TheanoMLP(geometry, actvfunc)
+mlp_c     = dl.TheanoMLP(geometry, actvfunc)
 
 # Define givens variables to be used in the batch update
 # Get symbolic variables returning a mini-batch of data 
@@ -286,38 +286,24 @@ mlp3     = dl.TheanoMLP(geometry, actvfunc)
 # consists on a list of tuples with each parameter and update rule
 _x      = T.matrix('x')
 _y      = T.ivector('y')
-_F      = mlp3._cost(_x, _y)
-updates = [(par, par - lrate*T.grad(_F, par)) for par in mlp3.params]
+_F      = mlp_c._cost(_x, _y)
+updates = [(par, par - lrate*T.grad(_F, par)) for par in mlp_c.params]
 
 # Givens maps input and target to a mini-batch of inputs and targets 
 _j      = T.lscalar()
-givens  = { _x : _train_x[:, _j:(_j+1)*bsize], _y : _train_y[_j:(_j+1)*bsize] }
+givens  = { _x : _train_x[:, _j*bsize:(_j+1)*bsize], 
+            _y : _train_y[_j*bsize:(_j+1)*bsize] }
 
 # Define the batch update function. This will return the cost of each batch
 # and update the MLP parameters at the same time using updates
-
 batch_up = theano.function([_j], _F, updates=updates, givens=givens)
 n_batch  = train_x.shape[1]/bsize  + 1
 
-# TODO: Debug this. @Ramon: Batch version is much slower than numpy and 
-# gradient versions. Comp graphs for cost and grads seem to be the same,
-# data as well.
-#
-# Compare with commit
-#
-# a029e0efd2741dcc176744a31452d83360c0f22d
-
-#import time
-#init = time.clock()
-#[batch_up(i) for i in range(n_batch)]
-#print time.clock() - init
-#set_trace()
-
 init_t = time.clock()
-sgd.SGD_train(mlp3, n_iter, batch_up=batch_up, n_batch=n_batch)
-print "\nTheano compiled batch update version took %2.2f" % (time.clock() - init_t)
+sgd.SGD_train(mlp_c, n_iter, batch_up=batch_up, n_batch=n_batch)
+print "\nTheano compiled batch update version took %2.2f sec" % (time.clock() - init_t)
 init_t = time.clock()
 
-acc_train = sgd.class_acc(mlp3.forward(train_x), train_y)[0]
-acc_test  = sgd.class_acc(mlp3.forward(test_x), test_y)[0]
+acc_train = sgd.class_acc(mlp_c.forward(train_x), train_y)[0]
+acc_test  = sgd.class_acc(mlp_c.forward(test_x), test_y)[0]
 print "Amazon Sentiment Accuracy train: %f test: %f\n"%(acc_train,acc_test)

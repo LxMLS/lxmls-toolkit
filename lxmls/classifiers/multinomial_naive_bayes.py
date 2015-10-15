@@ -34,11 +34,13 @@ class MultinomialNaiveBayes(lc.LinearClassifier):
         # and place them in the variables called "prior" and "likelihood".
         # Examples:
             # prior[0] is the prior probability of a document being of class 0
-            # likelihood[4, 0] is the likelihood of the fifth(*) feature being active, given that the document is of class 0
-            # (*) recall that Python starts indices at 0, so an index of 4 corresponds to the fifth feature!
+            # likelihood[4, 0] is the likelihood of the fifth(*) feature being 
+            # active, given that the document is of class 0
+            # (*) recall that Python starts indices at 0, so an index of 4 
+            # corresponds to the fifth feature!
         
         ###########################
-        # Code to be deleted
+        # Solution to Exercise 1.1 
         for i in xrange(n_classes):
             docs_in_class,_ = np.nonzero(y == classes[i]) # docs_in_class = indices of documents in class i
             prior[i] = 1.0*len(docs_in_class)/n_docs # prior = fraction of documents with this class
@@ -49,7 +51,7 @@ class MultinomialNaiveBayes(lc.LinearClassifier):
                 likelihood[:,i] = word_count_in_class/total_words_in_class # likelihood = count of occurrences of a word in a class
             else:
                 likelihood[:,i] = (word_count_in_class + self.smooth_param) / (total_words_in_class + self.smooth_param*n_words)
-        # End of code to be deleted
+        # End solution to Exercise 1.1 
         ###########################
 
         params = np.zeros((n_words+1,n_classes))

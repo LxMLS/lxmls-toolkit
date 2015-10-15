@@ -55,13 +55,13 @@ class NumpyMLP():
         '''
         Forward pass
 
-        allOuts = True  return input and intermediate activations
+        allOuts = True  return intermediate activations
         ''' 
 
         # This will store activations at each layer and the input. This is 
         # needed to compute backpropagation 
         if allOuts:
-            activations = [x]  
+            activations = []  
         
         # Input 
         tilde_z = x
@@ -113,33 +113,39 @@ class NumpyMLP():
            if n != self.n_layers-1:
                W_next = self.params[2*(n+1)]
 
-           # IF THERE IS CODE BELOW THIS IN THE FOR, YOU ARE NOT IN THE
-           # STUDENT VERSION.
+           ###########################
+           # Solution to Exercise 6.2 
             
            # If it is the last layer, compute the average cost gradient
            # Otherwise, propagate the error backwards from the next layer
            if n == self.n_layers-1:
                # NOTE: This assumes cross entropy cost
                if self.actvfunc[n] == 'sigmoid':
-                   e = (activations[n+1] - y)
-                   # TODO: Once version is satable use average /y.shape[1] 
+                   e = (activations[n] - y)/y.shape[0]
                elif self.actvfunc[n] == 'softmax':
                    I  = index2onehot(y, W.shape[0])
-                   e  = (activations[n+1] - I)      
-                   # TODO: Once version is satable use average /y.shape[1] 
+                   e  = (activations[n] - I)/y.shape[0]      
 
            else:
                e  = np.dot(W_next.T, e)
-               e *= activations[n+1]*(1-activations[n+1])
+               # This is correct but confusing n+1 is n in the guide
+               e *= activations[n]*(1-activations[n])
 
            # Weight gradient 
            nabla_W = np.zeros(W.shape)
            for l in np.arange(e.shape[1]):
-              nabla_W += np.outer(e[:, l], activations[n][:, l])
+              if n == 0:
+                  # For the first layer, the activation is the input 
+                  nabla_W += np.outer(e[:, l], x[:, l])
+              else:    
+                  nabla_W += np.outer(e[:, l], activations[n-1][:, l])
            # Bias gradient
            nabla_b = np.sum(e, 1, keepdims=True)
 
-           # Store this gradients 
+           # End of solution to Exercise 6.2 
+           ###########################
+
+           # Store the gradients 
            nabla_params[2*n]   = nabla_W
            nabla_params[2*n+1] = nabla_b
 
@@ -316,6 +322,8 @@ class TheanoMLP(NumpyMLP):
         # Input
         tilde_z = x
 
+        ###########################
+        # Solution to Exercise 6.4 
         for n in range(self.n_layers):
 
             # Get weigths and bias (always in even and odd positions)
@@ -340,6 +348,9 @@ class TheanoMLP(NumpyMLP):
 
             if allOuts:
                 activations.append(tilde_z)
+        # End of solution to Exercise 6.4 
+        ###########################
+
 
         if allOuts:
             tilde_z = activations
@@ -351,8 +362,7 @@ class TheanoMLP(NumpyMLP):
         Symbolic average negative log-likelihood using the soft-max output
         '''
         p_y = self._forward(x)
-        # TODO: Replace sum() for mean() once code is stable
-        return -T.sum(T.log(p_y)[y, T.arange(y.shape[0])]) 
+        return -T.mean(T.log(p_y)[y, T.arange(y.shape[0])]) 
 
     def _grads(self, x, y):
         '''
