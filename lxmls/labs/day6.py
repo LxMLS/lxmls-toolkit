@@ -45,8 +45,10 @@ test_seq  = corpus.read_sequence_list_conll("data/test-23.conll",
                                             max_sent_len=15, max_nr_sent=1000)
 dev_seq   = corpus.read_sequence_list_conll("data/dev-22.conll",
                                             max_sent_len=15, max_nr_sent=1000)
-# Redo indices so that they are consecutive
-train_seq, test_seq, dev_seq = pcc.compacify(train_seq, test_seq, dev_seq)
+# Redo indices so that they are consecutive. Also cast all data to numpy arrays
+# of int32 for compatibility with GPUs and theano.
+train_seq, test_seq, dev_seq = pcc.compacify(train_seq, test_seq, dev_seq,
+                                             theano=True)
 
 #
 # CREATE RNN TO PREDICT POS TAGS 
@@ -59,48 +61,38 @@ import lxmls.deep_learning.rnn as rnn
 
 # FORWARD
 # CONFIG 
-n_words = len(train_seq.x_dict.keys())           # Number of words
-n_hidd  = 10                                     # Size of the recurrent layer
-n_tags  = len(train_seq.y_dict.keys())           # Number of POS tags
+n_words = len(train_seq.x_dict.keys())     # Number of words
+n_hidd  = 10                               # Size of the recurrent layer
+n_tags  = len(train_seq.y_dict.keys())     # Number of POS tags
 # SYMBOLIC VARIABLES
-_x      = T.ivector('x')    # Input words indices
-_h0     = T.matrix('h0')    # Initial recurrent layer values
+_x      = T.ivector('x')                   # Input words indices
+_y      = T.ivector('y')                   # True output tags indices
 # Define the RNN
 rnn     = rnn.RNN(n_words, n_hidd, n_tags)
-# Symbolic forward
-_p_y    = rnn._forward(_x, _h0)
-
-# TRAIN COST
-_y      = T.ivector('y')    # True output tags indices
-_F      = -T.mean(T.log(_p_y)[T.arange(_y.shape[0]), _y]) \
-
-# TOTAL PREDICTION ERROR 
+# Forward
+_p_y    = rnn._forward(_x)
+# Train cost
+_F      = -T.mean(T.log(_p_y)[T.arange(_y.shape[0]), _y]) 
+# Total prediction error 
 _err    = T.sum(T.neq(T.argmax(_p_y,1), _y))
-err_sum = theano.function([_x, _h0, _y], _err)
+err_sum = theano.function([_x, _y], _err)
 
 # SGD UPDATE RULE
 lrate   = 0.5
-updates = [(par, par - lrate*T.grad(_F, par)) for par in rnn.param] 
+updates = [(_par, _par - lrate*T.grad(_F, _par)) for _par in rnn.param] 
 
-# COMPILE FORWARD
-fwd   = theano.function([_x, _h0], _p_y)
-x     = np.array(train_seq[0].x).astype('int32')
-y     = np.array(train_seq[0].y).astype('int32')
-h0    = np.zeros((1, n_hidd)).astype(theano.config.floatX)
-
-# COMPILE BATCH UPDATE
-batch_update = theano.function([_x, _h0, _y], _F, updates=updates)
+# COMPILE FORWARD, BATCH UPDATE
+fwd          = theano.function([_x], _p_y)
+batch_update = theano.function([_x, _y], _F, updates=updates)
 
 # DEVEL
 err = 0
 N   = 0
 for n, seq in enumerate(dev_seq):
-    x      = np.array(train_seq[0].x).astype('int32')
-    y      = np.array(train_seq[0].y).astype('int32')
-    h0     = np.zeros((1, n_hidd)).astype(theano.config.floatX)
-    hat_y  = np.argmax(fwd(x, h0), 1)
-    err    += sum(hat_y != y)
-    N      += y.shape[0]
+#    x      = np.array(train_seq[0].x).astype('int32')
+#    y      = np.array(train_seq[0].y).astype('int32')
+    err  += err_sum(seq.x, seq.y)
+    N     += seq.y.shape[0]
 print "Acc %2.2f %%" % (100*(1 - err*1./N))
 
 for i in range(20):
@@ -110,13 +102,11 @@ for i in range(20):
     err  = 0
     N    = 0
     for n, seq in enumerate(train_seq):
-        x     = np.array(seq.x).astype('int32')
-        y     = np.array(seq.y).astype('int32')
-        h0    = np.zeros((1, n_hidd)).astype(theano.config.floatX)
-        #
-        err  += err_sum(x, h0, y)
-        N    += x.shape[0]
-        cost += batch_update(x, h0, y)
+#        x     = np.array(seq.x).astype('int32')
+#        y     = np.array(seq.y).astype('int32')
+        err  += err_sum(seq.x, seq.y)
+        N    += seq.x.shape[0]
+        cost += batch_update(seq.x, seq.y)
         perc  = (n+1)*100./len(train_seq) 
         sys.stdout.write("\r%2.2f %%" % perc)
         sys.stdout.flush()
@@ -131,22 +121,20 @@ for i in range(20):
     err = 0
     N   = 0
     for n, seq in enumerate(dev_seq):
-        x    = np.array(seq.x).astype('int32')
-        y    = np.array(seq.y).astype('int32')
-        h0   = np.zeros((1, n_hidd)).astype(theano.config.floatX)
-        err  += err_sum(x, h0, y)
-        N   += y.shape[0]
+#        x    = np.array(seq.x).astype('int32')
+#        y    = np.array(seq.y).astype('int32')
+        err  += err_sum(seq.x, seq.y)
+        N   += seq.y.shape[0]
     print "Devel Acc %2.2f %%" % (100*(1 - err*1./N))
 
 # TEST 
 err = 0
 N   = 0
 for n, seq in enumerate(test_seq):
-    x      = np.array(seq.x).astype('int32')
-    y      = np.array(seq.y).astype('int32')
-    h0     = np.zeros((1, n_hidd)).astype(theano.config.floatX)
-    err   += err_sum(x, h0, y)
-    N     += y.shape[0]
+#    x      = np.array(seq.x).astype('int32')
+#    y      = np.array(seq.y).astype('int32')
+    err   += err_sum(seq.x, seq.y)
+    N     += seq.y.shape[0]
 print "Test Acc %2.2f %%" % (100*(1 - err*1./N))
 
 set_trace()

@@ -24,9 +24,15 @@ class RNN():
         _W_y = theano.shared(W_y, borrow=True)
 
         # Class variables
-        self.param = [_W_x, _W_h, _W_y]
+        self.n_hidd = n_hidd
+        self.param  = [_W_x, _W_h, _W_y]
 
-    def _forward(self, _x, _h0):
+    def _forward(self, _x, _h0=None):
+
+        # Default initial hidden is allways set to zero
+        if _h0 is None:
+            h0  = np.zeros((1, self.n_hidd)).astype(theano.config.floatX)
+            _h0 = theano.shared(h0, borrow=True)
 
         # COMPUTATION GRAPH
         _W_x, _W_h, _W_y = self.param

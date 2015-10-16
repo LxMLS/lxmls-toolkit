@@ -4,6 +4,7 @@ from lxmls.sequences.label_dictionary import *
 from lxmls.sequences.sequence import *
 from lxmls.sequences.sequence_list import *
 from os.path import dirname
+import numpy as np   # This is also needed for theano=True
 
 #from nltk.corpus import brown
 
@@ -20,14 +21,9 @@ pt_train = data_dir + "pt_train.txt"
 pt_dev = ""
 pt_test = data_dir + "pt_test.txt"
 
-def compacify(train_seq, test_seq, dev_seq):
+def compacify(train_seq, test_seq, dev_seq, theano=False):
     '''
     Create a map for indices that is be compact (do not have unused indices)
-
-    THIS IS NOT AS EASY AS IT SEEMS DO TO THE ENTANGLED SEQUENCES CLASS ...
-
-    The easiest seems to redo the whole thing for teh reduced sentence set
-
     '''
 
     # REDO DICTS
@@ -44,11 +40,12 @@ def compacify(train_seq, test_seq, dev_seq):
                 if tag not in new_y_dict:
                     new_y_dict.add(tag)
 
-    import copy
-    train_seq2, test_seq2, dev_seq2 = copy.deepcopy(train_seq), copy.deepcopy(test_seq), copy.deepcopy(dev_seq)
+#    import copy
+#    train_seq2, test_seq2, dev_seq2 = copy.deepcopy(train_seq), copy.deepcopy(test_seq), copy.deepcopy(dev_seq)
     
     # REDO INDICES
-    for corpus_seq in [train_seq2, test_seq2, dev_seq2]:
+    #for corpus_seq in [train_seq2, test_seq2, dev_seq2]:
+    for corpus_seq in [train_seq, test_seq, dev_seq]:
         for seq in corpus_seq:
             for i in seq.x:
                 if corpus_seq.x_dict.get_label_name(i) not in new_x_dict:
@@ -60,6 +57,11 @@ def compacify(train_seq, test_seq, dev_seq):
                     pass
             seq.x = [new_x_dict[corpus_seq.x_dict.get_label_name(i)] for i in seq.x]
             seq.y = [new_y_dict[corpus_seq.y_dict.get_label_name(i)] for i in seq.y]
+            # For compatibility with GPUs store as numpy arrays and cats to int
+            # 32
+            if theano:
+                seq.x = np.array(seq.x, dtype='int32')
+                seq.y = np.array(seq.y, dtype='int32')
         # Reinstate new dicts
         corpus_seq.x_dict = new_x_dict
         corpus_seq.y_dict = new_y_dict
