@@ -23,39 +23,55 @@ pt_test = data_dir + "pt_test.txt"
 def compacify(train_seq, test_seq, dev_seq):
     '''
     Create a map for indices that is be compact (do not have unused indices)
+
+    THIS IS NOT AS EASY AS IT SEEMS DO TO THE ENTANGLED SEQUENCES CLASS ...
+
+    The easiest seems to redo the whole thing for teh reduced sentence set
+
     '''
-    # Create a map for indices that is be compact (do not have unused indices)
-    x_map = list(set([x for se in train_seq for x in se.x]) | 
-                 set([x for se in test_seq for x in se.x]) | 
-                 set([x for se in dev_seq for x in se.x]))
-    y_map = list(set([y for se in train_seq for y in se.y]) | 
-                 set([y for se in test_seq for y in se.y]) | 
-                 set([y for se in dev_seq for y in se.y]))
-    
-    #import copy
-    #train_seq2, test_seq2, dev_seq2 = copy.deepcopy(train_seq), copy.deepcopy(test_seq), copy.deepcopy(dev_seq)
+
+    # REDO DICTS
+    new_x_dict = LabelDictionary()
+    new_y_dict = LabelDictionary(['noun'])
     for corpus_seq in [train_seq, test_seq, dev_seq]:
-        # Remap all dictionary entries
-        for key, value in corpus_seq.x_dict.items():
-            if value in x_map:
-                corpus_seq.x_dict[key] = x_map.index(value)
-            else:
-                # Remove unused entries
-                corpus_seq.x_dict.pop(key,None)
-        # Remap all dictionary entries
-        for key, value in corpus_seq.y_dict.items():
-            if value in y_map:
-                corpus_seq.y_dict[key] = y_map.index(value)
-            else:
-                # Remove unused entries
-                corpus_seq.y_dict.pop(key,None)
         for seq in corpus_seq:
-            seq.x = [x_map.index(i) for i in seq.x]
-            seq.y = [y_map.index(i) for i in seq.y]
-    ## Reverse
-    #tmap  = {v: k for k, v in train_seq.x_dict.items()}
-    #tmap2 = {v: k for k, v in train_seq2.x_dict.items()}
+            for index in seq.x:
+                word = corpus_seq.x_dict.get_label_name(index)
+                if word not in new_x_dict:
+                    new_x_dict.add(word)
+            for index in seq.y:
+                tag = corpus_seq.y_dict.get_label_name(index)
+                if tag not in new_y_dict:
+                    new_y_dict.add(tag)
+
+    import copy
+    train_seq2, test_seq2, dev_seq2 = copy.deepcopy(train_seq), copy.deepcopy(test_seq), copy.deepcopy(dev_seq)
     
+    # REDO INDICES
+    for corpus_seq in [train_seq2, test_seq2, dev_seq2]:
+        for seq in corpus_seq:
+            for i in seq.x:
+                if corpus_seq.x_dict.get_label_name(i) not in new_x_dict:
+                    import ipdb;ipdb.set_trace() 
+                    pass
+            for i in seq.y:
+                if corpus_seq.y_dict.get_label_name(i) not in new_y_dict:
+                    import ipdb;ipdb.set_trace() 
+                    pass
+            seq.x = [new_x_dict[corpus_seq.x_dict.get_label_name(i)] for i in seq.x]
+            seq.y = [new_y_dict[corpus_seq.y_dict.get_label_name(i)] for i in seq.y]
+        # Reinstate new dicts
+        corpus_seq.x_dict = new_x_dict
+        corpus_seq.y_dict = new_y_dict
+
+    # SANITY CHECK:
+    # These must be the same
+#    tmap  = {v: k for k, v in train_seq.x_dict.items()}
+#    tmap2 = {v: k for k, v in train_seq2.x_dict.items()}
+#    import ipdb;ipdb.set_trace()
+#    [tmap[i] for i in train_seq[0].x] 
+#    [tmap2[i] for i in train_seq2[0].x]
+
     return train_seq, test_seq, dev_seq
 
 class PostagCorpus(object):

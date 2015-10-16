@@ -26,7 +26,6 @@ class RNN():
         # Class variables
         self.param = [_W_x, _W_h, _W_y]
 
-
     def _forward(self, _x, _h0):
 
         # COMPUTATION GRAPH
@@ -63,7 +62,7 @@ class RNN():
 def lstm(_x, _h0, _c0, _W_x, _W_h, _W_c, H):
 
     '''
-    LSTM Recurrent Neural Network. Note that default time axis is 0!
+    LSTM Recurrent Neural Network. 
 
     x, h0, c0      theano.tensor.matrix of shapes [L, I], [1, H], [1, H]
                    x is the sequence input to the network, h0 and c0 initial

@@ -60,7 +60,7 @@ import lxmls.deep_learning.rnn as rnn
 # FORWARD
 # CONFIG 
 n_words = len(train_seq.x_dict.keys())           # Number of words
-n_hidd  = 200                                    # Size of the recurrent layer
+n_hidd  = 10                                     # Size of the recurrent layer
 n_tags  = len(train_seq.y_dict.keys())           # Number of POS tags
 # SYMBOLIC VARIABLES
 _x      = T.ivector('x')    # Input words indices
@@ -70,12 +70,16 @@ rnn     = rnn.RNN(n_words, n_hidd, n_tags)
 # Symbolic forward
 _p_y    = rnn._forward(_x, _h0)
 
-# CLASSIFICATION COST
+# TRAIN COST
 _y      = T.ivector('y')    # True output tags indices
-_F      = -T.mean(T.log(_p_y)[T.arange(_y.shape[0]), _y])
+_F      = -T.mean(T.log(_p_y)[T.arange(_y.shape[0]), _y]) \
+
+# TOTAL PREDICTION ERROR 
+_err    = T.sum(T.neq(T.argmax(_p_y,1), _y))
+err_sum = theano.function([_x, _h0, _y], _err)
 
 # SGD UPDATE RULE
-lrate   = 0.01
+lrate   = 0.5
 updates = [(par, par - lrate*T.grad(_F, par)) for par in rnn.param] 
 
 # COMPILE FORWARD
@@ -99,28 +103,51 @@ for n, seq in enumerate(dev_seq):
     N      += y.shape[0]
 print "Acc %2.2f %%" % (100*(1 - err*1./N))
 
-for i in range(10):
+for i in range(20):
 
     # TRAIN EPOCH
-    cost =0
+    cost = 0
+    err  = 0
+    N    = 0
     for n, seq in enumerate(train_seq):
-        x      = np.array(train_seq[0].x).astype('int32')
-        y      = np.array(train_seq[0].y).astype('int32')
-        h0     = np.zeros((1, n_hidd)).astype(theano.config.floatX)
+        x     = np.array(seq.x).astype('int32')
+        y     = np.array(seq.y).astype('int32')
+        h0    = np.zeros((1, n_hidd)).astype(theano.config.floatX)
+        #
+        err  += err_sum(x, h0, y)
+        N    += x.shape[0]
         cost += batch_update(x, h0, y)
-        print "\r%d/%d cost %2.2f" % (n+1, len(train_seq), cost),
+        perc  = (n+1)*100./len(train_seq) 
+        sys.stdout.write("\r%2.2f %%" % perc)
+        sys.stdout.flush()
+
+    Acc = (1 - err*1./N)*100.
+    sys.stdout.write("\rTrain %d/%d cost %2.2f Acc %2.2f %%"  
+                     % (n+1, len(train_seq), cost, Acc))
+    sys.stdout.flush()
+    print ""
     
     # DEVEL
     err = 0
     N   = 0
     for n, seq in enumerate(dev_seq):
-        x      = np.array(train_seq[0].x).astype('int32')
-        y      = np.array(train_seq[0].y).astype('int32')
-        h0     = np.zeros((1, n_hidd)).astype(theano.config.floatX)
-        hat_y  = np.argmax(fwd(x, h0), 1)
-        err    += sum(hat_y != y)
-        N      += y.shape[0]
-    print "Acc %2.2f %%" % (100*(1 - err*1./N))
+        x    = np.array(seq.x).astype('int32')
+        y    = np.array(seq.y).astype('int32')
+        h0   = np.zeros((1, n_hidd)).astype(theano.config.floatX)
+        err  += err_sum(x, h0, y)
+        N   += y.shape[0]
+    print "Devel Acc %2.2f %%" % (100*(1 - err*1./N))
+
+# TEST 
+err = 0
+N   = 0
+for n, seq in enumerate(test_seq):
+    x      = np.array(seq.x).astype('int32')
+    y      = np.array(seq.y).astype('int32')
+    h0     = np.zeros((1, n_hidd)).astype(theano.config.floatX)
+    err   += err_sum(x, h0, y)
+    N     += y.shape[0]
+print "Test Acc %2.2f %%" % (100*(1 - err*1./N))
 
 set_trace()
 
