@@ -156,9 +156,9 @@ class LSTM():
 
         # MODEL PARAMETERS
         W_x = np.random.uniform(size=(4*n_hidd, n_emb))   # RNN Input layer
-        W_h = np.random.uniform(size=(4*n_hidd, n_hidd))  # RNN Recurrent layer 
+        W_h = np.random.uniform(size=(4*n_hidd, n_hidd))  # RNN recurrent var 
         W_c = np.random.uniform(size=(3*n_hidd, n_hidd))  # Second recurrent var 
-        W_y = np.random.uniform(size=(n_tags, n_hidd))  # Output layer
+        W_y = np.random.uniform(size=(n_tags, n_hidd))    # Output layer
         # Cast to theano GPU-compatible type
         W_e = W_e.astype(theano.config.floatX)
         W_x = W_x.astype(theano.config.floatX)
@@ -208,7 +208,7 @@ class LSTM():
 
             # GATES
             # Note the subtlety: _x_tm1 and hence _z_x are flat and have size
-            # (I,) _h_tm1 and _c_tm1 are not and thus have size (1, H)
+            # (H,) _h_tm1 and _c_tm1 are not and thus have size (1, H)
             _i_t = T.nnet.sigmoid(_z_x[:H] +_z_h[:, :H] +_z_c[:, :H])
             _f_t = T.nnet.sigmoid(_z_x[H:2*H] +_z_h[:, H:2*H] +_z_c[:, H:2*H])
             _o_t = T.nnet.sigmoid(_z_x[3*H:4*H] +_z_h[:, 3*H:4*H] +_z_c[:, 2*H:3*H])
