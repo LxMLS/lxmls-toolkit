@@ -5,8 +5,8 @@ import urllib2
 import numpy as np
 import theano
 import theano.tensor as T
-import pdb
-#from ipdb import set_trace
+
+from ipdb import set_trace
 
 def download_embeddings(embbeding_name, target_file):
     '''
@@ -73,174 +73,9 @@ def extract_embeddings(embedding_path, word_dict):
     return E
 
 
-class NumpyRNN():
-    def __init__(self, W_e, n_hidd, n_tags, seed=None):
-        '''
-        E       numpy.array Word embeddings of size (n_emb, n_words)
-        n_hidd  int         Size of the recurrent layer 
-        n_tags  int         Total number of tags
-        seed    int         Seed to random initialization of parameters (default=None)
-        '''
-        # Dimension of the embeddings
-        n_emb = W_e.shape[0]
-
-        # MODEL PARAMETERS
-        np.random.seed(seed)
-        W_x = np.random.uniform(size=(n_hidd, n_emb))   # Input layer 
-        W_h = np.random.uniform(size=(n_hidd, n_hidd))  # Recurrent layer
-        W_y = np.random.uniform(size=(n_tags, n_hidd))  # Output layer
-
-        # Class variables
-        self.n_hidd = n_hidd
-        self.param  = [W_e, W_x, W_h, W_y]
-        #self.param_names  = ['W_e', 'W_x', 'W_h', 'W_y']
-        self.activation_function = 'logistic'   # 'tanh' 'relu' 'logistic'
-        
-    def apply_activation(self, x, function_name):  
-        '''
-        '''        
-        if function_name == 'logistic':
-            z = 1 / (1 + np.exp(-x))
-        elif function_name == 'tanh':
-            z = np.tanh(x)
-        elif function_name == 'relu':
-            z = x
-            ind = np.where(z < 0.)
-            z[ind] = 0.
-        else:
-            raise NotImplementedError
-        return z
-
-    def derivate_activation(self, z, function_name):
-        '''
-        '''        
-        if function_name == 'logistic':
-            dx = z * (1. - z)
-        elif function_name == 'tanh':
-            dx = (1. - z * z)
-        elif function_name == 'relu':
-            dx = (np.sign(z)+1)/2.
-        else:
-            raise NotImplementedError
-        #pdb.set_trace()
-        return dx
-
-    def soft_max(self, x, alpha=1.0):
-        '''
-        '''        
-        e = np.exp(x / alpha)
-        return e / np.sum(e)
-        
-
-    def forward(self, x, allOuts=False, outputs=[]):
-        '''
-        Forward pass
-
-        allOuts = True  return intermediate activations; needed to comput backpropagation
-        ''' 
-        # Get parameters in nice form
-        W_e, W_x, W_h, W_y = self.param
-        
-        z1, h, y, p, p_y = {}, {}, {}, {}, {}
-        h[-1] = np.zeros(self.n_hidd)
-        loss = 0.
-        for t in xrange(len(x)):
-
-            z1[t] = W_e[:, x[t]].T
-
-            h[t] = self.apply_activation( W_x.dot(z1[t]) + W_h.dot(h[t-1]),
-                                          self.activation_function)
-            
-            y[t] = W_y.dot(h[t]) 
-            
-            ymax = max(y[t])
-            logsum = ymax + np.log(sum(np.exp(y[t]-ymax)))
-            p[t] = np.exp(y[t] - logsum)            
-            p_y[t] = p[t] / np.sum(p[t])  ##  
-#            # Annother way of computing p_y[t]
-#            p_y[t] = self.soft_max(y[t])
-
-            if outputs:
-                loss += -np.log(p_y[t][outputs[t]]) # Cross-entropy loss.
-
-        loss = loss/len(x)  # Normalize to get the mean
-        
-        if allOuts:
-            return loss, p_y, p, y, h, z1, x
-        else:
-            return p_y
-        
-    def grads(self, x, outputs):
-        '''
-            Compute gradientes, with the back-propagation method
-            inputs: 
-                x: vector with the (embedding) indicies of the words of a sentence
-                outputs: vector with the indicies of the tags for each word of the sentence
-            outputs:
-                nabla_params: vector with parameters gradientes            
-        '''
-
-        # Get parameters
-        W_e, W_x, W_h, W_y = self.param
-        
-        loss, p_y, p, y, h, z1, x = self.forward(x, allOuts=True, outputs=outputs)
-        
-        # Initialize gradients with zero entrances
-        nabla_W_e = np.zeros(W_e.shape)
-        nabla_W_x = np.zeros(W_x.shape)
-        nabla_W_h = np.zeros(W_h.shape)
-        nabla_W_y = np.zeros(W_y.shape)
-        
-        # backward pass, with gradient computation
-        dh_next = np.zeros_like(h[0])
-        for t in reversed(xrange(len(x))):
-
-            dy = np.copy(p[t])
-            dy[outputs[t]] -= 1. # backprop into y (softmax grad).
-            nabla_W_y += dy[:,None].dot(h[t][None,:])
-
-            dh = W_y.T.dot(dy) + dh_next # backprop into h.
-            # backprop through nonlinearity.
-            dh_raw = self.derivate_activation(h[t], self.activation_function) * dh
-            
-            nabla_W_h += dh_raw[:,None].dot(h[t-1][None,:])
-            
-            nabla_W_x += dh_raw[:,None].dot(z1[t][None,:])
-            
-            d_z1 = W_x.T.dot(dh_raw)            
-            
-            nabla_W_e[:,x[t]] += d_z1
-
-            dh_next = W_h.T.dot(dh_raw) 
-            
-        # Normalize to be in agrement with the loss
-        nabla_params = [nabla_W_e/len(x), nabla_W_x/len(x), nabla_W_h/len(x), nabla_W_y/len(x)]
-        return nabla_params
-
-    def save(self, model_path):
-        '''
-        Save model
-        '''
-        pass
-#        par = self.params + self.actvfunc
-#        with open(model_path, 'wb') as fid: 
-#            cPickle.dump(par, fid, cPickle.HIGHEST_PROTOCOL)
-
-    def load(self, model_path):
-        '''
-        Load model
-        '''
-        pass
-#        with open(model_path) as fid: 
-#            par      = cPickle.load(fid, cPickle.HIGHEST_PROTOCOL)
-#            params   = par[:len(par)/2]
-#            actvfunc = par[len(par)/2:]
-#        return params, actvfunc
-
-
 class RNN():
 
-    def __init__(self, W_e, n_hidd, n_tags, seed=None):
+    def __init__(self, W_e, n_hidd, n_tags):
         '''
         E       numpy.array Word embeddings of size (n_emb, n_words)
         n_hidd  int         Size of the recurrent layer 
@@ -251,7 +86,6 @@ class RNN():
         n_emb = W_e.shape[0]
 
         # MODEL PARAMETERS
-        np.random.seed(seed)
         W_x = np.random.uniform(size=(n_hidd, n_emb))   # Input layer 
         W_h = np.random.uniform(size=(n_hidd, n_hidd))  # Recurrent layer
         W_y = np.random.uniform(size=(n_tags, n_hidd))  # Output layer
@@ -271,7 +105,7 @@ class RNN():
         self.param  = [_W_e, _W_x, _W_h, _W_y]
 
     def _forward(self, _x, _h0=None):
-        
+
         # Default initial hidden is allways set to zero
         if _h0 is None:
             h0  = np.zeros((1, self.n_hidd)).astype(theano.config.floatX)
@@ -290,20 +124,20 @@ class RNN():
 
         # Embedding layer 
         _z1 = _W_e[:, _x].T
-                
+    
         # This defines what to do at each step
         def rnn_step(_x_tm1, _h_tm1, _W_x, W_h):
             return T.nnet.sigmoid(T.dot(_x_tm1, _W_x.T) + T.dot(_h_tm1, W_h.T))
-            
+    
         # This creates the variable length computation graph (unrols the rnn)
         _h, updates = theano.scan(fn=rnn_step, 
                                   sequences=_z1, 
                                   outputs_info=dict(initial=_h0),
                                   non_sequences=[_W_x ,_W_h])
-                
+    
         # Remove intermediate empty dimension
         _z2 = _h[:,0,:]
-        
+    
         # End of solution to Exercise 6.3
         ###########################
 
@@ -397,4 +231,3 @@ class LSTM():
         _p_y = T.nnet.softmax(T.dot(_z2, _W_y.T))
 
         return _p_y
-
