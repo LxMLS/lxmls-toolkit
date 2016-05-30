@@ -4,5 +4,4 @@ nltk
 numpy
 scipy
 matplotlib
-mrjob
 theano
