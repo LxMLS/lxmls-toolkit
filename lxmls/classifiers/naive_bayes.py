@@ -14,9 +14,9 @@ class NaiveBayes(lc.LinearClassifier):
         nr_x, nr_f = x.shape
         nr_c = np.unique(y).shape[0]
 
-        if (self.xtype == "gaussian"):
+        if self.xtype == "gaussian":
             params = self.train_gaussian(x, y, nr_x, nr_f, nr_c)
-        elif (self.xtype == "Multinomial"):
+        elif self.xtype == "Multinomial":
             print "Training a multinomial"
             params = self.train_multinomial(x, y, nr_x, nr_f, nr_c)
         else:

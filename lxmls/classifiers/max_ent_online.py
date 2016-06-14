@@ -37,7 +37,7 @@ class MaxEntOnline(lc.LinearClassifier):
                 y_true = y[inst:inst + 1, 0]
                 scores = self.get_scores(x[inst:inst + 1, :], w)
                 exp_scores = np.exp(scores)
-                if (np.any(np.isinf(exp_scores))):
+                if np.any(np.isinf(exp_scores)):
                     print "Overflow: removing max"
                     # In case we overflow we remove the max
                     max_score = np.max(scores)
@@ -53,7 +53,7 @@ class MaxEntOnline(lc.LinearClassifier):
                 # Update the model
                 objective += 0.5 * self.regularizer * l2norm_squared(w) - log(probs[0][y_true[0]])
                 w = (1 - self.regularizer * learning_rate) * w + learning_rate * (emp_feat - exp_feat)
-                if (np.any(np.isnan(w))):
+                if np.any(np.isnan(w)):
                     print "error parameters became not a number"
                     return w
             self.trained = True

@@ -41,17 +41,17 @@ class BrownPostag:
         seq_list_test = Sequence_List(x_dict, int_to_word, y_dict, int_to_pos)
         for ds, sl in [[train_s, seq_list_train], [dev_s, seq_list_dev], [test_s, seq_list_test]]:
             for s in ds:
-                if (len(s) > max_sent_len or len(s) <= 1):
+                if len(s) > max_sent_len or len(s) <= 1:
                     continue
                 ns_x = []
                 ns_y = []
                 for word, tag in s:
                     tag = tag.lower()
-                    if (tag not in mapping):
+                    if tag not in mapping:
                         # Add unk tags to dict
                         mapping[tag] = "noun"
                     c_t = mapping[tag]
-                    if (word not in x_dict):
+                    if word not in x_dict:
                         x_dict[word] = word_c
                         c_word = word_c
                         word_counts[c_word] = 1
@@ -60,7 +60,7 @@ class BrownPostag:
                     else:
                         c_word = x_dict[word]
                         word_counts[c_word] += 1
-                    if (c_t not in y_dict):
+                    if c_t not in y_dict:
                         y_dict[c_t] = tag_c
                         c_pos_c = tag_c
                         int_to_pos.append(c_t)

@@ -10,7 +10,7 @@ from viterbi import viterbi
 from forward_backward import forward_backward, sanity_check_forward_backward
 
 
-class HMMSecondOrder():
+class HMMSecondOrder:
     ''' Implements an HMM with second order dependecies
     We will use the state expansion version where we expand the states to be n^2 and use the normal infernece algorithms (forward backward and viterbi)'''
 
@@ -19,7 +19,7 @@ class HMMSecondOrder():
         self.init_probs = 0
         self.transition_probs = 0
         self.observation_probs = 0
-        if (nr_states == -1):
+        if nr_states == -1:
             self.nr_states = len(dataset.int_to_pos)
         else:
             self.nr_states = nr_states
@@ -41,7 +41,7 @@ class HMMSecondOrder():
     # Train a model in a supervised way, by counting events
     # Smoothing represents add-alpha smoothing
     def train_supervised(self, sequence_list, smoothing=0):
-        if (len(self.dataset.int_to_pos) != self.nr_states):
+        if len(self.dataset.int_to_pos) != self.nr_states:
             print "Cannot train supervised models with number of states different than true pos tags"
             return
 
@@ -69,7 +69,7 @@ class HMMSecondOrder():
     def print_observations(self, table):
         txt = "\t"
         for obs in xrange(self.nr_types + 1):
-            txt += "%i\t" % (obs)
+            txt += "%i\t" % obs
         print txt
 
         for state in xrange(self.nr_states + 1):
@@ -84,7 +84,7 @@ class HMMSecondOrder():
             len_x = len(sequence.x)
             # Goes from 0 to len(X)+order
             for pos in xrange(len_x + self.order):
-                if (pos >= len_x):
+                if pos >= len_x:
                     y_state = self.nr_states
                     x_idx = self.nr_types
                 else:
@@ -93,14 +93,14 @@ class HMMSecondOrder():
                 self.observation_counts[x_idx, y_state] += 1
 
                 # Take care of prev_prev_state
-                if (pos - 2 < 0):
+                if pos - 2 < 0:
                     prev_prev_state = self.nr_states
                 else:
                     prev_prev_state = sequence.y[pos - 2]
                 # Take care of prev_state
-                if (pos - 1 < 0):
+                if pos - 1 < 0:
                     prev_state = self.nr_states
-                elif (pos - 1 >= len_x):
+                elif pos - 1 >= len_x:
                     prev_state = self.nr_states
                 else:
                     prev_state = sequence.y[pos - 1]
@@ -130,7 +130,7 @@ class HMMSecondOrder():
                 for state in xrange(self.nr_states + 1):
                     sum_value += self.transition_counts[state, prev_state, prev_prev_state]
                 for state in xrange(self.nr_states + 1):
-                    if (sum_value != 0):
+                    if sum_value != 0:
                         self.transition_probs[state, prev_state, prev_prev_state] = self.transition_counts[state, prev_state, prev_prev_state] / sum_value
         self.observation_probs = normalize_array(self.observation_counts)
 
@@ -182,12 +182,12 @@ class HMMSecondOrder():
         sum_observations = np.sum(self.observation_counts)
         # Compare
         value = (nr_tokens + 2 * nr_sentences) + smoothing * self.transition_counts.size
-        if (abs(sum_transition - value) > 0.001):
+        if abs(sum_transition - value) > 0.001:
             print "Transition counts do not match: is - %f should be - %f" % (sum_transition, value)
         else:
             print "Transition Counts match"
         value = nr_tokens + 2 * nr_sentences + self.observation_counts.size * smoothing
-        if (abs(sum_observations - value) > 0.001):
+        if abs(sum_observations - value) > 0.001:
             print "Observations counts do not match: is - %f should be - %f" % (sum_observations, value)
         else:
             print "Observations Counts match"
@@ -205,7 +205,7 @@ class HMMSecondOrder():
         node_potentials = np.zeros([self.nr_states + 1, nr_pos + 2], dtype=float)
         for pos in xrange(nr_pos + 2):
             edge_potentials[:, :, :, pos] = self.transition_probs
-            if (pos >= nr_pos):
+            if pos >= nr_pos:
                 node_potentials[:, pos] = self.observation_probs[self.nr_types, :]
             else:
                 node_potentials[:, pos] = self.observation_probs[sequence.x[pos], :]
@@ -218,17 +218,17 @@ class HMMSecondOrder():
         nr_pos = len(seq.x)
         value = 1
         for pos in xrange(nr_pos + 2):
-            if (pos >= nr_pos):
+            if pos >= nr_pos:
                 y_state = self.nr_states
             else:
                 y_state = seq.y[pos]
-            if (pos - 1 >= nr_pos):
+            if pos - 1 >= nr_pos:
                 prev_y_state = self.nr_states
-            elif (pos - 1 < 0):
+            elif pos - 1 < 0:
                 prev_y_state = self.nr_states
             else:
                 prev_y_state = seq.y[pos - 1]
-            if (pos - 2 < 0):
+            if pos - 2 < 0:
                 prev_prev_y_state = self.nr_states
             else:
                 prev_prev_y_state = seq.y[pos - 2]
@@ -328,7 +328,7 @@ class HMMSecondOrder():
         for i, seq in enumerate(seq_list):
             pred = predictions[i]
             for i, y_hat in enumerate(pred.y):
-                if (seq.y[i] == y_hat):
+                if seq.y[i] == y_hat:
                     correct += 1
                 total += 1
         return correct / total

@@ -31,9 +31,9 @@ def build_confusion_matrix(truth_seq, prediction_seq, nr_true_pos, nr_states):
         pred = prediction_seq[i]
         for i, y_hat in enumerate(pred.y):
             y_truth = seq.y[i]
-            if (y_hat not in matrix):
+            if y_hat not in matrix:
                 matrix[y_hat] = {}
-            if (y_truth not in matrix[y_hat]):
+            if y_truth not in matrix[y_hat]:
                 matrix[y_hat][y_truth] = 0
             matrix[y_hat][y_truth] += 1
     return matrix
@@ -59,7 +59,7 @@ def get_best_assignment(conf_matrix):
 def split_matrix_by_best_tag(conf_mat, best_tags):
     matrix_per_tag = {}
     for cluster, best_tag in best_tags.items():
-        if (best_tag not in matrix_per_tag):
+        if best_tag not in matrix_per_tag:
             matrix_per_tag[best_tag] = {}
         matrix_per_tag[best_tag][cluster] = conf_mat[cluster]
     return matrix_per_tag
@@ -115,7 +115,7 @@ def plot_confusion_bar_graph(matrix, pos_list, clusters, title):
         sorted_tags = sort_dic_by_value(cluster_tags, reverse=True)
         bottom = 0
         for tag, value in sorted_tags:
-            if (tag not in rects):
+            if tag not in rects:
                 rects[tag] = {}
             tag_name = pos_list.get_label_name(tag)
             tag_name = tag_name.upper()

@@ -27,14 +27,14 @@ class SentimentCorpus:
 
 
 def split_train_dev_test(X, y, train_per, dev_per, test_per):
-    if (train_per + dev_per + test_per > 1):
+    if train_per + dev_per + test_per > 1:
         print "Train Dev Test split should sum to one"
         return
     dim = y.shape[0]
     print dim
     split1 = int(dim * train_per)
     print split1
-    if (dev_per == 0):
+    if dev_per == 0:
         train_y, test_y = np.vsplit(y, [split1])
         dev_y = np.array([])
         train_X = X[0:split1, :]
@@ -58,7 +58,7 @@ def build_dicts(domain):
     '''Builds feature dictionaries for a given domain of the sentiment analysis corpus.'''
     sentiment_domains = ["books", "dvd", "electronics", "kitchen"]
     feat_counts = {}
-    if (domain not in sentiment_domains):
+    if domain not in sentiment_domains:
         print "Domain does not exist: \"%s\": Available are: %s" % (domain, sentiment_domains)
         return
 
@@ -70,7 +70,7 @@ def build_dicts(domain):
         toks = line.split(" ")
         for feat in toks[0:-1]:
             name, counts = feat.split(":")
-            if (name not in feat_counts):
+            if name not in feat_counts:
                 feat_counts[name] = 0
             feat_counts[name] += int(counts)
     pos_file.close()
@@ -81,7 +81,7 @@ def build_dicts(domain):
         toks = line.split(" ")
         for feat in toks[0:-1]:
             name, counts = feat.split(":")
-            if (name not in feat_counts):
+            if name not in feat_counts:
                 feat_counts[name] = 0
             feat_counts[name] += int(counts)
     neg_file.close()
@@ -93,7 +93,7 @@ def build_dicts(domain):
     # Remove all features that occur less than X
     to_remove = []
     for key, value in feat_counts.iteritems():
-        if (value < 5):
+        if value < 5:
             to_remove.append(key)
     for key in to_remove:
         del feat_counts[key]
@@ -120,7 +120,7 @@ def build_dicts(domain):
         toks = line.split(" ")
         for feat in toks[0:-1]:
             name, counts = feat.split(":")
-            if (name in feat_dict):
+            if name in feat_dict:
                 # print "adding %s with counts %s"%(name,counts)
                 X[nr_pos, feat_dict[name]] = int(counts)
         nr_pos += 1
@@ -130,7 +130,7 @@ def build_dicts(domain):
         toks = line.split(" ")
         for feat in toks[0:-1]:
             name, counts = feat.split(":")
-            if (name in feat_dict):
+            if name in feat_dict:
                 # print "adding %s with counts %s"%(name,counts)
                 X[nr_pos + nr_neg, feat_dict[name]] = int(counts)
         nr_neg += 1

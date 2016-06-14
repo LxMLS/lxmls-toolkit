@@ -3,7 +3,7 @@ import numpy as np
 import pdb
 
 
-class DependencyDecoder():
+class DependencyDecoder:
     '''
     Dependency decoder class
     '''
@@ -157,7 +157,7 @@ class DependencyDecoder():
             raise ValueError("scores must be a squared matrix with nw+1 rows")
             return []
 
-        nw = nr - 1;
+        nw = nr - 1
 
         curr_nodes = np.ones(nw + 1, int)
         reps = []
@@ -191,7 +191,7 @@ class DependencyDecoder():
         '''
 
         # need to construct for each node list of nodes they represent (here only!)
-        nw = np.size(curr_nodes) - 1;
+        nw = np.size(curr_nodes) - 1
 
         # create best graph
         par = -np.ones(nw + 1, int)
@@ -338,7 +338,7 @@ class DependencyDecoder():
         # is a key in the final_edges, it is the one.
         if self.verbose:
             print final_edges
-        wh = -1;
+        wh = -1
         found = False
         for i in range(0, np.size(rep_cons)):
             if found:

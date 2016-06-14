@@ -8,7 +8,7 @@ import numpy as np
 # ----------
 
 
-class Gaussian():
+class Gaussian:
     def __init__(self, mean, variance):
         self.mean = mean
         self.variance = variance

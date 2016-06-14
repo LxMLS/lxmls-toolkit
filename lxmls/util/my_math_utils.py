@@ -67,13 +67,13 @@ def l2norm_squared(a):
 # ----------
 def normalize_array(a, direction="column"):
     b = a.copy()
-    if (direction == "column"):
+    if direction == "column":
         sums = np.sum(b, 0)
         return np.nan_to_num(b / sums)
-    elif (direction == "row"):
+    elif direction == "row":
         sums = np.sum(b, 1)
         return np.nan_to_num((b.transpose() / sums).transpose())
-    elif (direction == "all"):
+    elif direction == "all":
         sums = np.sum(b)
         return np.nan_to_num(b / sums)
     else:

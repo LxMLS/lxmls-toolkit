@@ -3,7 +3,7 @@ import sequence_classification_decoder as scd
 import pdb
 
 
-class SequenceClassifier():
+class SequenceClassifier:
     ''' Implements an abstract sequence classifier.'''
 
     def __init__(self, observation_labels, state_labels):
@@ -157,7 +157,7 @@ class SequenceClassifier():
         for i, sequence in enumerate(dataset.seq_list):
             pred = predictions[i]
             for j, y_hat in enumerate(pred.y):
-                if (sequence.y[j] == y_hat):
+                if sequence.y[j] == y_hat:
                     correct += 1
                 total += 1
         return correct / total

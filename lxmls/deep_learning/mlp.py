@@ -19,7 +19,7 @@ def index2onehot(index, N):
     return onehot
 
 
-class NumpyMLP():
+class NumpyMLP:
     '''
     Basic MLP with forward-pass and gradient computation
     '''

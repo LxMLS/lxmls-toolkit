@@ -31,9 +31,9 @@ def forward_backward(node_potentials, edge_potentials):
             prob = 0
             for next_state in xrange(H):
                 back = backward[next_state, pos + 1]
-                trans = edge_potentials[current_state, next_state, pos];
-                observation = node_potentials[next_state, pos + 1];
-                prob += trans * observation * back;
+                trans = edge_potentials[current_state, next_state, pos]
+                observation = node_potentials[next_state, pos + 1]
+                prob += trans * observation * back
             backward[current_state, pos] = prob
     # sanity_check_forward_backward(forward,backward)
     return forward, backward

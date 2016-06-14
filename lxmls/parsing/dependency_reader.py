@@ -4,7 +4,7 @@ import os
 from os import path
 
 
-class Instance():
+class Instance:
     '''
     Instance class
     '''
@@ -15,7 +15,7 @@ class Instance():
         self.heads = []
 
 
-class DependencyReader():
+class DependencyReader:
     '''
     Dependency reader class
     '''
@@ -38,7 +38,7 @@ class DependencyReader():
         word_dict = {}
         pos_dict = {}
         feat_counts = {}
-        if (language not in languages):
+        if language not in languages:
             print "Language does not exist: \"%s\": Available are: %s" % (language, languages)
             return
 

@@ -39,7 +39,7 @@ class ExtendedFeatures(IDFeatures):
             if feat_id != -1:
                 features.append(feat_id)
 
-        if (unicode.find(word, "-") != -1):
+        if unicode.find(word, "-") != -1:
             # Generate feature name.
             feat_name = "hyphen::%s" % y_name
             # Get feature ID from name.
@@ -51,7 +51,7 @@ class ExtendedFeatures(IDFeatures):
         # Suffixes
         max_suffix = 3
         for i in xrange(max_suffix):
-            if (len(word) > i + 1):
+            if len(word) > i + 1:
                 suffix = word[-(i + 1):]
                 # Generate feature name.
                 feat_name = "suffix:%s::%s" % (suffix, y_name)
@@ -64,7 +64,7 @@ class ExtendedFeatures(IDFeatures):
         # Prefixes
         max_prefix = 3
         for i in xrange(max_prefix):
-            if (len(word) > i + 1):
+            if len(word) > i + 1:
                 prefix = word[:i + 1]
                 # Generate feature name.
                 feat_name = "prefix:%s::%s" % (prefix, y_name)

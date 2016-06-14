@@ -28,7 +28,7 @@ def viterbi(node_potentials, edge_potentials):
                 viter_v = max_marginals[prev_state, pos - 1]
                 trans_v = log_stable(edge_potentials[prev_state, current_state, pos - 1])
                 logprob = viter_v + trans_v
-                if (logprob > max_logprob):
+                if logprob > max_logprob:
                     max_logprob = logprob
                     max_state = prev_state
             max_marginals[current_state, pos] = max_logprob + log_stable(node_potentials[current_state, pos])
@@ -73,7 +73,7 @@ def viterbi_log(node_potentials, edge_potentials):
                 viter_v = max_marginals[prev_state, pos - 1]
                 trans_v = edge_potentials[prev_state, current_state, pos - 1]
                 logprob = viter_v + trans_v
-                if (logprob > max_logprob):
+                if logprob > max_logprob:
                     max_logprob = logprob
                     max_state = prev_state
             max_marginals[current_state, pos] = max_logprob + node_potentials[current_state, pos]

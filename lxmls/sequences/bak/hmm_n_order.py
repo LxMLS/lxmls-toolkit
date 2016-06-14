@@ -73,7 +73,7 @@ def possible_prev_state(state, prev_state):
 
 
 # NOT IMPLEMENTED YET
-class HMMNOrder():
+class HMMNOrder:
     def __init__(self, dataset, true_states=-1, order=2):
         self.trained = False
 
@@ -148,38 +148,38 @@ class HMMNOrder():
         #         print history
 
     def add_counts(self, strucuture, state, history, value):
-        if (state == 42):
+        if state == 42:
             print "A entrar no add counts com 42 e valor %f" % value
             print "history"
             print history
-        if (history not in strucuture):
-            if (state == 42):
+        if history not in strucuture:
+            if state == 42:
                 print "history not in structure"
             strucuture[history] = {}
-        if (state in strucuture[history]):
-            if (state == 42):
+        if state in strucuture[history]:
+            if state == 42:
                 print "adding value prev: %.2f value %.2f" % (strucuture[history][state], value)
             strucuture[history][state] += value
-            if (state == 42):
+            if state == 42:
                 print "adding value after: %.2f value %.2f" % (strucuture[history][state], value)
         else:
-            if (state == 42):
+            if state == 42:
                 print "state not in history"
                 print strucuture[history]
             strucuture[history][state] = value
 
     def set_counts(self, strucuture, state, history, value):
-        if (history not in strucuture):
+        if history not in strucuture:
             strucuture[history] = {}
-        if (state in strucuture[history]):
+        if state in strucuture[history]:
             strucuture[history][state] = value
         else:
             strucuture[history][state] = value
 
     def get_counts(self, strucuture, state, history):
-        if (history not in strucuture):
+        if history not in strucuture:
             return 0.0
-        if (state in strucuture[history]):
+        if state in strucuture[history]:
             return strucuture[history][state]
         else:
             return 0.0
@@ -192,18 +192,18 @@ class HMMNOrder():
             len_x = len(sequence.x)
             # Goes from 0 to len(X)+order
             for pos in xrange(len_x + self.order):
-                if (pos >= len_x):
+                if pos >= len_x:
                     y_state = self.fake_state
                 else:
                     y_state = sequence.y[pos]
                     # Only add counts in valid position
-                    if (sequence.x[pos] == 42):
+                    if sequence.x[pos] == 42:
                         print "Vou adicionar contagens"
                     self.add_counts(self.observation_counts, sequence.x[pos], y_state, 1.0)
 
                 # Build the history for this position
                 for i in xrange(1, self.order + 1):
-                    if (pos - i < 0 or pos - i >= len_x):
+                    if pos - i < 0 or pos - i >= len_x:
                         history[-i] = self.fake_state
                     else:
                         history[-i] = sequence.y[pos - i]
@@ -217,21 +217,21 @@ class HMMNOrder():
     def clear_counts(self, obs_smoothing=0.0, trans_smoothing=0.0):
         self.transition_counts = {}
         self.observation_counts = {}
-        if (obs_smoothing != 0.0):
+        if obs_smoothing != 0.0:
             print "Estou no obs smoothing"
             for tt in xrange(self.true_states):
-                if (tt not in self.observation_counts):
+                if tt not in self.observation_counts:
                     self.observation_counts[tt] = {}
                     for w_id in xrange(self.nr_types):
-                        if (w_id not in self.observation_counts[tt]):
+                        if w_id not in self.observation_counts[tt]:
                             self.observation_counts[tt][w_id] = obs_smoothing
-        if (trans_smoothing != 0.0):
+        if trans_smoothing != 0.0:
             print "Estou no trans smoothing"
             for hmm_s in self.all_states:
-                if (hmm_s not in self.transition_counts):
+                if hmm_s not in self.transition_counts:
                     self.transition_counts[hmm_s] = {}
                 for tt in xrange(self.base_states):
-                    if (tt not in self.transition_counts[hmm_s]):
+                    if tt not in self.transition_counts[hmm_s]:
                         self.transition_counts[hmm_s][tt] = trans_smoothing
 
     # Gets the counts table, normalizes it and add the values to the
@@ -249,7 +249,7 @@ class HMMNOrder():
         param_table = {}
         for condition, values in count_table.iteritems():
             total = sum(values.values())
-            if (total == 0):
+            if total == 0:
                 break
             params_values = {}
             for key, value in values.iteritems():
@@ -275,12 +275,12 @@ class HMMNOrder():
         sum_observations = deep_dictionary_sum(self.observation_counts)
         # Compare
         value = (nr_tokens + 2 * nr_sentences)
-        if (abs(sum_transition - value) > 0.001):
+        if abs(sum_transition - value) > 0.001:
             print "Transition counts do not match: is - %f should be - %f" % (sum_transition, value)
         else:
             print "Transition Counts match"
         value = nr_tokens
-        if (abs(sum_observations - value) > 0.001):
+        if abs(sum_observations - value) > 0.001:
             print "Observations counts do not match: is - %f should be - %f" % (sum_observations, value)
         else:
             print "Observations Counts match"
@@ -308,7 +308,7 @@ class HMMNOrder():
                     prev_y_state = prev_state[-1]
                     if possible_prev_state(current_state, prev_state):
                         forward_v = forward[prev_state_idx, pos - 1]
-                        if (forward_v == 0):
+                        if forward_v == 0:
                             continue
                         # print "Position: %i"%(pos)
                         # print "Prev State"
@@ -325,13 +325,13 @@ class HMMNOrder():
         # Final Position
         for current_state_idx, current_state in enumerate(self.all_states):
             current_y_state = current_state[-1]
-            if (current_y_state == self.fake_state):
+            if current_y_state == self.fake_state:
                 # print "Final state"
                 # print current_state
                 for prev_state_idx, prev_state in enumerate(self.all_states):
                     if possible_prev_state(current_state, prev_state):
                         forward_v = forward[prev_state_idx, N - 2]
-                        if (forward_v == 0):
+                        if forward_v == 0:
                             continue
                         # print "Prev State"
                         # print prev_state
@@ -343,7 +343,7 @@ class HMMNOrder():
         # Final position
         for current_state_idx, current_state in enumerate(self.all_states):
             current_y_state = current_state[-1]
-            if (current_y_state == self.fake_state):
+            if current_y_state == self.fake_state:
                 backward[current_state_idx, N - 1] = 1
         # Middel positions
         for pos in xrange(N - 2, 0, -1):
@@ -356,12 +356,12 @@ class HMMNOrder():
                     if possible_prev_state(next_state, current_state):
                         # print prev_state_idx,prev_state,pos
                         back = backward[next_state_idx, pos + 1]
-                        trans = self.get_counts(self.transition_probs, next_y_state, current_state);
-                        if (true_pos + 1 >= len(seq.x)):
+                        trans = self.get_counts(self.transition_probs, next_y_state, current_state)
+                        if true_pos + 1 >= len(seq.x):
                             observation = 1
                         else:
                             observation = self.get_counts(self.observation_probs, seq.x[true_pos + 1], next_y_state)
-                        prob += trans * observation * back;
+                        prob += trans * observation * back
                 backward[current_state_idx, pos] = prob
         # Initial position
         prob = 0
@@ -371,13 +371,13 @@ class HMMNOrder():
                 # print "next state"
                 # print next_state
                 back = backward[next_state_idx, 1]
-                trans = self.get_counts(self.transition_probs, next_y_state, self.fake_history);
+                trans = self.get_counts(self.transition_probs, next_y_state, self.fake_history)
                 observation = self.get_counts(self.observation_probs, seq.x[0], next_y_state)
                 # print "obs %.4f"%(observation)
                 # print "back %.4f"%(back)
                 # print "trans %.4f"%(trans)
                 # print "adding %.4f"%(trans * observation * back)
-                prob += trans * observation * back;
+                prob += trans * observation * back
         backward[self.fake_history_idx, 0] = prob
         return forward, backward
 
@@ -437,7 +437,7 @@ class HMMNOrder():
                         print prev_state
                         print "state"
                         print state
-                        if (true_pos + 1 >= len(seq.y)):
+                        if true_pos + 1 >= len(seq.y):
                             edge_posteriors[prev_state_idx, state_idx, pos] = forward[prev_state_idx, pos] * self.get_counts(self.transition_probs,
                                                                                                                              state_y,
                                                                                                                              prev_state) * 1 * backward[
@@ -502,7 +502,7 @@ class HMMNOrder():
         for i, seq in enumerate(seq_list):
             pred = predictions[i]
             for i, y_hat in enumerate(pred.y):
-                if (seq.y[i] == y_hat):
+                if seq.y[i] == y_hat:
                     correct += 1
                 total += 1
         return correct / total
@@ -532,7 +532,7 @@ class HMMNOrder():
             eval_viterbi_test = self.evaluate_corpus(test.seq_list, viterbi_pred_test)
             eval_posterior_test = self.evaluate_corpus(test.seq_list, posterior_pred_test)
             print "Smoothing %f -- Test Set Accuracy: Posterior Decode %.3f, Viterbi Decode: %.3f" % (i, eval_posterior_test, eval_viterbi_test)
-            if (eval_posterior_test > max_acc):
+            if eval_posterior_test > max_acc:
                 max_acc = eval_posterior_test
                 max_smooth = i
         return max_smooth

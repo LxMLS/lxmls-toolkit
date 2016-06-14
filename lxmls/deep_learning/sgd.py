@@ -15,7 +15,7 @@ def class_acc(hat_y, y_ref):
     p_dev = np.sum(np.log(pred))
     # Check percent correct classification on the devel set
     cr = np.sum((np.argmax(hat_y, 0) == y_ref).astype(int)) * 1.0 / y_ref.shape[0]
-    return (cr, p_dev)
+    return cr, p_dev
 
 
 def sanity_checks(batch_up, n_batch, bsize, lrate, train_set):

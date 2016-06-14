@@ -44,7 +44,7 @@ def eval_model(corpus, features, model):
     test_seq = corpus.read_sequence_list_conll("../../data/test-23.conll")
     pred_test = model.viterbi_decode_corpus_log(test_seq.seq_list)
     eval_test = model.evaluate_corpus(test_seq.seq_list, pred_test)
-    print "Accuracy on wsj test %f" % (eval_test)
+    print "Accuracy on wsj test %f" % eval_test
 
 
 def eval_brown(corpus, features, model):

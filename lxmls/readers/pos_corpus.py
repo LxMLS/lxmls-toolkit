@@ -50,12 +50,12 @@ def compacify(train_seq, test_seq, dev_seq, theano=False):
         for seq in corpus_seq:
             for i in seq.x:
                 if corpus_seq.x_dict.get_label_name(i) not in new_x_dict:
-                    import ipdb;
+                    import ipdb
                     ipdb.set_trace()
                     pass
             for i in seq.y:
                 if corpus_seq.y_dict.get_label_name(i) not in new_y_dict:
-                    import ipdb;
+                    import ipdb
                     ipdb.set_trace()
                     pass
             seq.x = [new_x_dict[corpus_seq.x_dict.get_label_name(i)] for i in seq.x]
@@ -134,16 +134,16 @@ class PostagCorpus(object):
         nr_pos = len(self.tag_dict)
         for line in contents:
             toks = line.split()
-            if (len(toks) < 2):
+            if len(toks) < 2:
                 # print "sent n %i size %i"%(nr_sent,len(ex_x))
-                if (len(ex_x) < max_sent_len and len(ex_x) > 1):
+                if len(ex_x) < max_sent_len and len(ex_x) > 1:
                     # print "accept"
                     nr_sent += 1
                     instances.append([ex_x, ex_y])
                 # else:
                 #     if(len(ex_x) <= 1):
                 #         print "refusing sentence of len 1"
-                if (nr_sent >= max_nr_sent):
+                if nr_sent >= max_nr_sent:
                     break
                 ex_x = []
                 ex_y = []
@@ -151,7 +151,7 @@ class PostagCorpus(object):
                 pos = toks[4]
                 word = toks[1]
                 pos = pos.lower()
-                if (pos not in mapping):
+                if pos not in mapping:
                     mapping[pos] = "noun"
                     print "unknown tag %s" % pos
                 pos = mapping[pos]
@@ -241,7 +241,7 @@ class PostagCorpus(object):
         tag_fn = open(dir + "tag.dic", "r")
         for line in tag_fn:
             tag_nr, tag = line.strip().split("\t")
-            if (tag not in self.tag_dict):
+            if tag not in self.tag_dict:
                 self.int_to_tag.append(tag)
                 self.tag_dict[tag] = int(tag_nr)
         tag_fn.close()

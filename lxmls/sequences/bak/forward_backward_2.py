@@ -30,9 +30,9 @@ def forward_backward(node_potentials, edge_potentials):
             logprob = -1000.0
             for next_state in xrange(H):
                 back = backward[next_state, pos + 1]
-                trans = np.log(edge_potentials[current_state, next_state, pos]);
-                observation = np.log(node_potentials[next_state, pos + 1]);
-                logprob = np.logaddexp(logprob, trans + observation + back);
+                trans = np.log(edge_potentials[current_state, next_state, pos])
+                observation = np.log(node_potentials[next_state, pos + 1])
+                logprob = np.logaddexp(logprob, trans + observation + back)
             backward[current_state, pos] = logprob
     # sanity_check_forward_backward(forward,backward)
     # print forward, backward

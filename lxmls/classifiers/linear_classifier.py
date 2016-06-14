@@ -1,7 +1,7 @@
 import numpy as np
 
 
-class LinearClassifier():
+class LinearClassifier:
     def __init__(self):
         self.trained = False
 
@@ -45,7 +45,7 @@ class LinearClassifier():
         correct = 0.0
         total = 0.0
         for i in range(len(truth)):
-            if (truth[i] == predicted[i]):
+            if truth[i] == predicted[i]:
                 correct += 1
             total += 1
         return 1.0 * correct / total

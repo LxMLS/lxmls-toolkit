@@ -4,7 +4,7 @@ from scipy.sparse import lil_matrix
 from lxmls.parsing.dependency_reader import *
 
 
-class DependencyFeatures():
+class DependencyFeatures:
     '''
     Dependency features class
     '''
@@ -47,7 +47,7 @@ class DependencyFeatures():
         nw = np.size(instance.words)
         k = 0
         ff = []
-        if (h < m):
+        if h < m:
             att_dir = 1  # Right attachment
             dist = m - h  # Distance
         else:

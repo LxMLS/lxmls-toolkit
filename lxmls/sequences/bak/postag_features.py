@@ -53,40 +53,40 @@ class ExtendedFeatures:
         word = self.dataset.int_to_word[x]
         feat = "id:%s::%s" % (word, y_name)
         nr_feat = self.add_feature(feat)
-        if (nr_feat != -1):
+        if nr_feat != -1:
             idx.append(nr_feat)
         if unicode.istitle(word):
             feat = "uppercased::%s" % y_name
             nr_feat = self.add_feature(feat)
-            if (nr_feat != -1):
+            if nr_feat != -1:
                 idx.append(nr_feat)
             if unicode.isdigit(word):
                 feat = "number::%s" % y_name
                 nr_feat = self.add_feature(feat)
-                if (nr_feat != -1):
+                if nr_feat != -1:
                     idx.append(nr_feat)
             if unicode.find(word, "-") != -1:
                 feat = "hyphen::%s" % y_name
                 nr_feat = self.add_feature(feat)
-                if (nr_feat != -1):
+                if nr_feat != -1:
                     idx.append(nr_feat)
             # Suffixes
             max_suffix = 3
             for i in xrange(max_suffix):
-                if (len(word) > i + 1):
+                if len(word) > i + 1:
                     suffix = word[-(i + 1):]
                     feat = "suffix:%s::%s" % (suffix, y_name)
                     nr_feat = self.add_feature(feat)
-                    if (nr_feat != -1):
+                    if nr_feat != -1:
                         idx.append(nr_feat)
             # Prefixes
             max_prefix = 3
             for i in xrange(max_prefix):
-                if (len(word) > i + 1):
+                if len(word) > i + 1:
                     prefix = word[:i + 1]
                     feat = "prefix:%s::%s" % (prefix, y_name)
                     nr_feat = self.add_feature(feat)
-                    if (nr_feat != -1):
+                    if nr_feat != -1:
                         idx.append(nr_feat)
             # if(pos > 0):
             #     prev_word = seq.x[pos-1]
@@ -104,10 +104,10 @@ class ExtendedFeatures:
             #         nr_feat = self.add_feature(feat)
             #         if(nr_feat != -1):                        
             #             idx.append(nr_feat)
-            if (self.dataset.word_counts[x] <= 5):
-                feat = "rare::%s" % (y_name)
+            if self.dataset.word_counts[x] <= 5:
+                feat = "rare::%s" % y_name
                 nr_feat = self.add_feature(feat)
-                if (nr_feat != -1):
+                if nr_feat != -1:
                     idx.append(nr_feat)
 
         return idx
@@ -118,9 +118,9 @@ class ExtendedFeatures:
     def get_node_features(self, seq, pos, y):
         all_feat = []
         x = seq.x[pos]
-        if (x not in self.node_feature_cache):
+        if x not in self.node_feature_cache:
             self.node_feature_cache[x] = {}
-        if (y not in self.node_feature_cache[x]):
+        if y not in self.node_feature_cache[x]:
             node_idx = []
             node_idx = self.add_node_features(seq, pos, y, node_idx)
             # node_idx = filter (lambda a: a != -1, node_idx)
@@ -128,8 +128,8 @@ class ExtendedFeatures:
         idx = self.node_feature_cache[x][y]
         all_feat = idx[:]
         # print idx
-        if (pos == 0):
-            if (y not in self.initial_state_feature_cache):
+        if pos == 0:
+            if y not in self.initial_state_feature_cache:
                 init_idx = []
                 init_idx = self.add_init_state_features(seq, pos, y, init_idx)
                 self.initial_state_feature_cache[y] = init_idx
@@ -141,9 +141,9 @@ class ExtendedFeatures:
 
     def add_init_state_features(self, seq, pos, y, init_idx):
         y_name = self.dataset.int_to_pos[y]
-        feat = "init_tag:%s" % (y_name)
+        feat = "init_tag:%s" % y_name
         nr_feat = self.add_feature(feat)
-        if (nr_feat != -1):
+        if nr_feat != -1:
             init_idx.append(nr_feat)
         return init_idx
 
@@ -151,12 +151,12 @@ class ExtendedFeatures:
         # print "Adding edge feature for pos:%i y:%i y_prev%i seq_len:%i"%(pos,y,y_prev,len(seq.x))
         y_name = self.dataset.int_to_pos[y]
         y_prev_name = self.dataset.int_to_pos[y_prev]
-        if (pos == len(seq.x) - 1):
+        if pos == len(seq.x) - 1:
             feat = "last_prev_tag:%s::%s" % (y_prev_name, y_name)
         else:
             feat = "prev_tag:%s::%s" % (y_prev_name, y_name)
         nr_feat = self.add_feature(feat)
-        if (nr_feat != -1):
+        if nr_feat != -1:
             edge_idx.append(nr_feat)
         return edge_idx
 
@@ -168,18 +168,18 @@ class ExtendedFeatures:
         # print self.edge_feature_cache
         # print "Final edge cache"
         # print self.final_edge_feature_cache
-        if (pos == len(seq.x) - 1):
-            if (y not in self.final_edge_feature_cache):
+        if pos == len(seq.x) - 1:
+            if y not in self.final_edge_feature_cache:
                 self.final_edge_feature_cache[y] = {}
-            if (y_prev not in self.final_edge_feature_cache[y]):
+            if y_prev not in self.final_edge_feature_cache[y]:
                 edge_idx = []
                 edge = self.add_edge_features(seq, pos, y, y_prev, edge_idx)
                 self.final_edge_feature_cache[y][y_prev] = edge_idx
             return self.final_edge_feature_cache[y][y_prev]
         else:
-            if (y not in self.edge_feature_cache):
+            if y not in self.edge_feature_cache:
                 self.edge_feature_cache[y] = {}
-            if (y_prev not in self.edge_feature_cache[y]):
+            if y_prev not in self.edge_feature_cache[y]:
                 edge_idx = []
                 edge = self.add_edge_features(seq, pos, y, y_prev, edge_idx)
                 self.edge_feature_cache[y][y_prev] = edge_idx
@@ -215,7 +215,7 @@ class ExtendedFeatures:
             txt += "%i %s/%s NF: " % (i, word_n, tag_n)
             for nf in node_f_list[i]:
                 txt += "%s " % self.feature_names[nf]
-            if (edge_f_list[i] != []):
+            if edge_f_list[i] != []:
                 txt += "EF: "
                 for nf in edge_f_list[i]:
                     txt += "%s " % self.feature_names[nf]
@@ -230,14 +230,14 @@ class ExtendedFeatures:
             tag_n = self.dataset.int_to_pos[tag]
             txt += "%i %s/%s NF: " % (i, word_n, tag_n)
             prev_tag = seq.y[i - 1]
-            if (i > 0):
+            if i > 0:
                 edge_f_list = self.get_edge_features(seq, i, tag, prev_tag)
             else:
                 edge_f_list = []
             node_f_list = self.get_node_features(seq, i, tag)
             for nf in node_f_list:
                 txt += "%s " % self.feature_names[nf]
-            if (edge_f_list != []):
+            if edge_f_list != []:
                 txt += "EF: "
                 for nf in edge_f_list:
                     txt += "%s " % self.feature_names[nf]

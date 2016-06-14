@@ -3,7 +3,7 @@ from lxmls.sequences.log_domain import *
 import pdb
 
 
-class SequenceClassificationDecoder():
+class SequenceClassificationDecoder:
     ''' Implements a sequence classification decoder.'''
 
     def __init__(self):

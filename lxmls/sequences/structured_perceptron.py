@@ -78,7 +78,7 @@ class StructuredPerceptron(dsc.DiscriminativeSequenceClassifier):
                 # If true bigram != predicted bigram update bigram features
                 prev_y_t_true = sequence.y[pos - 1]
                 prev_y_t_hat = y_hat[pos - 1]
-                if (y_t_true != y_t_hat or prev_y_t_true != prev_y_t_hat):
+                if y_t_true != y_t_hat or prev_y_t_true != prev_y_t_hat:
                     true_transition_features = self.feature_mapper.get_transition_features(sequence, pos - 1, y_t_true, prev_y_t_true)
                     self.parameters[true_transition_features] += self.learning_rate
                     hat_transition_features = self.feature_mapper.get_transition_features(sequence, pos - 1, y_t_hat, prev_y_t_hat)

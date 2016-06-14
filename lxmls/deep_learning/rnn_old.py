@@ -75,7 +75,7 @@ def extract_embeddings(embedding_path, word_dict):
     return E
 
 
-class RNN():
+class RNN:
     def __init__(self, W_e, n_hidd, n_tags):
         '''
         E       numpy.array Word embeddings of size (n_emb, n_words)
@@ -147,7 +147,7 @@ class RNN():
         return _p_y
 
 
-class LSTM():
+class LSTM:
     def __init__(self, W_e, n_hidd, n_tags):
 
         # Dimension of the embeddings

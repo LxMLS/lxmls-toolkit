@@ -6,7 +6,7 @@ import pdb
 
 
 class CRFBatch(dsc.DiscriminativeSequenceClassifier):
-    ''' Implements a first order CRF'''
+    """ Implements a first order CRF"""
 
     def __init__(self, observation_labels, state_labels, feature_mapper,
                  regularizer=0.00001):
@@ -51,7 +51,7 @@ class CRFBatch(dsc.DiscriminativeSequenceClassifier):
         gradient = gradient * -1
 
         if objective < 0:
-            import pdb;
+            import pdb
             pdb.set_trace()
 
         print objective

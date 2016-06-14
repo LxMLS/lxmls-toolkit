@@ -30,7 +30,7 @@ def gradient_descent(start_x, func, grad):
         f_x_new = func(x_new)
         f_x_old = func(x_old)
         res.append([x_new, f_x_new])
-        if (abs(f_x_new - f_x_old) < prec):
+        if abs(f_x_new - f_x_old) < prec:
             print "change in function values to small, leaving"
             return np.array(res)
     print "exceeded maximum number of iterations, leaving"

@@ -7,7 +7,7 @@ from lxmls.parsing.dependency_decoder import *
 from lxmls.util.my_math_utils import *
 
 
-class DependencyParser():
+class DependencyParser:
     '''
     Dependency parser class
     '''
@@ -113,7 +113,7 @@ class DependencyParser():
         n_mistakes = 0
         n_tokens = 0
         n_instances = 0
-        arr_heads_pred = [];
+        arr_heads_pred = []
         for instance in self.reader.test_instances:
             feats = self.features.create_features(instance)
             scores = self.features.compute_scores(feats, self.weights)

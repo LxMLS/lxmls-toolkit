@@ -42,7 +42,7 @@ class HMM(sc.SequenceClassifier):
 
         if evaluate:
             acc = self.evaluate_EM(dataset)
-            print "Initial accuracy: %f" % (acc)
+            print "Initial accuracy: %f" % acc
 
         for t in xrange(1, num_epochs):
             # E-Step
@@ -225,7 +225,7 @@ class HMM(sc.SequenceClassifier):
             eval_viterbi_test = self.evaluate_corpus(test, viterbi_pred_test)
             eval_posterior_test = self.evaluate_corpus(test, posterior_pred_test)
             print "Smoothing %f -- Test Set Accuracy: Posterior Decode %.3f, Viterbi Decode: %.3f" % (i, eval_posterior_test, eval_viterbi_test)
-            if (eval_posterior_test > max_acc):
+            if eval_posterior_test > max_acc:
                 max_acc = eval_posterior_test
                 max_smooth = i
         return max_smooth

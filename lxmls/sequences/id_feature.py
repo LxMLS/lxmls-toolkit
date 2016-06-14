@@ -98,9 +98,9 @@ class IDFeatures:
     def get_emission_features(self, sequence, pos, y):
         all_feat = []
         x = sequence.x[pos]
-        if (x not in self.node_feature_cache):
+        if x not in self.node_feature_cache:
             self.node_feature_cache[x] = {}
-        if (y not in self.node_feature_cache[x]):
+        if y not in self.node_feature_cache[x]:
             node_idx = []
             node_idx = self.add_emission_features(sequence, pos, y, node_idx)
             self.node_feature_cache[x][y] = node_idx
@@ -113,23 +113,23 @@ class IDFeatures:
     def get_transition_features(self, sequence, pos, y, y_prev):
         assert (pos >= 0 and pos < len(sequence.x)), pdb.set_trace()
 
-        if (y not in self.edge_feature_cache):
+        if y not in self.edge_feature_cache:
             self.edge_feature_cache[y] = {}
-        if (y_prev not in self.edge_feature_cache[y]):
+        if y_prev not in self.edge_feature_cache[y]:
             edge_idx = []
             edge_idx = self.add_transition_features(sequence, pos, y, y_prev, edge_idx)
             self.edge_feature_cache[y][y_prev] = edge_idx
         return self.edge_feature_cache[y][y_prev]
 
     def get_initial_features(self, sequence, y):
-        if (y not in self.initial_state_feature_cache):
+        if y not in self.initial_state_feature_cache:
             edge_idx = []
             edge_idx = self.add_initial_features(sequence, y, edge_idx)
             self.initial_state_feature_cache[y] = edge_idx
         return self.initial_state_feature_cache[y]
 
     def get_final_features(self, sequence, y_prev):
-        if (y_prev not in self.final_state_feature_cache):
+        if y_prev not in self.final_state_feature_cache:
             edge_idx = []
             edge_idx = self.add_final_features(sequence, y_prev, edge_idx)
             self.final_state_feature_cache[y_prev] = edge_idx
@@ -139,11 +139,11 @@ class IDFeatures:
         # Get label name from ID.
         y_name = self.dataset.y_dict.get_label_name(y)
         # Generate feature name.
-        feat_name = "init_tag:%s" % (y_name)
+        feat_name = "init_tag:%s" % y_name
         # Get feature ID from name.
         feat_id = self.add_feature(feat_name)
         # Append feature.
-        if (feat_id != -1):
+        if feat_id != -1:
             features.append(feat_id)
         return features
 
@@ -151,11 +151,11 @@ class IDFeatures:
         # Get label name from ID.
         y_name = self.dataset.y_dict.get_label_name(y_prev)
         # Generate feature name.
-        feat_name = "final_prev_tag:%s" % (y_name)
+        feat_name = "final_prev_tag:%s" % y_name
         # Get feature ID from name.
         feat_id = self.add_feature(feat_name)
         # Append feature.
-        if (feat_id != -1):
+        if feat_id != -1:
             features.append(feat_id)
         return features
 
@@ -191,7 +191,7 @@ class IDFeatures:
         # Get feature ID from name.
         feat_id = self.add_feature(feat_name)
         # Append feature.
-        if (feat_id != -1):
+        if feat_id != -1:
             features.append(feat_id)
         return features
 
@@ -202,7 +202,7 @@ class IDFeatures:
         we return -1.
         """
         # Check if feature exists and if so, return the feature ID. 
-        if (feat_name in self.feature_dict):
+        if feat_name in self.feature_dict:
             return self.feature_dict[feat_name]
         # If 'add_features' is True, add the feature to the feature 
         # dictionary and return the feature ID. Otherwise return -1.

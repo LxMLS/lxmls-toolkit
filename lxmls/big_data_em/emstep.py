@@ -75,9 +75,9 @@ def predict_sequence(sequence, hmm):
                                emission_scores)
 
     emission_counts = np.zeros((num_observations, num_states))
-    initial_counts = np.zeros((num_states))
+    initial_counts = np.zeros(num_states)
     transition_counts = np.zeros((num_states, num_states))
-    final_counts = np.zeros((num_states))
+    final_counts = np.zeros(num_states)
 
     # Take care of initial position counts.
     for y in xrange(num_states):
@@ -139,7 +139,7 @@ def load_parameters(filename, hmm, smoothing):
             y = hmm.state_labels.get_label_id(fields[2])
             hmm.emission_counts[x][y] += count
         else:
-            continue;
+            continue
 
     f.close()
 
