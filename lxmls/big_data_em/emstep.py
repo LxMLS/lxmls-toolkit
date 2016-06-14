@@ -5,6 +5,7 @@ import lxmls.readers.pos_corpus as pcc
 from lxmls.sequences.hmm import HMM
 import pickle
 
+
 def load_sequence(s, word_dict, tag_dict):
     '''
     seq = load_sequence(s, word_dict, tag_dict)
@@ -59,13 +60,13 @@ def predict_sequence(sequence, hmm):
     final_counts : ndarray
     emission_counts : ndarray
     '''
-    num_states = hmm.get_num_states() # Number of states.
-    num_observations = hmm.get_num_observations() # Number of observation symbols.
-    length = len(sequence.x) # Length of the sequence.
+    num_states = hmm.get_num_states()  # Number of states.
+    num_observations = hmm.get_num_observations()  # Number of observation symbols.
+    length = len(sequence.x)  # Length of the sequence.
 
     # Compute scores given the observation sequence.
     initial_scores, transition_scores, final_scores, emission_scores = \
-                    hmm.compute_scores(sequence)
+        hmm.compute_scores(sequence)
 
     state_posteriors, transition_posteriors, log_likelihood = \
         hmm.compute_posteriors(initial_scores,
@@ -86,14 +87,14 @@ def predict_sequence(sequence, hmm):
     for pos in xrange(length):
         x = sequence.x[pos]
         for y in xrange(num_states):
-            emission_counts[x,y] += state_posteriors[pos, y]
+            emission_counts[x, y] += state_posteriors[pos, y]
             if pos > 0:
                 for y_prev in xrange(num_states):
-                    transition_counts[y, y_prev] += transition_posteriors[pos-1, y, y_prev]
+                    transition_counts[y, y_prev] += transition_posteriors[pos - 1, y, y_prev]
 
     # Take care of final position counts.
     for y in xrange(num_states):
-        final_counts[y] += state_posteriors[length-1, y]
+        final_counts[y] += state_posteriors[length - 1, y]
 
     return log_likelihood, initial_counts, transition_counts, final_counts, emission_counts
 
@@ -174,11 +175,11 @@ def combine_partials(counts, hmm):
 
 # A single iteration of the distributed EM algorithm.
 class EMStep(MRJob):
-    INTERNAL_PROTOCOL   = PickleProtocol
-    OUTPUT_PROTOCOL     = PickleValueProtocol
+    INTERNAL_PROTOCOL = PickleProtocol
+    OUTPUT_PROTOCOL = PickleValueProtocol
+
     def __init__(self, *args, **kwargs):
         MRJob.__init__(self, *args, **kwargs)
-
 
         from os import path
         filename = 'hmm.pkl'
@@ -195,12 +196,10 @@ class EMStep(MRJob):
         self.transition_counts = 0
         self.final_counts = 0
 
-
     def mapper(self, key, s):
         seq = load_sequence(s, self.hmm.observation_labels, self.hmm.state_labels)
 
-        log_likelihood, initial_counts, transition_counts, final_counts,\
-            emission_counts = predict_sequence(seq, self.hmm)
+        log_likelihood, initial_counts, transition_counts, final_counts, emission_counts = predict_sequence(seq, self.hmm)
 
         self.log_likelihood += log_likelihood
         self.initial_counts += initial_counts
@@ -210,15 +209,16 @@ class EMStep(MRJob):
 
     def mapper_final(self):
         yield 'result', (self.log_likelihood,
-                        self.initial_counts,
-                        self.transition_counts,
-                        self.final_counts,
-                        self.emission_counts)
+                         self.initial_counts,
+                         self.transition_counts,
+                         self.final_counts,
+                         self.emission_counts)
 
     def reducer(self, key, counts):
         combine_partials(counts, self.hmm)
         self.hmm.compute_parameters()
         yield 'hmm', self.hmm
+
 
 # Load the word and tag dictionaries.
 word_dict, tag_dict = pickle.load(open('word_tag_dict.pkl'))
@@ -226,4 +226,3 @@ word_dict, tag_dict = pickle.load(open('word_tag_dict.pkl'))
 if __name__ == '__main__':
     em_step = EMStep()
     em_step.run()
-

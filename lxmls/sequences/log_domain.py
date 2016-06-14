@@ -1,5 +1,6 @@
 import numpy as np
 
+
 # ----------
 # Functions to compute in log-domain.
 # ----------
@@ -7,10 +8,12 @@ import numpy as np
 def logzero():
     return -np.inf
 
+
 def safe_log(x):
     if x == 0:
         return logzero()
     return np.log(x)
+
 
 def logsum_pair(logx, logy):
     '''
@@ -36,9 +39,10 @@ def logsum_pair(logx, logy):
     if logx == logzero():
         return logy
     elif logx > logy:
-        return logx + np.log1p(np.exp(logy-logx))
+        return logx + np.log1p(np.exp(logy - logx))
     else:
-        return logy + np.log1p(np.exp(logx-logy))
+        return logy + np.log1p(np.exp(logx - logy))
+
 
 def logsum(logv):
     '''
@@ -48,7 +52,6 @@ def logsum(logv):
     for val in logv:
         res = logsum_pair(res, val)
     return res
-
 
 # ----------
 # This implementation is faster, but may give problems with log(0), so I

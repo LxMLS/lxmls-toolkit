@@ -2,6 +2,7 @@
 # Feature extraction
 # ----------
 
+
 class ExtendedFeatures:
     def __init__(self, dataset):
         self.feature_dic = {}
@@ -187,9 +188,9 @@ class ExtendedFeatures:
     def add_feature(self, feat):
         # if(self.add_features == False):
         #     print feat
-        if (feat in self.feature_dic):
+        if feat in self.feature_dic:
             return self.feature_dic[feat]
-        if (self.add_features == False):
+        if not self.add_features:
             return -1
         nr_feat = len(self.feature_dic.keys())
         # print "Adding feature %s %i"%(feat,nr_feat)

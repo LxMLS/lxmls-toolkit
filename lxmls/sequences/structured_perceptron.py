@@ -3,11 +3,12 @@ import numpy as np
 import lxmls.sequences.discriminative_sequence_classifier as dsc
 import pdb
 
+
 class StructuredPerceptron(dsc.DiscriminativeSequenceClassifier):
     ''' Implements a first order CRF'''
 
     def __init__(self, observation_labels, state_labels, feature_mapper,
-                 num_epochs = 10, learning_rate = 1.0, averaged = True):
+                 num_epochs=10, learning_rate=1.0, averaged=True):
         dsc.DiscriminativeSequenceClassifier.__init__(self, observation_labels, state_labels, feature_mapper)
         self.num_epochs = num_epochs
         self.learning_rate = learning_rate
@@ -18,32 +19,30 @@ class StructuredPerceptron(dsc.DiscriminativeSequenceClassifier):
         self.parameters = np.zeros(self.feature_mapper.get_num_features())
         num_examples = dataset.size()
         for epoch in xrange(self.num_epochs):
-             num_labels_total = 0
-             num_mistakes_total = 0
-             for i in xrange(num_examples):
+            num_labels_total = 0
+            num_mistakes_total = 0
+            for i in xrange(num_examples):
                 sequence = dataset.seq_list[i]
                 num_labels, num_mistakes = self.perceptron_update(sequence)
                 num_labels_total += num_labels
                 num_mistakes_total += num_mistakes
-             self.params_per_epoch.append(self.parameters.copy())
-             acc = 1.0 - float(num_mistakes_total)/float(num_labels_total)
-             print "Epoch: %i Accuracy: %f" %(epoch, acc)
+            self.params_per_epoch.append(self.parameters.copy())
+            acc = 1.0 - float(num_mistakes_total) / float(num_labels_total)
+            print "Epoch: %i Accuracy: %f" % (epoch, acc)
         self.trained = True
 
-        if(self.averaged == True):
+        if self.averaged:
             new_w = 0
             for old_w in self.params_per_epoch:
                 new_w += old_w
             new_w = new_w / len(self.params_per_epoch)
             self.parameters = new_w
 
-
-
     def perceptron_update(self, sequence):
 
         # ----------
         # Solution to Exercise 3.3 
- 
+
         num_labels = 0
         num_mistakes = 0
 
@@ -75,19 +74,19 @@ class StructuredPerceptron(dsc.DiscriminativeSequenceClassifier):
                 self.parameters[hat_emission_features] -= self.learning_rate
 
             if pos > 0:
-            # update bigram features
-            # If true bigram != predicted bigram update bigram features
-                prev_y_t_true = sequence.y[pos-1]
-                prev_y_t_hat = y_hat[pos-1]
-                if(y_t_true != y_t_hat or prev_y_t_true != prev_y_t_hat):
-                    true_transition_features = self.feature_mapper.get_transition_features(sequence, pos-1, y_t_true, prev_y_t_true)
-                    self.parameters[true_transition_features] += self.learning_rate                                
-                    hat_transition_features = self.feature_mapper.get_transition_features(sequence, pos-1, y_t_hat, prev_y_t_hat)
+                # update bigram features
+                # If true bigram != predicted bigram update bigram features
+                prev_y_t_true = sequence.y[pos - 1]
+                prev_y_t_hat = y_hat[pos - 1]
+                if (y_t_true != y_t_hat or prev_y_t_true != prev_y_t_hat):
+                    true_transition_features = self.feature_mapper.get_transition_features(sequence, pos - 1, y_t_true, prev_y_t_true)
+                    self.parameters[true_transition_features] += self.learning_rate
+                    hat_transition_features = self.feature_mapper.get_transition_features(sequence, pos - 1, y_t_hat, prev_y_t_hat)
                     self.parameters[hat_transition_features] -= self.learning_rate
 
         pos = len(sequence.x)
-        y_t_true = sequence.y[pos-1]
-        y_t_hat = y_hat[pos-1]
+        y_t_true = sequence.y[pos - 1]
+        y_t_hat = y_hat[pos - 1]
 
         if y_t_true != y_t_hat:
             true_final_features = self.feature_mapper.get_final_features(sequence, y_t_true)
@@ -95,20 +94,19 @@ class StructuredPerceptron(dsc.DiscriminativeSequenceClassifier):
             hat_final_features = self.feature_mapper.get_final_features(sequence, y_t_hat)
             self.parameters[hat_final_features] -= self.learning_rate
 
-
         return num_labels, num_mistakes
 
         # End of solution to Exercise 3.3 
         # ----------
 
-    def save_model(self,dir):
-        fn = open(dir+"parameters.txt",'w')
-        for p_id,p in enumerate(self.parameters):
-            fn.write("%i\t%f\n"%(p_id,p))
+    def save_model(self, dir):
+        fn = open(dir + "parameters.txt", 'w')
+        for p_id, p in enumerate(self.parameters):
+            fn.write("%i\t%f\n" % (p_id, p))
         fn.close()
 
-    def load_model(self,dir):
-        fn = open(dir+"parameters.txt",'r')
+    def load_model(self, dir):
+        fn = open(dir + "parameters.txt", 'r')
         for line in fn:
             toks = line.strip().split("\t")
             p_id = int(toks[0])

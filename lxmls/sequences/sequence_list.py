@@ -1,6 +1,7 @@
 import lxmls.sequences.sequence as seq
 import pdb
 
+
 class _SequenceIterator(object):
     def __init__(self, seq):
         self.seq = seq
@@ -15,6 +16,7 @@ class _SequenceIterator(object):
         r = self.seq[self.pos]
         self.pos += 1
         return r
+
 
 class SequenceList(object):
     def __init__(self, x_dict, y_dict):
@@ -31,51 +33,48 @@ class SequenceList(object):
     def __len__(self):
         return len(self.seq_list)
 
-
     def __getitem__(self, ix):
         return self.seq_list[ix]
 
     def __iter__(self):
         return _SequenceIterator(self)
 
-
     def size(self):
         '''Returns the number of sequences in the list.'''
         return len(self.seq_list)
-        
+
     def get_num_tokens(self):
         '''Returns the number of tokens in the sequence list, that is, the 
         sum of the length of the sequences.'''
         return sum([seq.size() for seq in self.seq_list])
-        
+
     def add_sequence(self, x, y):
         '''Add a sequence to the list, where x is the sequence of
         observations, and y is the sequence of states.'''
-        num_seqs = len(self.seq_list) 
+        num_seqs = len(self.seq_list)
         x_ids = [self.x_dict.get_label_id(name) for name in x]
         y_ids = [self.y_dict.get_label_id(name) for name in y]
         self.seq_list.append(seq.Sequence(self, x_ids, y_ids, num_seqs))
-        
 
-    def save(self,file):
-        seq_fn = open(file,"w")
+    def save(self, file):
+        seq_fn = open(file, "w")
         for seq in self.seq_list:
             txt = ""
-            for pos,word in enumerate(seq.x):
-                txt += "%i:%i\t"%(word,seq.y[pos])
-            seq_fn.write(txt.strip()+"\n")
+            for pos, word in enumerate(seq.x):
+                txt += "%i:%i\t" % (word, seq.y[pos])
+            seq_fn.write(txt.strip() + "\n")
         seq_fn.close()
 
-    def load(self,file):
-        seq_fn = open(file,"r")
+    def load(self, file):
+        seq_fn = open(file, "r")
         seq_list = []
         for line in seq_fn:
             seq_x = []
             seq_y = []
             entries = line.strip().split("\t")
             for entry in entries:
-                x,y = entry.split(":")
+                x, y = entry.split(":")
                 seq_x.append(int(x))
                 seq_y.append(int(y))
-            self.add_sequence(seq_x,seq_y)
+            self.add_sequence(seq_x, seq_y)
         seq_fn.close()

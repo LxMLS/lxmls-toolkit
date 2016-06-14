@@ -42,8 +42,8 @@ class Mira(lc.LinearClassifier):
                 # # Compute loss
                 loss = predicted_margin - true_margin + dist
                 # Compute stepsize
-                if (y_hat != y_true):
-                    if ( predicted_margin == true_margin):
+                if y_hat != y_true:
+                    if predicted_margin == true_margin:
                         stepsize = 1 / self.regularizer
                     else:
                         # stepsize = np.min([1/self.agress,loss/l2norm_squared(true_margin-predicted_margin)])
@@ -56,15 +56,13 @@ class Mira(lc.LinearClassifier):
             y_pred = self.test(x_orig, w)
             acc = self.evaluate(y, y_pred)
             self.trained = False
-            print "Rounds: %i Accuracy: %f" % ( round_nr, acc)
+            print "Rounds: %i Accuracy: %f" % (round_nr, acc)
         self.trained = True
 
-        if self.averaged == True:
+        if self.averaged:
             new_w = 0
             for old_w in self.params_per_round:
                 new_w += old_w
-            new_w = new_w / len(self.params_per_round)
+            new_w /= len(self.params_per_round)
             return new_w
         return w
-
-

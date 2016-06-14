@@ -1,7 +1,9 @@
 import os
 from setuptools import setup, find_packages
+
 try:
     from pip.req import parse_requirements
+
     # parse_requirements() returns generator of pip.req.InstallRequirement objects
     install_reqs = parse_requirements("pip-requirements.txt")
     # install_requires is a list of requirement
@@ -18,8 +20,9 @@ except:
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
+
 package_data = {
-    'lxmls.readers' : ['*.map']
+    'lxmls.readers': ['*.map']
 }
 
 setup(

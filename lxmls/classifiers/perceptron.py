@@ -26,15 +26,14 @@ class Perceptron(lc.LinearClassifier):
             perm = np.random.permutation(nr_x)
 
             # change the seed so next epoch we don't get the same permutation
-            seed = seed + 1
+            seed += 1
 
             for nr in xrange(nr_x):
                 # print "iter %i" %( epoch_nr*nr_x + nr)
                 inst = perm[nr]
                 y_hat = self.get_label(x[inst:inst + 1, :], w)
 
-                if (y[inst:inst + 1, 0] != y_hat):
-
+                if y[inst:inst + 1, 0] != y_hat:
                     # Increase features of th e truth
                     w[:, y[inst:inst + 1, 0]] += self.learning_rate * x[inst:inst + 1, :].transpose()
 
@@ -46,17 +45,13 @@ class Perceptron(lc.LinearClassifier):
             y_pred = self.test(x_orig, w)
             acc = self.evaluate(y, y_pred)
             self.trained = False
-            print "Rounds: %i Accuracy: %f" % ( epoch_nr, acc)
+            print "Rounds: %i Accuracy: %f" % (epoch_nr, acc)
         self.trained = True
 
-        if (self.averaged == True):
+        if self.averaged:
             new_w = 0
             for old_w in self.params_per_round:
                 new_w += old_w
-            new_w = new_w / len(self.params_per_round)
+            new_w /= len(self.params_per_round)
             return new_w
         return w
-
-
-
-
