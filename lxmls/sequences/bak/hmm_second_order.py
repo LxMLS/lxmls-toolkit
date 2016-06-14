@@ -11,8 +11,8 @@ from forward_backward import forward_backward, sanity_check_forward_backward
 
 
 class HMMSecondOrder:
-    ''' Implements an HMM with second order dependecies
-    We will use the state expansion version where we expand the states to be n^2 and use the normal infernece algorithms (forward backward and viterbi)'''
+    """ Implements an HMM with second order dependecies
+    We will use the state expansion version where we expand the states to be n^2 and use the normal infernece algorithms (forward backward and viterbi)"""
 
     def __init__(self, dataset, nr_states=-1):
         self.trained = False
@@ -79,7 +79,7 @@ class HMMSecondOrder:
             print txt
 
     def collect_counts_from_corpus(self, sequence_list):
-        ''' Collects counts from a labeled corpus'''
+        """ Collects counts from a labeled corpus"""
         for sequence in sequence_list.seq_list:
             len_x = len(sequence.x)
             # Goes from 0 to len(X)+order

@@ -6,12 +6,12 @@ import pdb
 
 
 class HMM(sc.SequenceClassifier):
-    ''' Implements a first order HMM.'''
+    """ Implements a first order HMM."""
 
     def __init__(self, observation_labels, state_labels):
-        '''Initialize an HMM. observation_labels and state_labels are the sets
+        """Initialize an HMM. observation_labels and state_labels are the sets
         of observations and states, respectively. They are both LabelDictionary
-        objects.'''
+        objects."""
         sc.SequenceClassifier.__init__(self, observation_labels, state_labels)
 
         num_states = self.get_num_states()
@@ -86,8 +86,8 @@ class HMM(sc.SequenceClassifier):
         return acc
 
     def train_supervised(self, dataset, smoothing=0):
-        ''' Train an HMM from a list of sequences containing observations
-        and the gold states. This is just counting and normalizing.'''
+        """ Train an HMM from a list of sequences containing observations
+        and the gold states. This is just counting and normalizing."""
         # Set all counts to zeros (optionally, smooth).
         self.clear_counts(smoothing)
         # Count occurrences of events.
@@ -96,7 +96,7 @@ class HMM(sc.SequenceClassifier):
         self.compute_parameters()
 
     def collect_counts_from_corpus(self, dataset):
-        ''' Collects counts from a labeled corpus.'''
+        """ Collects counts from a labeled corpus."""
         for sequence in dataset.seq_list:
             # Take care of first position.
             self.initial_counts[sequence.y[0]] += 1
@@ -130,14 +130,14 @@ class HMM(sc.SequenceClassifier):
         self.clear_counts()
 
     def clear_counts(self, smoothing=0):
-        ''' Clear all the count tables.'''
+        """ Clear all the count tables."""
         self.initial_counts.fill(smoothing)
         self.transition_counts.fill(smoothing)
         self.final_counts.fill(smoothing)
         self.emission_counts.fill(smoothing)
 
     def update_counts(self, sequence, state_posteriors, transition_posteriors):
-        ''' Used in the E-step in EM.'''
+        """ Used in the E-step in EM."""
 
         # ----------
         # Solution to Exercise 2.10 
@@ -164,7 +164,7 @@ class HMM(sc.SequenceClassifier):
             # ----------
 
     def compute_parameters(self):
-        ''' Estimate the HMM parameters by normalizing the counts.'''
+        """ Estimate the HMM parameters by normalizing the counts."""
 
         # Normalize the initial counts.
         self.initial_probs = self.initial_counts / np.sum(self.initial_counts)

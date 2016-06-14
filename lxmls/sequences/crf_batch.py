@@ -47,8 +47,8 @@ class CRFBatch(dsc.DiscriminativeSequenceClassifier):
         gradient -= exp_counts
 
         # Since we are minizing we need to multiply both the objective and gradient by -1
-        objective = -1 * objective
-        gradient = gradient * -1
+        objective *= -1
+        gradient *= -1
 
         if objective < 0:
             import pdb
@@ -101,10 +101,10 @@ class CRFBatch(dsc.DiscriminativeSequenceClassifier):
         return seq_objective, log_likelihood
 
     def get_empirical_counts(self, dataset):
-        '''
+        """
         Computes the empirical counts for a dataset.
         Empirical counts are the counts of the features that appear in the gold data.
-        '''
+        """
         emp_counts = np.zeros(self.feature_mapper.get_num_features())
         for sequence in dataset.seq_list:
             y_t_true = sequence.y[0]

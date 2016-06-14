@@ -185,7 +185,7 @@ class HMMNOrder:
             return 0.0
 
     def collect_counts_from_corpus(self, sequence_list):
-        ''' Collects counts from a labeled corpus'''
+        """ Collects counts from a labeled corpus"""
         print "Collecting counts"
         history = range(self.order)
         for sequence in sequence_list.seq_list:

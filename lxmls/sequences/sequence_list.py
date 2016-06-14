@@ -40,17 +40,17 @@ class SequenceList(object):
         return _SequenceIterator(self)
 
     def size(self):
-        '''Returns the number of sequences in the list.'''
+        """Returns the number of sequences in the list."""
         return len(self.seq_list)
 
     def get_num_tokens(self):
-        '''Returns the number of tokens in the sequence list, that is, the 
-        sum of the length of the sequences.'''
+        """Returns the number of tokens in the sequence list, that is, the
+        sum of the length of the sequences."""
         return sum([seq.size() for seq in self.seq_list])
 
     def add_sequence(self, x, y):
-        '''Add a sequence to the list, where x is the sequence of
-        observations, and y is the sequence of states.'''
+        """Add a sequence to the list, where x is the sequence of
+        observations, and y is the sequence of states."""
         num_seqs = len(self.seq_list)
         x_ids = [self.x_dict.get_label_id(name) for name in x]
         y_ids = [self.y_dict.get_label_id(name) for name in y]

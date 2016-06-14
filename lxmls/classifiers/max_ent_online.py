@@ -30,7 +30,7 @@ class MaxEntOnline(lc.LinearClassifier):
         for epoch_nr in xrange(self.nr_epochs):
             objective = 0.0
             for nr in xrange(nr_x):
-                t = t + 1
+                t += 1
                 learning_rate = self.initial_step * np.power(t, -self.alpha)
                 # print learning_rate
                 inst = perm[nr]

@@ -8,9 +8,9 @@ from lxmls.util.my_math_utils import *
 
 
 class DependencyParser:
-    '''
+    """
     Dependency parser class
-    '''
+    """
 
     def __init__(self):
         self.trained = False
@@ -28,7 +28,7 @@ class DependencyParser:
         self.features.create_dictionary(self.reader.train_instances)
 
     def train_perceptron(self, n_epochs):
-        '''Trains the parser by running the averaged perceptron algorithm for n_epochs.'''
+        """Trains the parser by running the averaged perceptron algorithm for n_epochs."""
         self.weights = np.zeros(self.features.n_feats)
         total = np.zeros(self.features.n_feats)
         for epoch in range(n_epochs):
@@ -63,8 +63,8 @@ class DependencyParser:
         self.weights = total / np.double(n_epochs)
 
     def train_crf_sgd(self, n_epochs, sigma, eta0=0.001):
-        '''Trains the parser by running the online MaxEnt algorithm for n_epochs, regularization coefficient sigma, 
-        and initial stepsize eta0 (which anneals as O(1/(sigma*t))).'''
+        """Trains the parser by running the online MaxEnt algorithm for n_epochs, regularization coefficient sigma,
+        and initial stepsize eta0 (which anneals as O(1/(sigma*t)))."""
         self.weights = np.zeros(self.features.n_feats)
         t = 0
         t0 = 1.0 / (sigma * eta0)
@@ -84,7 +84,7 @@ class DependencyParser:
                 self.weights -= eta * sigma * self.weights  # Scale the weight vector
                 for h in range(np.size(marginals, 0)):
                     for m in range(1, np.size(marginals, 1)):
-                        if feats[h][m] == None:
+                        if feats[h][m] is None:
                             continue
                         for f in feats[h][m]:
                             if f < 0:

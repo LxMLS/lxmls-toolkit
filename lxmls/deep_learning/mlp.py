@@ -6,12 +6,12 @@ import theano.tensor as T
 
 
 def index2onehot(index, N):
-    '''
+    """
     Transforms index to one-hot representation, for example
 
     Input: e.g. index = [1, 2, 0], N = 4
     Output:     [[0, 1, 0, 0], [0, 0, 1, 0], [1, 0, 0, 0]]
-    '''
+    """
     L = index.shape[0]
     onehot = np.zeros((N, L))
     for l in np.arange(L):
@@ -20,19 +20,19 @@ def index2onehot(index, N):
 
 
 class NumpyMLP:
-    '''
+    """
     Basic MLP with forward-pass and gradient computation
-    '''
+    """
 
     def __init__(self, geometry, actvfunc, rng=None, model_file=None):
-        '''
+        """
         Input: geometry  tuple with sizes of layer
 
-        Input: actvfunc  list of strings indicating the type of activation 
-                         function. Supported 'sigmoid', 'softmax' 
+        Input: actvfunc  list of strings indicating the type of activation
+                         function. Supported 'sigmoid', 'softmax'
 
         Input: rng       string inidcating random seed
-        '''
+        """
 
         # Generate random seed if not provided
         if rng is None:
@@ -55,11 +55,11 @@ class NumpyMLP:
             self.actvfunc = actvfunc
 
     def forward(self, x, all_outputs=False):
-        '''
+        """
         Forward pass
 
         all_outputs = True  return intermediate activations
-        '''
+        """
 
         # This will store activations at each layer and the input. This is 
         # needed to compute backpropagation 
@@ -96,10 +96,10 @@ class NumpyMLP:
         return tilde_z
 
     def grads(self, x, y):
-        '''
-       Computes the gradients of the network with respect to cross entropy 
+        """
+       Computes the gradients of the network with respect to cross entropy
        error cost
-       '''
+       """
 
         # Run forward and store activations for each layer
         activations = self.forward(x, all_outputs=True)
@@ -155,10 +155,10 @@ class NumpyMLP:
         return nabla_params
 
     def init_weights(self, rng, geometry, actvfunc):
-        '''
-       Following theano tutorial at 
+        """
+       Following theano tutorial at
        http://deeplearning.net/software/theano/tutorial/
-       '''
+       """
         params = []
         for n in range(self.n_layers):
             n_in, n_out = geometry[n:n + 2]
@@ -191,17 +191,17 @@ class NumpyMLP:
                     raise ValueError("Intermediate layers must be sigmoid")
 
     def save(self, model_path):
-        '''
+        """
         Save model
-        '''
+        """
         par = self.params + self.actvfunc
         with open(model_path, 'wb') as fid:
             cPickle.dump(par, fid, cPickle.HIGHEST_PROTOCOL)
 
     def load(self, model_path):
-        '''
+        """
         Load model
-        '''
+        """
         with open(model_path) as fid:
             par = cPickle.load(fid, cPickle.HIGHEST_PROTOCOL)
             params = par[:len(par) / 2]
@@ -209,9 +209,9 @@ class NumpyMLP:
         return params, actvfunc
 
     def plot_weights(self, show=True, aspect='auto'):
-        '''
+        """
        Plots the weights of the newtwork
-       '''
+       """
         import matplotlib.pyplot as plt
         plt.figure()
         for n in range(self.n_layers):
@@ -232,19 +232,19 @@ class NumpyMLP:
 
 
 class TheanoMLP(NumpyMLP):
-    '''
+    """
     MLP VERSION USING THEANO
-    '''
+    """
 
     def __init__(self, geometry, actvfunc, rng=None, model_file=None):
-        '''
+        """
         Input: geometry  tuple with sizes of layer
 
-        Input: actvfunc  list of strings indicating the type of activation 
-                         function. Supported 'sigmoid', 'softmax' 
+        Input: actvfunc  list of strings indicating the type of activation
+                         function. Supported 'sigmoid', 'softmax'
 
         Input: rng       string inidcating random seed
-        '''
+        """
 
         # Generate random seed if not provided
         if rng is None:
@@ -310,11 +310,11 @@ class TheanoMLP(NumpyMLP):
         self.params = params
 
     def _forward(self, x, all_outputs=False):
-        '''
+        """
         Symbolic forward pass
 
         all_outputs = True  return symbolic input and intermediate activations
-        '''
+        """
 
         # This will store activations at each layer and the input. This is 
         # needed to compute backpropagation 
@@ -359,15 +359,15 @@ class TheanoMLP(NumpyMLP):
         return tilde_z
 
     def _cost(self, x, y):
-        '''
+        """
         Symbolic average negative log-likelihood using the soft-max output
-        '''
+        """
         p_y = self._forward(x)
         return -T.mean(T.log(p_y)[y, T.arange(y.shape[0])])
 
     def _grads(self, x, y):
-        '''
+        """
         Symbolic gradients
-        '''
+        """
         # Symbolic gradients with respect to the cost 
         return [T.grad(self._cost(x, y), param) for param in self.params]

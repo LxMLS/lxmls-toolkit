@@ -55,7 +55,7 @@ _base_sentiment_dir = path.join(path.dirname(__file__), "..", "..", "data", "sen
 
 
 def build_dicts(domain):
-    '''Builds feature dictionaries for a given domain of the sentiment analysis corpus.'''
+    """Builds feature dictionaries for a given domain of the sentiment analysis corpus."""
     sentiment_domains = ["books", "dvd", "electronics", "kitchen"]
     feat_counts = {}
     if domain not in sentiment_domains:

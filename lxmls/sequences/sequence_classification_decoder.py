@@ -4,7 +4,7 @@ import pdb
 
 
 class SequenceClassificationDecoder:
-    ''' Implements a sequence classification decoder.'''
+    """ Implements a sequence classification decoder."""
 
     def __init__(self):
         pass

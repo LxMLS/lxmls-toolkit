@@ -13,7 +13,7 @@ def sort_dic_by_value(dic, reverse=False):
 # Maximum value of a dictionary
 def dict_max(dic):
     aux = dict(map(lambda item: (item[1], item[0]), dic.items()))
-    if aux.keys() == []:
+    if not aux.keys():
         return 0
     max_value = max(aux.keys())
     return max_value, aux[max_value]
@@ -25,7 +25,7 @@ def dict_max(dic):
 # http://old.nabble.com/Sparse-matrices-and-dot-product-td30315992.html
 # ----------
 def spdot(A, B):
-    "The same as np.dot(A, B), except it works even if A or B or both might be sparse."
+    """The same as np.dot(A, B), except it works even if A or B or both might be sparse."""
     if issparse(A) and issparse(B):
         return A * B
     elif issparse(A) and not issparse(B):

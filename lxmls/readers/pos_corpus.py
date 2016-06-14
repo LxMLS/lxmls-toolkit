@@ -23,9 +23,9 @@ pt_test = data_dir + "pt_test.txt"
 
 
 def compacify(train_seq, test_seq, dev_seq, theano=False):
-    '''
+    """
     Create a map for indices that is be compact (do not have unused indices)
-    '''
+    """
 
     # REDO DICTS
     new_x_dict = LabelDictionary()

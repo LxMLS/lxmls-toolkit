@@ -5,9 +5,9 @@ from os import path
 
 
 class Instance:
-    '''
+    """
     Instance class
-    '''
+    """
 
     def __init__(self):
         self.words = []
@@ -16,9 +16,9 @@ class Instance:
 
 
 class DependencyReader:
-    '''
+    """
     Dependency reader class
-    '''
+    """
 
     def __init__(self):
         self.word_dict = {}
@@ -27,7 +27,7 @@ class DependencyReader:
         self.test_instances = []
 
     def load(self, language):
-        '''Loads training and test data for dependency parsing.'''
+        """Loads training and test data for dependency parsing."""
         self.word_dict = {}
         self.pos_dict = {}
         self.train_instances = []

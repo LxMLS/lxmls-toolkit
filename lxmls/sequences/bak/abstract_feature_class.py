@@ -2,14 +2,14 @@ from sequences.label_dictionary import *
 
 
 class AbstractFeatureClass(object):
-    ''' Defines an abstract feature class used to
+    """ Defines an abstract feature class used to
     build the node and edge potentials.
 
        All feature classes should implement this class
-    '''
+    """
 
     def __init__(self, dataset):
-        '''dataset is a sequence list.'''
+        """dataset is a sequence list."""
         self.feature_dict = LabelDictionary()
         #        self.feature_names = []
         #        self.nr_feats = 0
@@ -41,11 +41,11 @@ class AbstractFeatureClass(object):
         return len(self.feature_dict)
 
     def build_features(self):
-        '''
+        """
         Generic function to build features for a given dataset.
         Iterates through all sentences in the dataset and extracts its features,
         saving the node/edge features in feature list.
-        '''
+        """
         self.add_features = True
         for sequence in self.dataset.seq_list:
             initial_features, transition_features, final_features, emission_features = \
@@ -55,15 +55,15 @@ class AbstractFeatureClass(object):
         self.add_features = False
 
     def get_transition_features(self, sequence, position, tag_id, prev_tag_id):
-        '''
+        """
         Returns the edge features for position, for
         previous tag_id and tag_id.
 
         Note for a sentence of lenght N pos can go from 0 to N.
         Where:
         0 - Takes the initial transition features
-        N - Takes the final transition features        
-        '''
+        N - Takes the final transition features
+        """
         raise NotImplementedError
 
     def get_initial_features(self, sequence, tag_id):
@@ -73,9 +73,9 @@ class AbstractFeatureClass(object):
         raise NotImplementedError
 
     def get_emission_features(self, sequence, position, tag_id):
-        '''
+        """
         Returns all features for a node at position with tag_id
-        '''
+        """
         raise NotImplementedError
 
 # def save_features(self,file):

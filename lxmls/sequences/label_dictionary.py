@@ -3,9 +3,9 @@ import warnings
 
 
 class LabelDictionary(dict):
-    '''This class implements a dictionary of labels. Labels as mapped to 
-    integers, and it is efficient to retrieve the label name from its 
-    integer representation, and vice-versa.'''
+    """This class implements a dictionary of labels. Labels as mapped to
+    integers, and it is efficient to retrieve the label name from its
+    integer representation, and vice-versa."""
 
     def __init__(self, label_names=[]):
         self.names = []

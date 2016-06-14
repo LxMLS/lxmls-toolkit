@@ -6,10 +6,10 @@ import theano.tensor as T
 
 
 def class_acc(hat_y, y_ref):
-    '''
-    Computes percent accuracy and log probability given estimated and reference 
-    class indices 
-    '''
+    """
+    Computes percent accuracy and log probability given estimated and reference
+    class indices
+    """
     # Check probability of devel set 
     pred = hat_y[y_ref, np.arange(y_ref.shape[0])]
     p_dev = np.sum(np.log(pred))

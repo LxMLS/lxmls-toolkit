@@ -1,5 +1,5 @@
 #!/usr/bin/python
-'''
+"""
 Deep learning day exercises corresponding to Chapter 5 of the LxMLS guide.
 They must be run from ./lxmls-toolkit/ folder as
 
@@ -16,7 +16,7 @@ i your code
 import pdb
 ipdb.set_trace()
 
-In Table 1 of day 0 of the guide you can find some useful commands to browse 
+In Table 1 of day 0 of the guide you can find some useful commands to browse
 through the code while in debug mode.
 
 An alternative to pdb is ipdb. This works exactly the same but has colors and
@@ -31,7 +31,7 @@ http://stackoverflow.com/questions/6240887/how-can-i-make-ipdb-show-more-lines-o
 
 For a more matlab-like environment you can use Spider or ipython. If you port
  this to ipython notebook let me know! (ramon@astudillo.com)
-'''
+"""
 
 import sys
 

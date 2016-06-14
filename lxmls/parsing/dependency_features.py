@@ -5,9 +5,9 @@ from lxmls.parsing.dependency_reader import *
 
 
 class DependencyFeatures:
-    '''
+    """
     Dependency features class
-    '''
+    """
 
     def __init__(self, use_lexical=False, use_distance=False, use_contextual=False):
         self.feat_dict = {}
@@ -17,7 +17,7 @@ class DependencyFeatures:
         self.use_contextual = use_contextual
 
     def create_dictionary(self, instances):
-        '''Creates dictionary of features (note: only uses supported features)'''
+        """Creates dictionary of features (note: only uses supported features)"""
         self.feat_dict = {}
         self.n_feats = 0
         for instance in instances:
@@ -30,7 +30,7 @@ class DependencyFeatures:
         print "Number of features: {0}".format(self.n_feats)
 
     def create_features(self, instance):
-        '''Creates arc features from an instance.'''
+        """Creates arc features from an instance."""
         nw = np.size(instance.words) - 1
         feats = np.empty((nw + 1, nw + 1), dtype=object)
         for h in range(0, nw + 1):
@@ -43,7 +43,7 @@ class DependencyFeatures:
         return feats
 
     def create_arc_features(self, instance, h, m, add=False):
-        '''Creates features for arc h-->m.'''
+        """Creates features for arc h-->m."""
         nw = np.size(instance.words)
         k = 0
         ff = []
@@ -179,7 +179,7 @@ class DependencyFeatures:
         return ff
 
     def lookup_fid(self, fname, add=False):
-        '''Looks up dictionary for feature ID.'''
+        """Looks up dictionary for feature ID."""
         if fname not in self.feat_dict:
             if add:
                 fid = self.n_feats
@@ -192,12 +192,12 @@ class DependencyFeatures:
             return self.feat_dict[fname]
 
     def compute_scores(self, feats, weights):
-        '''Compute scores by taking the dot product between the feature and weight vector.'''
+        """Compute scores by taking the dot product between the feature and weight vector."""
         nw = np.size(feats, 0) - 1
         scores = np.zeros((nw + 1, nw + 1))
         for h in range(nw + 1):
             for m in range(nw + 1):
-                if feats[h][m] == None:
+                if feats[h][m] is None:
                     continue
                 for f in feats[h][m]:
                     if f < 0:

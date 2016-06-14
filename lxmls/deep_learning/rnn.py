@@ -11,21 +11,20 @@ import pdb
 # from ipdb import set_trace
 
 def download_embeddings(embbeding_name, target_file):
-    '''
+    """
     Downloads file through http with progress report
-    
+
     Obtained in stack overflow:
     http://stackoverflow.com/questions/22676/how-do-i-download-a-file-over-http
     -using-python
-    '''
+    """
 
     # Embedding download URLs
     if embbeding_name == 'senna_50':
         # senna_50 embeddings
         source_url = 'http://lxmls.it.pt/2015/wp-content/uploads/2015/senna_50'
     else:
-        raise ValueError("I do not have embeddings %s for download"
-                          % embbeding_name)
+        raise ValueError("I do not have embeddings %s for download" % embbeding_name)
 
     target_file_name = os.path.basename('data/senna_50')
     u = urllib2.urlopen(source_url)
@@ -43,16 +42,16 @@ def download_embeddings(embbeding_name, target_file):
             f.write(text_buffer)
             status = r"%10d  [%3.2f%%]" % (file_size_dl,
                                            file_size_dl * 100. / file_size)
-            status = status + chr(8) * (len(status) + 1)
+            status += chr(8) * (len(status) + 1)
             print status,
     print ""
 
 
 def extract_embeddings(embedding_path, word_dict):
-    '''
+    """
     Given embeddings in text form and a word dictionary construct embedding
     matrix. Words with no embedding get initialized to random.
-    '''
+    """
 
     with open(embedding_path) as fid:
         for i, line in enumerate(fid.readlines()):
@@ -78,12 +77,12 @@ def extract_embeddings(embedding_path, word_dict):
 
 class NumpyRNN:
     def __init__(self, W_e, n_hidd, n_tags, seed=None):
-        '''
+        """
         E       numpy.array Word embeddings of size (n_emb, n_words)
-        n_hidd  int         Size of the recurrent layer 
+        n_hidd  int         Size of the recurrent layer
         n_tags  int         Total number of tags
         seed    int         Seed to random initialization of parameters (default=None)
-        '''
+        """
         # Dimension of the embeddings
         n_emb = W_e.shape[0]
 
@@ -100,8 +99,8 @@ class NumpyRNN:
         self.activation_function = 'logistic'  # 'tanh' 'relu' 'logistic'
 
     def apply_activation(self, x, function_name):
-        '''
-        '''
+        """
+        """
         if function_name == 'logistic':
             z = 1 / (1 + np.exp(-x))
         elif function_name == 'tanh':
@@ -115,8 +114,8 @@ class NumpyRNN:
         return z
 
     def derivate_activation(self, z, function_name):
-        '''
-        '''
+        """
+        """
         if function_name == 'logistic':
             dx = z * (1. - z)
         elif function_name == 'tanh':
@@ -129,17 +128,17 @@ class NumpyRNN:
         return dx
 
     def soft_max(self, x, alpha=1.0):
-        '''
-        '''
+        """
+        """
         e = np.exp(x / alpha)
         return e / np.sum(e)
 
     def forward(self, x, all_outputs=False, outputs=[]):
-        '''
+        """
         Forward pass
 
         all_outputs = True  return intermediate activations; needed to compute backpropagation
-        '''
+        """
         # Get parameters in nice form
         W_e, W_x, W_h, W_y = self.param
 
@@ -165,7 +164,7 @@ class NumpyRNN:
             if outputs:
                 loss += -np.log(p_y[t][outputs[t]])  # Cross-entropy loss.
 
-        loss = loss / len(x)  # Normalize to get the mean
+        loss /= len(x)  # Normalize to get the mean
 
         if all_outputs:
             return loss, p_y, p, y, h, z1, x
@@ -173,14 +172,14 @@ class NumpyRNN:
             return p_y
 
     def grads(self, x, outputs):
-        '''
+        """
             Compute gradientes, with the back-propagation method
-            inputs: 
+            inputs:
                 x: vector with the (embedding) indicies of the words of a sentence
                 outputs: vector with the indicies of the tags for each word of the sentence
             outputs:
-                nabla_params: vector with parameters gradientes            
-        '''
+                nabla_params: vector with parameters gradientes
+        """
 
         # Get parameters
         W_e, W_x, W_h, W_y = self.param
@@ -219,9 +218,9 @@ class NumpyRNN:
         return nabla_params
 
     def save(self, model_path):
-        '''
+        """
         Save model
-        '''
+        """
         pass
 
     #        par = self.params + self.actvfunc
@@ -229,9 +228,9 @@ class NumpyRNN:
     #            cPickle.dump(par, fid, cPickle.HIGHEST_PROTOCOL)
 
     def load(self, model_path):
-        '''
+        """
         Load model
-        '''
+        """
         pass
 
 
@@ -244,11 +243,11 @@ class NumpyRNN:
 
 class RNN:
     def __init__(self, W_e, n_hidd, n_tags, seed=None):
-        '''
+        """
         E       numpy.array Word embeddings of size (n_emb, n_words)
-        n_hidd  int         Size of the recurrent layer 
+        n_hidd  int         Size of the recurrent layer
         n_tags  int         Total number of tags
-        '''
+        """
 
         # Dimension of the embeddings
         n_emb = W_e.shape[0]

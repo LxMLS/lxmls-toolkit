@@ -10,13 +10,13 @@ from ipdb import set_trace
 
 
 def download_embeddings(embbeding_name, target_file):
-    '''
+    """
     Downloads file through http with progress report
-    
+
     Obtained in stack overflow:
     http://stackoverflow.com/questions/22676/how-do-i-download-a-file-over-http
     -using-python
-    '''
+    """
 
     # Embedding download URLs
     if embbeding_name == 'senna_50':
@@ -42,16 +42,16 @@ def download_embeddings(embbeding_name, target_file):
             f.write(text_buffer)
             status = r"%10d  [%3.2f%%]" % (file_size_dl,
                                            file_size_dl * 100. / file_size)
-            status = status + chr(8) * (len(status) + 1)
+            status += chr(8) * (len(status) + 1)
             print status,
     print ""
 
 
 def extract_embeddings(embedding_path, word_dict):
-    '''
+    """
     Given embeddings in text form and a word dictionary construct embedding
     matrix. Words with no embedding get initialized to random.
-    '''
+    """
 
     with open(embedding_path) as fid:
         for i, line in enumerate(fid.readlines()):
@@ -77,11 +77,11 @@ def extract_embeddings(embedding_path, word_dict):
 
 class RNN:
     def __init__(self, W_e, n_hidd, n_tags):
-        '''
+        """
         E       numpy.array Word embeddings of size (n_emb, n_words)
-        n_hidd  int         Size of the recurrent layer 
+        n_hidd  int         Size of the recurrent layer
         n_tags  int         Total number of tags
-        '''
+        """
 
         # Dimension of the embeddings
         n_emb = W_e.shape[0]

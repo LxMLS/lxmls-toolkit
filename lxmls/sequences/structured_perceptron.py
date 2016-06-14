@@ -5,7 +5,7 @@ import pdb
 
 
 class StructuredPerceptron(dsc.DiscriminativeSequenceClassifier):
-    ''' Implements a first order CRF'''
+    """ Implements a first order CRF"""
 
     def __init__(self, observation_labels, state_labels, feature_mapper,
                  num_epochs=10, learning_rate=1.0, averaged=True):
@@ -35,7 +35,7 @@ class StructuredPerceptron(dsc.DiscriminativeSequenceClassifier):
             new_w = 0
             for old_w in self.params_per_epoch:
                 new_w += old_w
-            new_w = new_w / len(self.params_per_epoch)
+            new_w /= len(self.params_per_epoch)
             self.parameters = new_w
 
     def perceptron_update(self, sequence):

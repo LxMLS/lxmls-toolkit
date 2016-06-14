@@ -5,15 +5,15 @@ from os import path
 
 
 class DependencyWriter:
-    '''
+    """
     Dependency writer class
-    '''
+    """
 
     def __init__(self):
         pass
 
     def save(self, language, heads_pred):
-        '''Saves predicted dependency trees.'''
+        """Saves predicted dependency trees."""
         base_deppars_dir = path.join(path.dirname(__file__), "..", "..", "data", "deppars")
         languages = ["danish", "dutch", "portuguese", "english"]
         i = 0

@@ -7,7 +7,7 @@ import pickle
 
 
 def load_sequence(s, word_dict, tag_dict):
-    '''
+    """
     seq = load_sequence(s, word_dict, tag_dict)
 
     Load a sequence from a single line
@@ -23,7 +23,7 @@ def load_sequence(s, word_dict, tag_dict):
     Returns
     -------
     seq : Sequence object
-    '''
+    """
     from lxmls.sequences.sequence_list import SequenceList
     seq_list = SequenceList(word_dict, tag_dict)
     words = []
@@ -41,7 +41,7 @@ def load_sequence(s, word_dict, tag_dict):
 
 
 def predict_sequence(sequence, hmm):
-    '''
+    """
     log_likelihood, initial_counts, transition_counts, final_counts,\
             emission_counts = predict_sequence(seq, hmm)
 
@@ -49,7 +49,7 @@ def predict_sequence(sequence, hmm):
 
     Parameters
     ----------
-    seq : Sequence object
+    sequence : Sequence object
     hmm: HMM object
 
     Returns
@@ -59,7 +59,7 @@ def predict_sequence(sequence, hmm):
     transition_counts : ndarray
     final_counts : ndarray
     emission_counts : ndarray
-    '''
+    """
     num_states = hmm.get_num_states()  # Number of states.
     num_observations = hmm.get_num_observations()  # Number of observation symbols.
     length = len(sequence.x)  # Length of the sequence.
@@ -100,7 +100,7 @@ def predict_sequence(sequence, hmm):
 
 
 def load_parameters(filename, hmm, smoothing):
-    '''
+    """
     load_parameters(filename, hmm, smoothing)
 
     Load the HMM parameters stored in a text file.
@@ -113,7 +113,7 @@ def load_parameters(filename, hmm, smoothing):
         Will be overwritten
     smoothing : float
         Smoothing factor to use
-    '''
+    """
     hmm.clear_counts(smoothing)
 
     f = open(filename)
@@ -148,7 +148,7 @@ def load_parameters(filename, hmm, smoothing):
 
 # The students need to write this:
 def combine_partials(counts, hmm):
-    '''
+    """
     combine_partials(counts, hmm)
 
     This function should combine the results of calling predict_sequence many
@@ -159,7 +159,7 @@ def combine_partials(counts, hmm):
     counts : list of tuples
         This is a list of results from the ``predict_sequence`` functions
 
-    '''
+    """
     hmm.log_likelihood = 0
     hmm.initial_counts = 0
     hmm.transition_counts = 0

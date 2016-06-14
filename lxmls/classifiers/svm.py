@@ -28,7 +28,7 @@ class SVM(lc.LinearClassifier):
         for epoch_nr in xrange(self.nr_epochs):
             objective = 0.0
             for nr in xrange(nr_x):
-                t = t + 1
+                t += 1
                 learning_rate = self.initial_step * np.power(t, -self.alpha)
                 inst = perm[nr]
                 scores = self.get_scores(x[inst:inst + 1, :], w)
@@ -38,7 +38,7 @@ class SVM(lc.LinearClassifier):
                 y_hat = np.argmax(cost_augmented_loss, axis=1).transpose()
                 # if(y_true != y_hat):
                 objective += 0.5 * self.regularizer * l2norm_squared(w) - scores[:, y_true] + cost_augmented_loss[:, y_hat]
-                w = (1 - self.regularizer * learning_rate) * w
+                w *= (1 - self.regularizer * learning_rate)
                 w[:, y_true] += learning_rate * x[inst:inst + 1, :].transpose()
                 w[:, y_hat] -= learning_rate * x[inst:inst + 1, :].transpose()
             self.params_per_round.append(w.copy())

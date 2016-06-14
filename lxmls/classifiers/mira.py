@@ -29,7 +29,7 @@ class Mira(lc.LinearClassifier):
                 perm = np.random.permutation(nr_x)
 
                 # change the seed so next epoch we don't get the same permutation
-                seed = seed + 1
+                seed += 1
 
                 inst = perm[nr]
                 scores = self.get_scores(x[inst:inst + 1, :], w)

@@ -7,10 +7,10 @@ import pdb
 # One for word/tag and tag/tag pair
 # ----------
 class IDFeatures:
-    '''
+    """
         Base class to extract features from a particular dataset.
 
-        feature_dic --> Dictionary of all existing features maps feature_name (string) --> feature_id (int) 
+        feature_dic --> Dictionary of all existing features maps feature_name (string) --> feature_id (int)
         feture_names --> List of feature names. Each position is the feature_id and contains the feature name
         nr_feats --> Total number of features
         feature_list --> For each sentence in the corpus contains a pair of node feature and edge features
@@ -21,10 +21,10 @@ class IDFeatures:
         node_feature_cache -->
         edge_feature_cache -->
         final_state_feature_cache -->
-    '''
+    """
 
     def __init__(self, dataset):
-        '''dataset is a sequence list.'''
+        """dataset is a sequence list."""
         self.feature_dict = LabelDictionary()
         self.feature_list = []
 
@@ -41,11 +41,11 @@ class IDFeatures:
         return len(self.feature_dict)
 
     def build_features(self):
-        '''
+        """
         Generic function to build features for a given dataset.
         Iterates through all sentences in the dataset and extracts its features,
         saving the node/edge features in feature list.
-        '''
+        """
         self.add_features = True
         for sequence in self.dataset.seq_list:
             initial_features, transition_features, final_features, emission_features = \
@@ -54,7 +54,7 @@ class IDFeatures:
         self.add_features = False
 
     def get_sequence_features(self, sequence):
-        '''
+        """
         Returns the features for a given sequence.
         For a sequence of size N returns:
         Node_feature a list of size N. Each entry contains the node potentials for that position.
@@ -62,7 +62,7 @@ class IDFeatures:
         - Entry 0 contains the initial features
         - Entry N contains the final features
         - Entry i contains entries mapping the transition from i-1 to i.
-        '''
+        """
         emission_features = []
         initial_features = []
         transition_features = []
@@ -111,7 +111,7 @@ class IDFeatures:
     # f(t,y_t,y_(t-1),X)
     # Speed up of code
     def get_transition_features(self, sequence, pos, y, y_prev):
-        assert (pos >= 0 and pos < len(sequence.x)), pdb.set_trace()
+        assert (0 <= pos < len(sequence.x)), pdb.set_trace()
 
         if y not in self.edge_feature_cache:
             self.edge_feature_cache[y] = {}
@@ -160,7 +160,7 @@ class IDFeatures:
         return features
 
     def add_emission_features(self, sequence, pos, y, features):
-        '''Add word-tag pair feature.'''
+        """Add word-tag pair feature."""
         x = sequence.x[pos]
         # Get tag name from ID.
         y_name = self.dataset.y_dict.get_label_name(y)

@@ -1,6 +1,6 @@
-'''
+"""
 Draft from the second deep learning day
-'''
+"""
 
 import sys
 

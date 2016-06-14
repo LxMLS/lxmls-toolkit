@@ -4,17 +4,17 @@ import pdb
 
 
 class DependencyDecoder:
-    '''
+    """
     Dependency decoder class
-    '''
+    """
 
     def __init__(self):
         self.verbose = False
 
     def parse_marginals_nonproj(self, scores):
-        '''
+        """
         Compute marginals and the log-partition function using the matrix-tree theorem
-        '''
+        """
         nr, nc = np.shape(scores)
         if nr != nc:
             raise ValueError("scores must be a squared matrix with nw+1 rows")
@@ -47,9 +47,9 @@ class DependencyDecoder:
         return marginals, logZ
 
     def parse_proj(self, scores):
-        '''
+        """
         Parse using Eisner's algorithm.
-        '''
+        """
 
         # ----------
         # Solution to Exercise 4.3.6 
@@ -108,7 +108,7 @@ class DependencyDecoder:
         # ----------
 
     def backtrack_eisner(self, incomplete_backtrack, complete_backtrack, s, t, direction, complete, heads):
-        '''
+        """
         Backtracking step in Eisner's algorithm.
         - incomplete_backtrack is a (NW+1)-by-(NW+1) numpy array indexed by a start position,
         an end position, and a direction flag (0 means left, 1 means right). This array contains
@@ -120,9 +120,9 @@ class DependencyDecoder:
         - t is the current end of the span
         - direction is 0 (left attachment) or 1 (right attachment)
         - complete is 1 if the current span is complete, and 0 otherwise
-        - heads is a (NW+1)-sized numpy array of integers which is a placeholder for storing the 
+        - heads is a (NW+1)-sized numpy array of integers which is a placeholder for storing the
         head of each word.
-        '''
+        """
         if s == t:
             return
         if complete:
@@ -149,9 +149,9 @@ class DependencyDecoder:
                 return
 
     def parse_nonproj(self, scores):
-        '''
+        """
         Parse using Chu-Liu-Edmonds algorithm.
-        '''
+        """
         nr, nc = np.shape(scores)
         if nr != nc:
             raise ValueError("scores must be a squared matrix with nw+1 rows")
@@ -186,9 +186,9 @@ class DependencyDecoder:
         return heads
 
     def chu_liu_edmonds(self, scores, curr_nodes, old_I, old_O, final_edges, reps):
-        '''
+        """
         Chu-Liu-Edmonds algorithm
-        '''
+        """
 
         # need to construct for each node list of nodes they represent (here only!)
         nw = np.size(curr_nodes) - 1

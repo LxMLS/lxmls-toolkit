@@ -6,7 +6,7 @@ import pdb
 
 
 class CRFOnline(dsc.DiscriminativeSequenceClassifier):
-    ''' Implements a first order CRF'''
+    """ Implements a first order CRF"""
 
     def __init__(self, observation_labels, state_labels, feature_mapper,
                  regularizer=0.00001,
