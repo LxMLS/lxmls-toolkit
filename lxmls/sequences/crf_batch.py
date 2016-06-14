@@ -4,7 +4,7 @@ from scipy import optimize
 import lxmls.sequences.discriminative_sequence_classifier as dsc
 import pdb
 
-class CRF_batch(dsc.DiscriminativeSequenceClassifier):
+class CRFBatch(dsc.DiscriminativeSequenceClassifier):
     ''' Implements a first order CRF'''
 
     def __init__(self, observation_labels, state_labels, feature_mapper,

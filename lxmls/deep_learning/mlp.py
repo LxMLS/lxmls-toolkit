@@ -51,16 +51,16 @@ class NumpyMLP():
             self.params   = self.init_weights(rng, geometry, actvfunc)
             self.actvfunc = actvfunc   
       
-    def forward(self, x, allOuts=False):
+    def forward(self, x, all_outputs=False):
         '''
         Forward pass
 
-        allOuts = True  return intermediate activations
+        all_outputs = True  return intermediate activations
         ''' 
 
         # This will store activations at each layer and the input. This is 
         # needed to compute backpropagation 
-        if allOuts:
+        if all_outputs:
             activations = []  
         
         # Input 
@@ -84,10 +84,10 @@ class NumpyMLP():
                 # underflow/overflow
                 tilde_z = np.exp(z - logsumexp(z, 0))
 
-            if allOuts:
+            if all_outputs:
                 activations.append(tilde_z)
 
-        if allOuts:
+        if all_outputs:
             tilde_z = activations
 
         return tilde_z 
@@ -99,7 +99,7 @@ class NumpyMLP():
        '''
 
        # Run forward and store activations for each layer 
-       activations   = self.forward(x, allOuts=True) 
+       activations   = self.forward(x, all_outputs=True)
 
        # For each layer in reverse store the gradients for each parameter 
        nabla_params = [None]*(2*self.n_layers)
@@ -307,16 +307,16 @@ class TheanoMLP(NumpyMLP):
         # Overwrite our params
         self.params = params   
 
-    def _forward(self, x, allOuts=False):
+    def _forward(self, x, all_outputs=False):
         '''
         Symbolic forward pass
 
-        allOuts = True  return symbolic input and intermediate activations
+        all_outputs = True  return symbolic input and intermediate activations
         '''
 
         # This will store activations at each layer and the input. This is 
         # needed to compute backpropagation 
-        if allOuts:
+        if all_outputs:
             activations = [x]  
 
         # Input
@@ -346,13 +346,13 @@ class TheanoMLP(NumpyMLP):
             # Name variable
             tilde_z.name = 'tilde_z%d' % (n+1)
 
-            if allOuts:
+            if all_outputs:
                 activations.append(tilde_z)
         # End of solution to Exercise 6.4 
         ###########################
 
 
-        if allOuts:
+        if all_outputs:
             tilde_z = activations
 
         return tilde_z

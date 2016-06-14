@@ -4,7 +4,7 @@ from sequences.sequence import *
 from sequences.sequence_list import *
 
 
-class Brown_Postag:
+class BrownPostag:
 
     def __init__(self,max_sent_len=15,train_sents=1000,dev_sents=200,test_sents=200,mapping_file = "readers/en-brown.map"):
 

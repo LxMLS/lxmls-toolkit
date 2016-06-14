@@ -32,7 +32,7 @@ def sanity_checks(batch_up, n_batch, bsize, lrate, train_set):
             raise ValueError, ("If compiled batch not used you need to specity"
                                "bsize, lrate and train_set")
 
-def SGD_train(model, n_iter, bsize=None, lrate=None, train_set=None, 
+def SGD_train(model, n_iter, bsize=None, lrate=None, train_set=None,
               batch_up=None, n_batch=None, devel_set=None, model_dbg=None):
 
     # SANITY CHECKS: 

@@ -73,7 +73,7 @@ def possible_prev_state(state,prev_state):
 
 
 #### NOT IMPLEMENTED YET
-class HMM_N_Order():
+class HMMNOrder():
 
     
     def __init__(self,dataset,true_states=-1,order = 2):

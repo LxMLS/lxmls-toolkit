@@ -33,7 +33,7 @@ def run_all_classifiers(dataset):
     fig,axis = dataset.add_line(fig,axis,params_perc,"Perceptron","blue")
 
     print "MaxEnt LBFGS"
-    me = mec_batch.MaxEnt_batch()
+    me = mec_batch.MaxEntBatch()
     params_me =  me.train(dataset.train_X,dataset.train_y)
     print params_me.reshape(-1)
     predict = me.test(dataset.train_X,params_me)
@@ -44,7 +44,7 @@ def run_all_classifiers(dataset):
     fig,axis = dataset.add_line(fig,axis,params_me,"ME-LBFGS","green")
 
     print "MaxEnt Online"
-    me_online = mec_online.MaxEnt_online()
+    me_online = mec_online.MaxEntOnline()
     params_me =  me_online.train(dataset.train_X,dataset.train_y)
     print params_me.reshape(-1)
     predict = me_online.test(dataset.train_X,params_me)

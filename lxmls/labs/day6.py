@@ -59,7 +59,7 @@ x0 = train_seq[sample].x    # first sample input (vector of integers)
 y0 = train_seq[sample].y    # first sample output (vector of integers)
 
 rnn = rnns.NumpyRNN(E, n_hidd, n_tags, seed=seed)
-loos, p_y, p, y_rnn, h, z1, x = rnn.forward(x0, allOuts=True, outputs=y0)
+loos, p_y, p, y_rnn, h, z1, x = rnn.forward(x0, all_outputs=True, outputs=y0)
 nabla_params = rnn.grads(x0, y0)
 
 # Save loss and gradient to compare with theano output 

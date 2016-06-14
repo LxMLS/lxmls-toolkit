@@ -7,7 +7,7 @@ import lxmls.classifiers.linear_classifier as lc
 ################
 ### Train a maxent in a batch setting using LBFGS
 ################
-class MaxEnt_batch(lc.LinearClassifier):
+class MaxEntBatch(lc.LinearClassifier):
 
     def __init__(self,regularizer=1):
         self.parameters = 0

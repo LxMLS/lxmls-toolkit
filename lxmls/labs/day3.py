@@ -164,7 +164,7 @@ print "Structured Perceptron - Extended Features Accuracy Train: %.3f Dev: %.3f 
 #print "Online CRF - ID Features Accuracy Train: %.3f Dev: %.3f Test: %.3f"%(eval_train,eval_dev,eval_test)
 #
 #
-#crf = crfc.CRF_batch(corpus.word_dict, corpus.tag_dict, feature_mapper)
+#crf = crfc.CRFBatch(corpus.word_dict, corpus.tag_dict, feature_mapper)
 #crf.train_supervised(train_seq)
 #
 #pred_train = crf.viterbi_decode_corpus(train_seq)
@@ -207,7 +207,7 @@ print "Structured Perceptron - Extended Features Accuracy Train: %.3f Dev: %.3f 
 ##pdb.set_trace()
 #
 #
-#crf = crfc.CRF_batch(corpus.word_dict, corpus.tag_dict, feature_mapper)
+#crf = crfc.CRFBatch(corpus.word_dict, corpus.tag_dict, feature_mapper)
 #crf.train_supervised(train_seq)
 #
 #pred_train = crf.viterbi_decode_corpus(train_seq)

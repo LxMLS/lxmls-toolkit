@@ -7,7 +7,7 @@ import lxmls.classifiers.linear_classifier as lc
 ################
 ### Train a maxent in a online setting using stochastic gradient
 ################
-class MaxEnt_online(lc.LinearClassifier):
+class MaxEntOnline(lc.LinearClassifier):
 
     def __init__(self,nr_epochs = 10,initial_step = 1.0, alpha = 1.0,regularizer=1.0):
         lc.LinearClassifier.__init__(self)

@@ -132,11 +132,11 @@ class NumpyRNN():
         return e / np.sum(e)
         
 
-    def forward(self, x, allOuts=False, outputs=[]):
+    def forward(self, x, all_outputs=False, outputs=[]):
         '''
         Forward pass
 
-        allOuts = True  return intermediate activations; needed to comput backpropagation
+        all_outputs = True  return intermediate activations; needed to compute backpropagation
         ''' 
         # Get parameters in nice form
         W_e, W_x, W_h, W_y = self.param
@@ -165,7 +165,7 @@ class NumpyRNN():
 
         loss = loss/len(x)  # Normalize to get the mean
         
-        if allOuts:
+        if all_outputs:
             return loss, p_y, p, y, h, z1, x
         else:
             return p_y
@@ -183,7 +183,7 @@ class NumpyRNN():
         # Get parameters
         W_e, W_x, W_h, W_y = self.param
         
-        loss, p_y, p, y, h, z1, x = self.forward(x, allOuts=True, outputs=outputs)
+        loss, p_y, p, y, h, z1, x = self.forward(x, all_outputs=True, outputs=outputs)
         
         # Initialize gradients with zero entrances
         nabla_W_e = np.zeros(W_e.shape)

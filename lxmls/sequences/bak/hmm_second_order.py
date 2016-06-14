@@ -10,7 +10,7 @@ from forward_backward import forward_backward,sanity_check_forward_backward
 
 
 
-class HMM_Second_Order():
+class HMMSecondOrder():
     ''' Implements an HMM with second order dependecies
     We will use the state expansion version where we expand the states to be n^2 and use the normal infernece algorithms (forward backward and viterbi)'''
 

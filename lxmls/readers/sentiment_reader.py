@@ -136,15 +136,15 @@ def build_dicts(domain):
         nr_neg += 1
     #print X.shape
     #print np.sum(X)
-    Xaux = X.copy()
-    yaux = y.copy()
+    X_aux = X.copy()
+    y_aux = y.copy()
     ## Mix positive and negative examples
     half_instances = (nr_pos+nr_neg)/2
     positive_index = np.arange(half_instances)
     
-    X[2*positive_index] = Xaux[positive_index]
-    y[2*positive_index] = yaux[positive_index]
-    X[2*positive_index+1] = Xaux[positive_index+half_instances]
-    y[2*positive_index+1] = yaux[positive_index+half_instances]
+    X[2*positive_index] = X_aux[positive_index]
+    y[2*positive_index] = y_aux[positive_index]
+    X[2*positive_index+1] = X_aux[positive_index+half_instances]
+    y[2*positive_index+1] = y_aux[positive_index+half_instances]
     return X,y,feat_dict, feat_counts
 

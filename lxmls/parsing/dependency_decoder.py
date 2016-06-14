@@ -162,13 +162,13 @@ class DependencyDecoder():
 
         curr_nodes = np.ones(nw+1, int)
         reps = []
-        oldI = -np.ones((nw+1, nw+1), int)
-        oldO = -np.ones((nw+1, nw+1), int)
+        old_I = -np.ones((nw+1, nw+1), int)
+        old_O = -np.ones((nw+1, nw+1), int)
         for i in range(0, nw+1): 
             reps.append({i : 0})
             for j in range(0, nw+1):
-                oldI[i,j] = i
-                oldO[i,j] = j
+                old_I[i,j] = i
+                old_O[i,j] = j
                 if i==j or j==0:
                     continue
 
@@ -176,7 +176,7 @@ class DependencyDecoder():
             print "Starting C-L-E...\n"
 
         scores_copy = scores.copy()
-        final_edges = self.chu_liu_edmonds(scores_copy, curr_nodes, oldI, oldO, {}, reps)
+        final_edges = self.chu_liu_edmonds(scores_copy, curr_nodes, old_I, old_O, {}, reps)
         heads = np.zeros(nw+1, int)
         heads[0] = -1
         for key in final_edges.keys():
@@ -187,7 +187,7 @@ class DependencyDecoder():
         return heads
 
 
-    def chu_liu_edmonds(self, scores, curr_nodes, oldI, oldO, final_edges, reps):
+    def chu_liu_edmonds(self, scores, curr_nodes, old_I, old_O, final_edges, reps):
         '''
         Chu-Liu-Edmonds algorithm
         '''
@@ -259,8 +259,8 @@ class DependencyDecoder():
                 if 0 == curr_nodes[m]:
                     continue
                 if par[m] != -1:
-                    pr = oldI[par[m], m]
-                    ch = oldO[par[m], m]
+                    pr = old_I[par[m], m]
+                    ch = old_O[par[m], m]
                     final_edges[ch] = pr
                 else:
                     final_edges[0] = -1
@@ -308,11 +308,11 @@ class DependencyDecoder():
                     wh2 = j1
 
             scores[rep, i] = max1
-            oldI[rep, i] = oldI[wh1, i]
-            oldO[rep, i] = oldO[wh1, i]
+            old_I[rep, i] = old_I[wh1, i]
+            old_O[rep, i] = old_O[wh1, i]
             scores[i, rep] = max2
-            oldO[i, rep] = oldO[i, wh2]
-            oldI[i, rep] = oldI[i, wh2]
+            old_O[i, rep] = old_O[i, wh2]
+            old_I[i, rep] = old_I[i, wh2]
 
         rep_cons = []
         for i in range(0, np.size(cyc_nodes)):
@@ -335,7 +335,7 @@ class DependencyDecoder():
             for key in reps[int(node)]:
                 reps[int(rep)][key] = 0
 
-        self.chu_liu_edmonds(scores, curr_nodes, oldI, oldO, final_edges, reps)
+        self.chu_liu_edmonds(scores, curr_nodes, old_I, old_O, final_edges, reps)
 
         # check each node in cycle, if one of its representatives
         # is a key in the final_edges, it is the one.
@@ -354,8 +354,8 @@ class DependencyDecoder():
                     found = True
         l = par[wh]
         while l != wh:
-            ch = oldO[par[l]][l]
-            pr = oldI[par[l]][l]
+            ch = old_O[par[l]][l]
+            pr = old_I[par[l]][l]
             final_edges[ch] = pr
             l = par[l]
 

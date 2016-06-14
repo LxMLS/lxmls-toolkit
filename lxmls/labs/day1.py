@@ -94,7 +94,7 @@ print "Mira Simple Dataset Accuracy train: %f test: %f"%(acc_train,acc_test)
 print
 
 # Same as above, but for the Maximum Entropy classifier, batch version
-me_lbfgs = mebc.MaxEnt_batch()
+me_lbfgs = mebc.MaxEntBatch()
 params_meb_sd = me_lbfgs.train(sd.train_X,sd.train_y)
 y_pred_train = me_lbfgs.test(sd.train_X,params_meb_sd)
 acc_train = me_lbfgs.evaluate(sd.train_y, y_pred_train)
@@ -105,7 +105,7 @@ print "Max-Ent batch Simple Dataset Accuracy train: %f test: %f"%(acc_train,acc_
 print
 
 # Same as above, but for the Maximum Entropy classifier, online version
-me_sgd = meoc.MaxEnt_online()
+me_sgd = meoc.MaxEntOnline()
 params_meo_sd = me_sgd.train(sd.train_X,sd.train_y)
 y_pred_train = me_sgd.test(sd.train_X,params_meo_sd)
 acc_train = me_sgd.evaluate(sd.train_y, y_pred_train)
