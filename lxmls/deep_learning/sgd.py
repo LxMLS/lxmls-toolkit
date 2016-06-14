@@ -22,16 +22,16 @@ def sanity_checks(batch_up, n_batch, bsize, lrate, train_set):
     if batch_up:
 
         if not n_batch:
-            raise ValueError, ("If you use compiled batch update you need to "
-                               "specify n_batch")
+            raise ValueError("If you use compiled batch update you need to "
+                             "specify n_batch")
         if bsize or lrate or train_set:
-            raise ValueError, ("If you use compiled batch update you can not"
-                               "specify bsize, lrate and train_set")
+            raise ValueError("If you use compiled batch update you can not"
+                             "specify bsize, lrate and train_set")
     else:
 
         if not bsize or not lrate or not train_set:
-            raise ValueError, ("If compiled batch not used you need to specity"
-                               "bsize, lrate and train_set")
+            raise ValueError("If compiled batch not used you need to specity"
+                             "bsize, lrate and train_set")
 
 
 def SGD_train(model, n_iter, bsize=None, lrate=None, train_set=None,

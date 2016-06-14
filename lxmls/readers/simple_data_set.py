@@ -39,10 +39,10 @@ class SimpleDataSet():
         self.test_y = test_y
 
     def get_name(self):
-        return "Simple Data Set -- Mean1= (%.2f,%.2f) Var1 = %.2f Mean2= (%.2f,%.2f) Var2= %.2f \nNr. Points=%.2f, Balance=%.2f Train-Dev-Test (%.2f,.%.2f,%.2f)" % (
-            self.mean1[0], self.mean1[1], self.variance1, self.mean2[0], self.mean2[1], self.variance2, self.nr_points, self.balance, self.split[0],
-            self.split[1],
-            self.split[2])
+        return "Simple Data Set -- Mean1= (%.2f,%.2f) Var1 = %.2f Mean2= (%.2f,%.2f) Var2= %.2f \nNr. Points=%.2f, " \
+               "Balance=%.2f Train-Dev-Test (%.2f,.%.2f,%.2f)" % (
+                   self.mean1[0], self.mean1[1], self.variance1, self.mean2[0], self.mean2[1], self.variance2, self.nr_points,
+                   self.balance, self.split[0], self.split[1], self.split[2])
 
     def get_bayes_optimal(self):
         params = np.zeros((3, 2))

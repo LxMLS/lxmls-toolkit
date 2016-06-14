@@ -24,8 +24,8 @@ def download_embeddings(embbeding_name, target_file):
         # senna_50 embeddings
         source_url = 'http://lxmls.it.pt/2015/wp-content/uploads/2015/senna_50'
     else:
-        raise ValueError, ("I do not have embeddings %s for download"
-                           % embbeding_name)
+        raise ValueError("I do not have embeddings %s for download"
+                          % embbeding_name)
 
     target_file_name = os.path.basename('data/senna_50')
     u = urllib2.urlopen(source_url)

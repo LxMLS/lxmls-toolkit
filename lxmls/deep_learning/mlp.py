@@ -45,8 +45,8 @@ class NumpyMLP():
         self.n_layers = len(geometry) - 1
         if model_file:
             if geometry or actvfunc:
-                raise ValueError, ("If you load a model geometry and actvfunc"
-                                   "should be None")
+                raise ValueError("If you load a model geometry and actvfunc"
+                                 "should be None")
             self.params, self.actvfunc = self.load(model_file)
         else:
             # Parameters are stored as [weight0, bias0, weight1, bias1, ... ]
@@ -182,14 +182,13 @@ class NumpyMLP():
             # Supported actvfunc
             supported_acts = ['sigmoid', 'softmax']
             if geometry and (len(actvfunc) != len(geometry) - 1):
-                raise ValueError, "The number of layers and actvfunc does not match"
+                raise ValueError("The number of layers and actvfunc does not match")
             elif any([act not in supported_acts for act in actvfunc]):
-                raise ValueError, ("Only these actvfunc supported %s"
-                                   % (" ".join(supported_acts)))
+                raise ValueError("Only these actvfunc supported %s" % (" ".join(supported_acts)))
             # All internal layers must be a sigmoid
             for internal_act in actvfunc[:-1]:
                 if internal_act != 'sigmoid':
-                    raise ValueError, "Intermediate layers must be sigmoid"
+                    raise ValueError("Intermediate layers must be sigmoid")
 
     def save(self, model_path):
         '''
