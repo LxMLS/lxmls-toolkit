@@ -21,9 +21,9 @@ class SVM(lc.LinearClassifier):
         nr_x,nr_f = x.shape
         nr_c = np.unique(y).shape[0]
         w = np.zeros((nr_f,nr_c))
-        ## Randomize the examples
+        # Randomize the examples
         perm = np.random.permutation(nr_x)
-        #print "Starting Loop"
+        # print "Starting Loop"
         t = 0
         for epoch_nr in xrange(self.nr_epochs):
             objective = 0.0
@@ -36,7 +36,7 @@ class SVM(lc.LinearClassifier):
                 cost_augmented_loss = scores + 1 
                 cost_augmented_loss[:,y_true] -= 1 
                 y_hat = np.argmax(cost_augmented_loss,axis=1).transpose()
-                #if(y_true != y_hat):
+                # if(y_true != y_hat):
                 objective += 0.5 * self.regularizer * l2norm_squared(w) - scores[:,y_true] + cost_augmented_loss[:,y_hat]
                 w = (1-self.regularizer*learning_rate)*w
                 w[:,y_true] += learning_rate*x[inst:inst+1,:].transpose()

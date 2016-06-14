@@ -30,24 +30,24 @@ class BasicFeatures(idf.IDFeatures):
             nr_feat = self.add_feature(feat)
             idx.append(nr_feat)
         else:
-            ##Check for upercase
+            # Check for upercase
             if not unicode.islower(word):
                 feat = "upercased::%s"%y
                 nr_feat = self.add_feature(feat)
                 idx.append(nr_feat)
-            ##Check for number
+            # Check for number
             if not unicode.isalpha(word):
                 feat = "number::%s"%y
                 nr_feat = self.add_feature(feat)
                 idx.append(nr_feat)
 
-            ##Check for number
+            # Check for number
             if unicode.find(word,"-") != -1:
                 feat = "hyphen::%s"%y
                 nr_feat = self.add_feature(feat)
                 idx.append(nr_feat)
 
-            ##Suffixes
+            # Suffixes
             max_suffix = 4
             for i in xrange(max_suffix):
                 if(len(word) > i+1):
@@ -55,7 +55,7 @@ class BasicFeatures(idf.IDFeatures):
                     feat = "suffix:%s::%s"%(suffix,y)
                     nr_feat = self.add_feature(feat)
                     idx.append(nr_feat)
-            ##Prefixes
+            # Prefixes
             max_prefix = 4
             for i in xrange(max_prefix):
                 if(len(word) > i+1):

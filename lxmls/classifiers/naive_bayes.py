@@ -28,12 +28,12 @@ class NaiveBayes(lc.LinearClassifier):
         return params
 
 
-    ##########################
-    ### Estimate mean and variance of
-    ### Gaussian Distributions
-    ### Note that the variance is shared for all
-    ### classes
-    ##########################
+    # ----------
+    # Estimate mean and variance of
+    # Gaussian Distributions
+    # Note that the variance is shared for all
+    # classes
+    # ----------
     def train_gaussian(self,x,y,nr_x,nr_f,nr_c):
         prior = np.zeros(nr_c)
         likelihood = np.zeros((nr_f,nr_c))
@@ -47,7 +47,7 @@ class NaiveBayes(lc.LinearClassifier):
                 g = estimate_gaussian(x[idx,f])
                 means[i,f] = g.mean
                 variances[i,f] = g.variance
-        ## Take the mean of the covariance for each matric
+        # Take the mean of the covariance for each matric
         variances = np.mean(variances,1)
         params = np.zeros((nr_f+1,nr_c))
         for i in xrange(nr_c):
@@ -58,10 +58,10 @@ class NaiveBayes(lc.LinearClassifier):
 
     
 
-    ##########################
-    ### Train a gaussian distribution
-    ### Has one multinomial for each feature
-    ##########################
+    # ----------
+    # Train a gaussian distribution
+    # Has one multinomial for each feature
+    # ----------
     def train_multinomial(self,x,y,nr_x,nr_f,nr_c):
         prior = np.zeros(nr_c)
         ind_per_class = {}

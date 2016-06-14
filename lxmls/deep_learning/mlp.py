@@ -113,7 +113,7 @@ class NumpyMLP():
            if n != self.n_layers-1:
                W_next = self.params[2*(n+1)]
 
-           ###########################
+           # ----------
            # Solution to Exercise 6.2 
             
            # If it is the last layer, compute the average cost gradient
@@ -143,7 +143,7 @@ class NumpyMLP():
            nabla_b = np.sum(e, 1, keepdims=True)
 
            # End of solution to Exercise 6.2 
-           ###########################
+           # ----------
 
            # Store the gradients 
            nabla_params[2*n]   = nabla_W
@@ -322,7 +322,7 @@ class TheanoMLP(NumpyMLP):
         # Input
         tilde_z = x
 
-        ###########################
+        # ----------
         # Solution to Exercise 6.4 
         for n in range(self.n_layers):
 
@@ -349,7 +349,7 @@ class TheanoMLP(NumpyMLP):
             if all_outputs:
                 activations.append(tilde_z)
         # End of solution to Exercise 6.4 
-        ###########################
+        # ----------
 
 
         if all_outputs:

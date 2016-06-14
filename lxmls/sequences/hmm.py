@@ -44,7 +44,7 @@ class HMM(sc.SequenceClassifier):
             print "Initial accuracy: %f"%(acc)
 
         for t in xrange(1, num_epochs):
-            #E-Step
+            # E-Step
             total_log_likelihood = 0.0
             self.clear_counts(smoothing)
             for sequence in dataset.seq_list:
@@ -61,15 +61,15 @@ class HMM(sc.SequenceClassifier):
                 total_log_likelihood += log_likelihood
 
             print "Iter: %i Log Likelihood: %f"%(t, total_log_likelihood)
-            #M-Step
+            # M-Step
             self.compute_parameters()
             if evaluate:
-                 ### Evaluate accuracy at this iteration
+                 # Evaluate accuracy at this iteration
                 acc = self.evaluate_EM(dataset)
                 print "Iter: %i Accuracy: %f"%(t,acc)
 
     def evaluate_EM(self, dataset):
-        ### Evaluate accuracy at initial iteration
+        # Evaluate accuracy at initial iteration
         pred = self.viterbi_decode_corpus(dataset)
         confusion_matrix = cm.build_confusion_matrix(dataset.seq_list, pred, 
                                                      self.get_num_states(), self.get_num_states())
@@ -111,7 +111,7 @@ class HMM(sc.SequenceClassifier):
             # Take care of last position.
             self.final_counts[sequence.y[-1]] += 1
 
-    ## Initializes the parameter randomnly
+    # Initializes the parameter randomnly
     def initialize_random(self):
         jitter = 1
         num_states = self.get_num_states()
@@ -138,13 +138,13 @@ class HMM(sc.SequenceClassifier):
     def update_counts(self, sequence, state_posteriors, transition_posteriors):
         ''' Used in the E-step in EM.'''
 
-        ###########################
+        # ----------
         # Solution to Exercise 2.10 
 
         num_states = self.get_num_states() # Number of states.
         length = len(sequence.x) # Length of the sequence.
 
-        ## Take care of initial probs
+        # Take care of initial probs
         for y in xrange(num_states):
             self.initial_counts[y] += state_posteriors[0, y]
         for pos in xrange(length):
@@ -155,12 +155,12 @@ class HMM(sc.SequenceClassifier):
                     for y_prev in xrange(num_states):
                         self.transition_counts[y, y_prev] += transition_posteriors[pos-1, y, y_prev]
 
-        ##Final position
+        # Final position
         for y in xrange(num_states):
             self.final_counts[y] += state_posteriors[length-1, y]
 
         # End of solution to Exercise 2.10 
-        ###########################
+        # ----------
 
     def compute_parameters(self):
         ''' Estimate the HMM parameters by normalizing the counts.'''
@@ -197,9 +197,9 @@ class HMM(sc.SequenceClassifier):
 
         return initial_scores, transition_scores, final_scores, emission_scores
 
-    ######
+    # ----------
     # Plot the transition matrix for a given HMM
-    ######
+    # ----------
     def print_transition_matrix(self):
         import matplotlib.pyplot as plt
         cax = plt.imshow(self.transition_probs, interpolation='nearest',aspect='auto')

@@ -29,16 +29,16 @@ class Perceptron(lc.LinearClassifier):
             seed = seed + 1
 
             for nr in xrange(nr_x):
-                #print "iter %i" %( epoch_nr*nr_x + nr)
+                # print "iter %i" %( epoch_nr*nr_x + nr)
                 inst = perm[nr]
                 y_hat = self.get_label(x[inst:inst + 1, :], w)
 
                 if (y[inst:inst + 1, 0] != y_hat):
 
-                    #Increase features of th e truth
+                    # Increase features of th e truth
                     w[:, y[inst:inst + 1, 0]] += self.learning_rate * x[inst:inst + 1, :].transpose()
 
-                    #Decrease features of the prediction
+                    # Decrease features of the prediction
                     w[:, y_hat] += -1 * self.learning_rate * x[inst:inst + 1, :].transpose()
 
             self.params_per_round.append(w.copy())

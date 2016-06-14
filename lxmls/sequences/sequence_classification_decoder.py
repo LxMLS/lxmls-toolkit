@@ -8,7 +8,7 @@ class SequenceClassificationDecoder():
     def __init__(self):
         pass
 
-    ######
+    # ----------
     # Computes the forward trellis for a given sequence.
     # Receives:
     #
@@ -16,7 +16,7 @@ class SequenceClassificationDecoder():
     # Transition scores: (length-1, num_states, num_states) array
     # Final scores: (num_states) array
     # Emission scoress: (length, num_states) array
-    ######
+    # ----------
     def run_forward(self, initial_scores, transition_scores, final_scores, emission_scores):
         length = np.size(emission_scores, 0) # Length of the sequence.
         num_states = np.size(initial_scores) # Number of states.
@@ -41,7 +41,7 @@ class SequenceClassificationDecoder():
         return log_likelihood, forward
 
 
-    ######
+    # ----------
     # Computes the backward trellis for a given sequence.
     # Receives:
     #
@@ -49,7 +49,7 @@ class SequenceClassificationDecoder():
     # Transition scores: (length-1, num_states, num_states) array
     # Final scores: (num_states) array
     # Emission scoress: (length, num_states) array
-    ######
+    # ----------
     def run_backward(self, initial_scores, transition_scores, final_scores, emission_scores):
         length = np.size(emission_scores, 0) # Length of the sequence.
         num_states = np.size(initial_scores) # Number of states.
@@ -73,7 +73,7 @@ class SequenceClassificationDecoder():
 
         return log_likelihood, backward
 
-    ######
+    # ----------
     # Computes the viterbi trellis for a given sequence.
     # Receives:
     #
@@ -81,10 +81,10 @@ class SequenceClassificationDecoder():
     # Transition scores: (length-1, num_states, num_states) array
     # Final scores: (num_states) array
     # Emission scoress: (length, num_states) array
-    ######
+    # ----------
     def run_viterbi(self, initial_scores, transition_scores, final_scores, emission_scores):
 
-        ###########################
+        # ----------
         # Solution to Exercise 2.8 
 
         length = np.size(emission_scores, 0) # Length of the sequence.
@@ -121,7 +121,7 @@ class SequenceClassificationDecoder():
         return best_path, best_score
 
         # End of solution to Exercise 2.8 
-        ###########################
+        # ----------
 
     def run_forward_backward(self, initial_scores, transition_scores, final_scores, emission_scores):
         log_likelihood, forward = self.run_forward(initial_scores, transition_scores, final_scores, emission_scores)

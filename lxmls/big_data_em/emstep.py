@@ -78,11 +78,11 @@ def predict_sequence(sequence, hmm):
     transition_counts = np.zeros((num_states, num_states))
     final_counts = np.zeros((num_states))
 
-    ## Take care of initial position counts.
+    # Take care of initial position counts.
     for y in xrange(num_states):
         initial_counts[y] += state_posteriors[0, y]
 
-    ## Take care of emission and transition counts.
+    # Take care of emission and transition counts.
     for pos in xrange(length):
         x = sequence.x[pos]
         for y in xrange(num_states):
@@ -91,7 +91,7 @@ def predict_sequence(sequence, hmm):
                 for y_prev in xrange(num_states):
                     transition_counts[y, y_prev] += transition_posteriors[pos-1, y, y_prev]
 
-    ## Take care of final position counts.
+    # Take care of final position counts.
     for y in xrange(num_states):
         final_counts[y] += state_posteriors[length-1, y]
 

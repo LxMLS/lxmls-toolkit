@@ -119,7 +119,7 @@ class RNN():
         # NOTE: Since _x contains the indices rather than full one-hot vectors,
         # use _W_e[:, _x].T instead of T.dot(_x, _W_e.T)
 
-        ###########################
+        # ----------
         # Solution to Exercise 6.3 
 
         # Embedding layer 
@@ -139,7 +139,7 @@ class RNN():
         _z2 = _h[:,0,:]
     
         # End of solution to Exercise 6.3
-        ###########################
+        # ----------
 
         # Output layer
         _p_y = T.nnet.softmax(T.dot(_z2, _W_y.T))

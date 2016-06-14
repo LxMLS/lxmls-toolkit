@@ -39,7 +39,7 @@ class DependencyReader():
             print "Language does not exist: \"%s\": Available are: %s"%(language,languages)
             return
 
-        ### Create alphabet from training data
+        # Create alphabet from training data
         n_sents = 0
         n_toks = 0
         word_id = 0
@@ -78,7 +78,7 @@ class DependencyReader():
         print "Number of pos: {0}".format(pos_id)
     
 
-        ### Load training data
+        # Load training data
         self.train_instances = []
         inst = Instance()
         inst.words.append(self.word_dict["__START__"])
@@ -117,7 +117,7 @@ class DependencyReader():
         conll_file.close()
 
 
-        ### Load test data
+        # Load test data
         self.test_instances = []
         inst = Instance()
         inst.words.append(self.word_dict["__START__"])

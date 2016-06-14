@@ -75,103 +75,103 @@ class DependencyFeatures():
         else:
             mpn = instance.pos[m+1]
 
-        ## Head pos, modifier pos
+        # Head pos, modifier pos
         f = self.lookup_fid("{0}_{1}_{2}".format(k, instance.pos[h], instance.pos[m]), add)
         ff.append(f)
         k += 1
-        ## Head pos
+        # Head pos
         f = self.lookup_fid("{0}_{1}".format(k, instance.pos[h]), add)
         ff.append(f)
         k += 1
 
         if self.use_lexical:
-            ## Head word+pos, modifier word+pos
+            # Head word+pos, modifier word+pos
             f = self.lookup_fid("{0}_{1}_{2}_{3}_{4}".format(k, instance.words[h], instance.pos[h], instance.words[m], instance.pos[m]), add)
             ff.append(f)
             k += 1
-            ## Head word+pos, modifier pos
+            # Head word+pos, modifier pos
             f = self.lookup_fid("{0}_{1}_{2}_{3}".format(k, instance.words[h], instance.pos[h], instance.pos[m]), add)
             ff.append(f)
             k += 1
-            ## Head pos, modifier word
+            # Head pos, modifier word
             f = self.lookup_fid("{0}_{1}_{2}_{3}".format(k, instance.pos[h], instance.words[m], instance.pos[m]), add)
             ff.append(f)
             k += 1
-            ## Head word+pos
+            # Head word+pos
             f = self.lookup_fid("{0}_{1}_{2}".format(k, instance.words[h], instance.pos[h]), add)
             ff.append(f)
             k += 1
 
         if self.use_distance:
-            ## Direction of attachment
+            # Direction of attachment
             f = self.lookup_fid("{0}_{1}".format(k, att_dir), add)
             ff.append(f)
             k += 1
 
-            ## Distance 
+            # Distance
             f = self.lookup_fid("{0}_{1}".format(k, dist), add)
             ff.append(f)
             k += 1
 
         if self.use_contextual:
-            ### Contextual features
-            ## Head pos+posl, modifier pos, dir
+            # Contextual features
+            # Head pos+posl, modifier pos, dir
             f = self.lookup_fid("{0}_{1}_{2}_{3}_{4}".format(k, instance.pos[h], hpp, instance.pos[m], att_dir), add)
             ff.append(f)
             k += 1
-            ## Head pos+posr, modifier pos, dir
+            # Head pos+posr, modifier pos, dir
             f = self.lookup_fid("{0}_{1}_{2}_{3}_{4}".format(k, instance.pos[h], hpn, instance.pos[m], att_dir), add)
             ff.append(f)
             k += 1
-            ## Head pos+posl+posr, modifier pos, dir
+            # Head pos+posl+posr, modifier pos, dir
             f = self.lookup_fid("{0}_{1}_{2}_{3}_{4}_{5}".format(k, instance.pos[h], hpp, hpn, instance.pos[m], att_dir), add)
             ff.append(f)
             k += 1
-            ## Head pos, modifier pos+posl, dir
+            # Head pos, modifier pos+posl, dir
             f = self.lookup_fid("{0}_{1}_{2}_{3}_{4}".format(k, instance.pos[h], instance.pos[m], mpp, att_dir), add)
             ff.append(f)
             k += 1
-            ## Head pos, modifier pos+posr, dir
+            # Head pos, modifier pos+posr, dir
             f = self.lookup_fid("{0}_{1}_{2}_{3}_{4}".format(k, instance.pos[h], instance.pos[m], mpn, att_dir), add)
             ff.append(f)
             k += 1
-            ## Head pos, modifier pos+posl+posr, dir
+            # Head pos, modifier pos+posl+posr, dir
             f = self.lookup_fid("{0}_{1}_{2}_{3}_{4}_{5}".format(k, instance.pos[h], instance.pos[m], mpp, mpn, att_dir), add)
             ff.append(f)
             k += 1
-            ## Head pos+posl, modifier pos+posl, dir
+            # Head pos+posl, modifier pos+posl, dir
             f = self.lookup_fid("{0}_{1}_{2}_{3}_{4}_{5}".format(k, instance.pos[h], hpp, instance.pos[m], mpp, att_dir), add)
             ff.append(f)
             k += 1
-            ## Head pos+posl, modifier pos+posr, dir
+            # Head pos+posl, modifier pos+posr, dir
             f = self.lookup_fid("{0}_{1}_{2}_{3}_{4}_{5}".format(k, instance.pos[h], hpp, instance.pos[m], mpn, att_dir), add)
             ff.append(f)
             k += 1
-            ## Head pos+posr, modifier pos+posl, dir
+            # Head pos+posr, modifier pos+posl, dir
             f = self.lookup_fid("{0}_{1}_{2}_{3}_{4}_{5}".format(k, instance.pos[h], hpn, instance.pos[m], mpp, att_dir), add)
             ff.append(f)
             k += 1
-            ## Head pos+posr, modifier pos+posr, dir
+            # Head pos+posr, modifier pos+posr, dir
             f = self.lookup_fid("{0}_{1}_{2}_{3}_{4}_{5}".format(k, instance.pos[h], hpn, instance.pos[m], mpn, att_dir), add)
             ff.append(f)
             k += 1
-            ## Head pos+posl, modifier pos+posl+posr, dir
+            # Head pos+posl, modifier pos+posl+posr, dir
             f = self.lookup_fid("{0}_{1}_{2}_{3}_{4}_{5}_{6}".format(k, instance.pos[h], hpp, instance.pos[m], mpp, mpn, att_dir), add)
             ff.append(f)
             k += 1
-            ## Head pos+posr, modifier pos+posl+posr, dir
+            # Head pos+posr, modifier pos+posl+posr, dir
             f = self.lookup_fid("{0}_{1}_{2}_{3}_{4}_{5}_{6}".format(k, instance.pos[h], hpn, instance.pos[m], mpp, mpn, att_dir), add)
             ff.append(f)
             k += 1
-            ## Head pos+posl+posr, modifier pos+posl, dir
+            # Head pos+posl+posr, modifier pos+posl, dir
             f = self.lookup_fid("{0}_{1}_{2}_{3}_{4}_{5}_{6}".format(k, instance.pos[h], hpp, hpn, instance.pos[m], mpp, att_dir), add)
             ff.append(f)
             k += 1
-            ## Head pos+posl+posr, modifier pos+posr, dir
+            # Head pos+posl+posr, modifier pos+posr, dir
             f = self.lookup_fid("{0}_{1}_{2}_{3}_{4}_{5}_{6}".format(k, instance.pos[h], hpp, hpn, instance.pos[m], mpn, att_dir), add)
             ff.append(f)
             k += 1
-            ## Head pos+posl+posr, modifier pos+posl+posr, dir
+            # Head pos+posl+posr, modifier pos+posl+posr, dir
             f = self.lookup_fid("{0}_{1}_{2}_{3}_{4}_{5}_{6}_{7}".format(k, instance.pos[h], hpp, hpn, instance.pos[m], mpp, mpn, att_dir), add)
             ff.append(f)
             k += 1

@@ -10,7 +10,7 @@ class GaussianNaiveBayes(lc.LinearClassifier):
         lc.LinearClassifier.__init__(self)
         self.trained = False
         self.means = 0
-        #self.variances = 0
+        # self.variances = 0
         self.prior = 0
         
     def train(self,x,y):
@@ -28,16 +28,16 @@ class GaussianNaiveBayes(lc.LinearClassifier):
                 g = estimate_gaussian(x[idx,f])
                 means[i,f] = g.mean
                 variances[i,f] = g.variance
-        ## Take the mean of the covariance for each matric
+        # Take the mean of the covariance for each matric
         variances = np.mean(variances,1)
         params = np.zeros((nr_f+1,nr_c))
         for i in xrange(nr_c):
             params[0,i] = -1/2 * np.dot(means[i,:],means[i,:]) + np.log(prior[i])
             params[1:,i] = means[i].transpose()
-            #params[0,i] = -1/(2*variances[i]) * np.dot(means[i,:],means[i,:]) + np.log(prior[i])
-            #params[1:,i] = (1/variances[i] * means[i]).transpose()
+            # params[0,i] = -1/(2*variances[i]) * np.dot(means[i,:],means[i,:]) + np.log(prior[i])
+            # params[1:,i] = (1/variances[i] * means[i]).transpose()
         self.means = means
-        #self.variances = variances
+        # self.variances = variances
         self.prior = prior
         self.trained = True
         return params

@@ -69,7 +69,7 @@ class SimpleDataSet():
             axis.scatter(self.test_X[idx3,0],self.test_X[idx3,1],s=30,c="red",marker='o')
         if(idx4.shape[0] > 0):
             axis.scatter(self.test_X[idx4,0],self.test_X[idx4,1],s=30,c="blue",marker='o')
-        ## Plot Bayes optimal
+        # Plot Bayes optimal
         if(print_bayes_opt):
             bayes_opt_params = self.get_bayes_optimal()
             self.add_line(fig,axis,bayes_opt_params, "Bayes Optimal","black")

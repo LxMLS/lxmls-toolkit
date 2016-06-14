@@ -25,21 +25,21 @@ class HMMSecondOrder():
             self.nr_states = nr_states
         self.nr_types = len(dataset.int_to_word)
         self.dataset = dataset
-        #Model order
+        # Model order
         self.order = 2
-        ## Model counts tables
+        # Model counts tables
         # c(s_t = s | s_t-1 = q, s_t-2=s)
-        ## Should increase the number of states by one to include the faque state at begining and end
+        # Should increase the number of states by one to include the faque state at begining and end
         self.transition_counts = np.zeros([self.nr_states+1,self.nr_states+1,self.nr_states+1],dtype=float)
         # c(o_t = v | s_t = s)
-        ## Increase the number of states to account for the faque state
+        # Increase the number of states to account for the faque state
         self.observation_counts = np.zeros([self.nr_types+1,self.nr_states+1],dtype=float)
         
     def get_number_states(self):
         self.nr_states
 
-    ### Train a model in a supervised way, by counting events
-    ### Smoothing represents add-alpha smoothing
+    # Train a model in a supervised way, by counting events
+    # Smoothing represents add-alpha smoothing
     def train_supervised(self,sequence_list, smoothing=0):
         if(len(self.dataset.int_to_pos) != self.nr_states):
             print "Cannot train supervised models with number of states different than true pos tags"
@@ -47,7 +47,7 @@ class HMMSecondOrder():
         
         nr_types = len(sequence_list.x_dict)
         nr_states = len(sequence_list.y_dict)
-        ## Sets all counts to zeros
+        # Sets all counts to zeros
         self.clear_counts(smoothing)
         self.collect_counts_from_corpus(sequence_list)
         self.update_params()
@@ -88,7 +88,7 @@ class HMMSecondOrder():
         ''' Collects counts from a labeled corpus'''
         for sequence in sequence_list.seq_list:
             len_x = len(sequence.x)
-            ##Goes from 0 to len(X)+order
+            # Goes from 0 to len(X)+order
             for pos in xrange(len_x+self.order):
                 if(pos >= len_x):
                     y_state = self.nr_states
@@ -98,12 +98,12 @@ class HMMSecondOrder():
                     x_idx = sequence.x[pos]
                 self.observation_counts[x_idx,y_state] +=1
 
-                ## Take care of prev_prev_state
+                # Take care of prev_prev_state
                 if(pos-2 < 0):
                     prev_prev_state =self.nr_states
                 else:
                     prev_prev_state = sequence.y[pos-2]
-                ## Take care of prev_state
+                # Take care of prev_state
                 if(pos-1 < 0):
                     prev_state =self.nr_states
                 elif(pos-1>= len_x):
@@ -114,7 +114,7 @@ class HMMSecondOrder():
             
             
 
-    ## Initializes the parameter randomnly
+    # Initializes the parameter randomnly
     def initialize_radom(self):
         jitter = 1
         self.transition_counts.fill(1)
@@ -130,7 +130,7 @@ class HMMSecondOrder():
 
     def update_params(self):
         # Normalize
-        #Update transitions
+        # Update transitions
         self.transition_probs = np.zeros(self.transition_counts.shape)
         for prev_state in xrange(self.nr_states+1):
             for prev_prev_state in xrange(self.nr_states+1):
@@ -173,14 +173,14 @@ class HMMSecondOrder():
         #     for y_next in xrange(H):
         #         self.final_counts[y_next,y] += edge_posteriors[y,y_next,N-2]
 
-    #####
+    # ----------
     # Check if the collected counts make sense
     # Transition Counts  - Should sum to number of tokens - 2* number of sentences
     # Observation counts - Should sum to the number of tokens
     #
     # Seq_list should be the same used for train.
     # NOTE: If you use smoothing when trainig you have to account for that when comparing the values
-    ######
+    # ----------
     def sanity_check_counts(self,seq_list,smoothing = 0):
         nr_sentences = len(seq_list.seq_list)
         nr_tokens = sum(map(lambda seq: len(seq.x), seq_list.seq_list))
@@ -188,7 +188,7 @@ class HMMSecondOrder():
         print "Nr_tokens: %i"%nr_tokens
         sum_transition = np.sum(self.transition_counts)
         sum_observations = np.sum(self.observation_counts)
-        ##Compare
+        # Compare
         value = (nr_tokens + 2*nr_sentences) + smoothing*self.transition_counts.size
         if(abs(sum_transition - value) > 0.001):
             print "Transition counts do not match: is - %f should be - %f"%(sum_transition,value)
@@ -200,12 +200,12 @@ class HMMSecondOrder():
         else:
             print "Observations Counts match"
 
-    #############################
-    ### Edge Potentials:
-    ### edge_potentials(y_t=a,y_t-1=b,yt-2=a,t)
-    ### Node potentials:
-    ### node_potentials(y_t = a, t)
-    #############################
+    # ----------
+    # Edge Potentials:
+    # edge_potentials(y_t=a,y_t-1=b,yt-2=a,t)
+    # Node potentials:
+    # node_potentials(y_t = a, t)
+    # ----------
     def build_potentials(self,sequence):
         nr_states = self.nr_states
         nr_pos = len(sequence.x)
@@ -220,9 +220,9 @@ class HMMSecondOrder():
         return node_potentials,edge_potentials
 
 
-    #############################
-    ### Gets the probability of a given sequence
-    #############################
+    # ----------
+    # Gets the probability of a given sequence
+    # ----------
     def get_seq_prob(self,seq,node_potentials,edge_potentials):
         nr_pos = len(seq.x)
         value = 1
@@ -255,17 +255,17 @@ class HMMSecondOrder():
         return sanity_check_forward_backward(forward,backward)
 
     
-    ###############
-    ## Returns the node posterios
-    ####################
+    # ----------
+    # Returns the node posterios
+    # ----------
     def get_node_posteriors(self,seq):
         nr_states = self.nr_states
         node_potentials,edge_potentials = self.build_potentials(seq)
         forward,backward = forward_backward(node_potentials,edge_potentials)
-        #print sanity_check_forward_backward(forward,backward)
+        # print sanity_check_forward_backward(forward,backward)
         H,N = forward.shape
         likelihood = np.sum(forward[:,N-1])
-        #print likelihood
+        # print likelihood
         return self.get_node_posteriors_aux(seq,forward,backward,node_potentials,edge_potentials,likelihood)
         
 
@@ -299,7 +299,7 @@ class HMMSecondOrder():
         nr_states = self.nr_states
         node_potentials,edge_potentials = self.build_potentials(seq)
         forward,backward = forward_backward(node_potentials,edge_potentials)
-        #self.sanity_check_fb(forward,backward)
+        # self.sanity_check_fb(forward,backward)
         H,N = forward.shape
         likelihood = np.sum(forward[:,N-1])
         node_posteriors = self.get_node_posteriors_aux(seq,forward,backward,node_potentials,edge_potentials,likelihood)

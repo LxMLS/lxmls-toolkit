@@ -1,8 +1,8 @@
 import numpy as np
 
-############################################################################
+# ----------
 # Functions to compute in log-domain.
-############################################################################
+# ----------
 
 def logzero():
     return -np.inf
@@ -50,7 +50,7 @@ def logsum(logv):
     return res
 
 
-############################################################################
+# ----------
 # This implementation is faster, but may give problems with log(0), so I
 # commented it out
 # def logsum(logv):
@@ -59,4 +59,4 @@ def logsum(logv):
 #     '''
 #     c = np.max(logv)
 #     return c + np.log(np.sum(np.exp(logv - c)))
-############################################################################
+# ----------

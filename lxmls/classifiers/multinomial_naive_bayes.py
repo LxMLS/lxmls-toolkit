@@ -39,7 +39,7 @@ class MultinomialNaiveBayes(lc.LinearClassifier):
             # (*) recall that Python starts indices at 0, so an index of 4 
             # corresponds to the fifth feature!
         
-        ###########################
+        # ----------
         # Solution to Exercise 1.1 
         for i in xrange(n_classes):
             docs_in_class,_ = np.nonzero(y == classes[i]) # docs_in_class = indices of documents in class i
@@ -52,7 +52,7 @@ class MultinomialNaiveBayes(lc.LinearClassifier):
             else:
                 likelihood[:,i] = (word_count_in_class + self.smooth_param) / (total_words_in_class + self.smooth_param*n_words)
         # End solution to Exercise 1.1 
-        ###########################
+        # ----------
 
         params = np.zeros((n_words+1,n_classes))
         for i in xrange(n_classes):

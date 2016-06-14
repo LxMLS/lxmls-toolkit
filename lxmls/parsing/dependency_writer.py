@@ -22,7 +22,7 @@ class DependencyWriter():
             print "Language does not exist: \"%s\": Available are: %s"%(language,languages)
             return
 
-        ### Load test data
+        # Load test data
         n_toks = 0
         n_sents = 0
         conll_file = open(path.join(base_deppars_dir, language+"_test.conll"))

@@ -1,9 +1,9 @@
 from lxmls.sequences.id_feature import IDFeatures
 
-#######################
-#### Feature Class
-### Extracts features from a labeled corpus (only supported features are extracted
-#######################
+# ----------
+# Feature Class
+# Extracts features from a labeled corpus (only supported features are extracted
+# ----------
 class ExtendedFeatures(IDFeatures):
 
     def add_emission_features(self, sequence, pos, y, features):
@@ -48,7 +48,7 @@ class ExtendedFeatures(IDFeatures):
             if feat_id != -1:
                 features.append(feat_id)
 
-        ##Suffixes
+        # Suffixes
         max_suffix = 3
         for i in xrange(max_suffix):
             if(len(word) > i+1):
@@ -61,7 +61,7 @@ class ExtendedFeatures(IDFeatures):
                 if feat_id != -1:
                     features.append(feat_id)
 
-        ##Prefixes
+        # Prefixes
         max_prefix =3
         for i in xrange(max_prefix):
             if(len(word) > i+1):

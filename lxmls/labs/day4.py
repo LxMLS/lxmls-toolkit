@@ -1,4 +1,4 @@
-###### Exercises for lab day 4 Parsing.
+# Exercises for lab day 4 Parsing.
 import sys
 sys.path.append('.')
 

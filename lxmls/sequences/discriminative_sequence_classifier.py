@@ -11,17 +11,17 @@ class DiscriminativeSequenceClassifier(sc.SequenceClassifier):
         self.feature_mapper = feature_mapper
         self.parameters = np.zeros(self.feature_mapper.get_num_features())
 
-    ################################
-    ##  Build the node and edge potentials
-    ## node - f(t,y_t,X)*w
-    ## edge - f(t,y_t,y_(t-1),X)*w
-    ## Only supports binary features representation
-    ## If we have an HMM with 4 positions and transitins
-    ## a - b - c - d
-    ## the edge potentials have at position:
-    ## 0 a - b
-    ## 1 b - c
-    ################################
+    # ----------
+    #  Build the node and edge potentials
+    # node - f(t,y_t,X)*w
+    # edge - f(t,y_t,y_(t-1),X)*w
+    # Only supports binary features representation
+    # If we have an HMM with 4 positions and transitins
+    # a - b - c - d
+    # the edge potentials have at position:
+    # 0 a - b
+    # 1 b - c
+    # ----------
     def compute_scores(self, sequence):
         num_states = self.get_num_states()
         length = len(sequence.x)

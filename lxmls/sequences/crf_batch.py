@@ -46,7 +46,7 @@ class CRFBatch(dsc.DiscriminativeSequenceClassifier):
         gradient -= self.regularizer*parameters
         gradient -= exp_counts
 
-        ##Since we are minizing we need to multiply both the objective and gradient by -1
+        # Since we are minizing we need to multiply both the objective and gradient by -1
         objective = -1*objective
         gradient = gradient*-1
 

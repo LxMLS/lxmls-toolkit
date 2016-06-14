@@ -2,19 +2,19 @@ import numpy as np
 
 
 
-######
+# ----------
 # Computes the viterbi path for a given sequence of lenght.
 # N - Lenght of sequence
 # H - Number of hidden states
 # Receives:
 # Node potentials (N,H) vector
 # Edge potentials (N-1,H,H)
-######
+# ----------
 def viterbi(node_potentials,edge_potentials):
     H,N = node_potentials.shape
     max_marginals = np.zeros([H,N])
     
-    ## Fil backpointers with zero to signal an errors
+    # Fill backpointers with zero to signal an errors
     backpointers = np.zeros([H,N],dtype="int") 
     backpointers[:,1:] = -1
     max_marginals[:,0] = log_stable(node_potentials[:,0])
@@ -34,7 +34,7 @@ def viterbi(node_potentials,edge_potentials):
                     max_state = prev_state
             max_marginals[current_state,pos] = max_logprob + log_stable(node_potentials[current_state,pos])
             backpointers[current_state,pos] = max_state
-    ##Recover the viterbi state
+    # Recover the viterbi state
     viterbi_path = np.zeros([N,1],dtype="int")
     best = np.argmax(max_marginals[:,N-1])
     viterbi_path[N-1] = best
@@ -49,19 +49,19 @@ def viterbi(node_potentials,edge_potentials):
 
 
 
-######
+# ----------
 # Computes the viterbi path for a given sequence of lenght in log space. (node and edge features come in log space)
 # N - Lenght of sequence
 # H - Number of hidden states
 # Receives:
 # Node potentials (N,H) vector
 # Edge potentials (N-1,H,H)
-######
+# ----------
 def viterbi_log(node_potentials,edge_potentials):
     H,N = node_potentials.shape
     max_marginals = np.zeros([H,N])
     
-    ## Fil backpointers with zero to signal an errors
+    # Fill backpointers with zero to signal an errors
     backpointers = np.zeros([H,N],dtype="int") 
     backpointers[:,1:] = -1
     max_marginals[:,0] = node_potentials[:,0]
@@ -81,7 +81,7 @@ def viterbi_log(node_potentials,edge_potentials):
                     max_state = prev_state
             max_marginals[current_state,pos] = max_logprob + node_potentials[current_state,pos]
             backpointers[current_state,pos] = max_state
-    ##Recover the viterbi state
+    # Recover the viterbi state
     viterbi_path = np.zeros([N,1],dtype="int")
     best = np.argmax(max_marginals[:,N-1])
     viterbi_path[N-1] = best

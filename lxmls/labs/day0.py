@@ -2,7 +2,7 @@ import numpy as np
 import math
 import matplotlib.pyplot as plt
 
-## Exercise about gradient descent
+# Exercise about gradient descent
 
 def get_y(x):
     value =  pow((x+2),2) - 16*math.exp(-pow((x-2),2))
@@ -14,15 +14,15 @@ def get_grad(x):
 def gradient_descent(start_x,func,grad):
     # Precision of the solution
     prec = 0.0001
-    #Use a fixed small step size
+    # Use a fixed small step size
     step_size = 0.1
-    #max iterations
+    # max iterations
     max_iter = 100
     x_new = start_x
     res = []
     for i in xrange(max_iter):
         x_old = x_new
-        #Use beta iguals to -1 for gradient descent 
+        # Use beta iguals to -1 for gradient descent
         x_new = x_old - step_size * grad(x_new)
         f_x_new = func(x_new)
         f_x_old = func(x_old)

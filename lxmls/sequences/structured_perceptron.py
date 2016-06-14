@@ -41,7 +41,7 @@ class StructuredPerceptron(dsc.DiscriminativeSequenceClassifier):
 
     def perceptron_update(self, sequence):
 
-        ###########################
+        # ----------
         # Solution to Exercise 3.3 
  
         num_labels = 0
@@ -75,8 +75,8 @@ class StructuredPerceptron(dsc.DiscriminativeSequenceClassifier):
                 self.parameters[hat_emission_features] -= self.learning_rate
 
             if pos > 0:
-            ## update bigram features
-            ## If true bigram != predicted bigram update bigram features
+            # update bigram features
+            # If true bigram != predicted bigram update bigram features
                 prev_y_t_true = sequence.y[pos-1]
                 prev_y_t_hat = y_hat[pos-1]
                 if(y_t_true != y_t_hat or prev_y_t_true != prev_y_t_hat):
@@ -99,7 +99,7 @@ class StructuredPerceptron(dsc.DiscriminativeSequenceClassifier):
         return num_labels, num_mistakes
 
         # End of solution to Exercise 3.3 
-        ###########################
+        # ----------
 
     def save_model(self,dir):
         fn = open(dir+"parameters.txt",'w')

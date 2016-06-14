@@ -132,7 +132,7 @@ if np.allclose(tilde_z1, layer1(x.astype(theano.config.floatX))):
     print "\nNumpy and Theano Perceptrons are equivalent"
 else:
     set_trace()
-    #raise ValueError, "Numpy and Theano Perceptrons are different"
+    # raise ValueError, "Numpy and Theano Perceptrons are different"
 
 print "\n######################",
 print "\n   Exercise 5.4"
@@ -168,15 +168,15 @@ if np.allclose(resa, resb):
     print "\nNumpy and Theano Forward pass are equivalent"
 else:
     set_trace()
-    #raise ValueError, "Numpy and Theano Forward are different"
+    # raise ValueError, "Numpy and Theano Forward are different"
 
 # FOR DEBUGGING PURPOSES
-## Check Numpy and Theano match
-#resas = mlp_a.grads(test_x[:, :10], test_y[:10])
-#resbs = mlp_b.grads(test_x[:, :10], test_y[:10]) 
-#if np.all([np.allclose(ra, rb) for ra, rb in zip(resas, resbs)]):
+# Check Numpy and Theano match
+# resas = mlp_a.grads(test_x[:, :10], test_y[:10])
+# resbs = mlp_b.grads(test_x[:, :10], test_y[:10])
+# if np.all([np.allclose(ra, rb) for ra, rb in zip(resas, resbs)]):
 #    print "DEBUG: Numpy and Theano Gradients pass are equivalent"
-#else:
+# else:
 #    set_trace()
 #    #raise ValueError, "\nDEBUG: Numpy and Theano Gradients are different"
 
@@ -207,9 +207,9 @@ nabla_F  = theano.function([_x, _y], _nabla_F)
 print "\nThis is my softmax classification cost\n"
 theano.printing.debugprint(_F)
 
-## FOR DEBUGGING PURPOSES
-#print "\nThis is my classification cost weight gradient\n"
-#theano.printing.debugprint(nabla_F)
+# FOR DEBUGGING PURPOSES
+# print "\nThis is my classification cost weight gradient\n"
+# theano.printing.debugprint(nabla_F)
 
 print "\n######################",
 print "\n   Exercise 5.6"
@@ -239,7 +239,7 @@ if np.allclose(resa, resb):
     print "\nNumpy and Theano  Mini-Batch pass are equivalent\n"
 else:
     set_trace()
-    #raise ValueError, "Numpy and Theano Mini-Batch are different"
+    # raise ValueError, "Numpy and Theano Mini-Batch are different"
 
 # Compare Numpy, Theano and Theano compiled
 

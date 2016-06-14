@@ -33,7 +33,7 @@ class DependencyDecoder():
         r = lap[0,1:]
         minor = lap[1:,1:]
 
-        #logZ = np.linalg.slogdet(minor)[1]
+        # logZ = np.linalg.slogdet(minor)[1]
         logZ = np.log(np.linalg.det(minor))
         invmin = np.linalg.inv(minor)
         marginals = np.zeros((nw+1, nw+1))
@@ -51,7 +51,7 @@ class DependencyDecoder():
         Parse using Eisner's algorithm.
         '''
 
-        ###########################
+        # ----------
         # Solution to Exercise 4.3.6 
         nr, nc = np.shape(scores)
         if nr != nc:
@@ -105,7 +105,7 @@ class DependencyDecoder():
         return heads
 
         # End of solution to Exercise 4.3.6 
-        ###########################
+        # ----------
 
     def backtrack_eisner(self, incomplete_backtrack, complete_backtrack, s, t, direction, complete, heads):
         '''

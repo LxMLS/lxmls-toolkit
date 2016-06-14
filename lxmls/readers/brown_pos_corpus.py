@@ -8,7 +8,7 @@ class BrownPostag:
 
     def __init__(self,max_sent_len=15,train_sents=1000,dev_sents=200,test_sents=200,mapping_file = "readers/en-brown.map"):
 
-        ##Build mapping of postags:
+        # Build mapping of postags:
         mapping = {}
         if(mapping_file != None):
             for line in open(mapping_file):
@@ -27,7 +27,7 @@ class BrownPostag:
         test_s = sents[train_sents+dev_sents:train_sents+dev_sents+test_sents]
         word_c = 0
         tag_c = 0
-        ##Initialize noun to be tag zero so that it the default tag
+        # Initialize noun to be tag zero so that it the default tag
         y_dict["noun"] = 0
         int_to_pos = ["noun"]
         tag_c += 1
@@ -50,7 +50,7 @@ class BrownPostag:
                 for word,tag in s:
                     tag = tag.lower()
                     if(tag not in mapping):
-                        ##Add unk tags to dict
+                        # Add unk tags to dict
                         mapping[tag] = "noun"
                     c_t =  mapping[tag]
                     if(word not in x_dict):

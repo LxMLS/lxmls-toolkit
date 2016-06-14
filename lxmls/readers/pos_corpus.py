@@ -6,17 +6,17 @@ from lxmls.sequences.sequence_list import *
 from os.path import dirname
 import numpy as np   # This is also needed for theano=True
 
-#from nltk.corpus import brown
+# from nltk.corpus import brown
 
-## Directory where the data files are located.
+# Directory where the data files are located.
 data_dir = dirname(__file__) + "/../../data/"
 
-### Train and test files for english WSJ part of the Penn Tree Bank
+# Train and test files for english WSJ part of the Penn Tree Bank
 en_train = data_dir + "train-02-21.conll"
 en_dev =  data_dir + "dev-22.conll"
 en_test = data_dir + "test-23.conll"
 
-### Train and test files for portuguese Floresta sintatica
+# Train and test files for portuguese Floresta sintatica
 pt_train = data_dir + "pt_train.txt"
 pt_dev = ""
 pt_test = data_dir + "pt_test.txt"
@@ -44,7 +44,7 @@ def compacify(train_seq, test_seq, dev_seq, theano=False):
 #    train_seq2, test_seq2, dev_seq2 = copy.deepcopy(train_seq), copy.deepcopy(test_seq), copy.deepcopy(dev_seq)
     
     # REDO INDICES
-    #for corpus_seq in [train_seq2, test_seq2, dev_seq2]:
+    # for corpus_seq in [train_seq2, test_seq2, dev_seq2]:
     for corpus_seq in [train_seq, test_seq, dev_seq]:
         for seq in corpus_seq:
             for i in seq.x:
@@ -89,15 +89,15 @@ class PostagCorpus(object):
         # Initialize sequence list.
         self.sequence_list = SequenceList(self.word_dict, self.tag_dict)
 
-    ## Read a text file in conll format and return a sequence list
-    ## 
+    # Read a text file in conll format and return a sequence list
+    #
     def read_sequence_list_conll(self, train_file, 
                                  mapping_file=("%s/en-ptb.map" 
                                                % dirname(__file__)),
                                  max_sent_len=100000,
                                  max_nr_sent=100000):
 
-        ##Build mapping of postags:
+        # Build mapping of postags:
         mapping = {}
         if mapping_file is not None:
             for line in open(mapping_file):
@@ -112,10 +112,9 @@ class PostagCorpus(object):
 
         return seq_list
     
-    ############################################
-    ### Reads a conll file into a sequence list.
-    ### 
-    ############################################
+    # ----------
+    # Reads a conll file into a sequence list.
+    # ----------
     def read_conll_instances(self,file,max_sent_len,max_nr_sent,mapping):
         if file.endswith("gz"):
             zf = gzip.open(file, 'rb')
@@ -133,9 +132,9 @@ class PostagCorpus(object):
         for line in contents:
             toks = line.split()
             if (len(toks) <2):
-                #print "sent n %i size %i"%(nr_sent,len(ex_x)) 
+                # print "sent n %i size %i"%(nr_sent,len(ex_x))
                 if(len(ex_x) < max_sent_len and len(ex_x) > 1):
-                    #print "accept"
+                    # print "accept"
                     nr_sent +=1
                     instances.append([ex_x,ex_y])
                 # else:
@@ -163,8 +162,8 @@ class PostagCorpus(object):
 #                ex_y.append(self.tag_dict[pos])
         return instances
 
-    ## Read a text file in brown format and return a sequence list
-    ## 
+    # Read a text file in brown format and return a sequence list
+    #
     # def read_sequence_list_brown(self,mapping_file="readers/en-ptb.map",max_sent_len=100000,max_nr_sent=100000,categories=""):
     #     ##Build mapping of postags:
     #     mapping = {}
@@ -211,7 +210,7 @@ class PostagCorpus(object):
     #     return seq_list
 
 
-    ## Dumps a corpus into a file
+    # Dumps a corpus into a file
     def save_corpus(self,dir):
         if not os.path.isdir(dir + "/"):
             os.mkdir(dir + "/")  
@@ -230,7 +229,7 @@ class PostagCorpus(object):
         self.sequence_list.save(dir+"sequence_list")
         
 
-    ## Loads a corpus from a file
+    # Loads a corpus from a file
     def load_corpus(self,dir):
         word_fn = codecs.open(dir+"word.dic","r","utf-8")
         for line in word_fn:

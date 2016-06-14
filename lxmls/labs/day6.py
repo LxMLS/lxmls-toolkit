@@ -5,12 +5,12 @@ Draft from the second deep learning day
 import sys
 sys.path.append('.')
 root = "/media/mla/new_disk/Priberam/LxMLS/2016-LxMLS/lxmls-toolkit-master"         # TODO: REMOVE
-#root = ""                  # TODO: REMOVE ??
+# root = ""                  # TODO: REMOVE ??
 sys.path.append(root)       # TODO: REMOVE ??
 import time
 
 # FOR DEBUGGING
-#from ipdb import set_trace
+# from ipdb import set_trace
 import pdb
 
 print "\n######################",
@@ -74,7 +74,7 @@ n_iter  = 20   # Number of iterations
 # TRAIN MODEL WITH SGD
 #
 
-#TODO: Merge this code with lxmls/deep_learning/sgd.py
+# TODO: Merge this code with lxmls/deep_learning/sgd.py
 
 
 
@@ -130,7 +130,7 @@ err_sum      = theano.function([_x, _y], _err)
 batch_update = theano.function([_x, _y], _F, updates=updates)
 
 
-## ADDED by MLA: Comparison with NumpyRNN
+# ADDED by MLA: Comparison with NumpyRNN
 grads_func  = theano.function([_x, _y], [T.grad(_F, _par) for _par in rnn.param])
 F_func      = theano.function([_x, _y], _F)
 F           = F_func(x0, y0)
@@ -140,15 +140,15 @@ print 'Difference in Loss:', numpy_loos - F
 print 'Difference in gradients:'
 for ii,grad in enumerate(grads):
     print '\tGradient nr', ii, (np.abs(numpy_grads[ii]-grads[ii])).sum()
-#pdb.set_trace()
-#pass
-## Done comparison
+# pdb.set_trace()
+# pass
+# Done comparison
 
 #
 # TRAIN MODEL WITH SGD
 #
 
-#TODO: Merge this code with lxmls/deep_learning/sgd.py
+# TODO: Merge this code with lxmls/deep_learning/sgd.py
 
 # Function computing accuracy for a sequence of sentences
 def accuracy(seq):

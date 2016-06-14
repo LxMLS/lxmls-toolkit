@@ -41,12 +41,12 @@ class Mira(lc.LinearClassifier):
                 dist = np.abs(y_true - y_hat)
                 # # Compute loss
                 loss = predicted_margin - true_margin + dist
-                ## Compute stepsize
+                # Compute stepsize
                 if (y_hat != y_true):
                     if ( predicted_margin == true_margin):
                         stepsize = 1 / self.regularizer
                     else:
-                        #stepsize = np.min([1/self.agress,loss/l2norm_squared(true_margin-predicted_margin)])
+                        # stepsize = np.min([1/self.agress,loss/l2norm_squared(true_margin-predicted_margin)])
                         stepsize = np.min([1 / self.regularizer, loss / l2norm_squared(x[inst:inst + 1])])
                     w[:, y_true] += stepsize * x[inst:inst + 1, :].transpose()
                     w[:, y_hat] -= stepsize * x[inst:inst + 1, :].transpose()

@@ -1,10 +1,9 @@
 import numpy as np
 
 
-
 def run_viterbi(initial_scores, transition_scores, final_scores, emission_scores):
-    length = np.size(emission_scores, 0) # Length of the sequence.
-    num_states = np.size(initial_scores) # Number of states.
+    length = np.size(emission_scores, 0)  # Length of the sequence.
+    num_states = np.size(initial_scores)  # Number of states.
 
     # Variables storing the Viterbi scores.    
     viterbi_scores = np.zeros([length, num_states])
@@ -16,38 +15,36 @@ def run_viterbi(initial_scores, transition_scores, final_scores, emission_scores
     best_path = -np.ones(length, dtype=int)
 
     # Initialization.
-    viterbi_scores[0,:] = emission_scores[0,:] * initial_scores
+    viterbi_scores[0, :] = emission_scores[0, :] * initial_scores
 
     # Viterbi loop.
-    for pos in xrange(1,length):
+    for pos in xrange(1, length):
         for current_state in xrange(num_states):
             viterbi_scores[pos, current_state] = \
-                np.max(viterbi_scores[pos-1, :] * transition_scores[pos-1, current_state, :])
+                np.max(viterbi_scores[pos - 1, :] * transition_scores[pos - 1, current_state, :])
             viterbi_scores[pos, current_state] *= emission_scores[pos, current_state]
             viterbi_paths[pos, current_state] = \
-                np.argmax(viterbi_scores[pos-1, :] * transition_scores[pos-1, current_state, :])
+                np.argmax(viterbi_scores[pos - 1, :] * transition_scores[pos - 1, current_state, :])
 
     # Termination.
-    best_score = np.max(viterbi_scores[length-1,:] * final_scores)
-    best_path[length-1] = np.argmax(viterbi_scores[length-1,:] * final_scores)
+    best_score = np.max(viterbi_scores[length - 1, :] * final_scores)
+    best_path[length - 1] = np.argmax(viterbi_scores[length - 1, :] * final_scores)
 
     # Backtrack.
-    for pos in xrange(length-2, -1, -1):
-        best_path[pos] = viterbi_paths[pos+1, best_path[pos+1]]
-        
+    for pos in xrange(length - 2, -1, -1):
+        best_path[pos] = viterbi_paths[pos + 1, best_path[pos + 1]]
+
     return best_path, best_score
 
-
-
-######
+# ----------
 # Computes the viterbi path for a given sequence of lenght.
 # N - Lenght of sequence
 # H - Number of hidden states
 # Receives:
 # Node potentials (N,H) vector
 # Edge potentials (N-1,H,H)
-######
-#def viterbi(node_potentials,edge_potentials):
+# ----------
+# def viterbi(node_potentials,edge_potentials):
 #    H,N = node_potentials.shape
 #    max_marginals = np.zeros([H,N])
 #    
@@ -76,9 +73,9 @@ def run_viterbi(initial_scores, transition_scores, final_scores, emission_scores
 #    best = np.argmax(max_marginals[:,N-1])
 #    viterbi_path[N-1] = best
 #    for pos in xrange(N-2,-1,-1):
-##        print viterbi_path
-##        print viterbi_path[pos+1]
-##        print "back"
-##        print backpointers
+# #        print viterbi_path
+# #        print viterbi_path[pos+1]
+# #        print "back"
+# #        print backpointers
 #        viterbi_path[pos] = backpointers[viterbi_path[pos+1],pos+1]
 #    return viterbi_path,max_marginals

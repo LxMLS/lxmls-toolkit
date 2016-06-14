@@ -6,7 +6,7 @@ import numpy as np
 import theano
 import theano.tensor as T
 import pdb
-#from ipdb import set_trace
+# from ipdb import set_trace
 
 def download_embeddings(embbeding_name, target_file):
     '''
@@ -93,7 +93,7 @@ class NumpyRNN():
         # Class variables
         self.n_hidd = n_hidd
         self.param  = [W_e, W_x, W_h, W_y]
-        #self.param_names  = ['W_e', 'W_x', 'W_h', 'W_y']
+        # self.param_names  = ['W_e', 'W_x', 'W_h', 'W_y']
         self.activation_function = 'logistic'   # 'tanh' 'relu' 'logistic'
         
     def apply_activation(self, x, function_name):  
@@ -122,7 +122,7 @@ class NumpyRNN():
             dx = (np.sign(z)+1)/2.
         else:
             raise NotImplementedError
-        #pdb.set_trace()
+        # pdb.set_trace()
         return dx
 
     def soft_max(self, x, alpha=1.0):
@@ -285,7 +285,7 @@ class RNN():
         # NOTE: Since _x contains the indices rather than full one-hot vectors,
         # use _W_e[:, _x].T instead of T.dot(_x, _W_e.T)
 
-        ###########################
+        # ----------
         # Solution to Exercise 6.3 
 
         # Embedding layer 
@@ -305,7 +305,7 @@ class RNN():
         _z2 = _h[:,0,:]
         
         # End of solution to Exercise 6.3
-        ###########################
+        # ----------
 
         # Output layer
         _p_y = T.nnet.softmax(T.dot(_z2, _W_y.T))

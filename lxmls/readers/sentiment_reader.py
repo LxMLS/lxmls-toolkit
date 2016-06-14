@@ -1,4 +1,4 @@
-### http://www.scipy.org/SciPyPackages/Sparse
+# http://www.scipy.org/SciPyPackages/Sparse
 
 
 import codecs
@@ -58,7 +58,7 @@ def build_dicts(domain):
         print "Domain does not exist: \"%s\": Available are: %s"%(domain,sentiment_domains)
         return
 
-    ### Build Dictionarie wit counts
+    # Build Dictionarie wit counts
     nr_pos = 0
     pos_file = codecs.open(path.join(_base_sentiment_dir,domain,"positive.review"), 'r', 'utf8')
     for line in pos_file:
@@ -83,11 +83,11 @@ def build_dicts(domain):
     neg_file.close()
 
     
-    ### Build X,y data
-    ## To read is better in linked list format (lil)
+    # Build X,y data
+    # To read is better in linked list format (lil)
     size = nr_pos+nr_neg
-    #print "Before removing %i %i"%(len(feat_counts),sum(feat_counts.values()))
-    #### Remove all features that occur less than X
+    # print "Before removing %i %i"%(len(feat_counts),sum(feat_counts.values()))
+    # Remove all features that occur less than X
     to_remove = []
     for key,value in feat_counts.iteritems():
         if(value < 5):
@@ -96,22 +96,22 @@ def build_dicts(domain):
         del feat_counts[key]
 
     nr_feat = len(feat_counts)        
-    #print nr_feat
+    # print nr_feat
     feat_dict = {}
     i = 0
-    #print "After removing %i %i"%(len(feat_counts),sum(feat_counts.values()))
+    # print "After removing %i %i"%(len(feat_counts),sum(feat_counts.values()))
     for key in feat_counts.keys():
         feat_dict[key] = i
         i += 1
 
 
-    #print "Feat Dict size %i"%(len(feat_dict))
+    # print "Feat Dict size %i"%(len(feat_dict))
     
  
-    #print "Number of instances %i"%(size)
-    #print "Number of feat %i"%(nr_feat)
+    # print "Number of instances %i"%(size)
+    # print "Number of feat %i"%(nr_feat)
     X = np.zeros((size, nr_feat),dtype=float)
-    #print X.shape
+    # print X.shape
     y = np.vstack((np.zeros([nr_pos,1],dtype=int),np.ones([nr_neg,1],dtype=int)))
     pos_file = codecs.open(path.join(_base_sentiment_dir,domain,"positive.review"), 'r', 'utf8')
     nr_pos = 0
@@ -120,7 +120,7 @@ def build_dicts(domain):
         for feat in toks[0:-1]:
             name,counts = feat.split(":")
             if(name in feat_dict):
-                #print "adding %s with counts %s"%(name,counts)
+                # print "adding %s with counts %s"%(name,counts)
                 X[nr_pos,feat_dict[name]] = int(counts);
         nr_pos += 1
     neg_file = codecs.open(path.join(_base_sentiment_dir,domain,"negative.review"), 'r', 'utf8')
@@ -131,14 +131,14 @@ def build_dicts(domain):
 
             name,counts = feat.split(":")
             if(name in feat_dict):
-                #print "adding %s with counts %s"%(name,counts)
+                # print "adding %s with counts %s"%(name,counts)
                 X[nr_pos+nr_neg,feat_dict[name]] = int(counts);
         nr_neg += 1
-    #print X.shape
-    #print np.sum(X)
+    # print X.shape
+    # print np.sum(X)
     X_aux = X.copy()
     y_aux = y.copy()
-    ## Mix positive and negative examples
+    # Mix positive and negative examples
     half_instances = (nr_pos+nr_neg)/2
     positive_index = np.arange(half_instances)
     

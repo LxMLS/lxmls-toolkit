@@ -2,7 +2,7 @@ import numpy as np
 
 
 
-######
+# ----------
 # Computes the forward backward trellis for a given sequence
 # for a second order sequence
 # N - Lenght of sequence
@@ -10,13 +10,13 @@ import numpy as np
 # Receives:
 # Node potentials (N,H) vector
 # Edge potentials (N-1,H,H)
-######
+# ----------
 def forward_backward(node_potentials,edge_potentials):
     H,N = node_potentials.shape
     forward = np.zeros([H,N],dtype=float)
     backward = np.zeros([H,N],dtype=float)
     forward[:,0] = node_potentials[:,0]
-    ## Forward loop
+    # Forward loop
     for pos in xrange(1,N):
         for current_state in xrange(H):
             for prev_state in xrange(H):
@@ -25,7 +25,7 @@ def forward_backward(node_potentials,edge_potentials):
                 prob = forward_v*trans_v
                 forward[current_state,pos] += prob
             forward[current_state,pos] *= node_potentials[current_state,pos]
-    ## Backward loop
+    # Backward loop
     backward[:,N-1] = 1
     for pos in xrange(N-2,-1,-1):
         for current_state in xrange(H):
@@ -36,12 +36,12 @@ def forward_backward(node_potentials,edge_potentials):
                 observation = node_potentials[next_state,pos+1];
                 prob += trans * observation * back;
             backward[current_state,pos] = prob
-    #sanity_check_forward_backward(forward,backward)
+    # sanity_check_forward_backward(forward,backward)
     return forward,backward
 
-#########
-## For every position - pos the sum_states forward(pos,state)*backward(pos,state) = Likelihood
-#########
+# ----------
+# For every position - pos the sum_states forward(pos,state)*backward(pos,state) = Likelihood
+# ----------
 def sanity_check_forward_backward(forward,backward):
     H,N = forward.shape
     likelihood = np.zeros([N,1])

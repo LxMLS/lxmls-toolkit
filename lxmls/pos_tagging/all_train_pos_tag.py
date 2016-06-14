@@ -71,9 +71,9 @@ def main():
     eval_model(corpus,features,model)
     print "Testing on brown"
     eval_brown(corpus,features,model)
-    #print "Loading models"
-    #corpus,features,model = load_model()
+    # print "Loading models"
+    # corpus,features,model = load_model()
     # print "Testing on wsj"
     # eval_model(corpus,features,model)
-    #print "Testing on brown"
-    #eval_brown(corpus,features,model)
+    # print "Testing on brown"
+    # eval_brown(corpus,features,model)

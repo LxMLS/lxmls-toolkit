@@ -17,7 +17,7 @@ class AbstractFeatureClass(object):
         self.add_features = False
         self.dataset = dataset
 
-        #Speed up
+        # Speed up
         self.node_feature_cache = {}
         self.initial_state_feature_cache = {}
         self.final_state_feature_cache = {}

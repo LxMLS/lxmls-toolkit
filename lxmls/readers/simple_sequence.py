@@ -4,11 +4,11 @@ from lxmls.sequences.sequence import *
 from lxmls.sequences.sequence_list import *
 
 
-################
-### Implements a simple sequence example taken from wikipedia
-### States are Sunny and Rainy
-### Observations are: Shop, Clean, Walk
-#################
+# ----------
+# Implements a simple sequence example taken from wikipedia
+# States are Sunny and Rainy
+# Observations are: Shop, Clean, Walk
+# ----------
 
 class SimpleSequence:
 

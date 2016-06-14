@@ -108,7 +108,7 @@ batch_update = theano.function([_x, _y], _F, updates=updates)
 # TRAIN MODEL WITH SGD
 #
 
-#TODO: Merge this code with lxmls/deep_learning/sgd.py
+# TODO: Merge this code with lxmls/deep_learning/sgd.py
 
 # Function computing accuracy for a sequence of sentences
 def accuracy(seq):

@@ -1,10 +1,10 @@
 from lxmls.sequences.label_dictionary import *
 import pdb
 
-#################
-### Replicates the same features as the HMM
-### One for word/tag and tag/tag pair
-#################
+# ----------
+# Replicates the same features as the HMM
+# One for word/tag and tag/tag pair
+# ----------
 class IDFeatures:
     '''
         Base class to extract features from a particular dataset.
@@ -30,7 +30,7 @@ class IDFeatures:
         self.add_features = False
         self.dataset = dataset
 
-        #Speed up
+        # Speed up
         self.node_feature_cache = {}
         self.initial_state_feature_cache = {}
         self.final_state_feature_cache = {}
@@ -69,12 +69,12 @@ class IDFeatures:
         transition_features = []
         final_features = []
 
-        ## Take care of first position
+        # Take care of first position
         features = []
         features = self.add_initial_features(sequence, sequence.y[0], features)
         initial_features.append(features)
 
-        ## Take care of middle positions
+        # Take care of middle positions
         for pos, tag in enumerate(sequence.y):
             features = []
             features = self.add_emission_features(sequence, pos, sequence.y[pos], features)
@@ -86,7 +86,7 @@ class IDFeatures:
                 features = self.add_transition_features(sequence, pos-1, tag, prev_tag, features)            
                 transition_features.append(features)
 
-        ## Take care of final position
+        # Take care of final position
         features = []
         features = self.add_final_features(sequence, sequence.y[-1], features)
         final_features.append(features)
@@ -94,7 +94,7 @@ class IDFeatures:
         return initial_features, transition_features, final_features, emission_features
 
 
-    #f(t,y_t,X)
+    # f(t,y_t,X)
     # Add the word identity and if position is
     # the first also adds the tag position
     def get_emission_features(self, sequence, pos, y):
@@ -112,8 +112,8 @@ class IDFeatures:
 
 
 
-    #f(t,y_t,y_(t-1),X)
-    ##Speed up of code
+    # f(t,y_t,y_(t-1),X)
+    # Speed up of code
     def get_transition_features(self, sequence, pos, y, y_prev):
         assert(pos >= 0 and pos < len(sequence.x)), pdb.set_trace()
 
