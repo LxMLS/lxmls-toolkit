@@ -34,12 +34,12 @@ def deep_dictionary_sum(dic):
 
 # Build all possible histories
 def build_state_history(model_order, nr_states):
-    nr_positions = nr_states ** model_order
+    nr_positions = nr_states**model_order
     histories = np.zeros([nr_positions, model_order], dtype='int')
     for order in xrange(model_order):
         # print "order %i"%order
-        size_of_block = nr_states ** order
-        number_of_iter = nr_positions / (size_of_block * nr_states)
+        size_of_block = nr_states**order
+        number_of_iter = nr_positions / (size_of_block*nr_states)
         # print "Size of Block %i"%size_of_block
         # print "Number of iter %i"%number_of_iter
         # print "Number of positions %i"%nr_positions
@@ -49,7 +49,7 @@ def build_state_history(model_order, nr_states):
                 # print "state%i"%state
                 for bs in xrange(size_of_block):
                     # print "bs %i"%bs
-                    pos = i * nr_states * size_of_block + state * size_of_block + bs
+                    pos = i*nr_states*size_of_block + state*size_of_block + bs
                     # print "pos %i"%(pos)
                     # print "order %i"%order
                     histories[pos, order] = state
@@ -74,6 +74,7 @@ def possible_prev_state(state, prev_state):
 
 # NOT IMPLEMENTED YET
 class HMMNOrder:
+
     def __init__(self, dataset, true_states=-1, order=2):
         self.trained = False
 
@@ -103,7 +104,7 @@ class HMMNOrder:
         # HMM States - States of the trellis we will concatenat the base states for a given order to use usual forward backward
         # There will be base_state^order hmm_states
         # HMM states will be denoted by z
-        self.hmm_states = self.base_states ** self.order
+        self.hmm_states = self.base_states**self.order
 
         self.all_states = build_state_history(self.order, self.base_states).tolist()
         self.all_states = tuple(map(lambda x: tuple(x), self.all_states))
@@ -113,7 +114,8 @@ class HMMNOrder:
             if state == self.fake_history:
                 self.fake_history_idx = state_idx
         # Model counts tables
-        # Transition counts - Counts of being in base_state y at time t, and coming from hmm_state at time t-1 c(y_t| z_t-1)
+        # Transition counts - Counts of being in base_state y at time t, and
+        # coming from hmm_state at time t-1 c(y_t| z_t-1)
         self.transition_counts = {}
         self.transition_probs = {}
         # Observation counts - Counts of observing word w and being in base state y at time t
@@ -191,7 +193,7 @@ class HMMNOrder:
         for sequence in sequence_list.seq_list:
             len_x = len(sequence.x)
             # Goes from 0 to len(X)+order
-            for pos in xrange(len_x + self.order):
+            for pos in xrange(len_x+self.order):
                 if pos >= len_x:
                     y_state = self.fake_state
                 else:
@@ -202,11 +204,11 @@ class HMMNOrder:
                     self.add_counts(self.observation_counts, sequence.x[pos], y_state, 1.0)
 
                 # Build the history for this position
-                for i in xrange(1, self.order + 1):
-                    if pos - i < 0 or pos - i >= len_x:
+                for i in xrange(1, self.order+1):
+                    if pos-i < 0 or pos-i >= len_x:
                         history[-i] = self.fake_state
                     else:
-                        history[-i] = sequence.y[pos - i]
+                        history[-i] = sequence.y[pos-i]
 
                 self.add_counts(self.transition_counts, y_state, tuple(history), 1.0)
 
@@ -274,7 +276,7 @@ class HMMNOrder:
         sum_transition = deep_dictionary_sum(self.transition_counts)
         sum_observations = deep_dictionary_sum(self.observation_counts)
         # Compare
-        value = (nr_tokens + 2 * nr_sentences)
+        value = nr_tokens + 2*nr_sentences
         if abs(sum_transition - value) > 0.001:
             print "Transition counts do not match: is - %f should be - %f" % (sum_transition, value)
         else:
@@ -299,7 +301,7 @@ class HMMNOrder:
         # Initial position
         forward[self.fake_history_idx, 0] = 1
         # Middle position
-        for pos in xrange(1, N - 1):
+        for pos in xrange(1, N-1):
             # Remove the fake position zero
             true_pos = pos - 1
             for current_state_idx, current_state in enumerate(self.all_states):
@@ -307,7 +309,7 @@ class HMMNOrder:
                 for prev_state_idx, prev_state in enumerate(self.all_states):
                     prev_y_state = prev_state[-1]
                     if possible_prev_state(current_state, prev_state):
-                        forward_v = forward[prev_state_idx, pos - 1]
+                        forward_v = forward[prev_state_idx, pos-1]
                         if forward_v == 0:
                             continue
                         # print "Position: %i"%(pos)
@@ -320,7 +322,9 @@ class HMMNOrder:
                         prob = forward_v * trans_v
                         forward[current_state_idx, pos] += prob
 
-                forward[current_state_idx, pos] *= self.get_counts(self.observation_probs, seq.x[true_pos], current_y_state)
+                forward[current_state_idx, pos] *= self.get_counts(self.observation_probs,
+                                                                   seq.x[true_pos],
+                                                                   current_y_state)
                 # print "Forward Entry %.3f"%forward[current_state_idx,pos]
         # Final Position
         for current_state_idx, current_state in enumerate(self.all_states):
@@ -330,7 +334,7 @@ class HMMNOrder:
                 # print current_state
                 for prev_state_idx, prev_state in enumerate(self.all_states):
                     if possible_prev_state(current_state, prev_state):
-                        forward_v = forward[prev_state_idx, N - 2]
+                        forward_v = forward[prev_state_idx, N-2]
                         if forward_v == 0:
                             continue
                         # print "Prev State"
@@ -338,15 +342,15 @@ class HMMNOrder:
                         # print "Current State"
                         # print current_state
                         trans_v = self.get_counts(self.transition_probs, current_y_state, prev_state)
-                        forward[current_state_idx, N - 1] += forward_v * trans_v
+                        forward[current_state_idx, N-1] += forward_v * trans_v
         # Backward part
         # Final position
         for current_state_idx, current_state in enumerate(self.all_states):
             current_y_state = current_state[-1]
             if current_y_state == self.fake_state:
-                backward[current_state_idx, N - 1] = 1
+                backward[current_state_idx, N-1] = 1
         # Middel positions
-        for pos in xrange(N - 2, 0, -1):
+        for pos in xrange(N-2, 0, -1):
             true_pos = pos - 1
             for current_state_idx, current_state in enumerate(self.all_states):
                 current_y_state = current_state[-1]
@@ -355,12 +359,12 @@ class HMMNOrder:
                     next_y_state = next_state[-1]
                     if possible_prev_state(next_state, current_state):
                         # print prev_state_idx,prev_state,pos
-                        back = backward[next_state_idx, pos + 1]
+                        back = backward[next_state_idx, pos+1]
                         trans = self.get_counts(self.transition_probs, next_y_state, current_state)
-                        if true_pos + 1 >= len(seq.x):
+                        if true_pos+1 >= len(seq.x):
                             observation = 1
                         else:
-                            observation = self.get_counts(self.observation_probs, seq.x[true_pos + 1], next_y_state)
+                            observation = self.get_counts(self.observation_probs, seq.x[true_pos+1], next_y_state)
                         prob += trans * observation * back
                 backward[current_state_idx, pos] = prob
         # Initial position
@@ -398,13 +402,13 @@ class HMMNOrder:
         return True
 
     # ----------
-    # Returns the node posterios
+    # Returns the node posteriors
     # ----------
     def get_node_posteriors(self, seq):
         forward, backward = self.forward_backward(seq)
         # print sanity_check_forward_backward(forward,backward)
         H, N = forward.shape
-        likelihood = np.sum(forward[:, N - 1])
+        likelihood = np.sum(forward[:, N-1])
         # print likelihood
         return self.get_node_posteriors_aux(seq, forward, backward, likelihood)
 
@@ -419,13 +423,13 @@ class HMMNOrder:
     def get_edge_posteriors(self, seq):
         forward, backward = self.forward_backward(seq)
         H, N = forward.shape
-        likelihood = np.sum(forward[:, N - 1])
+        likelihood = np.sum(forward[:, N-1])
         return self.get_edge_posteriors_aux(seq, forward, backward, likelihood)
 
     def get_edge_posteriors_aux(self, seq, forward, backward, likelihood):
         H, N = forward.shape
-        edge_posteriors = np.zeros([H, H, N - 1], dtype=float)
-        for pos in xrange(N - 1):
+        edge_posteriors = np.zeros([H, H, N-1], dtype=float)
+        for pos in xrange(N-1):
             print "At position %i" % pos
             true_pos = pos - 1
             for prev_state_idx, prev_state in enumerate(self.all_states):
@@ -437,15 +441,12 @@ class HMMNOrder:
                         print prev_state
                         print "state"
                         print state
-                        if true_pos + 1 >= len(seq.y):
-                            edge_posteriors[prev_state_idx, state_idx, pos] = forward[prev_state_idx, pos] * self.get_counts(self.transition_probs,
-                                                                                                                             state_y,
-                                                                                                                             prev_state) * 1 * backward[
-                                                                                  state_idx, pos + 1] / likelihood
+                        trans = self.get_counts(self.transition_probs, state_y, prev_state)
+                        if true_pos+1 >= len(seq.y):
+                            observation = 1
                         else:
-                            edge_posteriors[prev_state_idx, state_idx, pos] = forward[prev_state_idx, pos] * self.get_counts(self.transition_probs, state_y,
-                                                                                                                             prev_state) * self.get_counts(
-                                self.observation_probs, seq.x[true_pos + 1], state_y) * backward[state_idx, pos + 1] / likelihood
+                            observation = self.get_counts(self.observation_probs, seq.x[true_pos+1], state_y)
+                        edge_posteriors[prev_state_idx, state_idx, pos] = forward[prev_state_idx, pos] * trans * observation * backward[state_idx, pos+1] / likelihood
                     else:
                         edge_posteriors[prev_state_idx, state_idx, pos] = 0
         return edge_posteriors
@@ -454,7 +455,7 @@ class HMMNOrder:
         forward, backward = forward_backward(seq)
         # self.sanity_check_fb(forward,backward)
         H, N = forward.shape
-        likelihood = np.sum(forward[:, N - 1])
+        likelihood = np.sum(forward[:, N-1])
         node_posteriors = self.get_node_posteriors_aux(seq, forward, backward, likelihood)
         edge_posteriors = self.get_edge_posteriors_aux(seq, forward, backward, likelihood)
         return [node_posteriors, edge_posteriors], likelihood
@@ -468,8 +469,8 @@ class HMMNOrder:
         # print res
         newres = np.zeros(len(seq.y), dtype='int')
         # Removed unused positions
-        for i in xrange(1, res.shape[0] - 1):
-            newres[i - 1] = self.all_states[res[i]][-1]
+        for i in xrange(1, res.shape[0]-1):
+            newres[i-1] = self.all_states[res[i]][-1]
         new_seq = seq.copy_sequence()
         new_seq.y = newres
         # print "Res transfomed"

@@ -9,6 +9,7 @@ import numpy as np
 
 
 class Gaussian:
+
     def __init__(self, mean, variance):
         self.mean = mean
         self.variance = variance
@@ -17,7 +18,8 @@ class Gaussian:
         return np.random.normal(self.mean, self.variance, points)
 
 
-# Returns the mean and the variance of a data set of X points assuming that the points come from a gaussian distribution X
+# Returns the mean and the variance of a data set of X points assuming
+# that the points come from a gaussian distribution X
 def estimate_gaussian(X):
     mean = np.mean(X, 0)
     variance = np.var(X, 0)

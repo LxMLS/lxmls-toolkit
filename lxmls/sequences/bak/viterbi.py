@@ -5,10 +5,10 @@ def run_viterbi(initial_scores, transition_scores, final_scores, emission_scores
     length = np.size(emission_scores, 0)  # Length of the sequence.
     num_states = np.size(initial_scores)  # Number of states.
 
-    # Variables storing the Viterbi scores.    
+    # Variables storing the Viterbi scores.
     viterbi_scores = np.zeros([length, num_states])
 
-    # Variables storing the paths to backtrack.    
+    # Variables storing the paths to backtrack.
     viterbi_paths = -np.ones([length, num_states], dtype=int)
 
     # Most likely sequence.
@@ -21,18 +21,18 @@ def run_viterbi(initial_scores, transition_scores, final_scores, emission_scores
     for pos in xrange(1, length):
         for current_state in xrange(num_states):
             viterbi_scores[pos, current_state] = \
-                np.max(viterbi_scores[pos - 1, :] * transition_scores[pos - 1, current_state, :])
+                np.max(viterbi_scores[pos-1, :] * transition_scores[pos-1, current_state, :])
             viterbi_scores[pos, current_state] *= emission_scores[pos, current_state]
             viterbi_paths[pos, current_state] = \
-                np.argmax(viterbi_scores[pos - 1, :] * transition_scores[pos - 1, current_state, :])
+                np.argmax(viterbi_scores[pos-1, :] * transition_scores[pos-1, current_state, :])
 
     # Termination.
-    best_score = np.max(viterbi_scores[length - 1, :] * final_scores)
-    best_path[length - 1] = np.argmax(viterbi_scores[length - 1, :] * final_scores)
+    best_score = np.max(viterbi_scores[length-1, :] * final_scores)
+    best_path[length-1] = np.argmax(viterbi_scores[length-1, :] * final_scores)
 
     # Backtrack.
-    for pos in xrange(length - 2, -1, -1):
-        best_path[pos] = viterbi_paths[pos + 1, best_path[pos + 1]]
+    for pos in xrange(length-2, -1, -1):
+        best_path[pos] = viterbi_paths[pos+1, best_path[pos+1]]
 
     return best_path, best_score
 
@@ -47,9 +47,9 @@ def run_viterbi(initial_scores, transition_scores, final_scores, emission_scores
 # def viterbi(node_potentials,edge_potentials):
 #    H,N = node_potentials.shape
 #    max_marginals = np.zeros([H,N])
-#    
+#
 #    ## Fil backpointers with zero to signal an errors
-#    backpointers = np.zeros([H,N],dtype="int") 
+#    backpointers = np.zeros([H,N],dtype="int")
 #    backpointers[:,1:] = -1
 #    max_marginals[:,0] = node_potentials[:,0]
 #    for pos in xrange(1,N):

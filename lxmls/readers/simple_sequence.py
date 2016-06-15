@@ -15,10 +15,10 @@ class SimpleSequence:
     def __init__(self):
         # Observation set.
         self.x_dict = LabelDictionary(['walk', 'shop', 'clean', 'tennis'])
-        
+
         # State set.
         self.y_dict = LabelDictionary(['rainy', 'sunny'])
-        
+
         # Generate training sequences.
         train_sequences = SequenceList(self.x_dict, self.y_dict)
         train_sequences.add_sequence(['walk', 'walk', 'shop', 'clean'], ['rainy', 'sunny', 'sunny', 'sunny'])

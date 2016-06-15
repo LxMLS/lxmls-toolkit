@@ -35,7 +35,8 @@ class EMStep(MRJob):
     def mapper(self, key, s):
         seq = load_sequence(s, self.hmm.observation_labels, self.hmm.state_labels)
 
-        log_likelihood, initial_counts, transition_counts, final_counts, emission_counts = predict_sequence(seq, self.hmm)
+        log_likelihood, initial_counts, transition_counts, final_counts, emission_counts = predict_sequence(
+            seq, self.hmm)
 
         self.log_likelihood += log_likelihood
         self.initial_counts += initial_counts
@@ -54,8 +55,8 @@ class EMStep(MRJob):
             for s in xrange(num_states):
                 name_s = self.hmm.state_labels.get_label_name(s)
                 yield 'transition %s %s' % (name_y, name_s), self.transition_counts[y, s]
-            yield 'final ' + name_y, self.final_counts[y]
-            yield 'initial ' + name_y, self.initial_counts[y]
+            yield 'final '+name_y, self.final_counts[y]
+            yield 'initial '+name_y, self.initial_counts[y]
 
         for w in xrange(num_observations):
             name_w = self.hmm.observation_labels.get_label_name(w)

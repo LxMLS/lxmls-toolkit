@@ -9,7 +9,10 @@ MODEL_DIR = "../models/wsj_postag/"
 
 def build_corpus_features():
     corpus = pcc.PostagCorpus()
-    train_seq = corpus.read_sequence_list_conll("../data/train-02-21.conll", max_sent_len=MAX_SENT_SIZE, max_nr_sent=MAX_NR_SENTENCES)
+    train_seq = corpus.read_sequence_list_conll(
+        "../data/train-02-21.conll",
+        max_sent_len=MAX_SENT_SIZE,
+        max_nr_sent=MAX_NR_SENTENCES)
     corpus.add_sequence_list(train_seq)
     features = exfc.ExtendedFeatures(corpus)
     features.build_features()
@@ -38,8 +41,22 @@ def eval_model(corpus, features, model):
 
 
 def eval_brown(corpus, features, model):
-    categories = ['adventure', 'belles_lettres', 'editorial', 'fiction', 'government', 'hobbies', 'humor', 'learned', 'lore', 'mystery', 'news', 'religion',
-                  'reviews', 'romance', 'science_fiction']
+    categories = [
+        'adventure',
+        'belles_lettres',
+        'editorial',
+        'fiction',
+        'government',
+        'hobbies',
+        'humor',
+        'learned',
+        'lore',
+        'mystery',
+        'news',
+        'religion',
+        'reviews',
+        'romance',
+        'science_fiction']
     for cat in categories:
         brown_seq = corpus.read_sequence_list_brown(categories=cat)
         brown_pred = model.viterbi_decode_corpus_log(brown_seq.seq_list)

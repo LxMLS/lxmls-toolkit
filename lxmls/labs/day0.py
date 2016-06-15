@@ -6,12 +6,12 @@ import matplotlib.pyplot as plt
 # Exercise about gradient descent
 
 def get_y(x):
-    value = pow((x + 2), 2) - 16 * math.exp(-pow((x - 2), 2))
+    value = pow((x+2), 2) - 16*math.exp(-pow((x-2), 2))
     return value
 
 
 def get_grad(x):
-    return (2 * x + 4) - 16 * (-2 * x + 4) * np.exp(-((x - 2) ** 2))
+    return (2*x + 4) - 16*(-2*x + 4)*np.exp(-((x-2)**2))
 
 
 def gradient_descent(start_x, func, grad):
@@ -26,7 +26,7 @@ def gradient_descent(start_x, func, grad):
     for i in xrange(max_iter):
         x_old = x_new
         # Use beta iguals to -1 for gradient descent
-        x_new = x_old - step_size * grad(x_new)
+        x_new = x_old - step_size*grad(x_new)
         f_x_new = func(x_new)
         f_x_old = func(x_old)
         res.append([x_new, f_x_new])

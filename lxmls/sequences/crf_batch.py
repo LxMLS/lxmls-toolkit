@@ -89,14 +89,14 @@ class CRFBatch(dsc.DiscriminativeSequenceClassifier):
 
                 if pos > 0:
                     for prev_state in xrange(num_states):
-                        features = self.feature_mapper.get_transition_features(sequence, pos - 1, state, prev_state)
+                        features = self.feature_mapper.get_transition_features(sequence, pos-1, state, prev_state)
                         for feat_id in features:
-                            exp_counts[feat_id] += transition_posteriors[pos - 1, state, prev_state]
+                            exp_counts[feat_id] += transition_posteriors[pos-1, state, prev_state]
 
         for state in xrange(num_states):
             features = self.feature_mapper.get_final_features(sequence, state)
             for feat_id in features:
-                exp_counts[feat_id] += state_posteriors[length - 1, state]
+                exp_counts[feat_id] += state_posteriors[length-1, state]
 
         return seq_objective, log_likelihood
 
@@ -119,13 +119,14 @@ class CRFBatch(dsc.DiscriminativeSequenceClassifier):
                     emp_counts[feat_id] += 1
 
                 if pos > 0:
-                    prev_y_t_true = sequence.y[pos - 1]
-                    true_transition_features = self.feature_mapper.get_transition_features(sequence, pos - 1, y_t_true, prev_y_t_true)
+                    prev_y_t_true = sequence.y[pos-1]
+                    true_transition_features = self.feature_mapper.get_transition_features(
+                        sequence, pos-1, y_t_true, prev_y_t_true)
                     for feat_id in true_transition_features:
                         emp_counts[feat_id] += 1
 
             pos = len(sequence.x)
-            y_t_true = sequence.y[pos - 1]
+            y_t_true = sequence.y[pos-1]
             true_final_features = self.feature_mapper.get_final_features(sequence, y_t_true)
             for feat_id in true_final_features:
                 emp_counts[feat_id] += 1

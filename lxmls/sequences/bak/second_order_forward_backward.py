@@ -19,20 +19,20 @@ def forward_backward(node_potentials, edge_potentials):
     for pos in xrange(1, N):
         for current_state in xrange(H):
             for prev_state in xrange(H):
-                forward_v = forward[prev_state, pos - 1]
-                trans_v = edge_potentials[prev_state, current_state, pos - 1]
+                forward_v = forward[prev_state, pos-1]
+                trans_v = edge_potentials[prev_state, current_state, pos-1]
                 prob = forward_v * trans_v
                 forward[current_state, pos] += prob
             forward[current_state, pos] *= node_potentials[current_state, pos]
     # Backward loop
-    backward[:, N - 1] = 1
-    for pos in xrange(N - 2, -1, -1):
+    backward[:, N-1] = 1
+    for pos in xrange(N-2, -1, -1):
         for current_state in xrange(H):
             prob = 0
             for next_state in xrange(H):
-                back = backward[next_state, pos + 1]
+                back = backward[next_state, pos+1]
                 trans = edge_potentials[current_state, next_state, pos]
-                observation = node_potentials[next_state, pos + 1]
+                observation = node_potentials[next_state, pos+1]
                 prob += trans * observation * back
             backward[current_state, pos] = prob
     # sanity_check_forward_backward(forward,backward)

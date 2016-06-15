@@ -51,7 +51,7 @@ class AbstractFeatureClass(object):
             initial_features, transition_features, final_features, emission_features = \
                 self.get_sequence_features(sequence)
             self.feature_list.append([initial_features, transition_features, final_features, emission_features])
-        #        self.nr_feats = len(self.feature_names)
+        # self.nr_feats = len(self.feature_names)
         self.add_features = False
 
     def get_transition_features(self, sequence, position, tag_id, prev_tag_id):

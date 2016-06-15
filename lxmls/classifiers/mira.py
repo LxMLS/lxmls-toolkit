@@ -1,3 +1,4 @@
+from __future__ import division
 import sys
 import numpy as np
 import lxmls.classifiers.linear_classifier as lc
@@ -5,6 +6,7 @@ from lxmls.util.my_math_utils import *
 
 
 class Mira(lc.LinearClassifier):
+
     def __init__(self, nr_rounds=10, regularizer=1.0, averaged=True):
         lc.LinearClassifier.__init__(self)
         self.trained = False
@@ -32,9 +34,9 @@ class Mira(lc.LinearClassifier):
                 seed += 1
 
                 inst = perm[nr]
-                scores = self.get_scores(x[inst:inst + 1, :], w)
-                y_true = y[inst:inst + 1, 0]
-                y_hat = self.get_label(x[inst:inst + 1, :], w)
+                scores = self.get_scores(x[inst:inst+1, :], w)
+                y_true = y[inst:inst+1, 0]
+                y_hat = self.get_label(x[inst:inst+1, :], w)
 
                 true_margin = scores[:, y_true]
                 predicted_margin = scores[:, y_hat]
@@ -44,12 +46,12 @@ class Mira(lc.LinearClassifier):
                 # Compute stepsize
                 if y_hat != y_true:
                     if predicted_margin == true_margin:
-                        stepsize = 1 / self.regularizer
+                        stepsize = 1 // self.regularizer
                     else:
                         # stepsize = np.min([1/self.agress,loss/l2norm_squared(true_margin-predicted_margin)])
-                        stepsize = np.min([1 / self.regularizer, loss / l2norm_squared(x[inst:inst + 1])])
-                    w[:, y_true] += stepsize * x[inst:inst + 1, :].transpose()
-                    w[:, y_hat] -= stepsize * x[inst:inst + 1, :].transpose()
+                        stepsize = np.min([1//self.regularizer, loss//l2norm_squared(x[inst:inst+1])])
+                    w[:, y_true] += stepsize * x[inst:inst+1, :].transpose()
+                    w[:, y_hat] -= stepsize * x[inst:inst+1, :].transpose()
 
             self.params_per_round.append(w.copy())
             self.trained = True

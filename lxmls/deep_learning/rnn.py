@@ -1,5 +1,5 @@
 #!/usr/bin/python
-
+from __future__ import division
 import os
 import urllib2
 import numpy as np
@@ -42,7 +42,7 @@ def download_embeddings(embbeding_name, target_file):
             f.write(text_buffer)
             status = r"%10d  [%3.2f%%]" % (file_size_dl,
                                            file_size_dl * 100. / file_size)
-            status += chr(8) * (len(status) + 1)
+            status += chr(8) * (len(status)+1)
             print status,
     print ""
 
@@ -61,7 +61,7 @@ def extract_embeddings(embedding_path, word_dict):
                 E = np.random.uniform(size=(N, len(word_dict)))
                 n = 0
             word = line.split()[0].lower()
-            if word[0].upper() + word[1:] in word_dict:
+            if word[0].upper()+word[1:] in word_dict:
                 idx = word_dict[word[0].upper() + word[1:]]
                 E[:, idx] = np.array(line.strip().split()[1:]).astype(float)
                 n += 1
@@ -70,12 +70,13 @@ def extract_embeddings(embedding_path, word_dict):
                 E[:, idx] = np.array(line.strip().split()[1:]).astype(float)
                 n += 1
             print "\rGetting embeddings for the vocabulary %d/%d" % (n, len(word_dict)),
-    OOV_perc = (1 - n * 1. / len(word_dict)) * 100
+    OOV_perc = (1 - n/len(word_dict)) * 100
     print "\n%2.1f%% OOV, missing embeddings set to random" % OOV_perc
     return E
 
 
 class NumpyRNN:
+
     def __init__(self, W_e, n_hidd, n_tags, seed=None):
         """
         E       numpy.array Word embeddings of size (n_emb, n_words)
@@ -102,7 +103,7 @@ class NumpyRNN:
         """
         """
         if function_name == 'logistic':
-            z = 1 / (1 + np.exp(-x))
+            z = 1 / (1+np.exp(-x))
         elif function_name == 'tanh':
             z = np.tanh(x)
         elif function_name == 'relu':
@@ -117,11 +118,11 @@ class NumpyRNN:
         """
         """
         if function_name == 'logistic':
-            dx = z * (1. - z)
+            dx = z * (1.-z)
         elif function_name == 'tanh':
-            dx = (1. - z * z)
+            dx = 1. - z*z
         elif function_name == 'relu':
-            dx = (np.sign(z) + 1) / 2.
+            dx = (np.sign(z)+1) / 2.
         else:
             raise NotImplementedError
         # pdb.set_trace()
@@ -149,13 +150,13 @@ class NumpyRNN:
 
             z1[t] = W_e[:, x[t]].T
 
-            h[t] = self.apply_activation(W_x.dot(z1[t]) + W_h.dot(h[t - 1]),
+            h[t] = self.apply_activation(W_x.dot(z1[t]) + W_h.dot(h[t-1]),
                                          self.activation_function)
 
             y[t] = W_y.dot(h[t])
 
             ymax = max(y[t])
-            logsum = ymax + np.log(sum(np.exp(y[t] - ymax)))
+            logsum = ymax + np.log(sum(np.exp(y[t]-ymax)))
             p[t] = np.exp(y[t] - logsum)
             p_y[t] = p[t] / np.sum(p[t])
             #            # Annother way of computing p_y[t]
@@ -203,7 +204,7 @@ class NumpyRNN:
             # backprop through nonlinearity.
             dh_raw = self.derivate_activation(h[t], self.activation_function) * dh
 
-            nabla_W_h += dh_raw[:, None].dot(h[t - 1][None, :])
+            nabla_W_h += dh_raw[:, None].dot(h[t-1][None, :])
 
             nabla_W_x += dh_raw[:, None].dot(z1[t][None, :])
 
@@ -214,7 +215,7 @@ class NumpyRNN:
             dh_next = W_h.T.dot(dh_raw)
 
             # Normalize to be in agrement with the loss
-        nabla_params = [nabla_W_e / len(x), nabla_W_x / len(x), nabla_W_h / len(x), nabla_W_y / len(x)]
+        nabla_params = [nabla_W_e/len(x), nabla_W_x/len(x), nabla_W_h/len(x), nabla_W_y/len(x)]
         return nabla_params
 
     def save(self, model_path):
@@ -242,6 +243,7 @@ class NumpyRNN:
 
 
 class RNN:
+
     def __init__(self, W_e, n_hidd, n_tags, seed=None):
         """
         E       numpy.array Word embeddings of size (n_emb, n_words)
@@ -287,9 +289,9 @@ class RNN:
         # use _W_e[:, _x].T instead of T.dot(_x, _W_e.T)
 
         # ----------
-        # Solution to Exercise 6.3 
+        # Solution to Exercise 6.3
 
-        # Embedding layer 
+        # Embedding layer
         _z1 = _W_e[:, _x].T
 
         # This defines what to do at each step
@@ -315,15 +317,16 @@ class RNN:
 
 
 class LSTM:
+
     def __init__(self, W_e, n_hidd, n_tags):
 
         # Dimension of the embeddings
         n_emb = W_e.shape[0]
 
         # MODEL PARAMETERS
-        W_x = np.random.uniform(size=(4 * n_hidd, n_emb))  # RNN Input layer
-        W_h = np.random.uniform(size=(4 * n_hidd, n_hidd))  # RNN recurrent var
-        W_c = np.random.uniform(size=(3 * n_hidd, n_hidd))  # Second recurrent var
+        W_x = np.random.uniform(size=(4*n_hidd, n_emb))  # RNN Input layer
+        W_h = np.random.uniform(size=(4*n_hidd, n_hidd))  # RNN recurrent var
+        W_c = np.random.uniform(size=(3*n_hidd, n_hidd))  # Second recurrent var
         W_y = np.random.uniform(size=(n_tags, n_hidd))  # Output layer
         # Cast to theano GPU-compatible type
         W_e = W_e.astype(theano.config.floatX)
@@ -358,10 +361,10 @@ class LSTM:
         _W_e, _W_x, _W_h, _W_c, _W_y = self.param
         H = self.n_hidd
 
-        # Embedding layer 
+        # Embedding layer
         _z1 = _W_e[:, _x].T
 
-        # Per loop operation 
+        # Per loop operation
         def _step(_x_tm1, _h_tm1, _c_tm1, _W_x, _W_h, _W_c):
 
             # LINEAR TRANSFORMS
@@ -376,11 +379,11 @@ class LSTM:
             # Note the subtlety: _x_tm1 and hence _z_x are flat and have size
             # (H,) _h_tm1 and _c_tm1 are not and thus have size (1, H)
             _i_t = T.nnet.sigmoid(_z_x[:H] + _z_h[:, :H] + _z_c[:, :H])
-            _f_t = T.nnet.sigmoid(_z_x[H:2 * H] + _z_h[:, H:2 * H] + _z_c[:, H:2 * H])
-            _o_t = T.nnet.sigmoid(_z_x[3 * H:4 * H] + _z_h[:, 3 * H:4 * H] + _z_c[:, 2 * H:3 * H])
+            _f_t = T.nnet.sigmoid(_z_x[H:2*H] + _z_h[:, H:2*H] + _z_c[:, H:2*H])
+            _o_t = T.nnet.sigmoid(_z_x[3*H:4*H] + _z_h[:, 3*H:4*H] + _z_c[:, 2*H:3*H])
 
             # HIDDENS
-            _c_t = _f_t * _c_tm1 + _i_t * T.tanh(_z_x[2 * H:3 * H] + _z_h[:, 2 * H:3 * H])
+            _c_t = _f_t*_c_tm1 + _i_t*T.tanh(_z_x[2*H:3*H] + _z_h[:, 2*H:3*H])
             _h_t = _o_t * T.tanh(_c_t)
 
             return _h_t, _c_t

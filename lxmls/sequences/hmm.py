@@ -104,7 +104,7 @@ class HMM(sc.SequenceClassifier):
 
             # Take care of intermediate positions.
             for i, x in enumerate(sequence.x[1:]):
-                y = sequence.y[i + 1]
+                y = sequence.y[i+1]
                 y_prev = sequence.y[i]
                 self.emission_counts[x, y] += 1
                 self.transition_counts[y, y_prev] += 1
@@ -140,7 +140,7 @@ class HMM(sc.SequenceClassifier):
         """ Used in the E-step in EM."""
 
         # ----------
-        # Solution to Exercise 2.10 
+        # Solution to Exercise 2.10
 
         num_states = self.get_num_states()  # Number of states.
         length = len(sequence.x)  # Length of the sequence.
@@ -154,11 +154,11 @@ class HMM(sc.SequenceClassifier):
                 self.emission_counts[x, y] += state_posteriors[pos, y]
                 if pos > 0:
                     for y_prev in xrange(num_states):
-                        self.transition_counts[y, y_prev] += transition_posteriors[pos - 1, y, y_prev]
+                        self.transition_counts[y, y_prev] += transition_posteriors[pos-1, y, y_prev]
 
         # Final position
         for y in xrange(num_states):
-            self.final_counts[y] += state_posteriors[length - 1, y]
+            self.final_counts[y] += state_posteriors[length-1, y]
 
             # End of solution to Exercise 2.10
             # ----------
@@ -170,10 +170,10 @@ class HMM(sc.SequenceClassifier):
         self.initial_probs = self.initial_counts / np.sum(self.initial_counts)
 
         # Normalize transition counts
-        self.transition_probs = self.transition_counts / (np.sum(self.transition_counts, 0) + self.final_counts)
+        self.transition_probs = self.transition_counts / (np.sum(self.transition_counts, 0)+self.final_counts)
 
         # Normalize final counts
-        self.final_probs = self.final_counts / (np.sum(self.transition_counts, 0) + self.final_counts)
+        self.final_probs = self.final_counts / (np.sum(self.transition_counts, 0)+self.final_counts)
 
         # Normalize emission counts
         self.emission_probs = self.emission_counts / np.sum(self.emission_counts, 0)
@@ -187,11 +187,11 @@ class HMM(sc.SequenceClassifier):
 
         # Intermediate position.
         emission_scores = np.zeros([length, num_states]) + logzero()
-        transition_scores = np.zeros([length - 1, num_states, num_states]) + logzero()
+        transition_scores = np.zeros([length-1, num_states, num_states]) + logzero()
         for pos in xrange(length):
             emission_scores[pos, :] = np.log(self.emission_probs[sequence.x[pos], :])
             if pos > 0:
-                transition_scores[pos - 1, :, :] = np.log(self.transition_probs)
+                transition_scores[pos-1, :, :] = np.log(self.transition_probs)
 
         # Final position.
         final_scores = np.log(self.final_probs)

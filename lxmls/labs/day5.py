@@ -105,10 +105,10 @@ import numpy as np
 x = test_x  # Test set
 W1, b1 = mlp.params[0:2]  # Weigths and bias of fist layer
 z1 = np.dot(W1, x) + b1  # Linear transformation
-tilde_z1 = 1 / (1 + np.exp(-z1))  # Non-linear transformation
+tilde_z1 = 1 / (1+np.exp(-z1))  # Non-linear transformation
 
-# Theano code. 
-# NOTE: We use undescore to denote symbolic equivalents to Numpy variables. 
+# Theano code.
+# NOTE: We use underscore to denote symbolic equivalents to Numpy variables.
 # This is no Python convention!.
 import theano
 import theano.tensor as T
@@ -149,7 +149,7 @@ mlp_b = dl.TheanoMLP(geometry, actvfunc)
 #
 #     fwd1          = mlp_a.forward(test_x[:, :10], allOuts=True)
 #
-#     mlp_b_forward = theano.function([_x], mlp_b._forward(_x, allOuts=True)) 
+#     mlp_b_forward = theano.function([_x], mlp_b._forward(_x, allOuts=True))
 #     fwd2          = mlp_b_forward(test_x[:, :10])
 #
 # Or e.g. to see the graph up to the second variable
@@ -234,11 +234,11 @@ _train_y = theano.shared(train_y, 'train_y', borrow=True)
 
 # Create a symbolic variable returning a batch of samples
 _i = T.lscalar()
-get_tr_batch_y = theano.function([_i], _train_y[_i * bsize:(_i + 1) * bsize])
+get_tr_batch_y = theano.function([_i], _train_y[_i*bsize:(_i+1)*bsize])
 
 # Check Numpy and Theano match
 i = 3
-resa = train_y[i * bsize:(i + 1) * bsize]
+resa = train_y[i*bsize:(i+1)*bsize]
 resb = get_tr_batch_y(i)
 if np.allclose(resa, resb):
     print "\nNumpy and Theano  Mini-Batch pass are equivalent\n"
@@ -260,7 +260,7 @@ acc_train = sgd.class_acc(mlp_a.forward(train_x), train_y)[0]
 acc_test = sgd.class_acc(mlp_a.forward(test_x), test_y)[0]
 print "Amazon Sentiment Accuracy train: %f test: %f\n" % (acc_train, acc_test)
 
-# Theano grads 
+# Theano grads
 mlp_b = dl.TheanoMLP(geometry, actvfunc)
 init_t = time.clock()
 sgd.SGD_train(mlp_b, n_iter, bsize=bsize, lrate=lrate, train_set=(train_x, train_y))
@@ -284,25 +284,25 @@ _train_y = theano.shared(train_y, 'train_y', borrow=True)
 mlp_c = dl.TheanoMLP(geometry, actvfunc)
 
 # Define givens variables to be used in the batch update
-# Get symbolic variables returning a mini-batch of data 
+# Get symbolic variables returning a mini-batch of data
 
-# Define updates variable. This is a list of gradient descent updates 
+# Define updates variable. This is a list of gradient descent updates
 # The output is a list following theano.function updates parameter. This
 # consists on a list of tuples with each parameter and update rule
 _x = T.matrix('x')
 _y = T.ivector('y')
 _F = mlp_c._cost(_x, _y)
-updates = [(par, par - lrate * T.grad(_F, par)) for par in mlp_c.params]
+updates = [(par, par - lrate*T.grad(_F, par)) for par in mlp_c.params]
 
-# Givens maps input and target to a mini-batch of inputs and targets 
+# Givens maps input and target to a mini-batch of inputs and targets
 _j = T.lscalar()
-givens = {_x: _train_x[:, _j * bsize:(_j + 1) * bsize],
-          _y: _train_y[_j * bsize:(_j + 1) * bsize]}
+givens = {_x: _train_x[:, _j*bsize:(_j+1)*bsize],
+          _y: _train_y[_j*bsize:(_j+1)*bsize]}
 
 # Define the batch update function. This will return the cost of each batch
 # and update the MLP parameters at the same time using updates
 batch_up = theano.function([_j], _F, updates=updates, givens=givens)
-n_batch = train_x.shape[1] / bsize + 1
+n_batch = train_x.shape[1]/bsize + 1
 
 init_t = time.clock()
 sgd.SGD_train(mlp_c, n_iter, batch_up=batch_up, n_batch=n_batch)

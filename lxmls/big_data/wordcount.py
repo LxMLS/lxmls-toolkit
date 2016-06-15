@@ -3,6 +3,7 @@ from mrjob.job import MRJob
 
 
 class WordCount(MRJob):
+
     def mapper(self, _, doc):
         c = {}
         # Process the document

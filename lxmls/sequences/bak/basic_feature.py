@@ -2,6 +2,7 @@ import id_feature as idf
 
 
 class BasicFeatures(idf.IDFeatures):
+
     def __init__(self, dataset):
         idf.IDFeatures.__init__(self, dataset)
 
@@ -47,16 +48,16 @@ class BasicFeatures(idf.IDFeatures):
             # Suffixes
             max_suffix = 4
             for i in xrange(max_suffix):
-                if len(word) > i + 1:
-                    suffix = word[-(i + 1):]
+                if len(word) > i+1:
+                    suffix = word[-(i+1):]
                     feat = "suffix:%s::%s" % (suffix, y)
                     nr_feat = self.add_feature(feat)
                     idx.append(nr_feat)
             # Prefixes
             max_prefix = 4
             for i in xrange(max_prefix):
-                if len(word) > i + 1:
-                    prefix = word[:i + 1]
+                if len(word) > i+1:
+                    prefix = word[:i+1]
                     feat = "prefix:%s::%s" % (prefix, y)
                     nr_feat = self.add_feature(feat)
                     idx.append(nr_feat)

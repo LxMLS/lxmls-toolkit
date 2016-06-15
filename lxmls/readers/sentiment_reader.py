@@ -1,5 +1,5 @@
 # http://www.scipy.org/SciPyPackages/Sparse
-
+from __future__ import division
 
 import codecs
 
@@ -9,6 +9,7 @@ from os import path
 
 
 class SentimentCorpus:
+
     def __init__(self, domain, train_per=0.8, dev_per=0, test_per=0.2):
         X, y, feat_dict, feat_counts = build_dicts(domain)
         self.nr_instances = y.shape[0]
@@ -27,7 +28,7 @@ class SentimentCorpus:
 
 
 def split_train_dev_test(X, y, train_per, dev_per, test_per):
-    if train_per + dev_per + test_per > 1:
+    if train_per+dev_per+test_per > 1:
         print "Train Dev Test split should sum to one"
         return
     dim = y.shape[0]
@@ -42,7 +43,7 @@ def split_train_dev_test(X, y, train_per, dev_per, test_per):
         test_X = X[split1:, :]
 
     else:
-        split2 = int(dim * (train_per + dev_per))
+        split2 = int(dim * (train_per+dev_per))
         print split2
         train_y, dev_y, test_y = np.vsplit(y, (split1, split2))
         train_X = X[0:split1, :]
@@ -132,18 +133,18 @@ def build_dicts(domain):
             name, counts = feat.split(":")
             if name in feat_dict:
                 # print "adding %s with counts %s"%(name,counts)
-                X[nr_pos + nr_neg, feat_dict[name]] = int(counts)
+                X[nr_pos+nr_neg, feat_dict[name]] = int(counts)
         nr_neg += 1
     # print X.shape
     # print np.sum(X)
     X_aux = X.copy()
     y_aux = y.copy()
     # Mix positive and negative examples
-    half_instances = (nr_pos + nr_neg) / 2
+    half_instances = (nr_pos+nr_neg) // 2
     positive_index = np.arange(half_instances)
 
-    X[2 * positive_index] = X_aux[positive_index]
-    y[2 * positive_index] = y_aux[positive_index]
-    X[2 * positive_index + 1] = X_aux[positive_index + half_instances]
-    y[2 * positive_index + 1] = y_aux[positive_index + half_instances]
+    X[2*positive_index] = X_aux[positive_index]
+    y[2*positive_index] = y_aux[positive_index]
+    X[2*positive_index+1] = X_aux[positive_index+half_instances]
+    y[2*positive_index+1] = y_aux[positive_index+half_instances]
     return X, y, feat_dict, feat_counts

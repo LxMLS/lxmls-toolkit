@@ -3,6 +3,7 @@ import pdb
 
 
 class _SequenceIterator(object):
+
     def __init__(self, seq):
         self.seq = seq
         self.pos = 0
@@ -19,6 +20,7 @@ class _SequenceIterator(object):
 
 
 class SequenceList(object):
+
     def __init__(self, x_dict, y_dict):
         self.x_dict = x_dict
         self.y_dict = y_dict

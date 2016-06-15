@@ -19,4 +19,3 @@
 #             name_s = self.hmm.state_labels.get_label_name(s)
 #             if self.emission_counts[w,s]:
 #                 yield 'emission %s %s' % (name_w, name_s), self.emission_counts[w,s]
-

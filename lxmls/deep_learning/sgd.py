@@ -1,3 +1,4 @@
+from __future__ import division
 import sys
 import numpy as np
 import time
@@ -10,11 +11,11 @@ def class_acc(hat_y, y_ref):
     Computes percent accuracy and log probability given estimated and reference
     class indices
     """
-    # Check probability of devel set 
+    # Check probability of devel set
     pred = hat_y[y_ref, np.arange(y_ref.shape[0])]
     p_dev = np.sum(np.log(pred))
     # Check percent correct classification on the devel set
-    cr = np.sum((np.argmax(hat_y, 0) == y_ref).astype(int)) * 1.0 / y_ref.shape[0]
+    cr = np.sum((np.argmax(hat_y, 0) == y_ref).astype(int)) / y_ref.shape[0]
     return cr, p_dev
 
 
@@ -43,7 +44,7 @@ def SGD_train(model, n_iter, bsize=None, lrate=None, train_set=None,
         train_x, train_y = train_set
 
         # Number of mini batches
-        n_batch = train_x.shape[1] / bsize + 1
+        n_batch = train_x.shape[1]//bsize + 1
 
         # Check for Theano vars
         if getattr(model, "_forward", None):
@@ -71,8 +72,8 @@ def SGD_train(model, n_iter, bsize=None, lrate=None, train_set=None,
                 # Manual batch update
 
                 # Mini batch
-                batch_x = train_x[:, j * bsize:(j + 1) * bsize]
-                batch_y = train_y[j * bsize:(j + 1) * bsize]
+                batch_x = train_x[:, j*bsize:(j+1)*bsize]
+                batch_y = train_y[j*bsize:(j+1)*bsize]
 
                 # Get gradients for each layer and this batch
                 nabla_params = model.grads(batch_x, batch_y)
@@ -81,18 +82,18 @@ def SGD_train(model, n_iter, bsize=None, lrate=None, train_set=None,
                 for m in np.arange(len(model.params)):
                     if shared_vars:
                         # Parameters as theano shared variables
-                        model.params[m].set_value(model.params[m].get_value() - lrate * np.array(nabla_params[m]))
+                        model.params[m].set_value(model.params[m].get_value() - lrate*np.array(nabla_params[m]))
                     else:
                         # Parameters as numpy array
                         model.params[m] -= lrate * nabla_params[m]
 
             # INFO
             sys.stdout.write("\rBatch %d/%d (%d%%) " %
-                             (j + 1, n_batch, (j + 1) * 100.0 / n_batch))
+                             (j+1, n_batch, (j+1)*100.0/n_batch))
             sys.stdout.flush()
         batch_time = time.clock() - init_time
 
-        # Check probability of devel set 
+        # Check probability of devel set
         if devel_set:
             corr, p_devel = class_acc(model.forward(devel_set[0]), devel_set[1])
             if prev_p_devel:
@@ -106,7 +107,9 @@ def SGD_train(model, n_iter, bsize=None, lrate=None, train_set=None,
             delta_p_train = 0
         prev_p_train = p_train
         validation_time = time.clock() - init_time - batch_time
-        sys.stdout.write("  Epoch %2d/%2d in %2.2f seg\n" % (i + 1, n_iter, batch_time))
+        sys.stdout.write("  Epoch %2d/%2d in %2.2f seg\n" % (i+1, n_iter, batch_time))
         if devel_set:
-            sys.stdout.write("Logpos devel: %10.1f (delta: %10.2f) Corr devel %2.2f\n\n" % (p_devel, delta_p_devel, corr))
+            sys.stdout.write(
+                "Logpos devel: %10.1f (delta: %10.2f) Corr devel %2.2f\n\n" %
+                (p_devel, delta_p_devel, corr))
     print ""

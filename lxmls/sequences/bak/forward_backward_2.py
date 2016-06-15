@@ -18,20 +18,20 @@ def forward_backward(node_potentials, edge_potentials):
     for pos in xrange(1, N):
         for current_state in xrange(H):
             for prev_state in xrange(H):
-                forward_v = forward[prev_state, pos - 1]
-                trans_v = np.log(edge_potentials[prev_state, current_state, pos - 1])
+                forward_v = forward[prev_state, pos-1]
+                trans_v = np.log(edge_potentials[prev_state, current_state, pos-1])
                 logprob = forward_v + trans_v
                 forward[current_state, pos] = np.logaddexp(forward[current_state, pos], logprob)
             forward[current_state, pos] += np.log(node_potentials[current_state, pos])
     # Backward loop
-    backward[:, N - 1] = 0.0  # log(1) = 0
-    for pos in xrange(N - 2, -1, -1):
+    backward[:, N-1] = 0.0  # log(1) = 0
+    for pos in xrange(N-2, -1, -1):
         for current_state in xrange(H):
             logprob = -1000.0
             for next_state in xrange(H):
-                back = backward[next_state, pos + 1]
+                back = backward[next_state, pos+1]
                 trans = np.log(edge_potentials[current_state, next_state, pos])
-                observation = np.log(node_potentials[next_state, pos + 1])
+                observation = np.log(node_potentials[next_state, pos+1])
                 logprob = np.logaddexp(logprob, trans + observation + back)
             backward[current_state, pos] = logprob
     # sanity_check_forward_backward(forward,backward)

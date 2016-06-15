@@ -23,7 +23,7 @@ class DependencyFeatures:
         for instance in instances:
             nw = np.size(instance.words) - 1
             heads = instance.heads
-            for m in range(1, nw + 1):
+            for m in range(1, nw+1):
                 h = heads[m]
                 self.create_arc_features(instance, h, m, True)
 
@@ -32,9 +32,9 @@ class DependencyFeatures:
     def create_features(self, instance):
         """Creates arc features from an instance."""
         nw = np.size(instance.words) - 1
-        feats = np.empty((nw + 1, nw + 1), dtype=object)
-        for h in range(0, nw + 1):
-            for m in range(1, nw + 1):
+        feats = np.empty((nw+1, nw+1), dtype=object)
+        for h in range(0, nw+1):
+            for m in range(1, nw+1):
                 if h == m:
                     feats[h][m] = []
                     continue
@@ -61,19 +61,19 @@ class DependencyFeatures:
         if h == 0:
             hpp = "__START__"
         else:
-            hpp = instance.pos[h - 1]
-        if h == nw - 1:
+            hpp = instance.pos[h-1]
+        if h == nw-1:
             hpn = "__END__"
         else:
-            hpn = instance.pos[h + 1]
+            hpn = instance.pos[h+1]
         if m == 0:
             mpp = "__START__"
         else:
-            mpp = instance.pos[m - 1]
-        if m == nw - 1:
+            mpp = instance.pos[m-1]
+        if m == nw-1:
             mpn = "__END__"
         else:
-            mpn = instance.pos[m + 1]
+            mpn = instance.pos[m+1]
 
         # Head pos, modifier pos
         f = self.lookup_fid("{0}_{1}_{2}".format(k, instance.pos[h], instance.pos[m]), add)
@@ -86,7 +86,13 @@ class DependencyFeatures:
 
         if self.use_lexical:
             # Head word+pos, modifier word+pos
-            f = self.lookup_fid("{0}_{1}_{2}_{3}_{4}".format(k, instance.words[h], instance.pos[h], instance.words[m], instance.pos[m]), add)
+            f = self.lookup_fid(
+                "{0}_{1}_{2}_{3}_{4}".format(
+                    k, instance.words[h],
+                    instance.pos[h],
+                    instance.words[m],
+                    instance.pos[m]),
+                add)
             ff.append(f)
             k += 1
             # Head word+pos, modifier pos
@@ -124,7 +130,15 @@ class DependencyFeatures:
             ff.append(f)
             k += 1
             # Head pos+posl+posr, modifier pos, dir
-            f = self.lookup_fid("{0}_{1}_{2}_{3}_{4}_{5}".format(k, instance.pos[h], hpp, hpn, instance.pos[m], att_dir), add)
+            f = self.lookup_fid(
+                "{0}_{1}_{2}_{3}_{4}_{5}".format(
+                    k,
+                    instance.pos[h],
+                    hpp,
+                    hpn,
+                    instance.pos[m],
+                    att_dir),
+                add)
             ff.append(f)
             k += 1
             # Head pos, modifier pos+posl, dir
@@ -136,43 +150,124 @@ class DependencyFeatures:
             ff.append(f)
             k += 1
             # Head pos, modifier pos+posl+posr, dir
-            f = self.lookup_fid("{0}_{1}_{2}_{3}_{4}_{5}".format(k, instance.pos[h], instance.pos[m], mpp, mpn, att_dir), add)
+            f = self.lookup_fid(
+                "{0}_{1}_{2}_{3}_{4}_{5}".format(
+                    k,
+                    instance.pos[h],
+                    instance.pos[m],
+                    mpp,
+                    mpn,
+                    att_dir),
+                add)
             ff.append(f)
             k += 1
             # Head pos+posl, modifier pos+posl, dir
-            f = self.lookup_fid("{0}_{1}_{2}_{3}_{4}_{5}".format(k, instance.pos[h], hpp, instance.pos[m], mpp, att_dir), add)
+            f = self.lookup_fid(
+                "{0}_{1}_{2}_{3}_{4}_{5}".format(
+                    k,
+                    instance.pos[h],
+                    hpp,
+                    instance.pos[m],
+                    mpp,
+                    att_dir),
+                add)
             ff.append(f)
             k += 1
             # Head pos+posl, modifier pos+posr, dir
-            f = self.lookup_fid("{0}_{1}_{2}_{3}_{4}_{5}".format(k, instance.pos[h], hpp, instance.pos[m], mpn, att_dir), add)
+            f = self.lookup_fid(
+                "{0}_{1}_{2}_{3}_{4}_{5}".format(
+                    k,
+                    instance.pos[h],
+                    hpp,
+                    instance.pos[m],
+                    mpn,
+                    att_dir),
+                add)
             ff.append(f)
             k += 1
             # Head pos+posr, modifier pos+posl, dir
-            f = self.lookup_fid("{0}_{1}_{2}_{3}_{4}_{5}".format(k, instance.pos[h], hpn, instance.pos[m], mpp, att_dir), add)
+            f = self.lookup_fid(
+                "{0}_{1}_{2}_{3}_{4}_{5}".format(
+                    k,
+                    instance.pos[h],
+                    hpn,
+                    instance.pos[m],
+                    mpp,
+                    att_dir),
+                add)
             ff.append(f)
             k += 1
             # Head pos+posr, modifier pos+posr, dir
-            f = self.lookup_fid("{0}_{1}_{2}_{3}_{4}_{5}".format(k, instance.pos[h], hpn, instance.pos[m], mpn, att_dir), add)
+            f = self.lookup_fid(
+                "{0}_{1}_{2}_{3}_{4}_{5}".format(
+                    k,
+                    instance.pos[h],
+                    hpn,
+                    instance.pos[m],
+                    mpn,
+                    att_dir),
+                add)
             ff.append(f)
             k += 1
             # Head pos+posl, modifier pos+posl+posr, dir
-            f = self.lookup_fid("{0}_{1}_{2}_{3}_{4}_{5}_{6}".format(k, instance.pos[h], hpp, instance.pos[m], mpp, mpn, att_dir), add)
+            f = self.lookup_fid(
+                "{0}_{1}_{2}_{3}_{4}_{5}_{6}".format(
+                    k,
+                    instance.pos[h],
+                    hpp,
+                    instance.pos[m],
+                    mpp,
+                    mpn,
+                    att_dir),
+                add)
             ff.append(f)
             k += 1
             # Head pos+posr, modifier pos+posl+posr, dir
-            f = self.lookup_fid("{0}_{1}_{2}_{3}_{4}_{5}_{6}".format(k, instance.pos[h], hpn, instance.pos[m], mpp, mpn, att_dir), add)
+            f = self.lookup_fid(
+                "{0}_{1}_{2}_{3}_{4}_{5}_{6}".format(
+                    k,
+                    instance.pos[h],
+                    hpn,
+                    instance.pos[m],
+                    mpp,
+                    mpn,
+                    att_dir),
+                add)
             ff.append(f)
             k += 1
             # Head pos+posl+posr, modifier pos+posl, dir
-            f = self.lookup_fid("{0}_{1}_{2}_{3}_{4}_{5}_{6}".format(k, instance.pos[h], hpp, hpn, instance.pos[m], mpp, att_dir), add)
+            f = self.lookup_fid(
+                "{0}_{1}_{2}_{3}_{4}_{5}_{6}".format(
+                    k,
+                    instance.pos[h],
+                    hpp,
+                    hpn,
+                    instance.pos[m],
+                    mpp,
+                    att_dir),
+                add)
             ff.append(f)
             k += 1
             # Head pos+posl+posr, modifier pos+posr, dir
-            f = self.lookup_fid("{0}_{1}_{2}_{3}_{4}_{5}_{6}".format(k, instance.pos[h], hpp, hpn, instance.pos[m], mpn, att_dir), add)
+            f = self.lookup_fid(
+                "{0}_{1}_{2}_{3}_{4}_{5}_{6}".format(
+                    k,
+                    instance.pos[h],
+                    hpp,
+                    hpn,
+                    instance.pos[m],
+                    mpn,
+                    att_dir),
+                add)
             ff.append(f)
             k += 1
             # Head pos+posl+posr, modifier pos+posl+posr, dir
-            f = self.lookup_fid("{0}_{1}_{2}_{3}_{4}_{5}_{6}_{7}".format(k, instance.pos[h], hpp, hpn, instance.pos[m], mpp, mpn, att_dir), add)
+            f = self.lookup_fid(
+                "{0}_{1}_{2}_{3}_{4}_{5}_{6}_{7}".format(
+                    k, instance.pos[h],
+                    hpp, hpn, instance.pos[m],
+                    mpp, mpn, att_dir),
+                add)
             ff.append(f)
             k += 1
 
@@ -194,9 +289,9 @@ class DependencyFeatures:
     def compute_scores(self, feats, weights):
         """Compute scores by taking the dot product between the feature and weight vector."""
         nw = np.size(feats, 0) - 1
-        scores = np.zeros((nw + 1, nw + 1))
-        for h in range(nw + 1):
-            for m in range(nw + 1):
+        scores = np.zeros((nw+1, nw+1))
+        for h in range(nw+1):
+            for m in range(nw+1):
                 if feats[h][m] is None:
                     continue
                 for f in feats[h][m]:

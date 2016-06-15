@@ -32,12 +32,11 @@ class SequenceClassificationDecoder:
         for pos in xrange(1, length):
             for current_state in xrange(num_states):
                 # Note the fact that multiplication in log domain turns a sum and sum turns a logsum
-                forward[pos, current_state] = \
-                    logsum(forward[pos - 1, :] + transition_scores[pos - 1, current_state, :])
+                forward[pos, current_state] = logsum(forward[pos-1, :] + transition_scores[pos-1, current_state, :])
                 forward[pos, current_state] += emission_scores[pos, current_state]
 
         # Termination.
-        log_likelihood = logsum(forward[length - 1, :] + final_scores)
+        log_likelihood = logsum(forward[length-1, :] + final_scores)
 
         return log_likelihood, forward
 
@@ -58,15 +57,15 @@ class SequenceClassificationDecoder:
         backward = np.zeros([length, num_states]) + logzero()
 
         # Initialization.
-        backward[length - 1, :] = final_scores
+        backward[length-1, :] = final_scores
 
         # Backward loop.
-        for pos in xrange(length - 2, -1, -1):
+        for pos in xrange(length-2, -1, -1):
             for current_state in xrange(num_states):
                 backward[pos, current_state] = \
-                    logsum(backward[pos + 1, :] +
+                    logsum(backward[pos+1, :] +
                            transition_scores[pos, :, current_state] +
-                           emission_scores[pos + 1, :])
+                           emission_scores[pos+1, :])
 
         # Termination.
         log_likelihood = logsum(backward[0, :] + initial_scores + emission_scores[0, :])
@@ -85,7 +84,7 @@ class SequenceClassificationDecoder:
     def run_viterbi(self, initial_scores, transition_scores, final_scores, emission_scores):
 
         # ----------
-        # Solution to Exercise 2.8 
+        # Solution to Exercise 2.8
 
         length = np.size(emission_scores, 0)  # Length of the sequence.
         num_states = np.size(initial_scores)  # Number of states.
@@ -106,21 +105,21 @@ class SequenceClassificationDecoder:
         for pos in xrange(1, length):
             for current_state in xrange(num_states):
                 viterbi_scores[pos, current_state] = \
-                    np.max(viterbi_scores[pos - 1, :] + transition_scores[pos - 1, current_state, :])
+                    np.max(viterbi_scores[pos-1, :] + transition_scores[pos-1, current_state, :])
                 viterbi_scores[pos, current_state] += emission_scores[pos, current_state]
                 viterbi_paths[pos, current_state] = \
-                    np.argmax(viterbi_scores[pos - 1, :] + transition_scores[pos - 1, current_state, :])
+                    np.argmax(viterbi_scores[pos-1, :] + transition_scores[pos-1, current_state, :])
         # Termination.
-        best_score = np.max(viterbi_scores[length - 1, :] + final_scores)
-        best_path[length - 1] = np.argmax(viterbi_scores[length - 1, :] + final_scores)
+        best_score = np.max(viterbi_scores[length-1, :] + final_scores)
+        best_path[length-1] = np.argmax(viterbi_scores[length-1, :] + final_scores)
 
         # Backtrack.
-        for pos in xrange(length - 2, -1, -1):
-            best_path[pos] = viterbi_paths[pos + 1, best_path[pos + 1]]
+        for pos in xrange(length-2, -1, -1):
+            best_path[pos] = viterbi_paths[pos+1, best_path[pos+1]]
 
         return best_path, best_score
 
-        # End of solution to Exercise 2.8 
+        # End of solution to Exercise 2.8
         # ----------
 
     def run_forward_backward(self, initial_scores, transition_scores, final_scores, emission_scores):

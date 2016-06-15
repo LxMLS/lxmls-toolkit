@@ -176,8 +176,8 @@ print "Structured Perceptron - Extended Features Accuracy Train: %.3f Dev: %.3f 
 #
 #
 # # pdb.set_trace()
-#    
-#    
+#
+#
 # feature_mapper = exfc.ExtendedFeatures(train_seq)
 # feature_mapper.build_features()
 #

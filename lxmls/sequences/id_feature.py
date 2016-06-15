@@ -80,9 +80,9 @@ class IDFeatures:
             emission_features.append(features)
 
             if pos > 0:
-                prev_tag = sequence.y[pos - 1]
+                prev_tag = sequence.y[pos-1]
                 features = []
-                features = self.add_transition_features(sequence, pos - 1, tag, prev_tag, features)
+                features = self.add_transition_features(sequence, pos-1, tag, prev_tag, features)
                 transition_features.append(features)
 
         # Take care of final position
@@ -180,7 +180,7 @@ class IDFeatures:
         Creates a unique id if its the first time the feature is visited
         or returns the existing id otherwise
         """
-        assert pos < len(sequence.x) - 1, pdb.set_trace()
+        assert pos < len(sequence.x)-1, pdb.set_trace()
 
         # Get label name from ID.
         y_name = self.dataset.y_dict.get_label_name(y)
@@ -201,10 +201,10 @@ class IDFeatures:
         If we are at test time and we don't have the feature
         we return -1.
         """
-        # Check if feature exists and if so, return the feature ID. 
+        # Check if feature exists and if so, return the feature ID.
         if feat_name in self.feature_dict:
             return self.feature_dict[feat_name]
-        # If 'add_features' is True, add the feature to the feature 
+        # If 'add_features' is True, add the feature to the feature
         # dictionary and return the feature ID. Otherwise return -1.
         if not self.add_features:
             return -1

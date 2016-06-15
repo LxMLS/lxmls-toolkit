@@ -1,7 +1,7 @@
 """
 Draft from the second deep learning day
 """
-
+from __future__ import division
 import sys
 
 sys.path.append('.')
@@ -22,11 +22,11 @@ import os
 import numpy as np
 
 # Convince yourself a RNN is just an MLP with inputs and outputs at various
-# layers. 
+# layers.
 
 # TODO: Implement a Numpy RNN --- DNOE!!
 
-# LOAD DATA    
+# LOAD DATA
 import lxmls.readers.pos_corpus as pcc
 
 if root:
@@ -48,7 +48,7 @@ if not os.path.isfile(root_os_sep + 'data' + os.sep + 'senna_50'):
 E = rnns.extract_embeddings(root_os_sep + 'data' + os.sep + 'senna_50', train_seq.x_dict)
 E = rnns.extract_embeddings(root_os_sep + 'data' + os.sep + 'senna_50', train_seq.x_dict)
 
-# CONFIG 
+# CONFIG
 n_words = E.shape[0]  # Number of words
 n_emb = E.shape[1]  # Size of word embeddings
 n_hidd = 20  # Size of the recurrent layer
@@ -64,7 +64,7 @@ rnn = rnns.NumpyRNN(E, n_hidd, n_tags, seed=seed)
 loos, p_y, p, y_rnn, h, z1, x = rnn.forward(x0, all_outputs=True, outputs=y0)
 nabla_params = rnn.grads(x0, y0)
 
-# Save loss and gradient to compare with theano output 
+# Save loss and gradient to compare with theano output
 numpy_loos = loos
 numpy_grads = nabla_params
 
@@ -84,7 +84,7 @@ print "\n   Exercise 6.2"
 print "######################"
 
 # Scan is your friend, maybe. Simple examples of scan, see some, IMPLEMENT some
-# other. 
+# other.
 
 # TODO: Implement some examples covering typical caveats.
 
@@ -92,7 +92,7 @@ print "\n######################",
 print "\n   Exercise 6.3"
 print "######################"
 
-# IMPLEMENT the numpy RNN in 6.1 with scan 
+# IMPLEMENT the numpy RNN in 6.1 with scan
 
 import theano
 import theano.tensor as T
@@ -110,7 +110,7 @@ rnn = rnns.RNN(E, n_hidd, n_tags, seed=seed)
 _p_y = rnn._forward(_x)
 
 #
-# DEFINE TRAINING 
+# DEFINE TRAINING
 #
 
 # CONFIG
@@ -120,11 +120,11 @@ n_iter = 20  # Number of iterations
 _y = T.ivector('y')  # True output tags indices
 # Train cost
 _F = -T.mean(T.log(_p_y)[T.arange(_y.shape[0]), _y])
-# Total prediction error 
+# Total prediction error
 _err = T.sum(T.neq(T.argmax(_p_y, 1), _y))
 
 # SGD UPDATE RULE
-updates = [(_par, _par - lrate * T.grad(_F, _par)) for _par in rnn.param]
+updates = [(_par, _par - lrate*T.grad(_F, _par)) for _par in rnn.param]
 
 # COMPILE ERROR FUNCTION, BATCH UPDATE
 err_sum = theano.function([_x, _y], _err)
@@ -159,7 +159,7 @@ def accuracy(seq):
     for n, seq in enumerate(seq):
         err += err_sum(seq.x, seq.y)
         N += seq.y.shape[0]
-    return 100 * (1 - err * 1. / N)
+    return 100 * (1 - err/N)
 
 
 print "\nTraining RNN for POS"
@@ -171,7 +171,7 @@ for i in range(n_iter):
     for n, seq in enumerate(train_seq):
         cost += batch_update(seq.x, seq.y)
         # INFO
-        perc = (n + 1) * 100. / len(train_seq)
+        perc = (n+1) * 100. / len(train_seq)
         sys.stdout.write("\r%2.2f %%" % perc)
         sys.stdout.flush()
 
@@ -196,11 +196,11 @@ lstm = rnns.LSTM(E, n_hidd, n_tags)
 _p_y = lstm._forward(_x)
 # Train cost
 _F = -T.mean(T.log(_p_y)[T.arange(_y.shape[0]), _y])
-# Total prediction error 
+# Total prediction error
 _err = T.sum(T.neq(T.argmax(_p_y, 1), _y))
 
 # SGD UPDATE RULE
-updates = [(_par, _par - lrate * T.grad(_F, _par)) for _par in lstm.param]
+updates = [(_par, _par - lrate*T.grad(_F, _par)) for _par in lstm.param]
 
 # COMPILE ERROR FUNCTION, BATCH UPDATE
 err_sum = theano.function([_x, _y], _err)
@@ -213,7 +213,7 @@ for i in range(n_iter):
     for n, seq in enumerate(train_seq):
         cost += batch_update(seq.x, seq.y)
         # INFO
-        perc = (n + 1) * 100. / len(train_seq)
+        perc = (n+1) * 100. / len(train_seq)
         sys.stdout.write("\r%2.2f %%" % perc)
         sys.stdout.flush()
 

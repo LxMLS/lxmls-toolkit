@@ -41,8 +41,8 @@ def compacify(train_seq, test_seq, dev_seq, theano=False):
                 if tag not in new_y_dict:
                     new_y_dict.add(tag)
 
-                #    import copy
-                #    train_seq2, test_seq2, dev_seq2 = copy.deepcopy(train_seq), copy.deepcopy(test_seq), copy.deepcopy(dev_seq)
+                    #    import copy
+                    #    train_seq2, test_seq2, dev_seq2 = copy.deepcopy(train_seq), copy.deepcopy(test_seq), copy.deepcopy(dev_seq)
 
     # REDO INDICES
     # for corpus_seq in [train_seq2, test_seq2, dev_seq2]:
@@ -81,6 +81,7 @@ def compacify(train_seq, test_seq, dev_seq, theano=False):
 
 
 class PostagCorpus(object):
+
     def __init__(self):
         # Word dictionary.
         self.word_dict = LabelDictionary()
@@ -161,8 +162,8 @@ class PostagCorpus(object):
                     self.tag_dict.add(pos)
                 ex_x.append(word)
                 ex_y.append(pos)
-            #                ex_x.append(self.word_dict[word])
-            #                ex_y.append(self.tag_dict[pos])
+                # ex_x.append(self.word_dict[word])
+                # ex_y.append(self.tag_dict[pos])
         return instances
 
     # Read a text file in brown format and return a sequence list
@@ -173,7 +174,7 @@ class PostagCorpus(object):
     #     if(mapping_file != None):
     #         for line in open(mapping_file):
     #             coarse,fine = line.strip().split("\t")
-    #             mapping[coarse.lower()] = fine.lower()        
+    #             mapping[coarse.lower()] = fine.lower()
 
     #     if(categories == ""):
     #         sents = brown.tagged_sents()

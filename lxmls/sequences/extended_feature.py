@@ -6,6 +6,7 @@ from lxmls.sequences.id_feature import IDFeatures
 # Extracts features from a labeled corpus (only supported features are extracted
 # ----------
 class ExtendedFeatures(IDFeatures):
+
     def add_emission_features(self, sequence, pos, y, features):
         x = sequence.x[pos]
         # Get tag name from ID.
@@ -51,8 +52,8 @@ class ExtendedFeatures(IDFeatures):
         # Suffixes
         max_suffix = 3
         for i in xrange(max_suffix):
-            if len(word) > i + 1:
-                suffix = word[-(i + 1):]
+            if len(word) > i+1:
+                suffix = word[-(i+1):]
                 # Generate feature name.
                 feat_name = "suffix:%s::%s" % (suffix, y_name)
                 # Get feature ID from name.
@@ -64,8 +65,8 @@ class ExtendedFeatures(IDFeatures):
         # Prefixes
         max_prefix = 3
         for i in xrange(max_prefix):
-            if len(word) > i + 1:
-                prefix = word[:i + 1]
+            if len(word) > i+1:
+                prefix = word[:i+1]
                 # Generate feature name.
                 feat_name = "prefix:%s::%s" % (prefix, y_name)
                 # Get feature ID from name.

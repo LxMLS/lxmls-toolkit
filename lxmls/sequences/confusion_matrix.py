@@ -119,7 +119,13 @@ def plot_confusion_bar_graph(matrix, pos_list, clusters, title):
                 rects[tag] = {}
             tag_name = pos_list.get_label_name(tag)
             tag_name = tag_name.upper()
-            aux = fig.bar(xlocations[i], value, bottom=bottom, linewidth=0, color=tag_colors[tag_name], edgecolor=tag_colors[tag_name])
+            aux = fig.bar(
+                xlocations[i],
+                value,
+                bottom=bottom,
+                linewidth=0,
+                color=tag_colors[tag_name],
+                edgecolor=tag_colors[tag_name])
             rects[tag][0] = aux
             bottom += value
         i += 1

@@ -38,7 +38,7 @@ class DependencyWriter:
                 continue
             fields = line.split("\t")
 
-            fields[6] = "{0}".format(heads_pred[n_sents][n_toks + 1])
+            fields[6] = "{0}".format(heads_pred[n_sents][n_toks+1])
             line_out = "\t".join(fields)
             n_toks += 1
 

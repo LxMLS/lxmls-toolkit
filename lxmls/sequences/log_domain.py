@@ -39,9 +39,9 @@ def logsum_pair(logx, logy):
     if logx == logzero():
         return logy
     elif logx > logy:
-        return logx + np.log1p(np.exp(logy - logx))
+        return logx + np.log1p(np.exp(logy-logx))
     else:
-        return logy + np.log1p(np.exp(logx - logy))
+        return logy + np.log1p(np.exp(logx-logy))
 
 
 def logsum(logv):

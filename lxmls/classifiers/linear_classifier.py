@@ -1,7 +1,9 @@
+from __future__ import division
 import numpy as np
 
 
 class LinearClassifier:
+
     def __init__(self):
         self.trained = False
 
@@ -42,10 +44,10 @@ class LinearClassifier:
         return x
 
     def evaluate(self, truth, predicted):
-        correct = 0.0
-        total = 0.0
+        correct = 0
+        total = 0
         for i in range(len(truth)):
             if truth[i] == predicted[i]:
                 correct += 1
             total += 1
-        return 1.0 * correct / total
+        return correct / total

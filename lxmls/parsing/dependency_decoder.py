@@ -23,10 +23,10 @@ class DependencyDecoder:
         nw = nr - 1
 
         s = np.matrix(scores)
-        lap = np.matrix(np.zeros((nw + 1, nw + 1)))
-        for m in range(1, nw + 1):
+        lap = np.matrix(np.zeros((nw+1, nw+1)))
+        for m in range(1, nw+1):
             d = 0.0
-            for h in range(0, nw + 1):
+            for h in range(0, nw+1):
                 if m != h:
                     d += np.exp(s[h, m])
                     lap[h, m] = -np.exp(s[h, m])
@@ -37,12 +37,12 @@ class DependencyDecoder:
         # logZ = np.linalg.slogdet(minor)[1]
         logZ = np.log(np.linalg.det(minor))
         invmin = np.linalg.inv(minor)
-        marginals = np.zeros((nw + 1, nw + 1))
-        for m in range(1, nw + 1):
-            marginals[0, m] = np.exp(s[0, m]) * invmin[m - 1, m - 1]
-            for h in range(1, nw + 1):
+        marginals = np.zeros((nw+1, nw+1))
+        for m in range(1, nw+1):
+            marginals[0, m] = np.exp(s[0, m]) * invmin[m-1, m-1]
+            for h in range(1, nw+1):
                 if m != h:
-                    marginals[h, m] = np.exp(s[h, m]) * (invmin[m - 1, m - 1] - invmin[m - 1, h - 1])
+                    marginals[h, m] = np.exp(s[h, m]) * (invmin[m-1, m-1] - invmin[m-1, h-1])
 
         return marginals, logZ
 
@@ -52,7 +52,7 @@ class DependencyDecoder:
         """
 
         # ----------
-        # Solution to Exercise 4.3.6 
+        # Solution to Exercise 4.3.6
         nr, nc = np.shape(scores)
         if nr != nc:
             raise ValueError("scores must be a squared matrix with nw+1 rows")
@@ -61,25 +61,25 @@ class DependencyDecoder:
         N = nr - 1  # Number of words (excluding root).
 
         # Initialize CKY table.
-        complete = np.zeros([N + 1, N + 1, 2])  # s, t, direction (right=1).
-        incomplete = np.zeros([N + 1, N + 1, 2])  # s, t, direction (right=1).
-        complete_backtrack = -np.ones([N + 1, N + 1, 2], dtype=int)  # s, t, direction (right=1).
-        incomplete_backtrack = -np.ones([N + 1, N + 1, 2], dtype=int)  # s, t, direction (right=1).
+        complete = np.zeros([N+1, N+1, 2])  # s, t, direction (right=1).
+        incomplete = np.zeros([N+1, N+1, 2])  # s, t, direction (right=1).
+        complete_backtrack = -np.ones([N+1, N+1, 2], dtype=int)  # s, t, direction (right=1).
+        incomplete_backtrack = -np.ones([N+1, N+1, 2], dtype=int)  # s, t, direction (right=1).
 
         incomplete[0, :, 0] -= np.inf
 
         # Loop from smaller items to larger items.
-        for k in xrange(1, N + 1):
-            for s in xrange(N - k + 1):
+        for k in xrange(1, N+1):
+            for s in xrange(N-k+1):
                 t = s + k
 
                 # First, create incomplete items.
                 # left tree
-                incomplete_vals0 = complete[s, s:t, 1] + complete[(s + 1):(t + 1), t, 0] + scores[t, s]
+                incomplete_vals0 = complete[s, s:t, 1] + complete[(s+1):(t+1), t, 0] + scores[t, s]
                 incomplete[s, t, 0] = np.max(incomplete_vals0)
                 incomplete_backtrack[s, t, 0] = s + np.argmax(incomplete_vals0)
                 # right tree
-                incomplete_vals1 = complete[s, s:t, 1] + complete[(s + 1):(t + 1), t, 0] + scores[s, t]
+                incomplete_vals1 = complete[s, s:t, 1] + complete[(s+1):(t+1), t, 0] + scores[s, t]
                 incomplete[s, t, 1] = np.max(incomplete_vals1)
                 incomplete_backtrack[s, t, 1] = s + np.argmax(incomplete_vals1)
 
@@ -89,7 +89,7 @@ class DependencyDecoder:
                 complete[s, t, 0] = np.max(complete_vals0)
                 complete_backtrack[s, t, 0] = s + np.argmax(complete_vals0)
                 # right tree
-                complete_vals1 = incomplete[s, (s + 1):(t + 1), 1] + complete[(s + 1):(t + 1), t, 1]
+                complete_vals1 = incomplete[s, (s+1):(t+1), 1] + complete[(s+1):(t+1), t, 1]
                 complete[s, t, 1] = np.max(complete_vals1)
                 complete_backtrack[s, t, 1] = s + 1 + np.argmax(complete_vals1)
 
@@ -98,13 +98,13 @@ class DependencyDecoder:
         self.backtrack_eisner(incomplete_backtrack, complete_backtrack, 0, N, 1, 1, heads)
 
         value_proj = 0.0
-        for m in xrange(1, N + 1):
+        for m in xrange(1, N+1):
             h = heads[m]
             value_proj += scores[h, m]
 
         return heads
 
-        # End of solution to Exercise 4.3.6 
+        # End of solution to Exercise 4.3.6
         # ----------
 
     def backtrack_eisner(self, incomplete_backtrack, complete_backtrack, s, t, direction, complete, heads):
@@ -140,12 +140,12 @@ class DependencyDecoder:
             if direction == 0:
                 heads[s] = t
                 self.backtrack_eisner(incomplete_backtrack, complete_backtrack, s, r, 1, 1, heads)
-                self.backtrack_eisner(incomplete_backtrack, complete_backtrack, r + 1, t, 0, 1, heads)
+                self.backtrack_eisner(incomplete_backtrack, complete_backtrack, r+1, t, 0, 1, heads)
                 return
             else:
                 heads[t] = s
                 self.backtrack_eisner(incomplete_backtrack, complete_backtrack, s, r, 1, 1, heads)
-                self.backtrack_eisner(incomplete_backtrack, complete_backtrack, r + 1, t, 0, 1, heads)
+                self.backtrack_eisner(incomplete_backtrack, complete_backtrack, r+1, t, 0, 1, heads)
                 return
 
     def parse_nonproj(self, scores):
@@ -159,13 +159,13 @@ class DependencyDecoder:
 
         nw = nr - 1
 
-        curr_nodes = np.ones(nw + 1, int)
+        curr_nodes = np.ones(nw+1, int)
         reps = []
-        old_I = -np.ones((nw + 1, nw + 1), int)
-        old_O = -np.ones((nw + 1, nw + 1), int)
-        for i in range(0, nw + 1):
+        old_I = -np.ones((nw+1, nw+1), int)
+        old_O = -np.ones((nw+1, nw+1), int)
+        for i in range(0, nw+1):
             reps.append({i: 0})
-            for j in range(0, nw + 1):
+            for j in range(0, nw+1):
                 old_I[i, j] = i
                 old_O[i, j] = j
                 if i == j or j == 0:
@@ -176,7 +176,7 @@ class DependencyDecoder:
 
         scores_copy = scores.copy()
         final_edges = self.chu_liu_edmonds(scores_copy, curr_nodes, old_I, old_O, {}, reps)
-        heads = np.zeros(nw + 1, int)
+        heads = np.zeros(nw+1, int)
         heads[0] = -1
         for key in final_edges.keys():
             ch = key
@@ -194,14 +194,14 @@ class DependencyDecoder:
         nw = np.size(curr_nodes) - 1
 
         # create best graph
-        par = -np.ones(nw + 1, int)
-        for m in range(1, nw + 1):
+        par = -np.ones(nw+1, int)
+        for m in range(1, nw+1):
             # only interested in current nodes
             if 0 == curr_nodes[m]:
                 continue
             max_score = scores[0, m]
             par[m] = 0
-            for h in range(nw + 1):
+            for h in range(nw+1):
                 if m == h:
                     continue
                 if 0 == curr_nodes[h]:
@@ -212,15 +212,15 @@ class DependencyDecoder:
 
         if self.verbose:
             print "After init\n"
-            for m in range(0, nw + 1):
+            for m in range(0, nw+1):
                 if 0 < curr_nodes[m]:
                     print "{0}|{1} ".format(par[m], m)
             print "\n"
 
         # find a cycle
         cycles = []
-        added = np.zeros(nw + 1, int)
-        for m in range(0, nw + 1):
+        added = np.zeros(nw+1, int)
+        for m in range(0, nw+1):
             if np.size(cycles) > 0:
                 break
             if added[m] or 0 == curr_nodes[m]:
@@ -252,7 +252,7 @@ class DependencyDecoder:
 
         # get all edges and return them
         if np.size(cycles) == 0:
-            for m in range(0, nw + 1):
+            for m in range(0, nw+1):
                 if 0 == curr_nodes[m]:
                     continue
                 if par[m] != -1:
@@ -284,7 +284,7 @@ class DependencyDecoder:
         for node in cyc_nodes:
             cyc_weight += scores[par[node], node]
 
-        for i in range(0, nw + 1):
+        for i in range(0, nw+1):
             if 0 == curr_nodes[i] or (i in cycle):
                 continue
 

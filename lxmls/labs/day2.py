@@ -50,16 +50,16 @@ import numpy as np
 
 a = np.random.rand(10)
 print np.log(sum(np.exp(a)))
-print np.log(sum(np.exp(10 * a)))
-print np.log(sum(np.exp(100 * a)))
-print np.log(sum(np.exp(1000 * a)))
+print np.log(sum(np.exp(10*a)))
+print np.log(sum(np.exp(100*a)))
+print np.log(sum(np.exp(1000*a)))
 
 from lxmls.sequences.log_domain import *
 
 print logsum(a)
-print logsum(10 * a)
-print logsum(100 * a)
-print logsum(1000 * a)
+print logsum(10*a)
+print logsum(100*a)
+print logsum(1000*a)
 
 print "------------"
 print "Exercise 2.5"

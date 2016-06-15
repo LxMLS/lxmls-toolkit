@@ -40,8 +40,8 @@ class SequenceClassifier:
         for pos in xrange(length):
             score += emission_scores[pos, states[pos]]
             if pos > 0:
-                score += transition_scores[pos - 1, states[pos], states[pos - 1]]
-        score += final_scores[states[length - 1]]
+                score += transition_scores[pos-1, states[pos], states[pos-1]]
+        score += final_scores[states[length-1]]
         return score
 
     def compute_posteriors(self, initial_scores, transition_scores,
@@ -80,15 +80,15 @@ class SequenceClassifier:
 
         # Use the forward and backward variables along with the transition
         # and emission scores to obtain the transition posteriors.
-        transition_posteriors = np.zeros([length - 1, num_states, num_states])
-        for pos in xrange(length - 1):
+        transition_posteriors = np.zeros([length-1, num_states, num_states])
+        for pos in xrange(length-1):
             for prev_state in xrange(num_states):
                 for state in xrange(num_states):
                     transition_posteriors[pos, state, prev_state] = \
                         forward[pos, prev_state] + \
                         transition_scores[pos, state, prev_state] + \
-                        emission_scores[pos + 1, state] + \
-                        backward[pos + 1, state]
+                        emission_scores[pos+1, state] + \
+                        backward[pos+1, state]
                     transition_posteriors[pos, state, prev_state] -= log_likelihood
 
         state_posteriors = np.exp(state_posteriors)

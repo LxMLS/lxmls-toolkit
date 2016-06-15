@@ -4,7 +4,7 @@ import numpy as np
 # This class generates a 2D dataset with two classes, "positive" and "negative".
 # Each class follows a Gaussian distribution.
 class SimpleDataSet:
-    """ A simple two dimentional dataset for visualization purposes. The date set contains points from two gaussians with mean u_i and std_i"""
+    """ A simple two dimensional dataset for visualization purposes. The date set contains points from two gaussians with mean u_i and std_i"""
 
     def __init__(self, nr_examples=100, g1=[[-5, -5], 1], g2=[[5, 5], 1], balance=0.5, split=[0.8, 0, 0.2]):
         nr_positive = nr_examples * balance  # number of examples of "positive" class
@@ -48,8 +48,8 @@ class SimpleDataSet:
         params = np.zeros((3, 2))
         p1 = self.balance
         p2 = 1.0 - self.balance
-        params[0, 0] = -1.0 / (2.0 * self.variance1) * np.dot(self.mean1, self.mean1) + np.log(p1)
-        params[0, 1] = -1.0 / (2.0 * self.variance2) * np.dot(self.mean2, self.mean2) + np.log(p2)
+        params[0, 0] = -1.0 / (2.0*self.variance1) * np.dot(self.mean1, self.mean1) + np.log(p1)
+        params[0, 1] = -1.0 / (2.0*self.variance2) * np.dot(self.mean2, self.mean2) + np.log(p2)
         params[1, 0] = 1.0 / self.variance1 * self.mean1[0]
         params[2, 0] = 1.0 / self.variance1 * self.mean1[1]
         params[1, 1] = 1.0 / self.variance2 * self.mean2[0]
@@ -85,7 +85,7 @@ class SimpleDataSet:
         x_max = np.max(self.train_X)
         x_min = np.min(self.train_X)
         x = np.arange(x_min, x_max, 0.1, dtype="float")
-        y_star = ((params[1, 1] - params[1, 0]) * x + (params[0, 1] - params[0, 0])) / (params[2, 0] - params[2, 1])
+        y_star = ((params[1, 1]-params[1, 0])*x + (params[0, 1]-params[0, 0])) / (params[2, 0]-params[2, 1])
         axis.plot(x, y_star, 'g--', c=colour, label=name, linewidth=2)
         axis.legend()
         #        fig.show()
@@ -93,7 +93,7 @@ class SimpleDataSet:
 
 
 def split_train_dev_test(X, y, train_per, dev_per, test_per):
-    if train_per + dev_per + test_per > 1:
+    if train_per+dev_per+test_per > 1:
         print "Train Dev Test split should sum to one"
         return
     dim = y.shape[0]
@@ -106,7 +106,7 @@ def split_train_dev_test(X, y, train_per, dev_per, test_per):
         test_X = X[split1:, :]
 
     else:
-        split2 = int(dim * (train_per + dev_per))
+        split2 = int(dim * (train_per+dev_per))
         print split2
         train_y, dev_y, test_y = np.vsplit(y, (split1, split2))
         train_X = X[0:split1, :]

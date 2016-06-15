@@ -25,7 +25,7 @@ class CRFOnline(dsc.DiscriminativeSequenceClassifier):
         for epoch in xrange(self.num_epochs):
             objective_value = 0.0
             for i in xrange(num_examples):
-                eta = self.initial_learning_rate / np.sqrt(float(t + 1))
+                eta = self.initial_learning_rate / np.sqrt(float(t+1))
                 sequence = dataset.seq_list[i]
                 objective_value += self.gradient_update(sequence, eta)
                 t += 1
@@ -67,7 +67,7 @@ class CRFOnline(dsc.DiscriminativeSequenceClassifier):
         objective_value -= 0.5 * self.regularizer * np.dot(self.parameters, self.parameters)
 
         # Scale the parameter vector.
-        self.parameters *= (1.0 - self.regularizer * eta)
+        self.parameters *= (1.0 - self.regularizer*eta)
 
         # Update initial features.
         y_t_true = sequence.y[0]
@@ -88,22 +88,24 @@ class CRFOnline(dsc.DiscriminativeSequenceClassifier):
 
             if pos > 0:
                 # Update transition features.
-                prev_y_t_true = sequence.y[pos - 1]
-                true_transition_features = self.feature_mapper.get_transition_features(sequence, pos - 1, y_t_true, prev_y_t_true)
+                prev_y_t_true = sequence.y[pos-1]
+                true_transition_features = self.feature_mapper.get_transition_features(
+                    sequence, pos-1, y_t_true, prev_y_t_true)
                 self.parameters[true_transition_features] += eta
                 for state in xrange(num_states):
                     for prev_state in xrange(num_states):
-                        state_transition_features = self.feature_mapper.get_transition_features(sequence, pos - 1, state, prev_state)
+                        state_transition_features = self.feature_mapper.get_transition_features(
+                            sequence, pos-1, state, prev_state)
                         self.parameters[state_transition_features] -= \
-                            eta * transition_posteriors[pos - 1, state, prev_state]
+                            eta*transition_posteriors[pos-1, state, prev_state]
 
         pos = len(sequence.x)
-        y_t_true = sequence.y[pos - 1]
+        y_t_true = sequence.y[pos-1]
         true_final_features = self.feature_mapper.get_final_features(sequence, y_t_true)
         self.parameters[true_final_features] += eta
         for state in xrange(num_states):
             state_final_features = self.feature_mapper.get_final_features(sequence, state)
-            self.parameters[state_final_features] -= eta * state_posteriors[pos - 1, state]
+            self.parameters[state_final_features] -= eta * state_posteriors[pos-1, state]
 
         return objective_value
 

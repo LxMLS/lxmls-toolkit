@@ -4,6 +4,7 @@ import pdb
 
 
 class DiscriminativeSequenceClassifier(sc.SequenceClassifier):
+
     def __init__(self, observation_labels, state_labels, feature_mapper):
         sc.SequenceClassifier.__init__(self, observation_labels, state_labels)
 
@@ -27,7 +28,7 @@ class DiscriminativeSequenceClassifier(sc.SequenceClassifier):
         length = len(sequence.x)
         emission_scores = np.zeros([length, num_states])
         initial_scores = np.zeros(num_states)
-        transition_scores = np.zeros([length - 1, num_states, num_states])
+        transition_scores = np.zeros([length-1, num_states, num_states])
         final_scores = np.zeros(num_states)
 
         # Initial position.
@@ -49,11 +50,12 @@ class DiscriminativeSequenceClassifier(sc.SequenceClassifier):
             if pos > 0:
                 for tag_id in xrange(num_states):
                     for prev_tag_id in xrange(num_states):
-                        transition_features = self.feature_mapper.get_transition_features(sequence, pos, tag_id, prev_tag_id)
+                        transition_features = self.feature_mapper.get_transition_features(
+                            sequence, pos, tag_id, prev_tag_id)
                         score = 0.0
                         for feat_id in transition_features:
                             score += self.parameters[feat_id]
-                        transition_scores[pos - 1, tag_id, prev_tag_id] = score
+                        transition_scores[pos-1, tag_id, prev_tag_id] = score
 
         # Final position.
         for prev_tag_id in xrange(num_states):

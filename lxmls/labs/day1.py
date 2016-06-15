@@ -1,5 +1,6 @@
 # Exercises for labs class 1
-import sys, pdb
+import sys
+import pdb
 
 sys.path.append(".")
 

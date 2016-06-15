@@ -90,11 +90,11 @@ def predict_sequence(sequence, hmm):
             emission_counts[x, y] += state_posteriors[pos, y]
             if pos > 0:
                 for y_prev in xrange(num_states):
-                    transition_counts[y, y_prev] += transition_posteriors[pos - 1, y, y_prev]
+                    transition_counts[y, y_prev] += transition_posteriors[pos-1, y, y_prev]
 
     # Take care of final position counts.
     for y in xrange(num_states):
-        final_counts[y] += state_posteriors[length - 1, y]
+        final_counts[y] += state_posteriors[length-1, y]
 
     return log_likelihood, initial_counts, transition_counts, final_counts, emission_counts
 
@@ -199,7 +199,8 @@ class EMStep(MRJob):
     def mapper(self, key, s):
         seq = load_sequence(s, self.hmm.observation_labels, self.hmm.state_labels)
 
-        log_likelihood, initial_counts, transition_counts, final_counts, emission_counts = predict_sequence(seq, self.hmm)
+        log_likelihood, initial_counts, transition_counts, final_counts, emission_counts = predict_sequence(
+            seq, self.hmm)
 
         self.log_likelihood += log_likelihood
         self.initial_counts += initial_counts

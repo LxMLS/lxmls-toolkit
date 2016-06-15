@@ -5,6 +5,7 @@ from lxmls.distributions.gaussian import *
 
 
 class GaussianNaiveBayes(lc.LinearClassifier):
+
     def __init__(self):
         lc.LinearClassifier.__init__(self)
         self.trained = False
@@ -29,9 +30,9 @@ class GaussianNaiveBayes(lc.LinearClassifier):
                 variances[i, f] = g.variance
         # Take the mean of the covariance for each matric
         variances = np.mean(variances, 1)
-        params = np.zeros((nr_f + 1, nr_c))
+        params = np.zeros((nr_f+1, nr_c))
         for i in xrange(nr_c):
-            params[0, i] = -1 / 2 * np.dot(means[i, :], means[i, :]) + np.log(prior[i])
+            params[0, i] = -1/2*np.dot(means[i, :], means[i, :]) + np.log(prior[i])
             params[1:, i] = means[i].transpose()
             # params[0,i] = -1/(2*variances[i]) * np.dot(means[i,:],means[i,:]) + np.log(prior[i])
             # params[1:,i] = (1/variances[i] * means[i]).transpose()

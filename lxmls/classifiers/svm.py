@@ -5,6 +5,7 @@ from lxmls.util.my_math_utils import *
 
 
 class SVM(lc.LinearClassifier):
+
     def __init__(self, nr_epochs=10, initial_step=1.0, alpha=1.0, regularizer=1.0):
         lc.LinearClassifier.__init__(self)
         self.trained = False
@@ -31,16 +32,16 @@ class SVM(lc.LinearClassifier):
                 t += 1
                 learning_rate = self.initial_step * np.power(t, -self.alpha)
                 inst = perm[nr]
-                scores = self.get_scores(x[inst:inst + 1, :], w)
-                y_true = y[inst:inst + 1, 0]
+                scores = self.get_scores(x[inst:inst+1, :], w)
+                y_true = y[inst:inst+1, 0]
                 cost_augmented_loss = scores + 1
                 cost_augmented_loss[:, y_true] -= 1
                 y_hat = np.argmax(cost_augmented_loss, axis=1).transpose()
                 # if(y_true != y_hat):
-                objective += 0.5 * self.regularizer * l2norm_squared(w) - scores[:, y_true] + cost_augmented_loss[:, y_hat]
-                w *= (1 - self.regularizer * learning_rate)
-                w[:, y_true] += learning_rate * x[inst:inst + 1, :].transpose()
-                w[:, y_hat] -= learning_rate * x[inst:inst + 1, :].transpose()
+                objective += 0.5*self.regularizer*l2norm_squared(w) - scores[:, y_true] + cost_augmented_loss[:, y_hat]
+                w *= (1 - self.regularizer*learning_rate)
+                w[:, y_true] += learning_rate * x[inst:inst+1, :].transpose()
+                w[:, y_hat] -= learning_rate * x[inst:inst+1, :].transpose()
             self.params_per_round.append(w.copy())
             self.trained = True
             objective /= nr_x

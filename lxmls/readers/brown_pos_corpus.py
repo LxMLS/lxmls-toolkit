@@ -5,7 +5,14 @@ from sequences.sequence_list import *
 
 
 class BrownPostag:
-    def __init__(self, max_sent_len=15, train_sents=1000, dev_sents=200, test_sents=200, mapping_file="readers/en-brown.map"):
+
+    def __init__(
+            self,
+            max_sent_len=15,
+            train_sents=1000,
+            dev_sents=200,
+            test_sents=200,
+            mapping_file="readers/en-brown.map"):
 
         # Build mapping of postags:
         mapping = {}
@@ -18,11 +25,11 @@ class BrownPostag:
         y_dict = {}
         int_to_pos = []
 
-        max_sents = train_sents + dev_sents + test_sents
+        max_sents = train_sents+dev_sents+test_sents
         sents = brown.tagged_sents()
         train_s = sents[0:train_sents]
-        dev_s = sents[train_sents:train_sents + dev_sents]
-        test_s = sents[train_sents + dev_sents:train_sents + dev_sents + test_sents]
+        dev_s = sents[train_sents:train_sents+dev_sents]
+        test_s = sents[train_sents+dev_sents:train_sents+dev_sents+test_sents]
         word_c = 0
         tag_c = 0
         # Initialize noun to be tag zero so that it the default tag

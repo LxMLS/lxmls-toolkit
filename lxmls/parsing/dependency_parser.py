@@ -32,7 +32,7 @@ class DependencyParser:
         self.weights = np.zeros(self.features.n_feats)
         total = np.zeros(self.features.n_feats)
         for epoch in range(n_epochs):
-            print "Epoch {0}".format(epoch + 1)
+            print "Epoch {0}".format(epoch+1)
             n_mistakes = 0
             n_tokens = 0
             n_instances = 0
@@ -57,7 +57,7 @@ class DependencyParser:
                         n_mistakes += 1
                     n_tokens += 1
                 n_instances += 1
-            print "Training accuracy: {0}".format(np.double(n_tokens - n_mistakes) / np.double(n_tokens))
+            print "Training accuracy: {0}".format(np.double(n_tokens-n_mistakes) / np.double(n_tokens))
             total += self.weights
 
         self.weights = total / np.double(n_epochs)
@@ -67,15 +67,15 @@ class DependencyParser:
         and initial stepsize eta0 (which anneals as O(1/(sigma*t)))."""
         self.weights = np.zeros(self.features.n_feats)
         t = 0
-        t0 = 1.0 / (sigma * eta0)
+        t0 = 1.0 / (sigma*eta0)
         for epoch in range(n_epochs):
-            print "Epoch {0}".format(epoch + 1)
+            print "Epoch {0}".format(epoch+1)
             n_mistakes = 0
             n_tokens = 0
             n_instances = 0
             objective = 0.0
             for instance in self.reader.train_instances:
-                eta = 1.0 / (sigma * (t + t0))
+                eta = 1.0 / (sigma * (t+t0))
                 feats = self.features.create_features(instance)
                 scores = self.features.compute_scores(feats, self.weights)
 
@@ -91,7 +91,7 @@ class DependencyParser:
                                 continue
                             self.weights[f] -= eta * marginals[h, m]
 
-                # Compute score of the correct parse, and move the weight vector towards that direction. 
+                # Compute score of the correct parse, and move the weight vector towards that direction.
                 score_corr = 0.0
                 for m in range(1, np.size(instance.heads)):
                     h = instance.heads[m]
@@ -102,7 +102,7 @@ class DependencyParser:
                         self.weights[f] += eta
 
                 # Compute objective (w.r.t. this instance only)
-                objective += 0.5 * sigma * np.dot(self.weights, self.weights) - score_corr + logZ
+                objective += 0.5*sigma*np.dot(self.weights, self.weights) - score_corr + logZ
 
                 n_instances += 1
                 t += 1
@@ -134,6 +134,6 @@ class DependencyParser:
                 n_tokens += 1
             n_instances += 1
             arr_heads_pred.append(heads_pred)
-        print "Test accuracy ({0} test instances): {1}".format(n_instances, np.double(n_tokens - n_mistakes) / np.double(n_tokens))
+        print "Test accuracy ({0} test instances): {1}".format(n_instances, np.double(n_tokens-n_mistakes) / np.double(n_tokens))
 
         self.writer.save(self.language, arr_heads_pred)

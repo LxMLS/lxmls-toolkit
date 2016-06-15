@@ -22,7 +22,7 @@ def run_forward(initial_scores, transition_scores, final_scores, emission_scores
     length = np.size(emission_scores, 0)  # Length of the sequence.
     num_states = np.size(initial_scores)  # Number of states.
 
-    # Forward variables.    
+    # Forward variables.
     forward = np.zeros([length, num_states])
 
     # Initialization.
@@ -32,11 +32,11 @@ def run_forward(initial_scores, transition_scores, final_scores, emission_scores
     for pos in xrange(1, length):
         for current_state in xrange(num_states):
             forward[pos, current_state] = \
-                np.sum(forward[pos - 1, :] * transition_scores[pos - 1, current_state, :])
+                np.sum(forward[pos-1, :] * transition_scores[pos-1, current_state, :])
             forward[pos, current_state] *= emission_scores[pos, current_state]
 
     # Termination.
-    likelihood = sum(forward[length - 1, :] * final_scores)
+    likelihood = sum(forward[length-1, :] * final_scores)
     #    print 'Likelihood =', likelihood
     return likelihood, forward
 
@@ -45,31 +45,31 @@ def run_backward(initial_scores, transition_scores, final_scores, emission_score
     length = np.size(emission_scores, 0)  # Length of the sequence.
     num_states = np.size(initial_scores)  # Number of states.
 
-    # Backward variables.    
+    # Backward variables.
     backward = np.zeros([length, num_states])
 
     # Initialization.
-    backward[length - 1, :] = final_scores
+    backward[length-1, :] = final_scores
 
     # Backward loop.
-    for pos in xrange(length - 2, -1, -1):
+    for pos in xrange(length-2, -1, -1):
         for current_state in xrange(num_states):
             backward[pos, current_state] = \
-                sum(backward[pos + 1, :] *
+                sum(backward[pos+1, :] *
                     transition_scores[pos, :, current_state] *
-                    emission_scores[pos + 1, :])
-        #            prob = 0.0
-        #            for next_state in xrange(num_states):
-        #                back = backward[pos+1, next_state]
-        #                trans = transition_scores[pos, next_state, current_state];
-        #                observation = emission_scores[pos+1, next_state];
-        #                prob += trans * observation * back;
-        #            backward[pos, current_state] = prob
-        #    backward[0,:] *= initial_scores
+                    emission_scores[pos+1, :])
+            #            prob = 0.0
+            #            for next_state in xrange(num_states):
+            #                back = backward[pos+1, next_state]
+            #                trans = transition_scores[pos, next_state, current_state];
+            #                observation = emission_scores[pos+1, next_state];
+            #                prob += trans * observation * back;
+            #            backward[pos, current_state] = prob
+            #    backward[0,:] *= initial_scores
     # sanity_check_forward_backward(forward,backward)
 
     # Termination.
-    likelihood = sum(backward[0, :] * initial_scores * emission_scores[0, :])
+    likelihood = sum(backward[0, :] * initial_scores*emission_scores[0, :])
     #    print 'Likelihood =', likelihood
     return likelihood, backward
 
