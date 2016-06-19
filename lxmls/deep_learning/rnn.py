@@ -2,9 +2,12 @@ import numpy as np
 import theano
 import theano.tensor as T
 
-from ipdb import set_trace
+from scipy.misc import logsumexp
+
+from pdb import set_trace
 
 class NumpyRNN():
+
     def __init__(self, W_e, n_hidd, n_tags, seed=None):
         '''
         E       numpy.array Word embeddings of size (n_emb, n_words)
@@ -56,7 +59,6 @@ class NumpyRNN():
             dx = (np.sign(z)+1)/2.
         else:
             raise NotImplementedError
-        #pdb.set_trace()
         return dx
 
     def soft_max(self, x, alpha=1.0):
@@ -64,7 +66,6 @@ class NumpyRNN():
         '''        
         e = np.exp(x / alpha)
         return e / np.sum(e)
-        
 
     def forward(self, x, all_outputs=False, outputs=None):
         '''
@@ -75,33 +76,42 @@ class NumpyRNN():
         ''' 
         # Get parameters in nice form
         W_e, W_x, W_h, W_y = self.param
+
+        nr_steps = x.shape[0]
+        embbeding_size = W_e.shape[0]
+        hidden_size = W_h.shape[0]
+        nr_tags = W_y.shape[0]
+
+        z = np.zeros((embbeding_size, nr_steps))
+        h = np.zeros((self.n_hidd, nr_steps+1))
+        y = np.zeros((nr_tags, nr_steps))
+        p = np.zeros((nr_tags, nr_steps))
+        p_y = np.zeros((nr_tags, nr_steps))
         
-        z1, h, y, p, p_y = {}, {}, {}, {}, {}
-        h[-1] = np.zeros(self.n_hidd)
         loss = 0.
-        for t in xrange(len(x)):
+        for t in xrange(nr_steps):
 
-            z1[t] = W_e[:, x[t]].T
+            # Embedding layer
+            # TODO: Move outside of the loop
+            z[:, t] = W_e[:, x[t]]
 
-            h[t] = self.apply_activation(W_x.dot(z1[t]) + W_h.dot(h[t-1]),
-                                         self.activation_function)
+            # Recursive layer 
+            h[:, t+1] = self.apply_activation(W_x.dot(z[:, t]) 
+                                              + W_h.dot(h[:, t]),
+                                              self.activation_function)
+            # Output layer
+            # TODO: Move outside of the loop
+            y[:, t] = W_y.dot(h[:, t+1]) 
+            p[:, t] = y[:, t] - logsumexp(y[:, t], 0)
+            p_y[:, t] = np.exp(p[:, t])
             
-            y[t] = W_y.dot(h[t]) 
-            
-            ymax = max(y[t])
-            logsum = ymax + np.log(sum(np.exp(y[t]-ymax)))
-            p[t] = np.exp(y[t] - logsum)            
-            p_y[t] = p[t] / np.sum(p[t])  ##  
-#            # Annother way of computing p_y[t]
-#            p_y[t] = self.soft_max(y[t])
-
             if outputs is not None:
-                loss += -np.log(p_y[t][outputs[t]]) # Cross-entropy loss.
-
-        loss = loss/len(x)  # Normalize to get the mean
+                # Cross-entropy loss.
+                loss += -np.log(p_y[:, t][outputs[t]]) 
+        loss = loss/nr_steps  
         
         if all_outputs:
-            return loss, p_y, p, y, h, z1, x
+            return loss, p_y, p, y, h, z, x
         else:
             return p_y
         
@@ -118,38 +128,43 @@ class NumpyRNN():
         # Get parameters
         W_e, W_x, W_h, W_y = self.param
         
-        loss, p_y, p, y, h, z1, x = self.forward(x, all_outputs=True, outputs=outputs)
+        loss, p_y, p, y, h, z, x = self.forward(x, all_outputs=True, outputs=outputs)
+
+        nr_steps = x.shape[0]
         
         # Initialize gradients with zero entrances
         nabla_W_e = np.zeros(W_e.shape)
         nabla_W_x = np.zeros(W_x.shape)
         nabla_W_h = np.zeros(W_h.shape)
         nabla_W_y = np.zeros(W_y.shape)
-        
-        # backward pass, with gradient computation
-        dh_next = np.zeros_like(h[0])
-        for t in reversed(xrange(len(x))):
 
-            dy = np.copy(p[t])
+        # backward pass, with gradient computation
+        dh_next = np.zeros_like(h[:, 0])
+        for t in reversed(xrange(nr_steps)):
+
+            # Error
+            dy = np.copy(p_y[:, t])
             dy[outputs[t]] -= 1. # backprop into y (softmax grad).
-            nabla_W_y += dy[:,None].dot(h[t][None,:])
+
+            nabla_W_y += dy[:,None].dot(h[:, t+1][None,:])
 
             dh = W_y.T.dot(dy) + dh_next # backprop into h.
+
             # backprop through nonlinearity.
-            dh_raw = self.derivate_activation(h[t], self.activation_function) * dh
+            dh_raw = self.derivate_activation(h[:, t+1], self.activation_function) * dh
             
-            nabla_W_h += dh_raw[:,None].dot(h[t-1][None,:])
+            nabla_W_h += dh_raw[:,None].dot(h[:, t][None,:])
             
-            nabla_W_x += dh_raw[:,None].dot(z1[t][None,:])
+            nabla_W_x += dh_raw[:,None].dot(z[:, t][None,:])
             
             d_z1 = W_x.T.dot(dh_raw)            
             
-            nabla_W_e[:,x[t]] += d_z1
+            nabla_W_e[:, x[t]] += d_z1
 
             dh_next = W_h.T.dot(dh_raw) 
             
         # Normalize to be in agrement with the loss
-        nabla_params = [nabla_W_e/len(x), nabla_W_x/len(x), nabla_W_h/len(x), nabla_W_y/len(x)]
+        nabla_params = [nabla_W_e/nr_steps, nabla_W_x/nr_steps, nabla_W_h/nr_steps, nabla_W_y/nr_steps]
         return nabla_params
 
     def save(self, model_path):

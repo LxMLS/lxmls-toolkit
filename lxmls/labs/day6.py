@@ -49,7 +49,6 @@ set_trace()
 loos, p_y, p, y_rnn, h, z1, x = np_rnn.forward(x0, all_outputs=True, outputs=y0)
 nabla_params = np_rnn.grads(x0, y0)
 
-
 # Save loss and gradient to compare with theano output 
 numpy_loos = loos
 numpy_grads = nabla_params
@@ -61,7 +60,6 @@ n_iter  = 20   # Number of iterations
 #
 # TRAIN MODEL WITH SGD
 #
-
 
 print "\n######################",
 print "\n   Exercise 6.2"
