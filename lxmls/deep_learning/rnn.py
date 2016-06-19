@@ -19,8 +19,6 @@ def index2onehot(index, N):
         onehot[index[l], l] = 1
     return onehot
 
-
-
 class NumpyRNN():
 
     def __init__(self, W_e, n_hidd, n_tags, seed=None):
@@ -134,12 +132,11 @@ class NumpyRNN():
 
         # Get parameters
         W_e, W_x, W_h, W_y = self.param
+        nr_steps = x.shape[0]
         
         loss, p_y, y, h, z, x = self.forward(x, all_outputs=True, 
                                              outputs=outputs)
 
-        nr_steps = x.shape[0]
-        
         # Initialize gradients with zero entrances
         nabla_W_e = np.zeros(W_e.shape)
         nabla_W_x = np.zeros(W_x.shape)
@@ -154,32 +151,30 @@ class NumpyRNN():
         e_h_next = np.zeros_like(h[:, 0])
         for t in reversed(xrange(nr_steps)):
 
-            nabla_W_y += np.outer(e[:, t], h[:, t+1])
-
-            # Backprop into the RNN
-            e_h = W_y.T.dot(e[:, t]) + e_h_next 
-
+            # Backprop output layer 
+            e_h = np.dot(W_y.T, e[:, t]) + e_h_next 
             # backprop through nonlinearity.
-            dh_raw = self.derivate_activation(h[:, t+1], self.activation_function) * e_h
-            
-            nabla_W_h += dh_raw[:,None].dot(h[:, t][None,:])
-            
-            nabla_W_x += dh_raw[:,None].dot(z[:, t][None,:])
-            
-            nabla_W_e[:, x[t]] += W_x.T.dot(dh_raw)
-
-            e_h_next = W_h.T.dot(dh_raw) 
-            
-        # Normalize to be in agrement with the loss
-        nabla_params = [nabla_W_e/nr_steps, nabla_W_x/nr_steps, nabla_W_h/nr_steps, nabla_W_y/nr_steps]
-        #nabla_params = [nabla_W_e, nabla_W_x, nabla_W_h, nabla_W_y]
+            e_raw = self.derivate_activation(
+                h[:, t+1], self.activation_function) * e_h
+            # Backprop through the RNN linear layer
+            e_h_next = np.dot(W_h.T, e_raw) 
+ 
+            # Weight gradients
+            nabla_W_y += np.outer(e[:, t], h[:, t+1])
+            nabla_W_h += np.outer(e_raw, h[:, t])
+            nabla_W_x += np.outer(e_raw, z[:, t])
+            nabla_W_e[:, x[t]] += W_x.T.dot(e_raw)
+           
+        # Normalize to be in agreement with the loss
+        nabla_params = [nabla_W_e/nr_steps, nabla_W_x/nr_steps, 
+                        nabla_W_h/nr_steps, nabla_W_y/nr_steps]
         return nabla_params
 
     def save(self, model_path):
         '''
         Save model
         '''
-        pass
+        raise NotImplementedError("Not yet implemented")
 #        par = self.params + self.actvfunc
 #        with open(model_path, 'wb') as fid: 
 #            cPickle.dump(par, fid, cPickle.HIGHEST_PROTOCOL)
@@ -188,7 +183,7 @@ class NumpyRNN():
         '''
         Load model
         '''
-        pass
+        raise NotImplementedError("Not yet implemented")
 #        with open(model_path) as fid: 
 #            par      = cPickle.load(fid, cPickle.HIGHEST_PROTOCOL)
 #            params   = par[:len(par)/2]
