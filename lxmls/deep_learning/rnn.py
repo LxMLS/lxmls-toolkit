@@ -96,15 +96,14 @@ class NumpyRNN():
         # Output layer
         # TODO: Move outside of the loop
         y = W_y.dot(h[:, 1:]) 
-        p = y - logsumexp(y, 0)
-        p_y = np.exp(p)
+        p_y = np.exp(y - logsumexp(y, 0))
         
         if outputs is not None:
             # Cross-entropy loss.
             loss = -np.log(p_y[outputs, np.arange(nr_steps)])/nr_steps 
         
         if all_outputs:
-            return loss, p_y, p, y, h, z, x
+            return loss, p_y, y, h, z, x
         else:
             return p_y
         
@@ -121,7 +120,8 @@ class NumpyRNN():
         # Get parameters
         W_e, W_x, W_h, W_y = self.param
         
-        loss, p_y, p, y, h, z, x = self.forward(x, all_outputs=True, outputs=outputs)
+        loss, p_y, y, h, z, x = self.forward(x, all_outputs=True, 
+                                             outputs=outputs)
 
         nr_steps = x.shape[0]
         
