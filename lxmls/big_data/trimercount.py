@@ -3,7 +3,9 @@ from mrjob.job import MRJob
 import re
 import pdb
 
+
 class TrimerCount(MRJob):
+
     def mapper(self, _, doc):
         c = {}
         # Process the document
@@ -15,10 +17,11 @@ class TrimerCount(MRJob):
                 c[w] = 1
 
         # Now, output the results
-        for w,c in c.items():
-            yield w,c
+        for w, c in c.items():
+            yield w, c
 
     def reducer(self, key, cs):
         yield key, sum(cs)
+
 
 TrimerCount.run()
