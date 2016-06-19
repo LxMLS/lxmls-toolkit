@@ -82,33 +82,26 @@ class NumpyRNN():
         hidden_size = W_h.shape[0]
         nr_tags = W_y.shape[0]
 
-        z = np.zeros((embbeding_size, nr_steps))
+        # Embedding layer
+        # TODO: Move outside of the loop
+        z = W_e[:, x]
+
+        # Recursive layer 
         h = np.zeros((self.n_hidd, nr_steps+1))
-        y = np.zeros((nr_tags, nr_steps))
-        p = np.zeros((nr_tags, nr_steps))
-        p_y = np.zeros((nr_tags, nr_steps))
-        
-        loss = 0.
         for t in xrange(nr_steps):
-
-            # Embedding layer
-            # TODO: Move outside of the loop
-            z[:, t] = W_e[:, x[t]]
-
-            # Recursive layer 
             h[:, t+1] = self.apply_activation(W_x.dot(z[:, t]) 
                                               + W_h.dot(h[:, t]),
                                               self.activation_function)
-            # Output layer
-            # TODO: Move outside of the loop
-            y[:, t] = W_y.dot(h[:, t+1]) 
-            p[:, t] = y[:, t] - logsumexp(y[:, t], 0)
-            p_y[:, t] = np.exp(p[:, t])
-            
-            if outputs is not None:
-                # Cross-entropy loss.
-                loss += -np.log(p_y[:, t][outputs[t]]) 
-        loss = loss/nr_steps  
+
+        # Output layer
+        # TODO: Move outside of the loop
+        y = W_y.dot(h[:, 1:]) 
+        p = y - logsumexp(y, 0)
+        p_y = np.exp(p)
+        
+        if outputs is not None:
+            # Cross-entropy loss.
+            loss = -np.log(p_y[outputs, np.arange(nr_steps)])/nr_steps 
         
         if all_outputs:
             return loss, p_y, p, y, h, z, x
