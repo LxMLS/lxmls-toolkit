@@ -6,6 +6,21 @@ from scipy.misc import logsumexp
 
 from pdb import set_trace
 
+def index2onehot(index, N):
+    """
+    Transforms index to one-hot representation, for example
+
+    Input: e.g. index = [1, 2, 0], N = 4
+    Output:     [[0, 1, 0, 0], [0, 0, 1, 0], [1, 0, 0, 0]]
+    """
+    L = index.shape[0]
+    onehot = np.zeros((N, L))
+    for l in np.arange(L):
+        onehot[index[l], l] = 1
+    return onehot
+
+
+
 class NumpyRNN():
 
     def __init__(self, W_e, n_hidd, n_tags, seed=None):
@@ -131,33 +146,33 @@ class NumpyRNN():
         nabla_W_h = np.zeros(W_h.shape)
         nabla_W_y = np.zeros(W_y.shape)
 
+        # Gradient of the cost with respect to the last linear model
+        I = index2onehot(outputs, W_y.shape[0])
+        e = (p_y - I) 
+
         # backward pass, with gradient computation
-        dh_next = np.zeros_like(h[:, 0])
+        e_h_next = np.zeros_like(h[:, 0])
         for t in reversed(xrange(nr_steps)):
 
-            # Error
-            dy = np.copy(p_y[:, t])
-            dy[outputs[t]] -= 1. # backprop into y (softmax grad).
+            nabla_W_y += np.outer(e[:, t], h[:, t+1])
 
-            nabla_W_y += dy[:,None].dot(h[:, t+1][None,:])
-
-            dh = W_y.T.dot(dy) + dh_next # backprop into h.
+            # Backprop into the RNN
+            e_h = W_y.T.dot(e[:, t]) + e_h_next 
 
             # backprop through nonlinearity.
-            dh_raw = self.derivate_activation(h[:, t+1], self.activation_function) * dh
+            dh_raw = self.derivate_activation(h[:, t+1], self.activation_function) * e_h
             
             nabla_W_h += dh_raw[:,None].dot(h[:, t][None,:])
             
             nabla_W_x += dh_raw[:,None].dot(z[:, t][None,:])
             
-            d_z1 = W_x.T.dot(dh_raw)            
-            
-            nabla_W_e[:, x[t]] += d_z1
+            nabla_W_e[:, x[t]] += W_x.T.dot(dh_raw)
 
-            dh_next = W_h.T.dot(dh_raw) 
+            e_h_next = W_h.T.dot(dh_raw) 
             
         # Normalize to be in agrement with the loss
         nabla_params = [nabla_W_e/nr_steps, nabla_W_x/nr_steps, nabla_W_h/nr_steps, nabla_W_y/nr_steps]
+        #nabla_params = [nabla_W_e, nabla_W_x, nabla_W_h, nabla_W_y]
         return nabla_params
 
     def save(self, model_path):
