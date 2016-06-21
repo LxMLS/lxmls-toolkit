@@ -21,21 +21,22 @@ def index2onehot(index, N):
 
 class NumpyRNN():
 
-    def __init__(self, W_e, n_hidd, n_tags, seed=None):
+    def __init__(self, n_words, n_emb, n_hidd, n_tags, seed=None):
         '''
-        E       numpy.array Word embeddings of size (n_emb, n_words)
+        n_words int         Size of the vocabulary 
+        n_emb   int         Size of the embeddings 
         n_hidd  int         Size of the recurrent layer 
         n_tags  int         Total number of tags
         seed    int         Seed to random initialization of parameters (default=None)
         '''
-        # Dimension of the embeddings
-        n_emb = W_e.shape[0]
 
         # MODEL PARAMETERS
         if not seed:
             np.random.seed(0)
         else:
             np.random.seed(seed)
+
+        W_e = 0.01*np.random.uniform(size=(n_emb, n_words))   # Input layer 
         W_x = np.random.uniform(size=(n_hidd, n_emb))   # Input layer 
         W_h = np.random.uniform(size=(n_hidd, n_hidd))  # Recurrent layer
         W_y = np.random.uniform(size=(n_tags, n_hidd))  # Output layer
@@ -193,21 +194,26 @@ class NumpyRNN():
 
 class RNN():
 
-    def __init__(self, W_e, n_hidd, n_tags, seed=None):
+    def __init__(self, n_words, n_emb, n_hidd, n_tags, seed=None):
         '''
-        E       numpy.array Word embeddings of size (n_emb, n_words)
+        n_words int         Size of the vocabulary 
+        n_emb   int         Size of the embeddings 
         n_hidd  int         Size of the recurrent layer 
         n_tags  int         Total number of tags
+        seed    int         Seed to random initialization of parameters (default=None)
         '''
 
-        # Dimension of the embeddings
-        n_emb = W_e.shape[0]
-
         # MODEL PARAMETERS
-        np.random.seed(seed)
+        if not seed:
+            np.random.seed(0)
+        else:
+            np.random.seed(seed)
+
+        W_e = 0.01*np.random.uniform(size=(n_emb, n_words))  # Embedding layer 
         W_x = np.random.uniform(size=(n_hidd, n_emb))   # Input layer 
         W_h = np.random.uniform(size=(n_hidd, n_hidd))  # Recurrent layer
         W_y = np.random.uniform(size=(n_tags, n_hidd))  # Output layer
+
         # Cast to theano GPU-compatible type
         W_e = W_e.astype(theano.config.floatX)
         W_x = W_x.astype(theano.config.floatX)
@@ -268,12 +274,23 @@ class RNN():
 
 class LSTM():
 
-    def __init__(self, W_e, n_hidd, n_tags):
-
-        # Dimension of the embeddings
-        n_emb = W_e.shape[0]
+    def __init__(self, n_words, n_emb, n_hidd, n_tags, seed=None):
+        '''
+        n_words int         Size of the vocabulary 
+        n_emb   int         Size of the embeddings 
+        n_hidd  int         Size of the recurrent layer 
+        n_tags  int         Total number of tags
+        seed    int         Seed to random initialization of parameters (default=None)
+        '''
 
         # MODEL PARAMETERS
+        if not seed:
+            np.random.seed(0)
+        else:
+            np.random.seed(seed)
+
+        # MODEL PARAMETERS
+        W_e = 0.01*np.random.uniform(size=(n_emb, n_words))    # Embedding layer 
         W_x = np.random.uniform(size=(4*n_hidd, n_emb))   # RNN Input layer
         W_h = np.random.uniform(size=(4*n_hidd, n_hidd))  # RNN recurrent var 
         W_c = np.random.uniform(size=(3*n_hidd, n_hidd))  # Second recurrent var 
@@ -358,8 +375,14 @@ def reset_model(nn_class, seed):
     if 'param' not in nn_class.__dict__:
         raise ValueError('Model is not a MLP/RNN/LSTM class instance')
     np.random.seed(seed)
-    for par in nn_class.param:
-        par_value = np.random.uniform(size=par.get_value().shape)
-        par_value = par_value.astype(theano.config.floatX)
-        par.set_value(par_value)
+    for n, par in enumerate(nn_class.param):
+        if n == 0:
+            # This assumes the first parameters are the embeddings
+            par_value = 0.01*np.random.uniform(size=par.get_value().shape)
+            par_value = par_value.astype(theano.config.floatX)
+            par.set_value(par_value)
+        else:
+            par_value = np.random.uniform(size=par.get_value().shape)
+            par_value = par_value.astype(theano.config.floatX)
+            par.set_value(par_value)
     return nn_class    
