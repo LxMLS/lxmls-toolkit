@@ -81,7 +81,7 @@ class NumpyRNN():
         e = np.exp(x / alpha)
         return e / np.sum(e)
 
-    def forward(self, x, all_outputs=False, outputs=None):
+    def forward(self, x, all_outputs=False):
         '''
         Forward pass
 
@@ -97,7 +97,6 @@ class NumpyRNN():
         nr_tags = W_y.shape[0]
 
         # Embedding layer
-        # TODO: Move outside of the loop
         z = W_e[:, x]
 
         # Recursive layer 
@@ -108,16 +107,11 @@ class NumpyRNN():
                                               self.activation_function)
 
         # Output layer
-        # TODO: Move outside of the loop
         y = W_y.dot(h[:, 1:]) 
         p_y = np.exp(y - logsumexp(y, 0))
         
-        if outputs is not None:
-            # Cross-entropy loss.
-            loss = -np.log(p_y[outputs, np.arange(nr_steps)])/nr_steps 
-        
         if all_outputs:
-            return loss, p_y, y, h, z, x
+            return p_y, y, h, z, x
         else:
             return p_y
         
@@ -135,8 +129,7 @@ class NumpyRNN():
         W_e, W_x, W_h, W_y = self.param
         nr_steps = x.shape[0]
         
-        loss, p_y, y, h, z, x = self.forward(x, all_outputs=True, 
-                                             outputs=outputs)
+        p_y, y, h, z, x = self.forward(x, all_outputs=True)
 
         # Initialize gradients with zero entrances
         nabla_W_e = np.zeros(W_e.shape)
@@ -166,7 +159,7 @@ class NumpyRNN():
             nabla_W_x += np.outer(e_raw, z[:, t])
             nabla_W_e[:, x[t]] += W_x.T.dot(e_raw)
            
-        # Normalize to be in agreement with the loss
+        # Normalize over sentence length 
         nabla_params = [nabla_W_e/nr_steps, nabla_W_x/nr_steps, 
                         nabla_W_h/nr_steps, nabla_W_y/nr_steps]
         return nabla_params
