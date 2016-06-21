@@ -1,3 +1,22 @@
-include *.txt
-recursive-include docs *.txt
-recursive-include *.map
+graft docs
+graft examples
+graft src
+graft ci
+graft tests
+
+include .bumpversion.cfg
+include .coveragerc
+include .editorconfig
+include .isort.cfg
+
+include AUTHORS.md
+include CHANGELOG.md
+include CONTRIBUTING.md
+include LICENSE
+include README.md
+
+include requirements.txt
+
+include tox.ini .travis.yml
+
+global-exclude *.py[cod] __pycache__ *.so *.dylib
