@@ -3,19 +3,14 @@ from __future__ import print_function
 import numpy as np
 import pytest
 
-import lxmls.readers.sentiment_reader as srs
-import lxmls.readers.simple_data_set as sds
-
-# import lxmls.classifiers.linear_classifier as lcc
-import lxmls.classifiers.perceptron as percc
-import lxmls.classifiers.mira as mirac
 import lxmls.classifiers.gaussian_naive_bayes as gnbc
-
 import lxmls.classifiers.max_ent_batch as mebc
 import lxmls.classifiers.max_ent_online as meoc
+import lxmls.classifiers.mira as mirac
+import lxmls.classifiers.perceptron as percc
 import lxmls.classifiers.svm as svmc
-# import lxmls.classifiers.naive_bayes as nb
-# import lxmls.run_all_classifiers as run_all_c
+import lxmls.readers.sentiment_reader as srs
+import lxmls.readers.simple_data_set as sds
 from lxmls.classifiers import multinomial_naive_bayes
 
 tolerance = 1e-5
@@ -50,25 +45,25 @@ def test_naive_bayes_simple_dataset(sd):
 def test_perceptron_simple_dataset(sd):
     np.random.seed(4242)
 
-    perc = percc.Perceptron()
+    perc = percc.Perceptron(nr_epochs=3)
     params_perc_sd = perc.train(sd.train_X, sd.train_y)
     y_pred_train = perc.test(sd.train_X, params_perc_sd)
     acc_train = perc.evaluate(sd.train_y, y_pred_train)
-    assert abs(acc_train - 0.88) < tolerance
+    assert abs(acc_train - 0.9) < tolerance
 
     y_pred_test = perc.test(sd.test_X, params_perc_sd)
     acc_test = perc.evaluate(sd.test_y, y_pred_test)
-    assert abs(acc_test - 0.92) < tolerance
+    assert abs(acc_test - 0.84) < tolerance
 
 
 def test_mira_simple_dataset(sd):
     np.random.seed(4242)
 
-    mira = mirac.Mira()
+    mira = mirac.Mira(nr_rounds=3)
     params_mira_sd = mira.train(sd.train_X, sd.train_y)
     y_pred_train = mira.test(sd.train_X, params_mira_sd)
     acc_train = mira.evaluate(sd.train_y, y_pred_train)
-    assert abs(acc_train - 0.90) < tolerance
+    assert abs(acc_train - 0.88) < tolerance
 
     y_pred_test = mira.test(sd.test_X, params_mira_sd)
     acc_test = mira.evaluate(sd.test_y, y_pred_test)
@@ -92,11 +87,11 @@ def test_maxent_batch_simple_dataset(sd):
 def test_maxent_online_simple_dataset(sd):
     np.random.seed(4242)
 
-    me_sgd = meoc.MaxEntOnline()
+    me_sgd = meoc.MaxEntOnline(nr_epochs=3)
     params_meo_sd = me_sgd.train(sd.train_X, sd.train_y)
     y_pred_train = me_sgd.test(sd.train_X, params_meo_sd)
     acc_train = me_sgd.evaluate(sd.train_y, y_pred_train)
-    assert abs(acc_train - 0.88) < tolerance
+    assert abs(acc_train - 0.86) < tolerance
 
     y_pred_test = me_sgd.test(sd.test_X, params_meo_sd)
     acc_test = me_sgd.evaluate(sd.test_y, y_pred_test)
@@ -106,7 +101,7 @@ def test_maxent_online_simple_dataset(sd):
 def test_svm_online_simple_dataset(sd):
     np.random.seed(4242)
 
-    svm = svmc.SVM()
+    svm = svmc.SVM(nr_epochs=3)
     params_svm_sd = svm.train(sd.train_X, sd.train_y)
     y_pred_train = svm.test(sd.train_X, params_svm_sd)
     acc_train = svm.evaluate(sd.train_y, y_pred_train)
@@ -115,12 +110,6 @@ def test_svm_online_simple_dataset(sd):
     y_pred_test = svm.test(sd.test_X, params_svm_sd)
     acc_test = svm.evaluate(sd.test_y, y_pred_test)
     assert abs(acc_test - 0.92) < tolerance
-
-
-# End of exercise 3.1
-
-
-# Exercise 3.2: implement Naive Bayes for multinomial data ########
 
 
 @pytest.fixture(scope='module')
@@ -148,21 +137,21 @@ def test_naive_bayes_amazon_sentiment(scr):
 def test_perceptron_amazon_sentiment(scr):
     np.random.seed(4242)
 
-    perc = percc.Perceptron()
+    perc = percc.Perceptron(nr_epochs=3)
     params_perc_sc = perc.train(scr.train_X, scr.train_y)
     y_pred_train = perc.test(scr.train_X, params_perc_sc)
     acc_train = perc.evaluate(scr.train_y, y_pred_train)
-    assert abs(acc_train - 0.998750) < tolerance
+    assert abs(acc_train - 0.966875) < tolerance
 
     y_pred_test = perc.test(scr.test_X, params_perc_sc)
     acc_test = perc.evaluate(scr.test_y, y_pred_test)
-    assert abs(acc_test - 0.825000) < tolerance
+    assert abs(acc_test - 0.805) < tolerance
 
 
 def test_mira_amazon_sentiment(scr):
     np.random.seed(4242)
 
-    mira = mirac.Mira()
+    mira = mirac.Mira(nr_rounds=1)
     params_mira_sc = mira.train(scr.train_X, scr.train_y)
     y_pred_train = mira.test(scr.train_X, params_mira_sc)
     acc_train = mira.evaluate(scr.train_y, y_pred_train)
@@ -190,29 +179,29 @@ def test_maxent_batch_amazon_sentiment(scr):
 def test_maxent_online_amazon_sentiment(scr):
     np.random.seed(4242)
 
-    me_sgd = meoc.MaxEntOnline()
+    me_sgd = meoc.MaxEntOnline(nr_epochs=3)
     params_meo_sc = me_sgd.train(scr.train_X, scr.train_y)
     y_pred_train = me_sgd.test(scr.train_X, params_meo_sc)
     acc_train = me_sgd.evaluate(scr.train_y, y_pred_train)
-    assert abs(acc_train - 0.861250) < tolerance
+    assert abs(acc_train - 0.85125) < tolerance
 
     y_pred_test = me_sgd.test(scr.test_X, params_meo_sc)
     acc_test = me_sgd.evaluate(scr.test_y, y_pred_test)
-    assert abs(acc_test - 0.785000) < tolerance
+    assert abs(acc_test - 0.7775) < tolerance
 
 
 def test_svm_online_amazon_sentiment(scr):
     np.random.seed(4242)
 
-    svm = svmc.SVM()
+    svm = svmc.SVM(nr_epochs=3)
     params_svm_sc = svm.train(scr.train_X, scr.train_y)
     y_pred_train = svm.test(scr.train_X, params_svm_sc)
     acc_train = svm.evaluate(scr.train_y, y_pred_train)
-    assert abs(acc_train - 0.883750) < tolerance
+    assert abs(acc_train - 0.845625) < tolerance
 
     y_pred_test = svm.test(scr.test_X, params_svm_sc)
     acc_test = svm.evaluate(scr.test_y, y_pred_test)
-    assert abs(acc_test - 0.81) < tolerance
+    assert abs(acc_test - 0.7725) < tolerance
 
 
 if __name__ == '__main__':

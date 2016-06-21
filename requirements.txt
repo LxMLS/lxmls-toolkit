@@ -9,3 +9,4 @@ theano
 nltk
 pytest>=2.9.1
 ipdb
+jupyter

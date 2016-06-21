@@ -5,7 +5,7 @@ try:
     from pip.req import parse_requirements
 
     # parse_requirements() returns generator of pip.req.InstallRequirement objects
-    install_reqs = parse_requirements("pip-requirements.txt")
+    install_reqs = parse_requirements("requirements.txt")
     # install_requires is a list of requirement
     install_requires = [str(ir.req) for ir in install_reqs]
 except:
@@ -36,9 +36,12 @@ setup(
     keywords='machine learning',
     url='https://github.com/LxMLS/lxmls-toolkit',
     py_modules=['lxmls'],
+    # test_suite='tests',
+    # See: http://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
         'Development Status :: 3 - Alpha',
-        'Topic :: Utilities',
+        'Intended Audience :: Science/Research',
+        'Topic :: Scientific/Engineering :: Artificial Intelligence',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',

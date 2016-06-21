@@ -2,10 +2,7 @@
 language: python
 
 python:
-    - "3.4"
-    - "3.3"
     - "2.7"
-    - "pypy"
 
 sudo: false
 env:
@@ -14,13 +11,13 @@ env:
     - SEGFAULT_SIGNALS=all
   matrix:
     - TOXENV=check
-    - TOXENV=docs
+#    - TOXENV=docs
 
     - TOXENV=py27,codecov
-    - TOXENV=py33,codecov
-    - TOXENV=py34,codecov
-    - TOXENV=py35,codecov
-    - TOXENV=pypy,codecov
+#    - TOXENV=py33,codecov
+#    - TOXENV=py34,codecov
+#    - TOXENV=py35,codecov
+#    - TOXENV=pypy,codecov
 before_install:
   - python --version
   - uname -a
