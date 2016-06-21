@@ -350,3 +350,16 @@ class LSTM():
         _p_y = T.nnet.softmax(T.dot(_z2, _W_y.T))
 
         return _p_y
+
+def reset_model(nn_class, seed):
+    '''
+    Sets the parameter of a neural network equal to random
+    '''
+    if 'param' not in nn_class.__dict__:
+        raise ValueError('Model is not a MLP/RNN/LSTM class instance')
+    np.random.seed(seed)
+    for par in nn_class.param:
+        par_value = np.random.uniform(size=par.get_value().shape)
+        par_value = par_value.astype(theano.config.floatX)
+        par.set_value(par_value)
+    return nn_class    

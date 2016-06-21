@@ -41,9 +41,6 @@ def compacify(train_seq, test_seq, dev_seq, theano=False):
                 if tag not in new_y_dict:
                     new_y_dict.add(tag)
 
-                    #    import copy
-                    #    train_seq2, test_seq2, dev_seq2 = copy.deepcopy(train_seq), copy.deepcopy(test_seq), copy.deepcopy(dev_seq)
-
     # REDO INDICES
     # for corpus_seq in [train_seq2, test_seq2, dev_seq2]:
     for corpus_seq in [train_seq, test_seq, dev_seq]:
@@ -68,6 +65,10 @@ def compacify(train_seq, test_seq, dev_seq, theano=False):
         # Reinstate new dicts
         corpus_seq.x_dict = new_x_dict
         corpus_seq.y_dict = new_y_dict
+
+        # Add reverse indices
+        corpus_seq.word_dict = {v: k for k, v in new_x_dict.items()}
+        corpus_seq.tag_dict = {v: k for k, v in new_y_dict.items()}
 
         # SANITY CHECK:
         # These must be the same
