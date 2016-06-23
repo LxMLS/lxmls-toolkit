@@ -5,6 +5,7 @@ import sys
 import numpy
 import matplotlib.pyplot
 import math
+import ipdb
 import lxmls.sequences.structured_perceptron
 import lxmls.sequences.id_feature
 import lxmls.sequences.hmm

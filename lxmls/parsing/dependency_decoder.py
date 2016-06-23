@@ -3,59 +3,59 @@ import numpy as np
 import pdb
 
 
-class DependencyDecoder():
-    '''
+class DependencyDecoder:
+    """
     Dependency decoder class
-    '''
+    """
+
     def __init__(self):
         self.verbose = False
 
     def parse_marginals_nonproj(self, scores):
-        '''
+        """
         Compute marginals and the log-partition function using the matrix-tree theorem
-        '''
+        """
         nr, nc = np.shape(scores)
         if nr != nc:
             raise ValueError("scores must be a squared matrix with nw+1 rows")
             return []
 
-        nw = nr - 1;
+        nw = nr - 1
 
         s = np.matrix(scores)
         lap = np.matrix(np.zeros((nw+1, nw+1)))
-        for m in range(1, nw + 1):
+        for m in range(1, nw+1):
             d = 0.0
-            for h in range(0, nw + 1):
+            for h in range(0, nw+1):
                 if m != h:
-                    d += np.exp(s[h,m])
-                    lap[h,m] = -np.exp(s[h,m])
-            lap[m,m] = d
-        r = lap[0,1:]
-        minor = lap[1:,1:]
+                    d += np.exp(s[h, m])
+                    lap[h, m] = -np.exp(s[h, m])
+            lap[m, m] = d
+        r = lap[0, 1:]
+        minor = lap[1:, 1:]
 
-        #logZ = np.linalg.slogdet(minor)[1]
+        # logZ = np.linalg.slogdet(minor)[1]
         logZ = np.log(np.linalg.det(minor))
         invmin = np.linalg.inv(minor)
         marginals = np.zeros((nw+1, nw+1))
-        for m in range(1, nw + 1):
-            marginals[0,m] = np.exp(s[0,m]) * invmin[m-1,m-1]
-            for h in range(1, nw + 1):
+        for m in range(1, nw+1):
+            marginals[0, m] = np.exp(s[0, m]) * invmin[m-1, m-1]
+            for h in range(1, nw+1):
                 if m != h:
-                    marginals[h,m] = np.exp(s[h,m]) * (invmin[m-1,m-1] - invmin[m-1,h-1])
+                    marginals[h, m] = np.exp(s[h, m]) * (invmin[m-1, m-1] - invmin[m-1, h-1])
 
         return marginals, logZ
 
-
     def parse_proj(self, scores):
-        '''
+        """
         Parse using Eisner's algorithm.
-        '''
+        """
 
         # Complete Exercise 4.3.6 
-        raise NotImplementedError, "Complete Exercise 4.3.6" 
+        raise NotImplementedError("Complete Exercise 4.3.6")
 
     def backtrack_eisner(self, incomplete_backtrack, complete_backtrack, s, t, direction, complete, heads):
-        '''
+        """
         Backtracking step in Eisner's algorithm.
         - incomplete_backtrack is a (NW+1)-by-(NW+1) numpy array indexed by a start position,
         an end position, and a direction flag (0 means left, 1 means right). This array contains
@@ -67,9 +67,9 @@ class DependencyDecoder():
         - t is the current end of the span
         - direction is 0 (left attachment) or 1 (right attachment)
         - complete is 1 if the current span is complete, and 0 otherwise
-        - heads is a (NW+1)-sized numpy array of integers which is a placeholder for storing the 
+        - heads is a (NW+1)-sized numpy array of integers which is a placeholder for storing the
         head of each word.
-        '''
+        """
         if s == t:
             return
         if complete:
@@ -95,35 +95,34 @@ class DependencyDecoder():
                 self.backtrack_eisner(incomplete_backtrack, complete_backtrack, r+1, t, 0, 1, heads)
                 return
 
-                
     def parse_nonproj(self, scores):
-        '''
+        """
         Parse using Chu-Liu-Edmonds algorithm.
-        '''
+        """
         nr, nc = np.shape(scores)
         if nr != nc:
             raise ValueError("scores must be a squared matrix with nw+1 rows")
             return []
 
-        nw = nr - 1;
+        nw = nr - 1
 
         curr_nodes = np.ones(nw+1, int)
         reps = []
-        oldI = -np.ones((nw+1, nw+1), int)
-        oldO = -np.ones((nw+1, nw+1), int)
-        for i in range(0, nw+1): 
-            reps.append({i : 0})
+        old_I = -np.ones((nw+1, nw+1), int)
+        old_O = -np.ones((nw+1, nw+1), int)
+        for i in range(0, nw+1):
+            reps.append({i: 0})
             for j in range(0, nw+1):
-                oldI[i,j] = i
-                oldO[i,j] = j
-                if i==j or j==0:
+                old_I[i, j] = i
+                old_O[i, j] = j
+                if i == j or j == 0:
                     continue
 
         if self.verbose:
             print "Starting C-L-E...\n"
 
         scores_copy = scores.copy()
-        final_edges = self.chu_liu_edmonds(scores_copy, curr_nodes, oldI, oldO, {}, reps)
+        final_edges = self.chu_liu_edmonds(scores_copy, curr_nodes, old_I, old_O, {}, reps)
         heads = np.zeros(nw+1, int)
         heads[0] = -1
         for key in final_edges.keys():
@@ -133,39 +132,37 @@ class DependencyDecoder():
 
         return heads
 
-
-    def chu_liu_edmonds(self, scores, curr_nodes, oldI, oldO, final_edges, reps):
-        '''
+    def chu_liu_edmonds(self, scores, curr_nodes, old_I, old_O, final_edges, reps):
+        """
         Chu-Liu-Edmonds algorithm
-        '''
+        """
 
         # need to construct for each node list of nodes they represent (here only!)
-        nw = np.size(curr_nodes) - 1;
+        nw = np.size(curr_nodes) - 1
 
         # create best graph
         par = -np.ones(nw+1, int)
         for m in range(1, nw+1):
             # only interested in current nodes
-            if 0 == curr_nodes[m]: 
+            if 0 == curr_nodes[m]:
                 continue
-            max_score = scores[0,m]
+            max_score = scores[0, m]
             par[m] = 0
             for h in range(nw+1):
                 if m == h:
                     continue
                 if 0 == curr_nodes[h]:
                     continue
-                if scores[h,m] > max_score:
-                    max_score = scores[h,m]
+                if scores[h, m] > max_score:
+                    max_score = scores[h, m]
                     par[m] = h
 
         if self.verbose:
             print "After init\n"
             for m in range(0, nw+1):
                 if 0 < curr_nodes[m]:
-                    print "{0}|{1} ".format(par[m],m)
+                    print "{0}|{1} ".format(par[m], m)
             print "\n"
-
 
         # find a cycle
         cycles = []
@@ -176,7 +173,7 @@ class DependencyDecoder():
             if added[m] or 0 == curr_nodes[m]:
                 continue
             added[m] = 1
-            cycle = {m : 0}
+            cycle = {m: 0}
             l = m
             while True:
                 if par[l] == -1:
@@ -206,8 +203,8 @@ class DependencyDecoder():
                 if 0 == curr_nodes[m]:
                     continue
                 if par[m] != -1:
-                    pr = oldI[par[m], m]
-                    ch = oldO[par[m], m]
+                    pr = old_I[par[m], m]
+                    ch = old_O[par[m], m]
                     final_edges[ch] = pr
                 else:
                     final_edges[0] = -1
@@ -223,7 +220,7 @@ class DependencyDecoder():
         cycle = wh_cyc
         cyc_nodes = cycle.keys()
         rep = cyc_nodes[0]
-        
+
         if self.verbose:
             print "Found Cycle\n"
             for node in cyc_nodes:
@@ -232,13 +229,13 @@ class DependencyDecoder():
 
         cyc_weight = 0.0
         for node in cyc_nodes:
-            cyc_weight += scores[par[node], node] 
+            cyc_weight += scores[par[node], node]
 
         for i in range(0, nw+1):
             if 0 == curr_nodes[i] or (i in cycle):
                 continue
 
-            max1 = -np.inf 
+            max1 = -np.inf
             wh1 = -1
             max2 = -np.inf
             wh2 = -1
@@ -255,11 +252,11 @@ class DependencyDecoder():
                     wh2 = j1
 
             scores[rep, i] = max1
-            oldI[rep, i] = oldI[wh1, i]
-            oldO[rep, i] = oldO[wh1, i]
+            old_I[rep, i] = old_I[wh1, i]
+            old_O[rep, i] = old_O[wh1, i]
             scores[i, rep] = max2
-            oldO[i, rep] = oldO[i, wh2]
-            oldI[i, rep] = oldI[i, wh2]
+            old_O[i, rep] = old_O[i, wh2]
+            old_I[i, rep] = old_I[i, wh2]
 
         rep_cons = []
         for i in range(0, np.size(cyc_nodes)):
@@ -270,7 +267,7 @@ class DependencyDecoder():
             for key in keys:
                 rep_con[key] = 0
                 if self.verbose:
-                   print "{0} ".format(key)
+                    print "{0} ".format(key)
             rep_cons.append(rep_con)
             if self.verbose:
                 print "\n"
@@ -282,18 +279,18 @@ class DependencyDecoder():
             for key in reps[int(node)]:
                 reps[int(rep)][key] = 0
 
-        self.chu_liu_edmonds(scores, curr_nodes, oldI, oldO, final_edges, reps)
+        self.chu_liu_edmonds(scores, curr_nodes, old_I, old_O, final_edges, reps)
 
         # check each node in cycle, if one of its representatives
         # is a key in the final_edges, it is the one.
         if self.verbose:
             print final_edges
-        wh = -1;
+        wh = -1
         found = False
-        for i in range(0, np.size(rep_cons)): 
+        for i in range(0, np.size(rep_cons)):
             if found:
                 break
-            for key in rep_cons[i]: 
+            for key in rep_cons[i]:
                 if found:
                     break
                 if key in final_edges:
@@ -301,10 +298,9 @@ class DependencyDecoder():
                     found = True
         l = par[wh]
         while l != wh:
-            ch = oldO[par[l]][l]
-            pr = oldI[par[l]][l]
+            ch = old_O[par[l]][l]
+            pr = old_I[par[l]][l]
             final_edges[ch] = pr
             l = par[l]
 
         return final_edges
-

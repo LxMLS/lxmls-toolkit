@@ -1,13 +1,16 @@
 # Import the necessary libraries:
 from mrjob.job import MRJob
+import re
+import pdb
 
 
-class WordCount(MRJob):
+class TrimerCount(MRJob):
 
     def mapper(self, _, doc):
         c = {}
         # Process the document
-        for w in doc.split():
+        for i in xrange(len(doc)-3):
+            w = doc[i:i+3]
             if w in c:
                 c[w] += 1
             else:
@@ -21,5 +24,4 @@ class WordCount(MRJob):
         yield key, sum(cs)
 
 
-wc = WordCount()
-wc.run()
+TrimerCount.run()
