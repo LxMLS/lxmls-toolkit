@@ -25,25 +25,24 @@ def download_and_replace(url, target_file):
         exit(1)
  
     with open(target_file, 'wb') as f:
-        meta             = u.info()
-        file_size        = int(meta.getheaders("Content-Length")[0])
-        file_size_dl     = 0
-        block_sz         = 8192
+        meta = u.info()
+        file_size = int(meta.getheaders("Content-Length")[0])
+        file_size_dl = 0
+        block_sz = 8192
         while True:
             buffer = u.read(block_sz)
             if not buffer:
                 break
             file_size_dl += len(buffer)
             f.write(buffer)
-            status        = r"%10d  [%3.2f%%]" % (file_size_dl, 
+            status = r"%10d  [%3.2f%%]" % (file_size_dl, 
                                                   file_size_dl*100./file_size)
-            status        = status + chr(8)*(len(status)+1)
+            status = status + chr(8)*(len(status)+1)
 
 
 # CONFIGURATION
-
-master_URL = 'https://github.com/gracaninja/lxmls-toolkit/raw/master/'
-labs_URL   = 'https://github.com/gracaninja/lxmls-toolkit/raw/student/'
+master_URL = 'https://github.com/LxMLS/lxmls-toolkit/raw/master/'
+labs_URL = 'https://github.com/LxMLS/lxmls-toolkit/raw/student/'
 
 # FILES TO BE REPLACED FOR THAT DAY
 code_day = {
@@ -53,19 +52,21 @@ code_day = {
              'lxmls/sequences/sequence_classification_decoder.py'],
     'day3': ['lxmls/sequences/structured_perceptron.py'],
     'day4': ['lxmls/parsing/dependency_decoder.py'],
-    'day6': ['lxmls/deep_learning/mlp.py']
+    'day5': ['lxmls/deep_learning/mlp.py']
+    'day6': ['lxmls/deep_learning/rnn.py']
            }
 
 # ARGUMENT PROCESSING
 if ((len(sys.argv) == 2) and 
     (sys.argv[1] in ['day0', 'day1', 'day2', 'day3', 'day4', 'day5', 'day6'])): 
     undo_flag = 0
-    day       = sys.argv[1]
+    day = sys.argv[1]
+
 elif ((len(sys.argv) == 3) and 
       (sys.argv[1] == '--undo') and
       (sys.argv[2] in ['day0', 'day1', 'day2', 'day3', 'day4', 'day5', 'day6'])): 
     undo_flag = 1
-    day       = sys.argv[2]
+    day = sys.argv[2]
 
 else:
     print ("\nUsage:\n"
