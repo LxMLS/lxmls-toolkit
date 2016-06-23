@@ -34,7 +34,7 @@ setup(
     license="MIT",
     keywords="machine learning",
     url="https://github.com/gracaninja/lxmls-toolkit",
-    long_description=read('README.txt'),
+    long_description=read('README.md'),
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Topic :: Utilities",
