@@ -59,7 +59,7 @@ class NumpyRNN():
             ind = np.where(z < 0.)
             z[ind] = 0.
         else:
-            raise NotImplementedError
+            raise NotImplementedError("Unknown activation %s" % function_name)
         return z
 
     def derivate_activation(self, z, function_name):
@@ -72,7 +72,7 @@ class NumpyRNN():
         elif function_name == 'relu':
             dx = (np.sign(z)+1)/2.
         else:
-            raise NotImplementedError
+            raise NotImplementedError("Unknown activation %s" % function_name)
         return dx
 
     def soft_max(self, x, alpha=1.0):
@@ -163,26 +163,6 @@ class NumpyRNN():
         nabla_params = [nabla_W_e/nr_steps, nabla_W_x/nr_steps, 
                         nabla_W_h/nr_steps, nabla_W_y/nr_steps]
         return nabla_params
-
-    def save(self, model_path):
-        '''
-        Save model
-        '''
-        raise NotImplementedError("Not yet implemented")
-#        par = self.params + self.actvfunc
-#        with open(model_path, 'wb') as fid: 
-#            cPickle.dump(par, fid, cPickle.HIGHEST_PROTOCOL)
-
-    def load(self, model_path):
-        '''
-        Load model
-        '''
-        raise NotImplementedError("Not yet implemented")
-#        with open(model_path) as fid: 
-#            par      = cPickle.load(fid, cPickle.HIGHEST_PROTOCOL)
-#            params   = par[:len(par)/2]
-#            actvfunc = par[len(par)/2:]
-#        return params, actvfunc
 
 
 class RNN():
