@@ -51,8 +51,61 @@ class DependencyDecoder:
         Parse using Eisner's algorithm.
         """
 
-        # Complete Exercise 4.3.6 
-        raise NotImplementedError("Complete Exercise 4.3.6")
+        # ----------
+        # Solution to Exercise 4.3.6
+        nr, nc = np.shape(scores)
+        if nr != nc:
+            raise ValueError("scores must be a squared matrix with nw+1 rows")
+            return []
+
+        N = nr - 1  # Number of words (excluding root).
+
+        # Initialize CKY table.
+        complete = np.zeros([N+1, N+1, 2])  # s, t, direction (right=1).
+        incomplete = np.zeros([N+1, N+1, 2])  # s, t, direction (right=1).
+        complete_backtrack = -np.ones([N+1, N+1, 2], dtype=int)  # s, t, direction (right=1).
+        incomplete_backtrack = -np.ones([N+1, N+1, 2], dtype=int)  # s, t, direction (right=1).
+
+        incomplete[0, :, 0] -= np.inf
+
+        # Loop from smaller items to larger items.
+        for k in xrange(1, N+1):
+            for s in xrange(N-k+1):
+                t = s + k
+
+                # First, create incomplete items.
+                # left tree
+                incomplete_vals0 = complete[s, s:t, 1] + complete[(s+1):(t+1), t, 0] + scores[t, s]
+                incomplete[s, t, 0] = np.max(incomplete_vals0)
+                incomplete_backtrack[s, t, 0] = s + np.argmax(incomplete_vals0)
+                # right tree
+                incomplete_vals1 = complete[s, s:t, 1] + complete[(s+1):(t+1), t, 0] + scores[s, t]
+                incomplete[s, t, 1] = np.max(incomplete_vals1)
+                incomplete_backtrack[s, t, 1] = s + np.argmax(incomplete_vals1)
+
+                # Second, create complete items.
+                # left tree
+                complete_vals0 = complete[s, s:t, 0] + incomplete[s:t, t, 0]
+                complete[s, t, 0] = np.max(complete_vals0)
+                complete_backtrack[s, t, 0] = s + np.argmax(complete_vals0)
+                # right tree
+                complete_vals1 = incomplete[s, (s+1):(t+1), 1] + complete[(s+1):(t+1), t, 1]
+                complete[s, t, 1] = np.max(complete_vals1)
+                complete_backtrack[s, t, 1] = s + 1 + np.argmax(complete_vals1)
+
+        value = complete[0][N][1]
+        heads = -np.ones(N + 1, dtype=int)
+        self.backtrack_eisner(incomplete_backtrack, complete_backtrack, 0, N, 1, 1, heads)
+
+        value_proj = 0.0
+        for m in xrange(1, N+1):
+            h = heads[m]
+            value_proj += scores[h, m]
+
+        return heads
+
+        # End of solution to Exercise 4.3.6
+        # ----------
 
     def backtrack_eisner(self, incomplete_backtrack, complete_backtrack, s, t, direction, complete, heads):
         """

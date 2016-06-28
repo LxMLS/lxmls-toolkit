@@ -1,16 +1,20 @@
 ### Summary
 
-Machine learning toolkit for natural language processing. Written for Lisbon Machine Learning Summer School (lxmls.it.pt). This is the student version. Some parts of the code have been removed for the students to complete.
+Machine learning toolkit for natural language processing. Written for Lisbon Machine Learning Summer School (lxmls.it.pt)
 
-### Installation of Modules and Tools
+**Instructions for Students**
 
-* Read instructions in the Day 0 chapter of the LXMLS guide.
+* Use the student branch not this one! 
 
-* *NOTE:* You do not need to install the lxmls tools, just work from this folder
+* You do not need to run setup.py or pip install, read instructions in the Day 0 chapter of the LXMLS guide.
 
-### Solving exercises from previous days
 
-You can solve and reset exercises from previous days with e.g.
+**Instructions for non Students**
 
-    python ./solve.py day1  
-    python ./solve.py --undo day1  
+Feel free to install the toolkit with 
+
+    pip install .
+
+Bear in mind that the main purpose of the toolkit is educative. You may resort 
+to other toolboxes if you are looking for efficient implementations of the 
+algorithms described.

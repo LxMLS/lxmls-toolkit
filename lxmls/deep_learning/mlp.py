@@ -117,12 +117,41 @@ class NumpyMLP:
             if n != self.n_layers-1:
                 W_next = self.params[2*(n+1)]
 
-           # Complete Exercise 6.2 
-           raise NotImplementedError("Complete Exercise 6.2")
+            # ----------
+            # Solution to Exercise 6.2
 
-           # Store the gradients 
-           nabla_params[2*n]   = nabla_W
-           nabla_params[2*n+1] = nabla_b
+            # If it is the last layer, compute the average cost gradient
+            # Otherwise, propagate the error backwards from the next layer
+            if n == self.n_layers-1:
+                # NOTE: This assumes cross entropy cost
+                if self.actvfunc[n] == 'sigmoid':
+                    e = (activations[n]-y) / y.shape[0]
+                elif self.actvfunc[n] == 'softmax':
+                    I = index2onehot(y, W.shape[0])
+                    e = (activations[n]-I) / y.shape[0]
+
+            else:
+                e = np.dot(W_next.T, e)
+                # This is correct but confusing n+1 is n in the guide
+                e *= activations[n] * (1-activations[n])
+
+            # Weight gradient
+            nabla_W = np.zeros(W.shape)
+            for l in np.arange(e.shape[1]):
+                if n == 0:
+                    # For the first layer, the activation is the input
+                    nabla_W += np.outer(e[:, l], x[:, l])
+                else:
+                    nabla_W += np.outer(e[:, l], activations[n-1][:, l])
+            # Bias gradient
+            nabla_b = np.sum(e, 1, keepdims=True)
+
+            # End of solution to Exercise 6.2
+            # ----------
+
+            # Store the gradients
+            nabla_params[2*n] = nabla_W
+            nabla_params[2*n+1] = nabla_b
 
         return nabla_params
 
