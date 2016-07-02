@@ -5,13 +5,14 @@ import numpy as np
 import pytest
 import theano
 import theano.tensor as T
+from numpy.random import RandomState
 
 import lxmls.deep_learning.mlp as dl
 import lxmls.deep_learning.sgd as sgd
 import lxmls.readers.sentiment_reader as srs
 
 tolerance = 1e-5
-np.random.seed(4242)
+seed = 4242
 
 # Model parameters
 n_iter = 3
@@ -35,20 +36,23 @@ def test_data(sentiment_corpus):
 
 
 def test_exercise_1(train_data, test_data):
+    np.random.seed(seed)
+    print('rnd: {}'.format(np.random.get_state()[1][:4]))
+
     train_x, train_y = train_data
     test_x, test_y = test_data
     I = train_x.shape[0]
     geometry = [I, 2]
     actvfunc = ['softmax']
-    mlp = dl.NumpyMLP(geometry, actvfunc)
+    mlp = dl.NumpyMLP(geometry, actvfunc, rng=RandomState(seed))
 
     hat_train_y = mlp.forward(train_x)
     hat_test_y = mlp.forward(test_x)
 
     acc_train = sgd.class_acc(hat_train_y, train_y)[0]
     acc_test = sgd.class_acc(hat_test_y, test_y)[0]
-    assert abs(acc_train - 0.518750) < tolerance
-    assert abs(acc_test - 0.542500) < tolerance
+    assert abs(acc_train - 0.50375) < tolerance
+    assert abs(acc_test - 0.4475) < tolerance
 
 
 def test_exercise_2(train_data, test_data):
@@ -57,13 +61,13 @@ def test_exercise_2(train_data, test_data):
     I = train_x.shape[0]
     geometry = [I, 20, 2]
     actvfunc = ['sigmoid', 'softmax']
-    mlp = dl.NumpyMLP(geometry, actvfunc)
+    mlp = dl.NumpyMLP(geometry, actvfunc, rng=RandomState(seed))
 
     sgd.SGD_train(mlp, n_iter, bsize=bsize, lrate=lrate, train_set=(train_x, train_y))
     acc_train = sgd.class_acc(mlp.forward(train_x), train_y)[0]
     acc_test = sgd.class_acc(mlp.forward(test_x), test_y)[0]
-    assert abs(acc_train - 0.991875) < tolerance
-    assert abs(acc_test - 0.79) < tolerance
+    assert abs(acc_train - 0.99125) < tolerance
+    assert abs(acc_test - 0.84) < tolerance
 
 
 def test_exercise_3(train_data, test_data):
@@ -72,7 +76,7 @@ def test_exercise_3(train_data, test_data):
     I = train_x.shape[0]
     geometry = [I, 20, 2]
     actvfunc = ['sigmoid', 'softmax']
-    mlp = dl.NumpyMLP(geometry, actvfunc)
+    mlp = dl.NumpyMLP(geometry, actvfunc, rng=RandomState(seed))
 
     x = test_x
     W1, b1 = mlp.params[0:2]
@@ -99,8 +103,8 @@ def test_exercise_4(train_data, test_data):
     I = train_x.shape[0]
     geometry = [I, 20, 2]
     actvfunc = ['sigmoid', 'softmax']
-    mlp_a = dl.NumpyMLP(geometry, actvfunc)
-    mlp_b = dl.TheanoMLP(geometry, actvfunc)
+    mlp_a = dl.NumpyMLP(geometry, actvfunc, rng=RandomState(seed))
+    mlp_b = dl.TheanoMLP(geometry, actvfunc, rng=RandomState(seed))
 
     # Check Numpy and Theano match
     resa = mlp_a.forward(test_x)[:, :10]
@@ -113,7 +117,7 @@ def test_exercise_5(train_data):
     I = train_x.shape[0]
     geometry = [I, 20, 2]
     actvfunc = ['sigmoid', 'softmax']
-    mlp_a = dl.NumpyMLP(geometry, actvfunc)
+    mlp_a = dl.NumpyMLP(geometry, actvfunc, rng=RandomState(seed))
 
     W1, b1 = mlp_a.params[0:2]
 
@@ -141,26 +145,46 @@ def test_exercise_5(train_data):
     x = train_x.astype(theano.config.floatX)
     y = train_y.astype('int32')
     gradients = nabla_F(x, y)[:10, :10]
-    expected_gradients = np.array([[6.87651501e-04, 1.35650430e-04, 1.65650193e-04, 8.86584336e-04, 1.65086491e-03, 2.64808679e-04, 3.32879597e-03,
-                                    2.61767047e-04, 3.41453047e-04, 7.21670337e-04],
-                                   [-4.28321380e-04, -9.72922638e-05, -1.20215780e-04, -3.22285991e-04, -1.12260600e-03, -1.92079944e-04, -4.07377129e-03,
-                                    -3.25119637e-04, -3.03224864e-04, -5.60586798e-04],
-                                   [-8.31622967e-04, -2.21656061e-04, -2.27499288e-04, -7.64554006e-04, -2.16453545e-03, -5.10497437e-04, -5.49541344e-03,
-                                    -7.76217333e-04, -5.77943456e-04, -1.16165572e-03],
-                                   [1.58639047e-04, 2.96050183e-05, 4.10512014e-05, 1.97674910e-04, 3.48940143e-04, 8.73059516e-05, 6.78780131e-04,
-                                    1.53785995e-04, 1.29834901e-04, 2.36391685e-04],
-                                   [8.41569893e-04, 1.36813352e-04, 1.93333400e-04, 6.30826641e-04, 2.07568782e-03, 2.20454164e-04, 2.46769999e-03,
-                                    6.68382428e-04, 3.15245620e-04, 1.07976781e-03],
-                                   [-3.70163843e-05, -6.25172531e-06, -6.99608029e-06, -4.69461856e-05, -8.53419754e-05, 3.16602057e-06, -2.68644899e-04,
-                                    -1.87799295e-05, -2.02376227e-05, -3.93226851e-05],
-                                   [8.63995787e-04, 8.50400358e-05, 3.47095401e-04, 9.13967777e-04, 2.84152505e-03, 6.92705480e-04, 7.97452941e-03,
-                                    4.48715106e-04, 5.90014623e-04, 1.34503064e-03],
-                                   [2.71406468e-04, 4.01705299e-05, 7.80083288e-05, 2.05791387e-04, 5.95059906e-04, 1.57504709e-04, 2.77044809e-03,
-                                    1.96606015e-04, 1.30796355e-04, 3.61806315e-04],
-                                   [1.12119150e-03, 2.49485835e-04, 3.34197907e-04, 1.50915372e-03, 2.79914914e-03, 7.12211196e-04, 8.26003951e-03,
-                                    9.75002352e-04, 8.55790142e-04, 1.68570945e-03],
-                                   [4.95447895e-04, 1.33220618e-04, 1.40102555e-04, 7.15094880e-04, 1.24540411e-03, 2.57808463e-05, 6.47452089e-04,
-                                    4.63321513e-04, 2.70073731e-04, 6.67939190e-04]])
+    expected_gradients = np.array([[1.17097689e-04, 2.29797958e-04, 1.31026038e-04,
+                                    -1.23928600e-04, 1.54682859e-03, 2.10400922e-04,
+                                    -3.07062981e-05, 2.90462523e-04, 3.86890011e-05,
+                                    8.65776516e-05],
+                                   [-1.07199294e-04, -4.36321055e-04, -2.06119969e-04,
+                                    1.07280751e-04, -2.96771855e-03, -4.05524208e-04,
+                                    1.08434017e-04, -6.03050125e-04, -8.66574939e-05,
+                                    -1.02925071e-04],
+                                   [7.37837175e-05, 1.13226096e-04, 8.66791423e-05,
+                                    -1.10596322e-04, 1.07282954e-03, 1.26845815e-04,
+                                    -6.33698425e-05, 1.81804188e-04, 2.04807998e-05,
+                                    3.19311417e-05],
+                                   [1.65634428e-04, 2.65380938e-04, 1.68474872e-04,
+                                    -8.27166721e-05, 2.07753561e-03, 2.45483387e-04,
+                                    -3.11423106e-04, 3.70193266e-04, 5.65979008e-05,
+                                    1.20197891e-04],
+                                   [-1.57517103e-04, -4.98654979e-04, -2.88112878e-04,
+                                    1.09285571e-04, -2.82454826e-03, -4.64399711e-04,
+                                    1.10226756e-03, -4.71803338e-04, -9.21129775e-05,
+                                    -2.16984594e-04],
+                                   [-2.72370419e-05, -7.48637956e-05, -5.19809330e-05,
+                                    6.44237190e-05, -5.60225936e-04, -6.88599072e-05,
+                                    -1.02237198e-04, -9.00221133e-05, -1.54118567e-05,
+                                    5.63113291e-07],
+                                   [5.49185157e-04, 8.06704582e-04, 6.69431007e-04,
+                                    -6.46599659e-04, 7.69724433e-03, 6.85097974e-04,
+                                    5.39098818e-04, 1.26229423e-03, 1.46950770e-04,
+                                    1.48799912e-04],
+                                   [8.77227396e-05, 2.73479470e-04, 1.40993078e-04,
+                                    -9.29150251e-05, 1.88333750e-03, 2.42434737e-04,
+                                    3.23509163e-04, 3.39385958e-04, 2.98555843e-05,
+                                    1.01266554e-04],
+                                   [3.02338828e-06, 1.50176963e-03, 8.82548115e-04,
+                                    -3.41911021e-04, 1.04542207e-02, 9.10085620e-04,
+                                    -4.13317114e-04, 1.81006489e-03, 2.46318330e-04,
+                                    2.15817395e-04],
+                                   [-2.74792935e-05, -6.35337842e-04, -4.32977451e-04,
+                                    2.72895865e-04, -4.90612435e-03, -5.70313422e-04,
+                                    1.54647017e-03, -7.89472747e-04, -1.52254402e-04,
+                                    -2.48578495e-04]])
 
     assert np.allclose(gradients, expected_gradients, rtol=tolerance)
 
@@ -188,20 +212,20 @@ def test_exercise_6(train_data, test_data):
     actvfunc = ['sigmoid', 'softmax']
 
     # Numpy
-    mlp_a = dl.NumpyMLP(geometry, actvfunc)
+    mlp_a = dl.NumpyMLP(geometry, actvfunc, rng=RandomState(seed))
     sgd.SGD_train(mlp_a, n_iter, bsize=bsize, lrate=lrate, train_set=(train_x, train_y))
     acc_train = sgd.class_acc(mlp_a.forward(train_x), train_y)[0]
     acc_test = sgd.class_acc(mlp_a.forward(test_x), test_y)[0]
-    assert abs(acc_train - 0.991875) < tolerance
-    assert abs(acc_test - 0.79) < tolerance
+    assert abs(acc_train - 0.99125) < tolerance
+    assert abs(acc_test - 0.84) < tolerance
 
     # Theano grads
-    mlp_b = dl.TheanoMLP(geometry, actvfunc)
+    mlp_b = dl.TheanoMLP(geometry, actvfunc, rng=RandomState(seed))
     sgd.SGD_train(mlp_b, n_iter, bsize=bsize, lrate=lrate, train_set=(train_x, train_y))
     acc_train = sgd.class_acc(mlp_b.forward(train_x), train_y)[0]
     acc_test = sgd.class_acc(mlp_b.forward(test_x), test_y)[0]
-    assert abs(acc_train - 0.991875) < tolerance
-    assert abs(acc_test - 0.79) < tolerance
+    assert abs(acc_train - 0.99125) < tolerance
+    assert abs(acc_test - 0.84) < tolerance
 
     mlp_c = dl.TheanoMLP(geometry, actvfunc)
     _x = T.matrix('x')

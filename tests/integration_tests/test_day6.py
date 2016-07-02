@@ -1,9 +1,8 @@
 from __future__ import division
 from __future__ import print_function
 
-import os
-
 import numpy as np
+import os
 import pytest
 import theano
 import theano.tensor as T
@@ -13,13 +12,12 @@ import lxmls.deep_learning.rnn as rnns
 import lxmls.readers.pos_corpus as pcc
 
 tolerance = 1e-5
-np.random.seed(4242)
+seed = 4242
 
-SEED = 1234  # Random seed to initialize weigths
 emb_size = 50  # Size of word embeddings
 hidden_size = 20  # size of hidden layer
 lrate = 0.5
-n_iter = 3
+n_iter = 1
 
 
 # Function computing accuracy for a sequence of sentences
@@ -75,32 +73,33 @@ def test_exercise_1(train_seq):
     nr_words = len(train_seq.x_dict)
     nr_tags = len(train_seq.y_dict)
 
-    np_rnn = rnns.NumpyRNN(nr_words, emb_size, hidden_size, nr_tags, seed=SEED)
+    np_rnn = rnns.NumpyRNN(nr_words, emb_size, hidden_size, nr_tags, seed=seed)
     x0 = train_seq[0].x
     y0 = train_seq[0].y
     p_y, y_rnn, h, z1, x = np_rnn.forward(x0, all_outputs=True)
-    expected_p_y = np.array([[0.16200125, 0.24483233, 0.24521576, 0.24521403, 0.24521506],
-                             [0.03020501, 0.01080573, 0.01062576, 0.01062537, 0.01062548],
-                             [0.11620671, 0.12908527, 0.12960888, 0.12961018, 0.12960979],
-                             [0.06182014, 0.04062052, 0.04045927, 0.04045879, 0.04045896],
-                             [0.13363292, 0.17044615, 0.1703328, 0.17033331, 0.17033286],
-                             [0.06001475, 0.0379502, 0.03787886, 0.03787929, 0.03787892],
-                             [0.09645537, 0.09236851, 0.09231392, 0.09231365, 0.09231372],
-                             [0.12219898, 0.14190367, 0.1427655, 0.14276907, 0.14276764],
-                             [0.05585568, 0.03369287, 0.03326684, 0.03326566, 0.03326617],
-                             [0.06942549, 0.0505977, 0.05053546, 0.05053532, 0.05053553],
-                             [0.04170364, 0.0194946, 0.01909294, 0.01909194, 0.01909226],
-                             [0.05048007, 0.02820244, 0.027904, 0.02790338, 0.02790361]])
+    expected_p_y = np.array([[0.03468945, 0.01273397, 0.01260221, 0.01260213, 0.01260212],
+                             [0.06979642, 0.04786876, 0.04771255, 0.04771253, 0.04771249],
+                             [0.07680857, 0.05766041, 0.05738554, 0.05738532, 0.05738534],
+                             [0.09176535, 0.0798503, 0.07895001, 0.07894913, 0.07894882],
+                             [0.02758537, 0.00831099, 0.00821173, 0.00821167, 0.00821165],
+                             [0.13609027, 0.1671459, 0.16810529, 0.16810628, 0.16810643],
+                             [0.16687838, 0.24717632, 0.24817336, 0.24817411, 0.24817432],
+                             [0.05536858, 0.03116249, 0.0309114, 0.03091119, 0.03091119],
+                             [0.12557292, 0.14314541, 0.14311647, 0.1431164, 0.14311642],
+                             [0.0408884, 0.01748585, 0.01720501, 0.01720476, 0.0172047],
+                             [0.03478682, 0.01279824, 0.01265781, 0.01265771, 0.01265768],
+                             [0.13976949, 0.17466137, 0.17496863, 0.17496879, 0.17496884]])
+
     assert np.allclose(p_y, expected_p_y, rtol=tolerance)
 
     numpy_rnn_gradients = np_rnn.grads(x0, y0)
     gradients_means = [np.mean(grad) for grad in numpy_rnn_gradients]
-    expected_means = [-5.2579723782223409e-06, -1.4733517199834271e-05, -4.213560027964384e-06, -3.7007434154171883e-17]
+    expected_means = [1.0494697085525477e-05, 2.4443266955056405e-05, 5.7089383719915436e-05, 3.7007434154171883e-17]
     assert np.allclose(gradients_means, expected_means, rtol=tolerance)
 
 
 def test_exercise_2():
-    np.random.seed(SEED)
+    np.random.seed(seed)
     theano.config.optimizer = 'None'
 
     def square(x):
@@ -145,11 +144,12 @@ def test_exercise_2():
 
     output = np_markov_chain(nr_steps, A, s0)
     expected_output = np.array([[1., 0., 0.],
-                                [0.28681767, 0.1902151, 0.52296723],
-                                [0.49197478, 0.30699777, 0.20102745],
-                                [0.40791406, 0.25675885, 0.3353271],
-                                [0.44270576, 0.27757548, 0.27971876],
-                                [0.42830249, 0.26895746, 0.30274005]])
+                                [0.14517224, 0.15967512, 0.69515264],
+                                [0.14832788, 0.60377597, 0.24789616],
+                                [0.14584665, 0.52849836, 0.32565499],
+                                [0.14627644, 0.5423297, 0.31139386],
+                                [0.1461976, 0.53980273, 0.31399967]])
+
     assert np.allclose(output, expected_output, rtol=tolerance)
 
     # Theano version
@@ -172,26 +172,26 @@ def test_exercise_2():
 
     output = th_markov_chain(nr_steps)
     expected_output = np.array([[1., 0., 0.],
-                                [0.28681767, 0.1902151, 0.52296723],
-                                [0.49197478, 0.30699777, 0.20102745],
-                                [0.40791406, 0.25675885, 0.3353271],
-                                [0.44270576, 0.27757548, 0.27971876],
-                                [0.42830249, 0.26895746, 0.30274005]])
+                                [0.14517224, 0.15967512, 0.69515264],
+                                [0.14832788, 0.60377597, 0.24789616],
+                                [0.14584665, 0.52849836, 0.32565499],
+                                [0.14627644, 0.5423297, 0.31139386],
+                                [0.1461976, 0.53980273, 0.31399967]])
     assert np.allclose(output, expected_output, rtol=tolerance)
 
 
 def test_exercise_3(train_seq, dev_seq):
-    np.random.seed(SEED)
+    np.random.seed(seed)
     # Reused data
     nr_words = len(train_seq.x_dict)
     nr_tags = len(train_seq.y_dict)
-    np_rnn = rnns.NumpyRNN(nr_words, emb_size, hidden_size, nr_tags, seed=SEED)
+    np_rnn = rnns.NumpyRNN(nr_words, emb_size, hidden_size, nr_tags, seed=seed)
     x0 = train_seq[0].x
     y0 = train_seq[0].y
     numpy_rnn_gradients = np_rnn.grads(x0, y0)
 
     # Begin test
-    rnn = rnns.RNN(nr_words, emb_size, hidden_size, nr_tags, seed=SEED)
+    rnn = rnns.RNN(nr_words, emb_size, hidden_size, nr_tags, seed=seed)
 
     x = T.ivector('x')
     th_forward = theano.function([x], rnn._forward(x).T)
@@ -212,7 +212,7 @@ def test_exercise_3(train_seq, dev_seq):
 
     rnn_prediction = theano.function([x], T.argmax(p_y, 1))
     predicted_tags = [train_seq.tag_dict[pred] for pred in rnn_prediction(train_seq[0].x)]
-    expected_tags = [u'noun', u'noun', u'noun', u'noun', u'noun']
+    expected_tags = [u'adp', u'adp', u'adp', u'adp', u'adp']
     assert predicted_tags == expected_tags
 
     # Get list of SGD batch update rule for each parameter
@@ -221,8 +221,8 @@ def test_exercise_3(train_seq, dev_seq):
     rnn_batch_update = theano.function([x, y], cost, updates=updates)
 
     nr_words = sum([len(seq.x) for seq in train_seq])
-    expected_training_values = [(2305.557593, 0.39763503), (1086.043786, 0.79196312), (399.323869, 0.96873434)]
-    expected_dev_accuracies = [0.82513278, 0.91592344, 0.94167752]
+    expected_training_values = [(2517.4383217341324, 0.34271971139392721)]
+    expected_dev_accuracies = [0.7731235594748973]
     for i in range(n_iter):
         # Training
         cost = 0.
@@ -243,18 +243,18 @@ def test_exercise_3(train_seq, dev_seq):
 
 
 def test_exercise_4(train_seq, dev_seq, embeddings):
-    np.random.seed(SEED)
+    np.random.seed(seed)
     # Reused data
     nr_words = len(train_seq.x_dict)
     nr_tags = len(train_seq.y_dict)
-    rnn = rnns.RNN(nr_words, emb_size, hidden_size, nr_tags, seed=SEED)
+    rnn = rnns.RNN(nr_words, emb_size, hidden_size, nr_tags, seed=seed)
     x = T.ivector('x')  # Input words
     y = T.ivector('y')  # gold tags
 
     # Set the embedding layer to the pre-trained values
     rnn.param[0].set_value(embeddings.astype(theano.config.floatX))
 
-    lstm = rnns.LSTM(nr_words, emb_size, hidden_size, nr_tags, seed=SEED)
+    lstm = rnns.LSTM(nr_words, emb_size, hidden_size, nr_tags, seed=seed)
     lstm_prediction = theano.function([x], T.argmax(lstm._forward(x), 1))
     lstm_cost = -T.mean(T.log(lstm._forward(x))[T.arange(y.shape[0]), y])
 
@@ -263,14 +263,9 @@ def test_exercise_4(train_seq, dev_seq, embeddings):
     lstm_batch_update = theano.function([x, y], lstm_cost, updates=lstm_updates)
 
     nr_words = sum([len(seq.x) for seq in train_seq])
-    # With 3 iterations
-    # epochs = n_iter
-    # expected_training_values = [(2440.5075314676142, 0.286100811705), (2378.56841952, 0.322677623008), (2047.61953503, 0.418879647259)]
-    # expected_dev_accuracies = [0.747870528109, 0.750576210041, 0.805892373985]
-    epochs = 1
-    expected_training_values = [(2440.5075314676142, 0.286100811705)]
-    expected_dev_accuracies = [0.747870528109]
-    for i in range(epochs):
+    expected_training_values = [(2453.5742226503467, 0.28449744463373083)]
+    expected_dev_accuracies = [0.74957410562180582]
+    for i in range(n_iter):
         # Training
         cost = 0
         errors = 0
