@@ -1,8 +1,7 @@
-configparser==3.2.0r3
-pyyaml
-nltk
+jupyter
 numpy
 scipy
 matplotlib
+pyyaml
+nltk
 theano
-jupyter
