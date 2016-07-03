@@ -1,6 +1,14 @@
 ### Summary
 
-Machine learning toolkit for natural language processing. Written for Lisbon Machine Learning Summer School (lxmls.it.pt)
+Machine learning toolkit for natural language processing. Written for Lisbon Machine Learning Summer School (lxmls.it.pt). This covers
+
+* Scientific Python and Mathematical background 
+* Linear Classifiers
+* Sequence Models 
+* Structured Prediction
+* Syntax and Parsing
+* Feed-forward models in deep learning
+* Sequence models in deep learning
 
 **Instructions for Students**
 
