@@ -97,6 +97,20 @@ class PostagCorpus(object):
                                                % dirname(__file__)),
                                  max_sent_len=100000,
                                  max_nr_sent=100000):
+        """
+        Important! Modifies the object (updates word and tag dictionaries)!
+
+        Parameters
+        ----------
+        train_file
+        mapping_file
+        max_sent_len
+        max_nr_sent
+
+        Returns
+        -------
+
+        """
 
         # Build mapping of postags:
         mapping = {}

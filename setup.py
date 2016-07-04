@@ -5,7 +5,7 @@ try:
     from pip.req import parse_requirements
 
     # parse_requirements() returns generator of pip.req.InstallRequirement objects
-    install_reqs = parse_requirements("pip-requirements.txt")
+    install_reqs = parse_requirements("requirements.txt")
     # install_requires is a list of requirement
     install_requires = [str(ir.req) for ir in install_reqs]
 except:
@@ -26,19 +26,27 @@ package_data = {
 }
 
 setup(
-    name="LXMLS_Toolkit",
-    version="0.0.1",
-    author="LXMLS-team",
-    author_email="lxmls-2013-org@googlegroups.com",
-    description=("Machine Learning and Natural Language toolkit"),
-    license="MIT",
-    keywords="machine learning",
-    url="https://github.com/gracaninja/lxmls-toolkit",
+    name='LxMLS Toolkit',
+    version='0.0.1',
+    author='LxMLS team',
+    author_email='lxmls-2013-org@googlegroups.com',
+    description='Machine Learning and Natural Language toolkit',
     long_description=read('README.md'),
+    license='MIT',
+    keywords='machine learning',
+    url='https://github.com/LxMLS/lxmls-toolkit',
+    py_modules=['lxmls'],
+    # test_suite='tests',
+    # See: http://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
-        "Development Status :: 3 - Alpha",
-        "Topic :: Utilities",
-        "License :: OSI Approved :: MIT License",
+        'Development Status :: 3 - Alpha',
+        'Intended Audience :: Science/Research',
+        'Topic :: Scientific/Engineering :: Artificial Intelligence',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
+        'Operating System :: OS Independent',
+        'License :: OSI Approved :: MIT License',
     ],
     packages=find_packages(exclude=("labs", "labs.*")),
     install_requires=install_requires,
