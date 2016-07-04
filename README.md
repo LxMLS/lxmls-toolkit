@@ -1,20 +1,88 @@
-### Summary
+# Summary
 
-Machine learning toolkit for natural language processing. Written for Lisbon Machine Learning Summer School (lxmls.it.pt)
+[![Travis-CI Build Status][travis-image]][travis-url] [![Requirements Status][requires-image]][requires-url]
+[![Coverage Status][codecov-image]][codecov-url] [![Code Quality Status][landscape-image]][landscape-url]
+[![Scrutinizer Status][scrutinizer-image]][scrutinizer-url] [![Codacy Code Quality Status][codacy-image]][codacy-url]
 
-**Instructions for Students**
+[travis-image]: https://travis-ci.org/LxMLS/lxmls-toolkit.svg?branch=master
+[travis-url]: https://travis-ci.org/LxMLS/lxmls-toolkit
 
-* Use the student branch not this one! 
+[requires-image]: https://requires.io/github/LxMLS/lxmls-toolkit/requirements.svg?branch=master
+[requires-url]: https://requires.io/github/LxMLS/lxmls-toolkit/requirements/?branch=master
 
-* You do not need to run setup.py or pip install, read instructions in the Day 0 chapter of the LXMLS guide.
+[codecov-image]: https://codecov.io/github/LxMLS/lxmls-toolkit/coverage.svg?branch=master
+[codecov-url]: https://codecov.io/github/LxMLS/lxmls-toolkit
+
+[landscape-image]: https://landscape.io/github/LxMLS/lxmls-toolkit/master/landscape.svg?style=flat
+[landscape-url]: https://landscape.io/github/LxMLS/lxmls-toolkit/master
+
+[codacy-image]: https://img.shields.io/codacy/REPLACE_WITH_PROJECT_ID.svg?style=flat
+[codacy-url]: https://www.codacy.com/app/LxMLS/lxmls-toolkit
+
+[version-image]: https://img.shields.io/pypi/v/lxmls.svg?style=flat
+[version-url]: https://pypi.python.org/pypi/lxmls
+
+[downloads-image]: https://img.shields.io/pypi/dm/lxmls.svg?style=flat
+[downloads-url]: https://pypi.python.org/pypi/lxmls
+
+[wheel-image]: https://img.shields.io/pypi/wheel/lxmls.svg?style=flat
+[wheel-url]: https://pypi.python.org/pypi/lxmls
+
+[supported-versions-image]: https://img.shields.io/pypi/pyversions/lxmls.svg?style=flat
+[supported-versions-url]: https://pypi.python.org/pypi/lxmls
+
+[supported-implementations-image]: https://img.shields.io/pypi/implementation/lxmls.svg?style=flat
+[supported-implementations-url]: https://pypi.python.org/pypi/lxmls
+
+[scrutinizer-image]: https://img.shields.io/scrutinizer/g/LxMLS/lxmls-toolkit/master.svg?style=flat
+[scrutinizer-url]: https://scrutinizer-ci.com/g/LxMLS/lxmls-toolkit/
 
 
-**Instructions for non Students**
+Machine learning toolkit for natural language processing. Written for [LxMLS - Lisbon Machine Learning Summer School](lxmls.it.pt)
 
-Feel free to install the toolkit with 
+## Instructions for Students
 
+* Use the student branch, not this one!
+
+* You do not need to run setup.py or pip install, read instructions in the Day 0 chapter of the [LxMLS guide](https://github.com/LxMLS/lxmls_guide).
+
+
+## Instructions for non Students
+
+Feel free to install the toolkit with
+```
     pip install .
+```
+or in development mode (and in the local user home) with
+```
+python setup.py develop --user
+```
+(in this last case, you can use the toolkit's package by calling `import lxmls` wherever you want, and any code changes in the `lxmls` directory
+   will be reflected when the package is imported/reloaded).
 
-Bear in mind that the main purpose of the toolkit is educative. You may resort 
-to other toolboxes if you are looking for efficient implementations of the 
+Bear in mind that the main purpose of the toolkit is educative. You may resort
+to other toolboxes if you are looking for efficient implementations of the
 algorithms described.
+
+### Running
+
+* Run from the project root directory. If an importing error occurs, try first adding the current path to the `PYTHONPATH` environment variable, e.g.:
+  * `export PYTHONPATH=.`
+
+### Development
+
+To run the all tests run:
+
+    tox
+
+Note, to combine the coverage data from all the tox environments run:
+
+* Windows
+    ```
+    set PYTEST_ADDOPTS=--cov-append
+    tox
+    ```
+* Other
+    ```
+    PYTEST_ADDOPTS=--cov-append tox
+    ```
