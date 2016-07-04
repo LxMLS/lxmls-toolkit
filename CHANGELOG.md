@@ -13,4 +13,4 @@ This document follows the conventions laid out in [Keep a CHANGELOG][keep].
 [keep]: http://keepachangelog.com/
 
 [Unreleased]: https://github.com/LxMLS/lxmls-toolkit/compare/0.0.1...HEAD
-[0.0.6]: https://github.com/LxMLS/lxmls-toolkit/compare/0.0.1
+[0.0.1]: https://github.com/LxMLS/lxmls-toolkit/compare/0.0.1
