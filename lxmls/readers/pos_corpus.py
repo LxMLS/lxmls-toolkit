@@ -47,13 +47,9 @@ def compacify(train_seq, test_seq, dev_seq, theano=False):
         for seq in corpus_seq:
             for i in seq.x:
                 if corpus_seq.x_dict.get_label_name(i) not in new_x_dict:
-                    import ipdb
-                    ipdb.set_trace()
                     pass
             for i in seq.y:
                 if corpus_seq.y_dict.get_label_name(i) not in new_y_dict:
-                    import ipdb
-                    ipdb.set_trace()
                     pass
             seq.x = [new_x_dict[corpus_seq.x_dict.get_label_name(i)] for i in seq.x]
             seq.y = [new_y_dict[corpus_seq.y_dict.get_label_name(i)] for i in seq.y]
@@ -74,7 +70,6 @@ def compacify(train_seq, test_seq, dev_seq, theano=False):
         # These must be the same
     #    tmap  = {v: k for k, v in train_seq.x_dict.items()}
     #    tmap2 = {v: k for k, v in train_seq2.x_dict.items()}
-    #    import ipdb;ipdb.set_trace()
     #    [tmap[i] for i in train_seq[0].x]
     #    [tmap2[i] for i in train_seq2[0].x]
 
