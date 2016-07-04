@@ -14,7 +14,7 @@ Machine learning toolkit for natural language processing. Written for Lisbon Mac
 
 * Read instructions in the Day 0 chapter of the LXMLS guide.
 
-* **NOTE:** You do not need to install the lxmls tools, just work from this folder
+* **NOTE:** You do not need to install the toolkit, just the needed modules. You can work from this folder
 
 **Solving exercises from previous days**
 
