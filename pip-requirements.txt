@@ -1,7 +1,0 @@
-jupyter
-numpy
-scipy
-matplotlib
-pyyaml
-nltk
-theano
