@@ -52,7 +52,7 @@ code_day = {
              'lxmls/sequences/sequence_classification_decoder.py'],
     'day3': ['lxmls/sequences/structured_perceptron.py'],
     'day4': ['lxmls/parsing/dependency_decoder.py'],
-    'day5': ['lxmls/deep_learning/mlp.py']
+    'day5': ['lxmls/deep_learning/mlp.py'],
     'day6': ['lxmls/deep_learning/rnn.py']
            }
 
