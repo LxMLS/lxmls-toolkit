@@ -44,47 +44,28 @@ print "\n######################",
 print "\n   Exercise 5.1"
 print "######################"
 
-# TODO: Find another corpus (SemEval?) and cleaner parameter extraction
+#
 import numpy as np
 import lxmls.readers.sentiment_reader as srs
-
 scr = srs.SentimentCorpus("books")
 train_x = scr.train_X.T
 train_y = scr.train_y[:, 0]
 test_x = scr.test_X.T
 test_y = scr.test_y[:, 0]
+#
 
-# Define MLP (log linear)
+#
+# Neural network modules
 import lxmls.deep_learning.mlp as dl
-
-I = train_x.shape[0]
-# Model parameters
-geometry = [I, 2]
-actvfunc = ['softmax']
-# Instantiate model
-mlp = dl.NumpyMLP(geometry, actvfunc)
-
-# Play with the untrained MLP forward
-hat_train_y = mlp.forward(train_x)
-hat_test_y = mlp.forward(test_x)
-# Compute accuracy
 import lxmls.deep_learning.sgd as sgd
-
-acc_train = sgd.class_acc(hat_train_y, train_y)[0]
-acc_test = sgd.class_acc(hat_test_y, test_y)[0]
-print "Untrained Log-linear Accuracy train: %f test: %f" % (acc_train, acc_test)
-
-print "\n######################",
-print "\n   Exercise 5.2"
-print "######################\n"
-
-# Define MLP
 # Model parameters
-geometry = [I, 20, 2]
+geometry = [train_x.shape[0], 20, 2]
 actvfunc = ['sigmoid', 'softmax']
 # Instantiate model
 mlp = dl.NumpyMLP(geometry, actvfunc)
+#
 
+#
 # Model parameters
 n_iter = 5
 bsize = 5
@@ -94,43 +75,54 @@ sgd.SGD_train(mlp, n_iter, bsize=bsize, lrate=lrate, train_set=(train_x, train_y
 acc_train = sgd.class_acc(mlp.forward(train_x), train_y)[0]
 acc_test = sgd.class_acc(mlp.forward(test_x), test_y)[0]
 print "MLP %s Model Amazon Sentiment Accuracy train: %f test: %f" % (geometry, acc_train, acc_test)
+#
 
 print "\n######################",
-print "\n   Exercise 5.3"
+print "\n   Exercise 5.2"
 print "######################"
 
+#
 # Numpy code
 import numpy as np
-
 x = test_x  # Test set
 W1, b1 = mlp.params[0:2]  # Weigths and bias of fist layer
 z1 = np.dot(W1, x) + b1  # Linear transformation
 tilde_z1 = 1 / (1+np.exp(-z1))  # Non-linear transformation
+#
 
 # Theano code.
 # NOTE: We use underscore to denote symbolic equivalents to Numpy variables.
 # This is no Python convention!.
 import theano
 import theano.tensor as T
-
 _x = T.matrix('x')
+#
+
+#
 _W1 = theano.shared(value=W1, name='W1', borrow=True)
 _b1 = theano.shared(value=b1, name='b1', borrow=True,
                     broadcastable=(False, True))
+#
 
+#
 # Perceptron
 _z1 = T.dot(_W1, _x) + _b1
 _tilde_z1 = T.nnet.sigmoid(_z1)
 # Keep in mind that naming variables is useful when debugging
 _z1.name = 'z1'
 _tilde_z1.name = 'tilde_z1'
+#
 
-# Compile
-layer1 = theano.function([_x], _tilde_z1)
-
+#
 # Show computation graph
 print "\nThis is my symbolic perceptron\n"
 theano.printing.debugprint(_tilde_z1)
+#
+
+#
+# Compile
+layer1 = theano.function([_x], _tilde_z1)
+#
 
 # Check Numpy and Theano mactch
 if np.allclose(tilde_z1, layer1(x.astype(theano.config.floatX))):
@@ -142,9 +134,18 @@ else:
 print "\n######################",
 print "\n   Exercise 5.4"
 print "######################"
+
+#
+train_x = train_x.astype(theano.config.floatX)
+train_y = train_y.astype('int32')
+#
+
+#
 mlp_a = dl.NumpyMLP(geometry, actvfunc)
 mlp_b = dl.TheanoMLP(geometry, actvfunc)
+#
 
+#
 # To debug layer by layer, you may use
 #
 #     fwd1          = mlp_a.forward(test_x[:, :10], allOuts=True)
@@ -167,13 +168,8 @@ print "\nThis is my symbolic forward\n"
 theano.printing.debugprint(mlp_b._forward(T.matrix('x')))
 
 # Check Numpy and Theano match
-resa = mlp_a.forward(test_x)[:, :10]
-resb = mlp_b.forward(test_x)[:, :10]
-if np.allclose(resa, resb):
-    print "\nNumpy and Theano Forward pass are equivalent"
-else:
-    set_trace()
-    # raise ValueError, "Numpy and Theano Forward are different"
+assert np.allclose(mlp_a.forward(test_x), mlp_b.forward(test_x)), \
+    "ERROR: Numpy and Theano forward passes differ"
 
 # FOR DEBUGGING PURPOSES
 # Check Numpy and Theano match
@@ -222,34 +218,8 @@ print "######################"
 
 # Understanding the mini-batch function and givens/updates parameters
 
-# Cast data into the types and shapes used in the theano graph
-# IMPORTANT: This is the main source of errors when beginning with theano
-train_x = train_x.astype(theano.config.floatX)
-train_y = train_y.astype('int32')
-
-# Store data as shared variables
-# NOTE: This will push the data into the GPU memory when used
-_train_x = theano.shared(train_x, 'train_x', borrow=True)
-_train_y = theano.shared(train_y, 'train_y', borrow=True)
-
-# Create a symbolic variable returning a batch of samples
-_i = T.lscalar()
-get_tr_batch_y = theano.function([_i], _train_y[_i*bsize:(_i+1)*bsize])
-
-# Check Numpy and Theano match
-i = 3
-resa = train_y[i*bsize:(i+1)*bsize]
-resb = get_tr_batch_y(i)
-if np.allclose(resa, resb):
-    print "\nNumpy and Theano  Mini-Batch pass are equivalent\n"
-else:
-    set_trace()
-    # raise ValueError, "Numpy and Theano Mini-Batch are different"
-
-# Compare Numpy, Theano and Theano compiled
-
 # Numpy
-geometry = [I, 20, 2]
+geometry = [train_x.shape[0], 20, 2]
 actvfunc = ['sigmoid', 'softmax']
 mlp_a = dl.NumpyMLP(geometry, actvfunc)
 #
@@ -290,10 +260,12 @@ _y = T.ivector('y')
 _F = mlp_c._cost(_x, _y)
 updates = [(par, par - lrate*T.grad(_F, par)) for par in mlp_c.params]
 
+#
 # Define the batch update function. This will return the cost of each batch
 # and update the MLP parameters at the same time using updates
 batch_up = theano.function([_x, _y], _F, updates=updates)
 n_batch = int(np.ceil(float(train_x.shape[1])/bsize)) 
+#
 
 init_t = time.clock()
 sgd.SGD_train(mlp_c, n_iter, batch_up=batch_up, n_batch=n_batch, bsize=bsize,
