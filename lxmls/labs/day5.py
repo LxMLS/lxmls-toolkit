@@ -294,18 +294,14 @@ _y = T.ivector('y')
 _F = mlp_c._cost(_x, _y)
 updates = [(par, par - lrate*T.grad(_F, par)) for par in mlp_c.params]
 
-# Givens maps input and target to a mini-batch of inputs and targets
-_j = T.lscalar()
-givens = {_x: _train_x[:, _j*bsize:(_j+1)*bsize],
-          _y: _train_y[_j*bsize:(_j+1)*bsize]}
-
 # Define the batch update function. This will return the cost of each batch
 # and update the MLP parameters at the same time using updates
-batch_up = theano.function([_j], _F, updates=updates, givens=givens)
-n_batch = train_x.shape[1]/bsize + 1
+batch_up = theano.function([_x, _y], _F, updates=updates)
+n_batch = int(np.ceil(float(train_x.shape[1])/bsize)) 
 
 init_t = time.clock()
-sgd.SGD_train(mlp_c, n_iter, batch_up=batch_up, n_batch=n_batch)
+sgd.SGD_train(mlp_c, n_iter, batch_up=batch_up, n_batch=n_batch, bsize=bsize,
+              train_set=(train_x, train_y))
 print "\nTheano compiled batch update version took %2.2f sec" % (time.clock() - init_t)
 init_t = time.clock()
 
