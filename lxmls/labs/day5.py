@@ -275,10 +275,6 @@ print "Amazon Sentiment Accuracy train: %f test: %f\n" % (acc_train, acc_test)
 # IMPORTANT: This is the main source of errors when beginning with theano
 train_x = train_x.astype(theano.config.floatX)
 train_y = train_y.astype('int32')
-# Store data as shared variables
-# NOTE: This will push the data into the GPU memory when used
-_train_x = theano.shared(train_x, 'train_x', borrow=True)
-_train_y = theano.shared(train_y, 'train_y', borrow=True)
 
 # Model
 mlp_c = dl.TheanoMLP(geometry, actvfunc)
