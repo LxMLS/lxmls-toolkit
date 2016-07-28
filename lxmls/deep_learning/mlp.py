@@ -98,9 +98,39 @@ class NumpyMLP:
 
     def grads(self, x, y):
         """
-       Computes the gradients of the network with respect to cross entropy
-       error cost
-       """
+        Computes the gradients of the parameters of network
+        with respect to cross entropy loss.
+
+        This function assumes the MLP is used for classification and the 
+        target y is encoded as an np.array of shape (batch_size,).
+
+        For example, for a classification problem with 5 classes and batch size 3
+        y could be: 
+             y = np.array([0,1,4])
+      
+        Classes are encoded as integers ranging from 0 to num_classes-1
+
+        INPUT:
+
+            x should be a np.array of shape (batch_size, num_features)
+            
+            y can be dense or sparse. 
+            For multiclass classification problems we will usually use 
+            y sparse. 
+
+                - y not dense: shape (batch_size, )
+                - y dense: shape (batch_size, output_dim)
+   
+        OUTPUT:
+
+            List containing  the gradients of the cost with respect to the
+            parameters in the network.
+   
+        """
+        if y_sparse:
+            assert y.ndim ==1, "y is assumed to have shape (number_points,)"
+        else:
+            assert y.ndim ==2, "y is assumed to have shape (number_points, output_dimension)"
 
         # Run forward and store activations for each layer
         activations = self.forward(x, all_outputs=True)
