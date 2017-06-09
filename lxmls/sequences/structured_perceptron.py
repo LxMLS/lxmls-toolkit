@@ -19,17 +19,17 @@ class StructuredPerceptron(dsc.DiscriminativeSequenceClassifier):
     def train_supervised(self, dataset):
         self.parameters = np.zeros(self.feature_mapper.get_num_features())
         num_examples = dataset.size()
-        for epoch in xrange(self.num_epochs):
+        for epoch in range(self.num_epochs):
             num_labels_total = 0
             num_mistakes_total = 0
-            for i in xrange(num_examples):
+            for i in range(num_examples):
                 sequence = dataset.seq_list[i]
                 num_labels, num_mistakes = self.perceptron_update(sequence)
                 num_labels_total += num_labels
                 num_mistakes_total += num_mistakes
             self.params_per_epoch.append(self.parameters.copy())
             acc = 1.0 - num_mistakes_total / num_labels_total
-            print "Epoch: %i Accuracy: %f" % (epoch, acc)
+            print("Epoch: %i Accuracy: %f" % (epoch, acc))
         self.trained = True
 
         if self.averaged:
@@ -61,7 +61,7 @@ class StructuredPerceptron(dsc.DiscriminativeSequenceClassifier):
             hat_initial_features = self.feature_mapper.get_initial_features(sequence, y_t_hat)
             self.parameters[hat_initial_features] -= self.learning_rate
 
-        for pos in xrange(len(sequence.x)):
+        for pos in range(len(sequence.x)):
             y_t_true = sequence.y[pos]
             y_t_hat = y_hat[pos]
 

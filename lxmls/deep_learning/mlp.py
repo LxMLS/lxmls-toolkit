@@ -1,7 +1,7 @@
 from __future__ import division
 import numpy as np
 from scipy.misc import logsumexp
-import cPickle  # To store classes on files
+import pickle  # To store classes on files
 import theano
 import theano.tensor as T
 
@@ -197,14 +197,14 @@ class NumpyMLP:
         """
         par = self.params + self.actvfunc
         with open(model_path, 'wb') as fid:
-            cPickle.dump(par, fid, cPickle.HIGHEST_PROTOCOL)
+            pickle.dump(par, fid, pickle.HIGHEST_PROTOCOL)
 
     def load(self, model_path):
         """
         Load model
         """
         with open(model_path) as fid:
-            par = cPickle.load(fid, cPickle.HIGHEST_PROTOCOL)
+            par = pickle.load(fid, pickle.HIGHEST_PROTOCOL)
             params = par[:len(par)//2]
             actvfunc = par[len(par)//2:]
         return params, actvfunc

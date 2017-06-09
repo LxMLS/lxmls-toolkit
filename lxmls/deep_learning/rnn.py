@@ -101,7 +101,7 @@ class NumpyRNN():
 
         # Recursive layer 
         h = np.zeros((self.n_hidd, nr_steps+1))
-        for t in xrange(nr_steps):
+        for t in range(nr_steps):
             h[:, t+1] = self.apply_activation(W_x.dot(z[:, t]) 
                                               + W_h.dot(h[:, t]),
                                               self.activation_function)
@@ -143,7 +143,7 @@ class NumpyRNN():
 
         # backward pass, with gradient computation
         e_h_next = np.zeros_like(h[:, 0])
-        for t in reversed(xrange(nr_steps)):
+        for t in reversed(range(nr_steps)):
 
             # Backprop output layer 
             e_h = np.dot(W_y.T, e[:, t]) + e_h_next 

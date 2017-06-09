@@ -33,11 +33,11 @@ def eval_model(corpus, features, model):
     dev_seq = corpus.read_sequence_list_conll("../data/dev-22.conll")
     pred_dev = model.viterbi_decode_corpus_log(dev_seq.seq_list)
     eval_dev = model.evaluate_corpus(dev_seq.seq_list, pred_dev)
-    print "Accuracy on wsj development %f" % eval_dev
+    print("Accuracy on wsj development %f" % eval_dev)
     test_seq = corpus.read_sequence_list_conll("../data/test-23.conll")
     pred_test = model.viterbi_decode_corpus_log(test_seq.seq_list)
     eval_test = model.evaluate_corpus(test_seq.seq_list, pred_test)
-    print "Accuracy on wsj test %f" % eval_test
+    print("Accuracy on wsj test %f" % eval_test)
 
 
 def eval_brown(corpus, features, model):
@@ -61,7 +61,7 @@ def eval_brown(corpus, features, model):
         brown_seq = corpus.read_sequence_list_brown(categories=cat)
         brown_pred = model.viterbi_decode_corpus_log(brown_seq.seq_list)
         brown_eval = model.evaluate_corpus(brown_seq.seq_list, brown_pred)
-        print "Accuracy on Brown cat %s: %f" % (cat, brown_eval)
+        print("Accuracy on Brown cat %s: %f" % (cat, brown_eval))
 
 
 def load_model():
@@ -75,13 +75,13 @@ def load_model():
 
 
 def main():
-    print "Building corpus"
+    print("Building corpus")
     corpus, features = build_corpus_features()
-    print "Training model"
+    print("Training model")
     model = train_pos(corpus, features)
-    print "Testing on wsj"
+    print("Testing on wsj")
     eval_model(corpus, features, model)
-    print "Testing on brown"
+    print("Testing on brown")
     eval_brown(corpus, features, model)
     # print "Loading models"
     # corpus,features,model = load_model()

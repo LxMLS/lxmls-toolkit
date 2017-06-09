@@ -63,8 +63,8 @@ def compacify(train_seq, test_seq, dev_seq, theano=False):
         corpus_seq.y_dict = new_y_dict
 
         # Add reverse indices
-        corpus_seq.word_dict = {v: k for k, v in new_x_dict.items()}
-        corpus_seq.tag_dict = {v: k for k, v in new_y_dict.items()}
+        corpus_seq.word_dict = {v: k for k, v in list(new_x_dict.items())}
+        corpus_seq.tag_dict = {v: k for k, v in list(new_y_dict.items())}
 
         # SANITY CHECK:
         # These must be the same
@@ -165,7 +165,7 @@ class PostagCorpus(object):
                 pos = pos.lower()
                 if pos not in mapping:
                     mapping[pos] = "noun"
-                    print "unknown tag %s" % pos
+                    print("unknown tag %s" % pos)
                 pos = mapping[pos]
                 if word not in self.word_dict:
                     self.word_dict.add(word)
@@ -237,7 +237,7 @@ class PostagCorpus(object):
             tag_fn.write("%i\t%s\n" % (tag_id, tag))
         tag_fn.close()
         word_count_fn = open(dir + "word.count", "w")
-        for word_id, counts in self.word_counts.iteritems():
+        for word_id, counts in self.word_counts.items():
             word_count_fn.write("%i\t%s\n" % (word_id, counts))
         word_count_fn.close()
         self.sequence_list.save(dir + "sequence_list")

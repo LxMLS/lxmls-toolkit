@@ -27,7 +27,7 @@ class DependencyFeatures:
                 h = heads[m]
                 self.create_arc_features(instance, h, m, True)
 
-        print "Number of features: {0}".format(self.n_feats)
+        print("Number of features: {0}".format(self.n_feats))
 
     def create_features(self, instance):
         """Creates arc features from an instance."""

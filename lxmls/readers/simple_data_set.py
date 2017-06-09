@@ -55,7 +55,7 @@ class SimpleDataSet:
         params[2, 0] = 1.0 / self.variance1 * self.mean1[1]
         params[1, 1] = 1.0 / self.variance2 * self.mean2[0]
         params[2, 1] = 1.0 / self.variance2 * self.mean2[1]
-        print params
+        print(params)
         return params
 
     def plot_data(self, params=np.array([]), name="Naive Bayes", print_bayes_opt=True):
@@ -95,7 +95,7 @@ class SimpleDataSet:
 
 def split_train_dev_test(X, y, train_per, dev_per, test_per):
     if train_per+dev_per+test_per > 1:
-        print "Train Dev Test split should sum to one"
+        print("Train Dev Test split should sum to one")
         return
     dim = y.shape[0]
     split1 = int(dim * train_per)
@@ -108,7 +108,7 @@ def split_train_dev_test(X, y, train_per, dev_per, test_per):
 
     else:
         split2 = int(dim * (train_per+dev_per))
-        print split2
+        print(split2)
         train_y, dev_y, test_y = np.vsplit(y, (split1, split2))
         train_X = X[0:split1, :]
         dev_X = X[split1:split2, :]
