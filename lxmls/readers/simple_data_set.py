@@ -7,9 +7,8 @@ class SimpleDataSet:
     """ A simple two dimensional dataset for visualization purposes. The date set contains points from two gaussians with mean u_i and std_i"""
 
     def __init__(self, nr_examples=100, g1=[[-5, -5], 1], g2=[[5, 5], 1], balance=0.5, split=[0.8, 0, 0.2]):
-        # FIXME: cast to int
-        nr_positive = nr_examples * balance  # number of examples of "positive" class
-        nr_negative = nr_examples - nr_positive  # number of examples of "negative" class
+        nr_positive = int(nr_examples * balance)  # number of examples of "positive" class
+        nr_negative = int(nr_examples - nr_positive)  # number of examples of "negative" class
         self.mean1 = g1[0]  # mean of positive class
         self.mean2 = g2[0]  # mean of negative class
         self.variance1 = g1[1]  #
