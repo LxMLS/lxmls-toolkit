@@ -1,12 +1,10 @@
 import numpy as np
 import lxmls.readers.pos_corpus as pcc
-from os import path
+import os
 import pickle
 
 corpus = pcc.PostagCorpus()
-input_data = path.join(
-    path.dirname(__file__),
-    "../../data/train-02-21.conll")
+input_data = os.path.join(os.path.dirname(__file__), '..', '..', 'data', 'train-02-21.conll')
 train_seq = corpus.read_sequence_list_conll(input_data, max_sent_len=15, max_nr_sent=1000)
 
 pickle.dump((corpus.word_dict, corpus.tag_dict), open('word_tag_dict.pkl', 'w'))

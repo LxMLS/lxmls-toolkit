@@ -7,13 +7,14 @@ import lxmls.sequences.structured_perceptron as spc
 import lxmls.readers.pos_corpus as pcc
 import lxmls.sequences.id_feature as idfc
 import lxmls.sequences.extended_feature as exfc
+from lxmls import data
 
 print("CRF Exercise")
 
 corpus = pcc.PostagCorpus()
-train_seq = corpus.read_sequence_list_conll("data/train-02-21.conll", max_sent_len=10, max_nr_sent=1000)
-test_seq = corpus.read_sequence_list_conll("data/test-23.conll", max_sent_len=10, max_nr_sent=1000)
-dev_seq = corpus.read_sequence_list_conll("data/dev-22.conll", max_sent_len=10, max_nr_sent=1000)
+train_seq = corpus.read_sequence_list_conll(data.find("data/train-02-21.conll"), max_sent_len=10, max_nr_sent=1000)
+test_seq = corpus.read_sequence_list_conll(data.find("data/test-23.conll"), max_sent_len=10, max_nr_sent=1000)
+dev_seq = corpus.read_sequence_list_conll(data.find("data/dev-22.conll"), max_sent_len=10, max_nr_sent=1000)
 
 feature_mapper = idfc.IDFeatures(train_seq)
 feature_mapper.build_features()

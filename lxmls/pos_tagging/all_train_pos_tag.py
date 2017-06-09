@@ -1,6 +1,8 @@
+import os
 import sys
 import codecs
 
+from lxmls import data
 from sequences.sequence import *
 from sequences.sequence_list import *
 import readers.pos_corpus as pcc
@@ -16,12 +18,11 @@ MODEL_DIR = "/Users/graca/Projects/swm_src/feeds/models/all_data_postag/"
 
 def build_corpus_features():
     corpus = pcc.PostagCorpus()
-    train_seq = corpus.read_sequence_list_conll(
-        "../../data/train-02-21.conll",
+    train_seq = corpus.read_sequence_list_conll(data.find('train-02-21.conll'),
         max_sent_len=MAX_SENT_SIZE,
         max_nr_sent=MAX_NR_SENTENCES)
     corpus.add_sequence_list(train_seq)
-    dev_seq = corpus.read_sequence_list_conll("../../data/dev-22.conll")
+    dev_seq = corpus.read_sequence_list_conll(data.find('dev-22.conll'))
     corpus.add_sequence_list(dev_seq)
     categories = [
         'adventure',
@@ -57,7 +58,7 @@ def train_pos(corpus, features):
 
 
 def eval_model(corpus, features, model):
-    test_seq = corpus.read_sequence_list_conll("../../data/test-23.conll")
+    test_seq = corpus.read_sequence_list_conll(data.find('test-23.conll'))
     pred_test = model.viterbi_decode_corpus_log(test_seq.seq_list)
     eval_test = model.evaluate_corpus(test_seq.seq_list, pred_test)
     print("Accuracy on wsj test %f" % eval_test)

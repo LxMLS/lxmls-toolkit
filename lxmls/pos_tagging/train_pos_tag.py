@@ -1,3 +1,4 @@
+from lxmls import data
 import readers.pos_corpus as pcc
 import sequences.extended_feature as exfc
 import sequences.structured_perceptron as spc
@@ -9,8 +10,7 @@ MODEL_DIR = "../models/wsj_postag/"
 
 def build_corpus_features():
     corpus = pcc.PostagCorpus()
-    train_seq = corpus.read_sequence_list_conll(
-        "../data/train-02-21.conll",
+    train_seq = corpus.read_sequence_list_conll(data.find('train-02-21.conll'),
         max_sent_len=MAX_SENT_SIZE,
         max_nr_sent=MAX_NR_SENTENCES)
     corpus.add_sequence_list(train_seq)
@@ -30,11 +30,11 @@ def train_pos(corpus, features):
 
 
 def eval_model(corpus, features, model):
-    dev_seq = corpus.read_sequence_list_conll("../data/dev-22.conll")
+    dev_seq = corpus.read_sequence_list_conll(data.find('dev-22.conll'))
     pred_dev = model.viterbi_decode_corpus_log(dev_seq.seq_list)
     eval_dev = model.evaluate_corpus(dev_seq.seq_list, pred_dev)
     print("Accuracy on wsj development %f" % eval_dev)
-    test_seq = corpus.read_sequence_list_conll("../data/test-23.conll")
+    test_seq = corpus.read_sequence_list_conll(data.find('test-23.conll'))
     pred_test = model.viterbi_decode_corpus_log(test_seq.seq_list)
     eval_test = model.evaluate_corpus(test_seq.seq_list, pred_test)
     print("Accuracy on wsj test %f" % eval_test)

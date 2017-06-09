@@ -1,5 +1,5 @@
 from lxmls.sequences.id_feature import IDFeatures
-import six
+
 
 # ----------
 # Feature Class
@@ -13,7 +13,7 @@ class ExtendedFeatures(IDFeatures):
         y_name = self.dataset.y_dict.get_label_name(y)
         # Get word name from ID.
         x_name = self.dataset.x_dict.get_label_name(x)
-        word = six.u(x_name)
+        word = x_name
         # Generate feature name.
         feat_name = "id:%s::%s" % (word, y_name)
         # Get feature ID from name.

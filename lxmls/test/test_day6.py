@@ -7,6 +7,7 @@ import pytest
 import theano
 import theano.tensor as T
 
+from lxmls import data
 import lxmls.deep_learning.embeddings as emb
 import lxmls.deep_learning.rnn as rnns
 import lxmls.readers.pos_corpus as pcc
@@ -33,9 +34,9 @@ def accuracy(seq, err_sum):
 @pytest.fixture(scope='module')
 def corpus_and_sequences():
     corpus = pcc.PostagCorpus()
-    train_seq = corpus.read_sequence_list_conll("data/train-02-21.conll", max_sent_len=15, max_nr_sent=1000)
-    dev_seq = corpus.read_sequence_list_conll("data/dev-22.conll", max_sent_len=15, max_nr_sent=1000)
-    test_seq = corpus.read_sequence_list_conll("data/test-23.conll", max_sent_len=15, max_nr_sent=1000)
+    train_seq = corpus.read_sequence_list_conll(data.find('train-02-21.conll'), max_sent_len=15, max_nr_sent=1000)
+    dev_seq = corpus.read_sequence_list_conll(data.find('dev-22.conll'), max_sent_len=15, max_nr_sent=1000)
+    test_seq = corpus.read_sequence_list_conll(data.find('test-23.conll'), max_sent_len=15, max_nr_sent=1000)
     # Redo indices so that they are consecutive. Also cast all data to numpy arrays
     # of int32 for compatibility with GPUs and theano and add reverse index
     train_seq, test_seq, dev_seq = pcc.compacify(train_seq, test_seq, dev_seq, theano=True)
@@ -65,9 +66,10 @@ def test_seq(corpus_and_sequences):
 @pytest.fixture(scope='module')
 def embeddings(train_seq):
     np.random.seed(seed)
-    if not os.path.isfile('data/senna_50'):
-        emb.download_embeddings('senna_50', 'data/senna_50')
-    return emb.extract_embeddings('data/senna_50', train_seq.x_dict)
+    path = data.find('senna_50')
+    if not os.path.isfile(path):
+        emb.download_embeddings('senna_50', path)
+    return emb.extract_embeddings(path, train_seq.x_dict)
 
 
 def test_exercise_1(train_seq):

@@ -108,8 +108,7 @@ def SGD_train(model, n_iter, bsize=None, lrate=None, train_set=None,
             # Update parameters
             batch_up(batch_x, batch_y)
             # INFO
-            print("\rBatch %d/%d (%d%%) " % \
-                  (j+1, n_batch, (j+1)*100.0/n_batch), end=' ')
+            print("\rBatch %d/%d (%d%%) " % (j+1, n_batch, (j+1)*100.0/n_batch))
             sys.stdout.flush()
 
         # Record time

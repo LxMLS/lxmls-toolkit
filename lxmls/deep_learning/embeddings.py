@@ -1,9 +1,10 @@
 '''
 Utilities to handle embeddings
 '''
+import os
 import numpy as np
 from six.moves import urllib
-import os
+from lxmls import data
 
 def download_embeddings(embbeding_name, target_file):
     '''
@@ -22,7 +23,7 @@ def download_embeddings(embbeding_name, target_file):
         raise ValueError("I do not have embeddings %s for download"
                            % embbeding_name)
 
-    target_file_name = os.path.basename('data/senna_50')
+    target_file_name = os.path.basename(data.find('senna_50'))
     u = urllib.request.urlopen(source_url)
     with open(target_file, 'wb') as f:
         meta         = u.info()
@@ -39,7 +40,7 @@ def download_embeddings(embbeding_name, target_file):
             status = r"%10d  [%3.2f%%]" % (file_size_dl,
                                            file_size_dl*100./file_size)
             status = status + chr(8)*(len(status)+1)
-            print(status, end=' ')
+            print(status)
     print("")
 
 def extract_embeddings(embedding_path, word_dict):
@@ -64,7 +65,7 @@ def extract_embeddings(embedding_path, word_dict):
                 E[:, idx]  = np.array(line.strip().split()[1:]).astype(float)
                 n         += 1
             print("\rGetting embeddings for the vocabulary %d/%d" % \
-                (n, len(word_dict)), end=' ')
+                (n, len(word_dict)))
     OOV_perc =  (1-n*1./len(word_dict))*100
     print("\n%2.1f%% missing embeddings, set to random" % OOV_perc)
     return E

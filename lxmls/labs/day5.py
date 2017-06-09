@@ -40,7 +40,7 @@ import time
 
 from ipdb import set_trace
 
-print("\n######################", end=' ')
+print("\n######################")
 print("\n   Exercise 5.1")
 print("######################")
 
@@ -77,7 +77,7 @@ acc_test = sgd.class_acc(mlp.forward(test_x), test_y)[0]
 print("MLP %s Model Amazon Sentiment Accuracy train: %f test: %f" % (geometry, acc_train, acc_test))
 #
 
-print("\n######################", end=' ')
+print("\n######################")
 print("\n   Exercise 5.2")
 print("######################")
 
@@ -131,7 +131,7 @@ else:
     set_trace()
     # raise ValueError, "Numpy and Theano Perceptrons are different"
 
-print("\n######################", end=' ')
+print("\n######################")
 print("\n   Exercise 5.4")
 print("######################")
 
@@ -181,7 +181,7 @@ assert np.allclose(mlp_a.forward(test_x), mlp_b.forward(test_x)), \
 #    set_trace()
 #    #raise ValueError, "\nDEBUG: Numpy and Theano Gradients are different"
 
-print("\n######################", end=' ')
+print("\n######################")
 print("\n   Exercise 5.5")
 print("######################")
 
@@ -212,7 +212,7 @@ theano.printing.debugprint(_F)
 # print "\nThis is my classification cost weight gradient\n"
 # theano.printing.debugprint(nabla_F)
 
-print("\n######################", end=' ')
+print("\n######################")
 print("\n   Exercise 5.6")
 print("######################")
 
@@ -264,7 +264,7 @@ updates = [(par, par - lrate*T.grad(_F, par)) for par in mlp_c.params]
 # Define the batch update function. This will return the cost of each batch
 # and update the MLP parameters at the same time using updates
 batch_up = theano.function([_x, _y], _F, updates=updates)
-n_batch = int(np.ceil(float(train_x.shape[1])/bsize)) 
+n_batch = int(np.ceil(float(train_x.shape[1])/bsize))
 #
 
 init_t = time.clock()
