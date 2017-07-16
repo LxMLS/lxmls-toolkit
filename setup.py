@@ -29,7 +29,6 @@ setup(
     name='LxMLS Toolkit',
     version='0.0.1',
     author='LxMLS team',
-    author_email='lxmls-2013-org@googlegroups.com',
     description='Machine Learning and Natural Language toolkit',
     long_description=read('README.md'),
     license='MIT',
