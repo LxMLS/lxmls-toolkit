@@ -70,7 +70,6 @@ def compacify(train_seq, test_seq, dev_seq, theano=False):
         # These must be the same
     #    tmap  = {v: k for k, v in train_seq.x_dict.items()}
     #    tmap2 = {v: k for k, v in train_seq2.x_dict.items()}
-    #    import pdb;pdb.set_trace()
     #    [tmap[i] for i in train_seq[0].x]
     #    [tmap2[i] for i in train_seq2[0].x]
 

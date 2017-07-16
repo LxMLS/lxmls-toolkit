@@ -44,7 +44,6 @@ print "\n######################",
 print "\n   Exercise 5.1"
 print "######################"
 
-# TODO: Find another corpus (SemEval?) and cleaner parameter extraction
 import numpy as np
 import lxmls.readers.sentiment_reader as srs
 
