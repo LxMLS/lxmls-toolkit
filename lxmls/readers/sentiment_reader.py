@@ -32,9 +32,7 @@ def split_train_dev_test(X, y, train_per, dev_per, test_per):
         print "Train Dev Test split should sum to one"
         return
     dim = y.shape[0]
-    print dim
     split1 = int(dim * train_per)
-    print split1
     if dev_per == 0:
         train_y, test_y = np.vsplit(y, [split1])
         dev_y = np.array([])
@@ -44,7 +42,6 @@ def split_train_dev_test(X, y, train_per, dev_per, test_per):
 
     else:
         split2 = int(dim * (train_per+dev_per))
-        print split2
         train_y, dev_y, test_y = np.vsplit(y, (split1, split2))
         train_X = X[0:split1, :]
         dev_X = X[split1:split2, :]
