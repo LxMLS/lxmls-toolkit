@@ -12,6 +12,11 @@ data = PostagCorpusData()
 
 
 # ### Check Numpy and Pytorch Gradients match
+# As we did with the feed-forward network, we will no implement a Recurrent Neural Network (RNN) in Pytorch. For this complete the log `forward()` method in 
+# 
+#     lxmls/deep_learning/pytorch_models/rnn.py
+# 
+# Load the RNN model in numpy and Python for comparison
 
 # In[ ]:
 
@@ -39,6 +44,8 @@ model = PytorchRNN(
 )
 
 
+# To debug your code you can compare the numpy and Pytorch gradients using
+
 # In[ ]:
 
 
@@ -53,6 +60,8 @@ gradient = model.backpropagation(batch['input'], batch['output'])
 
 gradient[0].shape, gradient_numpy[0].shape
 
+
+# and then plotting them with matplotlib
 
 # In[ ]:
 
@@ -78,6 +87,7 @@ plt.show()
 # In[ ]:
 
 
+# Alterbative native CuDNN native implementation of RNNs
 from lxmls.deep_learning.pytorch_models.rnn import FastPytorchRNN
 fast_model = FastPytorchRNN(
     input_size=data.input_size,
@@ -89,6 +99,7 @@ fast_model = FastPytorchRNN(
 
 
 # ### Train model
+# Once you are confident that your implementation is working correctly you can run it on the POS task using the Pytorch code from the Exercise 6.1.
 
 # In[ ]:
 

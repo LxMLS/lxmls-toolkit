@@ -13,7 +13,7 @@ data = AmazonData(corpus=corpus)
 
 
 # ### Train Log Linear in Pytorch
-# Try to understand mode above, compare it with Exercise 2.1. Run it and test some hyperparematers
+# In order to learn the differences between a numpy and a Pytorch implementation, explore the reimplementation of Ex. 3.1 in Pytorch. Compare the content of each of the functions, in particular the `forward()` and `update()` methods. The comments indicated as IMPORTANT will highlight common sources of errors.
 
 # In[ ]:
 
@@ -83,6 +83,8 @@ class PytorchLogLinear(Model):
         
         return loss.data.numpy()
 
+
+# Once you understand the model you can instantiate it and run it using the standard training loop we have used on previous exercises.
 
 # In[ ]:
 

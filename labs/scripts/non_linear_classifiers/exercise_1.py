@@ -3,6 +3,8 @@
 
 # ### Amazon Sentiment Data
 
+# To ease-up the upcoming implementation exercise, examine and comment the following implementation of a log-linear model and its gradient update rule. Start by loading Amazon sentiment corpus used in day 1
+
 # In[ ]:
 
 
@@ -19,6 +21,8 @@ data.datasets['train']
 
 
 # ### A Shallow Model: Log-Linear in Numpy
+
+# Compare the following numpy implementation of a log-linear model with the derivations seen in the previous sections. Introduce comments on the blocks marked with # relating them to the corresponding algorithm steps.
 
 # In[ ]:
 
@@ -79,8 +83,7 @@ class NumpyLogLinear(Model):
 
 # ### Training Bench
 
-# Train Log Linear in Numpy
-# Try to understand mode above, run it and test some hyperparematers
+# Instantiate model and data classes. Check the initial accuracy of the model. This should be close to 50% since we are on a binary prediction task and the model is not trained yet.
 
 # In[ ]:
 
@@ -103,6 +106,10 @@ model = NumpyLogLinear(
 # In[ ]:
 
 
+# Define number of epochs and batch size
+num_epochs = 10
+batch_size = 30
+
 # Get batch iterators for train and test
 train_batches = data.batches('train', batch_size=batch_size)
 test_set = data.batches('test', batch_size=None)[0]
@@ -111,6 +118,12 @@ test_set = data.batches('test', batch_size=None)[0]
 hat_y = model.predict(input=test_set['input'])
 accuracy = 100*np.mean(hat_y == test_set['output'])
 print("Initial accuracy %2.2f %%" % accuracy)
+
+
+# Train the model with simple batch stochastic gradient descent. Be sure to understand each of the steps involved, including the code running inside of the model class. We will be wokring on a more complex version of the model in the upcoming exercise.
+
+# In[ ]:
+
 
 # Epoch loop
 for epoch in range(num_epochs):

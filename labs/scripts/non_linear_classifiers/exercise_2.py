@@ -14,6 +14,7 @@ data = AmazonData(corpus=corpus)
 
 
 # ### Exercise 2.2 Implement Backpropagation for an MLP in Numpy and train it
+# Instantiate the feed-forward model class and optimization parameters. This models follows the architecture described in Algorithm 10.
 
 # In[ ]:
 
@@ -40,9 +41,13 @@ model = NumpyMLP(
 
 
 # #### Milestone 1:
-# Check gradients using the empirical gradient computation
-
-# Plot the loss values for the study weight and perturbed versions. Take into account that the gradient for the first layer (embeddings) will be zero unless the word is in the input.
+# Open the code for this model. This is located in 
+# 
+#     lxmls/deep_learning/numpy_models/mlp.py
+#     
+# Implement the method `backpropagation()` in the class `NumpyMLP` using Backpropagation recursion that we just saw.
+# 
+# As a first step focus on getting the gradients of each layer, one at a time. Use the code below to plot the loss values for the study weight and perturbed versions. 
 
 # In[ ]:
 
@@ -68,6 +73,18 @@ current_weight = get_parameter(model.parameters)
 weight_range, loss_range = get_mlp_loss_range(model, get_parameter, set_parameter, batch)
 
 
+# Once you have implemented at least the gradient of the last layer. You can start checking if the values match
+
+# In[ ]:
+
+
+# Get the gradient value for that weight
+gradients = model.backpropagation(batch['input'], batch['output'])
+current_gradient = get_parameter(gradients)
+
+
+# Now you can plot the values of the loss around a given parameters value versus the gradient. If you have implemented this correctly the gradient should be tangent to the loss at the current weight value, see Figure 3.5. Once you have completed the exercise, you should be able to plot also the gradients of the other layers. Take into account that the gradients for the first layer will only be non zero for the indices of words present in the batch. You can locate this using.
+
 # In[ ]:
 
 
@@ -75,12 +92,7 @@ weight_range, loss_range = get_mlp_loss_range(model, get_parameter, set_paramete
 batch['input'][0].nonzero()
 
 
-# In[ ]:
-
-
-# Get the gradient value for that weight
-current_gradient = get_parameter((model.backpropagation(batch['input'], batch['output'])))
-
+# Copy the following code for plotting
 
 # In[ ]:
 
@@ -101,7 +113,7 @@ plt.show()
 
 
 # #### Milestone 2:
-# Train a MLP
+# After you have ensured that your Backpropagation algorithm is correct, you can train a model with the data we have.
 
 # In[ ]:
 

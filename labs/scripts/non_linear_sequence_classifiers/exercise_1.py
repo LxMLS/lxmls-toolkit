@@ -4,11 +4,16 @@
 # # Day 6: Sequence Models in Deep Learning
 
 # ### Exercise 6.1 
-# Convince yourself a RNN is just an FF unfolded in time. Run the NumpyRNN code. Set break-points and compare with what you learned about back-propagation in the previous day.
+# Convince yourself that a RNN is just an FF unfolded in time. Complete the `backpropagation()` method in the `NumpyRNN` class in 
 # 
-# Start by loading data Part-of-speech data and configure it for the exercises
+#     lxmls/deep_learning/numpy_models/rnn.py 
+#     
+# and compare it with
+# 
+#     lxmls/deep_learning/numpy_models.mlp.py.
 
 # ### WSJ Data
+# To work with RNNs we will use the Part-of-speech data-set seen in the sequence models day.
 
 # In[ ]:
 
@@ -18,18 +23,12 @@ from lxmls.readers.pos_corpus import PostagCorpusData
 data = PostagCorpusData()
 
 
-# Model configuration
+# Load and configure the NumpyRNN. Remember to use reload if you want to modify the code inside the rnns module
 
 # In[ ]:
 
 
 from lxmls.deep_learning.numpy_models.rnn import NumpyRNN
-
-
-# In[ ]:
-
-
-# RNN configuration
 model = NumpyRNN(
     input_size=data.input_size,
     embedding_size=50,
@@ -41,7 +40,7 @@ model = NumpyRNN(
 
 # #### Milestone 1:
 # 
-# Check gradients using the empirical gradient computation
+# As in the case of the feed-forward networks you can use the following setup to test step by step the implementation of the gradients. First compute the cost variation for the variation of a single weight
 
 # In[ ]:
 
@@ -72,12 +71,17 @@ current_weight = get_parameter(model.parameters)
 weight_range, loss_range = get_rnn_loss_range(model, get_parameter, set_parameter, batch)
 
 
+# Then conmpute the desired gradient from your implementation
+
 # In[ ]:
 
 
 # Get the gradient value for that weight
-current_gradient = get_parameter(model.backpropagation(batch['input'], batch['output']))
+gradients = model.backpropagation(batch['input'], batch['output'])
+current_gradient = get_parameter(gradients)
 
+
+# And finally call matlplotlib to plot the loss variation versus the gradient
 
 # In[ ]:
 
@@ -98,7 +102,7 @@ plt.show()
 
 
 # #### Milestone 2:
-# Train a RNN
+# After you have completed the gradients you can run the model in the POS task
 
 # In[ ]:
 
