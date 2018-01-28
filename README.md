@@ -2,27 +2,42 @@
 
 Machine learning toolkit for natural language processing. Written for Lisbon Machine Learning Summer School (lxmls.it.pt). This covers
 
-* Scientific Python and Mathematical background 
+* Scientific Python and Mathematical background
 * Linear Classifiers
-* Sequence Models 
+* Sequence Models
 * Structured Prediction
 * Syntax and Parsing
 * Feed-forward models in deep learning
 * Sequence models in deep learning
 
-**Instructions for Students**
+Machine learning toolkit for natural language processing. Written for [LxMLS - Lisbon Machine Learning Summer School](lxmls.it.pt)
 
-* Use the student branch not this one! 
+## Instructions for Students
 
-* You do not need to run setup.py or pip install, read instructions in the Day 0 chapter of the LXMLS guide.
+* Use the student branch, not this one!
 
+* You do not need to run setup.py or pip install, read instructions in the Day 0 chapter of the [LxMLS guide](https://github.com/LxMLS/lxmls_guide).
 
-**Instructions for non Students**
+## Install with Anaconda
 
-Feel free to install the toolkit with 
+The simplest method is to use `Anaconda`to handle your packages as described on
+`Day 0` of the lxmls-guide.
 
-    pip install .
+## Alternative install with pip and virtualenv
 
-Bear in mind that the main purpose of the toolkit is educative. You may resort 
-to other toolboxes if you are looking for efficient implementations of the 
+If you like `pip`, install the toolkit modules
+
+    virtualenv venv
+    source venv/bin/activate
+    pip install -r requirements.txt
+
+Then get the right `pip install` command for your platform for pytorch from
+`http://pytorch.org/` and apply them. Finally call
+
+    python setup.py develop
+
+to instal the toolkit in a way that is modifiable.
+
+Bear in mind that the main purpose of the toolkit is educative. You may resort
+to other toolboxes if you are looking for efficient implementations of the
 algorithms described.
