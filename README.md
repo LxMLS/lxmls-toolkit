@@ -14,7 +14,7 @@ Machine learning toolkit for natural language processing. Written for [LxMLS - L
 
 ## Instructions for Students
 
-* Use the student branch, not this one!
+* Use the [student branch](https://github.com/LxMLS/lxmls-toolkit/tree/student) **not** this one!
 
 * You do not need to run setup.py or pip install, read instructions in the Day 0 chapter of the [LxMLS guide](https://github.com/LxMLS/lxmls_guide).
 
