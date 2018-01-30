@@ -91,18 +91,22 @@ class PytorchRNN(RNN):
         z_e = self.embedding_layer(input)
 
         # Recurrent layer
-        h = Variable(torch.FloatTensor(nr_steps + 1, hidden_size).zero_())
+        h = Variable(torch.FloatTensor(1, hidden_size).zero_())
+        hidden_variables = []
         for t in range(nr_steps):
 
             # Linear
-            z_t = torch.matmul(z_e[t, :].clone(), torch.t(W_x)) + \
-                torch.matmul(h[t, :].clone(), torch.t(W_h))
+            z_t = torch.matmul(z_e[t, :], torch.t(W_x)) + \
+                torch.matmul(h, torch.t(W_h))
 
             # Non-linear (sigmoid)
-            h[t+1, :] = torch.sigmoid(z_t)
+            h = torch.sigmoid(z_t)
+
+            hidden_variables.append(h)
 
         # Output layer
-        y = torch.matmul(h[1:, :], torch.t(W_y))
+        h_out = torch.cat(hidden_variables, 0)
+        y = torch.matmul(h_out, torch.t(W_y))
 
         # Log-Softmax
         log_p_y = self.logsoftmax(y)
