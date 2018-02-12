@@ -1,5 +1,5 @@
 import numpy as np
-from scipy.special import logsumexp
+from scipy.misc import logsumexp
 from lxmls.deep_learning.rnn import RNN
 from lxmls.deep_learning.utils import index2onehot
 
