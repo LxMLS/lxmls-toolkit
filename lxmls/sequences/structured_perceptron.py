@@ -6,7 +6,7 @@ import pdb
 
 
 class StructuredPerceptron(dsc.DiscriminativeSequenceClassifier):
-    """ Implements a first order CRF"""
+    """ Implements Structured Perceptron"""
 
     def __init__(self, observation_labels, state_labels, feature_mapper,
                  num_epochs=10, learning_rate=1.0, averaged=True):

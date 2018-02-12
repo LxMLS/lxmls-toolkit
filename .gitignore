@@ -62,3 +62,10 @@ docs/_build
 .bootstrap
 .appveyor.token
 *.bak
+*.pyc
+LXMLS_Toolkit.egg-info
+build
+dist
+.ipynb_checkpoints/
+*.swp
+*.pred
