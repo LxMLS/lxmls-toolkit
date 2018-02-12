@@ -26,9 +26,9 @@ class SVM(lc.LinearClassifier):
         perm = np.random.permutation(nr_x)
         # print "Starting Loop"
         t = 0
-        for epoch_nr in xrange(self.nr_epochs):
+        for epoch_nr in range(self.nr_epochs):
             objective = 0.0
-            for nr in xrange(nr_x):
+            for nr in range(nr_x):
                 t += 1
                 learning_rate = self.initial_step * np.power(t, -self.alpha)
                 inst = perm[nr]
@@ -48,7 +48,7 @@ class SVM(lc.LinearClassifier):
             y_pred = self.test(x_orig, w)
             acc = self.evaluate(y, y_pred)
             self.trained = False
-            print "Epochs: %i Objective: %f" % (epoch_nr, objective)
-            print "Epochs: %i Accuracy: %f" % (epoch_nr, acc)
+            print("Epochs: %i Objective: %f" % (epoch_nr, objective))
+            print("Epochs: %i Accuracy: %f" % (epoch_nr, acc))
         self.trained = True
         return w

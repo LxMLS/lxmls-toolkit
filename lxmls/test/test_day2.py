@@ -6,6 +6,7 @@ import pytest
 import lxmls.readers.pos_corpus as pcc
 import lxmls.readers.simple_sequence as ssr
 import lxmls.sequences.hmm as hmmc
+from lxmls import data
 
 tolerance = 1e-5
 np.random.seed(4242)
@@ -129,9 +130,9 @@ def test_exercise_8(hmm, simple):
 @pytest.fixture(scope='module')
 def corpus_and_sequences():
     corpus = pcc.PostagCorpus()
-    train_seq = corpus.read_sequence_list_conll("data/train-02-21.conll", max_sent_len=15, max_nr_sent=1000)
-    dev_seq = corpus.read_sequence_list_conll("data/dev-22.conll", max_sent_len=15, max_nr_sent=1000)
-    test_seq = corpus.read_sequence_list_conll("data/test-23.conll", max_sent_len=15, max_nr_sent=1000)
+    train_seq = corpus.read_sequence_list_conll(data.find('train-02-21.conll'), max_sent_len=15, max_nr_sent=1000)
+    dev_seq = corpus.read_sequence_list_conll(data.find('dev-22.conll'), max_sent_len=15, max_nr_sent=1000)
+    test_seq = corpus.read_sequence_list_conll(data.find('test-23.conll'), max_sent_len=15, max_nr_sent=1000)
     return corpus, train_seq, dev_seq, test_seq
 
 

@@ -8,6 +8,7 @@ import lxmls.sequences.crf_online as crfo
 import lxmls.sequences.extended_feature as exfc
 import lxmls.sequences.id_feature as idfc
 import lxmls.sequences.structured_perceptron as spc
+from lxmls import data
 
 tolerance = 1e-5
 np.random.seed(4242)
@@ -17,9 +18,9 @@ epochs = 1
 @pytest.fixture(scope='module')
 def corpus_and_sequences():
     corpus = pcc.PostagCorpus()
-    train_seq = corpus.read_sequence_list_conll("data/train-02-21.conll", max_sent_len=10, max_nr_sent=1000)
-    dev_seq = corpus.read_sequence_list_conll("data/dev-22.conll", max_sent_len=10, max_nr_sent=1000)
-    test_seq = corpus.read_sequence_list_conll("data/test-23.conll", max_sent_len=10, max_nr_sent=1000)
+    train_seq = corpus.read_sequence_list_conll(data.find('train-02-21.conll'), max_sent_len=10, max_nr_sent=1000)
+    dev_seq = corpus.read_sequence_list_conll(data.find('dev-22.conll'), max_sent_len=10, max_nr_sent=1000)
+    test_seq = corpus.read_sequence_list_conll(data.find('test-23.conll'), max_sent_len=10, max_nr_sent=1000)
     return corpus, train_seq, dev_seq, test_seq
 
 

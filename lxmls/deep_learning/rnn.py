@@ -3,7 +3,7 @@ Basic MLP class methods for parameters initialization, saving, loading
 plotting
 """
 import os
-import cPickle
+from six.moves import cPickle as pickle
 import yaml
 import numpy as np
 from copy import deepcopy
@@ -15,7 +15,7 @@ def load_parameters(parameter_file):
     Load model
     """
     with open(parameter_file, 'rb') as fid:
-        parameters = cPickle.load(fid)
+        parameters = pickle.load(fid)
     return parameters
 
 
@@ -194,7 +194,7 @@ class RNN(Model):
         # Computation graph parameters as pickle file
         parameter_file = "%s/parameters.pkl" % model_folder
         with open(parameter_file, 'wb') as fid:
-            cPickle.dump(self.parameters, fid, cPickle.HIGHEST_PROTOCOL)
+            pickle.dump(self.parameters, fid, pickle.HIGHEST_PROTOCOL)
 
     def plot_weights(self, show=True, aspect='auto'):
         """

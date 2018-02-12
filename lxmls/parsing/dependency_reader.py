@@ -39,7 +39,7 @@ class DependencyReader:
         pos_dict = {}
         feat_counts = {}
         if language not in languages:
-            print "Language does not exist: \"%s\": Available are: %s" % (language, languages)
+            print("Language does not exist: \"%s\": Available are: %s" % (language, languages))
             return
 
         # Create alphabet from training data
@@ -75,10 +75,10 @@ class DependencyReader:
                 pos_id += 1
         conll_file.close()
 
-        print "Number of sentences: {0}".format(n_sents)
-        print "Number of tokens: {0}".format(n_toks)
-        print "Number of words: {0}".format(word_id)
-        print "Number of pos: {0}".format(pos_id)
+        print("Number of sentences: {0}".format(n_sents))
+        print("Number of tokens: {0}".format(n_toks))
+        print("Number of words: {0}".format(word_id))
+        print("Number of pos: {0}".format(pos_id))
 
         # Load training data
         self.train_instances = []

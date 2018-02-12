@@ -3,23 +3,21 @@ import gzip
 from lxmls.sequences.label_dictionary import *
 from lxmls.sequences.sequence import *
 from lxmls.sequences.sequence_list import *
+from lxmls import data
 from os.path import dirname
 import numpy as np  # This is also needed for theano=True
 
 # from nltk.corpus import brown
 
-# Directory where the data files are located.
-data_dir = dirname(__file__) + "/../../data/"
-
 # Train and test files for english WSJ part of the Penn Tree Bank
-en_train = data_dir + "train-02-21.conll"
-en_dev = data_dir + "dev-22.conll"
-en_test = data_dir + "test-23.conll"
+data.find('train-02-21.conll')
+data.find('dev-22.conll')
+data.find('test-23.conll')
 
 # Train and test files for portuguese Floresta sintatica
-pt_train = data_dir + "pt_train.txt"
+data.find('pt_train.txt')
 pt_dev = ""
-pt_test = data_dir + "pt_test.txt"
+data.find('pt_test.txt')
 
 
 def compacify(train_seq, test_seq, dev_seq, theano=False):
@@ -67,8 +65,8 @@ def compacify(train_seq, test_seq, dev_seq, theano=False):
         corpus_seq.y_dict = new_y_dict
 
         # Add reverse indices
-        corpus_seq.word_dict = {v: k for k, v in new_x_dict.items()}
-        corpus_seq.tag_dict = {v: k for k, v in new_y_dict.items()}
+        corpus_seq.word_dict = {v: k for k, v in list(new_x_dict.items())}
+        corpus_seq.tag_dict = {v: k for k, v in list(new_y_dict.items())}
 
     return train_seq, test_seq, dev_seq
 
@@ -140,7 +138,7 @@ class PostagCorpus(object):
                 pos = pos.lower()
                 if pos not in mapping:
                     mapping[pos] = "noun"
-                    print "unknown tag %s" % pos
+                    print("unknown tag %s" % pos)
                 pos = mapping[pos]
                 if word not in self.word_dict:
                     self.word_dict.add(word)
@@ -163,7 +161,7 @@ class PostagCorpus(object):
             tag_fn.write("%i\t%s\n" % (tag_id, tag))
         tag_fn.close()
         word_count_fn = open(dir + "word.count", "w")
-        for word_id, counts in self.word_counts.iteritems():
+        for word_id, counts in self.word_counts.items():
             word_count_fn.write("%i\t%s\n" % (word_id, counts))
         word_count_fn.close()
         self.sequence_list.save(dir + "sequence_list")

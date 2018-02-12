@@ -54,7 +54,7 @@ class CRFBatch(dsc.DiscriminativeSequenceClassifier):
             import pdb
             pdb.set_trace()
 
-        print objective
+        print(objective)
         return objective, gradient
 
     def get_objective_seq(self, parameters, sequence, exp_counts):
@@ -76,24 +76,24 @@ class CRFBatch(dsc.DiscriminativeSequenceClassifier):
         num_states = self.get_num_states()  # Number of states.
         length = len(sequence.x)  # Length of the sequence.
 
-        for state in xrange(num_states):
+        for state in range(num_states):
             features = self.feature_mapper.get_initial_features(sequence, state)
             for feat_id in features:
                 exp_counts[feat_id] += state_posteriors[0, state]
 
-        for pos in xrange(length):
-            for state in xrange(num_states):
+        for pos in range(length):
+            for state in range(num_states):
                 features = self.feature_mapper.get_emission_features(sequence, pos, state)
                 for feat_id in features:
                     exp_counts[feat_id] += state_posteriors[pos, state]
 
                 if pos > 0:
-                    for prev_state in xrange(num_states):
+                    for prev_state in range(num_states):
                         features = self.feature_mapper.get_transition_features(sequence, pos-1, state, prev_state)
                         for feat_id in features:
                             exp_counts[feat_id] += transition_posteriors[pos-1, state, prev_state]
 
-        for state in xrange(num_states):
+        for state in range(num_states):
             features = self.feature_mapper.get_final_features(sequence, state)
             for feat_id in features:
                 exp_counts[feat_id] += state_posteriors[length-1, state]
@@ -112,7 +112,7 @@ class CRFBatch(dsc.DiscriminativeSequenceClassifier):
             for feat_id in true_initial_features:
                 emp_counts[feat_id] += 1
 
-            for pos in xrange(len(sequence.x)):
+            for pos in range(len(sequence.x)):
                 y_t_true = sequence.y[pos]
                 true_emission_features = self.feature_mapper.get_emission_features(sequence, pos, y_t_true)
                 for feat_id in true_emission_features:
