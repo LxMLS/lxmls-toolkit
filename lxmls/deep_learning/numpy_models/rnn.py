@@ -1,7 +1,6 @@
 import numpy as np
-from scipy.misc import logsumexp
 from lxmls.deep_learning.rnn import RNN
-from lxmls.deep_learning.utils import index2onehot
+from lxmls.deep_learning.utils import index2onehot, logsumexp
 
 
 class NumpyRNN(RNN):
@@ -55,7 +54,7 @@ class NumpyRNN(RNN):
         y = h[1:, :].dot(W_y.T)
 
         # Softmax
-        log_p_y = y - logsumexp(y, axis=1)[:, None]
+        log_p_y = y - logsumexp(y, axis=1, keepdims=True)
 
         return log_p_y, y, h, z_e, input
 
