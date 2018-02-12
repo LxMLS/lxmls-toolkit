@@ -1,8 +1,8 @@
 import lxmls.sequences.sequence as seq
 import pdb
+from six import Iterator
 
-
-class _SequenceIterator(object):
+class _SequenceIterator(Iterator):
 
     def __init__(self, seq):
         self.seq = seq
@@ -11,7 +11,7 @@ class _SequenceIterator(object):
     def __iter__(self):
         return self
 
-    def next(self):
+    def __next__(self):
         if self.pos >= len(self.seq):
             raise StopIteration
         r = self.seq[self.pos]

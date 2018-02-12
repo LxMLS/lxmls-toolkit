@@ -1,6 +1,6 @@
 import sys
 import numpy as np
-import discriminative_sequence_classifier as dsc
+from . import discriminative_sequence_classifier as dsc
 
 import pdb
 
@@ -22,16 +22,16 @@ class CRFOnline(dsc.DiscriminativeSequenceClassifier):
         self.parameters = np.zeros(self.feature_mapper.get_num_features())
         num_examples = dataset.size()
         t = 0
-        for epoch in xrange(self.num_epochs):
+        for epoch in range(self.num_epochs):
             objective_value = 0.0
-            for i in xrange(num_examples):
+            for i in range(num_examples):
                 eta = self.initial_learning_rate / np.sqrt(float(t+1))
                 sequence = dataset.seq_list[i]
                 objective_value += self.gradient_update(sequence, eta)
                 t += 1
             self.params_per_epoch.append(self.parameters.copy())
             objective_value /= num_examples
-            print "Epoch: %i Objective value: %f" % (epoch, objective_value)
+            print(("Epoch: %i Objective value: %f" % (epoch, objective_value)))
         self.trained = True
         if self.averaged:
             new_w = 0
@@ -73,16 +73,16 @@ class CRFOnline(dsc.DiscriminativeSequenceClassifier):
         y_t_true = sequence.y[0]
         true_initial_features = self.feature_mapper.get_initial_features(sequence, y_t_true)
         self.parameters[true_initial_features] += eta
-        for state in xrange(num_states):
+        for state in range(num_states):
             state_initial_features = self.feature_mapper.get_initial_features(sequence, state)
             self.parameters[state_initial_features] -= eta * state_posteriors[0, state]
 
-        for pos in xrange(len(sequence.x)):
+        for pos in range(len(sequence.x)):
             # Update emission features.
             y_t_true = sequence.y[pos]
             true_emission_features = self.feature_mapper.get_emission_features(sequence, pos, y_t_true)
             self.parameters[true_emission_features] += eta
-            for state in xrange(num_states):
+            for state in range(num_states):
                 state_emission_features = self.feature_mapper.get_emission_features(sequence, pos, state)
                 self.parameters[state_emission_features] -= eta * state_posteriors[pos, state]
 
@@ -92,8 +92,8 @@ class CRFOnline(dsc.DiscriminativeSequenceClassifier):
                 true_transition_features = self.feature_mapper.get_transition_features(
                     sequence, pos-1, y_t_true, prev_y_t_true)
                 self.parameters[true_transition_features] += eta
-                for state in xrange(num_states):
-                    for prev_state in xrange(num_states):
+                for state in range(num_states):
+                    for prev_state in range(num_states):
                         state_transition_features = self.feature_mapper.get_transition_features(
                             sequence, pos-1, state, prev_state)
                         self.parameters[state_transition_features] -= \
@@ -103,7 +103,7 @@ class CRFOnline(dsc.DiscriminativeSequenceClassifier):
         y_t_true = sequence.y[pos-1]
         true_final_features = self.feature_mapper.get_final_features(sequence, y_t_true)
         self.parameters[true_final_features] += eta
-        for state in xrange(num_states):
+        for state in range(num_states):
             state_final_features = self.feature_mapper.get_final_features(sequence, state)
             self.parameters[state_final_features] -= eta * state_posteriors[pos-1, state]
 

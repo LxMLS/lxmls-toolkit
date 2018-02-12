@@ -1,5 +1,6 @@
+from __future__ import absolute_import
 import numpy as np
-import sequence_classification_decoder as scd
+from . import sequence_classification_decoder as scd
 import pdb
 
 
@@ -37,7 +38,7 @@ class SequenceClassifier:
         length = np.size(emission_scores, 0)  # Length of the sequence.
         score = 0.0
         score += initial_scores[states[0]]
-        for pos in xrange(length):
+        for pos in range(length):
             score += emission_scores[pos, states[pos]]
             if pos > 0:
                 score += transition_scores[pos-1, states[pos], states[pos-1]]
@@ -74,16 +75,16 @@ class SequenceClassifier:
         # are matrices. Python is smart enough to replicate log_likelihood
         # to form a matrix of the right size. This is called broadcasting.
         state_posteriors = np.zeros([length, num_states])  # State posteriors.
-        for pos in xrange(length):
+        for pos in range(length):
             state_posteriors[pos, :] = forward[pos, :] + backward[pos, :]
             state_posteriors[pos, :] -= log_likelihood
 
         # Use the forward and backward variables along with the transition
         # and emission scores to obtain the transition posteriors.
         transition_posteriors = np.zeros([length-1, num_states, num_states])
-        for pos in xrange(length-1):
-            for prev_state in xrange(num_states):
-                for state in xrange(num_states):
+        for pos in range(length-1):
+            for prev_state in range(num_states):
+                for state in range(num_states):
                     transition_posteriors[pos, state, prev_state] = \
                         forward[pos, prev_state] + \
                         transition_scores[pos, state, prev_state] + \

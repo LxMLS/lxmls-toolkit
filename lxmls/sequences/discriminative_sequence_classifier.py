@@ -32,7 +32,7 @@ class DiscriminativeSequenceClassifier(sc.SequenceClassifier):
         final_scores = np.zeros(num_states)
 
         # Initial position.
-        for tag_id in xrange(num_states):
+        for tag_id in range(num_states):
             initial_features = self.feature_mapper.get_initial_features(sequence, tag_id)
             score = 0.0
             for feat_id in initial_features:
@@ -40,16 +40,16 @@ class DiscriminativeSequenceClassifier(sc.SequenceClassifier):
             initial_scores[tag_id] = score
 
         # Intermediate position.
-        for pos in xrange(length):
-            for tag_id in xrange(num_states):
+        for pos in range(length):
+            for tag_id in range(num_states):
                 emission_features = self.feature_mapper.get_emission_features(sequence, pos, tag_id)
                 score = 0.0
                 for feat_id in emission_features:
                     score += self.parameters[feat_id]
                 emission_scores[pos, tag_id] = score
             if pos > 0:
-                for tag_id in xrange(num_states):
-                    for prev_tag_id in xrange(num_states):
+                for tag_id in range(num_states):
+                    for prev_tag_id in range(num_states):
                         transition_features = self.feature_mapper.get_transition_features(
                             sequence, pos, tag_id, prev_tag_id)
                         score = 0.0
@@ -58,7 +58,7 @@ class DiscriminativeSequenceClassifier(sc.SequenceClassifier):
                         transition_scores[pos-1, tag_id, prev_tag_id] = score
 
         # Final position.
-        for prev_tag_id in xrange(num_states):
+        for prev_tag_id in range(num_states):
             final_features = self.feature_mapper.get_final_features(sequence, prev_tag_id)
             score = 0.0
             for feat_id in final_features:

@@ -21,17 +21,17 @@ class GaussianNaiveBayes(lc.LinearClassifier):
         classes = np.unique(y)
         means = np.zeros((nr_c, nr_f))
         variances = np.zeros((nr_c, nr_f))
-        for i in xrange(nr_c):
+        for i in range(nr_c):
             idx, _ = np.nonzero(y == classes[i])
             prior[i] = 1.0 * len(idx) / len(y)
-            for f in xrange(nr_f):
+            for f in range(nr_f):
                 g = estimate_gaussian(x[idx, f])
                 means[i, f] = g.mean
                 variances[i, f] = g.variance
         # Take the mean of the covariance for each matric
         variances = np.mean(variances, 1)
         params = np.zeros((nr_f+1, nr_c))
-        for i in xrange(nr_c):
+        for i in range(nr_c):
             params[0, i] = -1/2*np.dot(means[i, :], means[i, :]) + np.log(prior[i])
             params[1:, i] = means[i].transpose()
             # params[0,i] = -1/(2*variances[i]) * np.dot(means[i,:],means[i,:]) + np.log(prior[i])

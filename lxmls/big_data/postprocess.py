@@ -17,7 +17,7 @@ def load_counts(ifile):
 
 def score(counts_pt, total_trimers_pt, counts_en, total_trimers_en, test_sentence):
     val = 0.
-    for i in xrange(len(test_sentence)-3):
+    for i in range(len(test_sentence)-3):
         tri = test_sentence[i:i+3]
         tri_pt = counts_pt.get(tri, 1.0)  # this will attempt to get counts from the dictionary; if it fails, it will return 1.0
         log_prob_tri_pt = math.log10(tri_pt / total_trimers_pt)
@@ -31,17 +31,17 @@ def score(counts_pt, total_trimers_pt, counts_en, total_trimers_en, test_sentenc
     else:
         language = "EN"
     if abs(val) >= 5:
-        print "This is a", language, "sentence."
+        print("This is a", language, "sentence.")
     else:
-        print "This seems to be a", language, "sentence, but I'm not sure."
-    print "Log-ratio:", abs(val)
+        print("This seems to be a", language, "sentence, but I'm not sure.")
+    print("Log-ratio:", abs(val))
 
 
 counts_pt, total_trimers_pt = load_counts('pt.counts.txt')
 counts_en, total_trimers_en = load_counts('en.counts.txt')
 
 while True:
-    test_sentence = raw_input("Type a test sentence and press ENTER:\n")
+    test_sentence = input("Type a test sentence and press ENTER:\n")
     if not test_sentence:
         break
     score(counts_pt, total_trimers_pt, counts_en, total_trimers_en, test_sentence)

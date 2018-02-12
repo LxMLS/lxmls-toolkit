@@ -1,4 +1,4 @@
-from __future__ import division
+
 import sys
 import numpy as np
 import lxmls.classifiers.linear_classifier as lc
@@ -22,8 +22,8 @@ class Mira(lc.LinearClassifier):
         nr_x, nr_f = x.shape
         nr_c = np.unique(y).shape[0]
         w = np.zeros((nr_f, nr_c))
-        for round_nr in xrange(self.nr_rounds):
-            for nr in xrange(nr_x):
+        for round_nr in range(self.nr_rounds):
+            for nr in range(nr_x):
 
                 # use seed to generate permutation
                 np.random.seed(seed)
@@ -58,7 +58,7 @@ class Mira(lc.LinearClassifier):
             y_pred = self.test(x_orig, w)
             acc = self.evaluate(y, y_pred)
             self.trained = False
-            print "Rounds: %i Accuracy: %f" % (round_nr, acc)
+            print("Rounds: %i Accuracy: %f" % (round_nr, acc))
         self.trained = True
 
         if self.averaged:

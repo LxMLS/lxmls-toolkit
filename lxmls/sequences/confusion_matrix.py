@@ -1,7 +1,7 @@
 import sys
 import numpy as np
 from lxmls.util.my_math_utils import *
-from itertools import izip
+
 import operator
 import pdb
 
@@ -24,7 +24,7 @@ tag_colors = {
 def build_confusion_matrix(truth_seq, prediction_seq, nr_true_pos, nr_states):
     import matplotlib.pyplot as plt
     matrix = {}
-    for i in xrange(nr_true_pos):
+    for i in range(nr_true_pos):
         matrix[i] = {}
 
     for i, seq in enumerate(truth_seq):
@@ -72,7 +72,7 @@ def get_average_purity_per_tag(conf_mat, best_tags):
     matrix_per_tag = split_matrix_by_best_tag(conf_mat, best_tags)
     purity_per_tag = {}
     for tag, matrix in matrix_per_tag.items():
-        values = get_clusters_purity(matrix_per_tag[tag]).values()
+        values = list(get_clusters_purity(matrix_per_tag[tag]).values())
         purity_per_tag[tag] = sum(values) / len(values)
     return sort_dic_by_value(purity_per_tag, reverse=True)
 
@@ -103,7 +103,7 @@ def plot_confusion_bar_graph(matrix, pos_list, clusters, title):
     # Figure details
     fig_aux = plt.figure()
     fig = fig_aux.add_subplot(1, 1, 1)
-    xlocations = np.array(range(len(clusters)))
+    xlocations = np.array(list(range(len(clusters))))
     rects = {}
     i = 0
 
@@ -137,8 +137,8 @@ def plot_confusion_bar_graph(matrix, pos_list, clusters, title):
         best_tags_names.append(tag_name)
     # print best_tags_names
     fig.set_xticklabels(best_tags_names)
-    pos_list2 = sorted(pos_list.iteritems(), key=lambda x: x[1])
+    pos_list2 = sorted(pos_list.items(), key=lambda x: x[1])
     color_list = [x[0] for x in pos_list2]
-    fig.legend(map(lambda t: rects[t][0], clusters), color_list, mode="expand", ncol=6)
+    fig.legend([rects[t][0] for t in clusters], color_list, mode="expand", ncol=6)
     # fig.autoscale()
     plt.show()

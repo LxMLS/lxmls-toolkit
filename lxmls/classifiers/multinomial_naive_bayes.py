@@ -41,7 +41,7 @@ class MultinomialNaiveBayes(lc.LinearClassifier):
 
         # ----------
         # Solution to Exercise 1.1
-        for i in xrange(n_classes):
+        for i in range(n_classes):
             docs_in_class, _ = np.nonzero(y == classes[i])  # docs_in_class = indices of documents in class i
             prior[i] = 1.0 * len(docs_in_class) / n_docs  # prior = fraction of documents with this class
 
@@ -57,7 +57,7 @@ class MultinomialNaiveBayes(lc.LinearClassifier):
         # ----------
 
         params = np.zeros((n_words+1, n_classes))
-        for i in xrange(n_classes):
+        for i in range(n_classes):
             params[0, i] = np.log(prior[i])
             params[1:, i] = np.nan_to_num(np.log(likelihood[:, i]))
         self.likelihood = likelihood

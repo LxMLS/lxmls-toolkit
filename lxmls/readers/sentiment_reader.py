@@ -29,7 +29,7 @@ class SentimentCorpus:
 
 def split_train_dev_test(X, y, train_per, dev_per, test_per):
     if train_per+dev_per+test_per > 1:
-        print "Train Dev Test split should sum to one"
+        print("Train Dev Test split should sum to one")
         return
     dim = y.shape[0]
     split1 = int(dim * train_per)
@@ -57,7 +57,7 @@ def build_dicts(domain):
     sentiment_domains = ["books", "dvd", "electronics", "kitchen"]
     feat_counts = {}
     if domain not in sentiment_domains:
-        print "Domain does not exist: \"%s\": Available are: %s" % (domain, sentiment_domains)
+        print("Domain does not exist: \"%s\": Available are: %s" % (domain, sentiment_domains))
         return
 
     # Build Dictionarie wit counts
@@ -90,7 +90,7 @@ def build_dicts(domain):
     # print "Before removing %i %i"%(len(feat_counts),sum(feat_counts.values()))
     # Remove all features that occur less than X
     to_remove = []
-    for key, value in feat_counts.iteritems():
+    for key, value in feat_counts.items():
         if value < 5:
             to_remove.append(key)
     for key in to_remove:
@@ -101,7 +101,7 @@ def build_dicts(domain):
     feat_dict = {}
     i = 0
     # print "After removing %i %i"%(len(feat_counts),sum(feat_counts.values()))
-    for key in feat_counts.keys():
+    for key in list(feat_counts.keys()):
         feat_dict[key] = i
         i += 1
 

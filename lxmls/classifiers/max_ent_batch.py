@@ -62,5 +62,5 @@ class MaxEntBatch(lc.LinearClassifier):
         # exp_feat = spdot(x.transpose(),probs)
         exp_feat = np.dot(x.transpose(), probs)
         grad = exp_feat/nr_x + parameters2*sigma - emp_counts/nr_x
-        print "Objective = {0}".format(objective)
+        print("Objective = {0}".format(objective))
         return objective, grad.reshape([nr_f*nr_c], order="F")

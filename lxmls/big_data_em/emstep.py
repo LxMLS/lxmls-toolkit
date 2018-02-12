@@ -80,20 +80,20 @@ def predict_sequence(sequence, hmm):
     final_counts = np.zeros(num_states)
 
     # Take care of initial position counts.
-    for y in xrange(num_states):
+    for y in range(num_states):
         initial_counts[y] += state_posteriors[0, y]
 
     # Take care of emission and transition counts.
-    for pos in xrange(length):
+    for pos in range(length):
         x = sequence.x[pos]
-        for y in xrange(num_states):
+        for y in range(num_states):
             emission_counts[x, y] += state_posteriors[pos, y]
             if pos > 0:
-                for y_prev in xrange(num_states):
+                for y_prev in range(num_states):
                     transition_counts[y, y_prev] += transition_posteriors[pos-1, y, y_prev]
 
     # Take care of final position counts.
-    for y in xrange(num_states):
+    for y in range(num_states):
         final_counts[y] += state_posteriors[length-1, y]
 
     return log_likelihood, initial_counts, transition_counts, final_counts, emission_counts

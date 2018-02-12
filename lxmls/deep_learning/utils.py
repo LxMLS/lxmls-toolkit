@@ -5,6 +5,21 @@ import numpy as np
 #
 
 
+def logsumexp(a, axis=None, keepdims=False):
+    """
+    This is an improvement over the original logsumexp of
+    scipy/maxentropy/maxentutils.py that allows specifying an axis to sum
+    It also uses keepdims=True.
+    """
+    if axis is None:
+        a = np.asarray(a)
+        a_max = a.max()
+        return a_max + np.log(np.exp(a-a_max).sum())
+    else:
+        a_max = np.amax(a, axis=axis, keepdims=keepdims)
+        return a_max + np.log((np.exp(a-a_max)).sum(axis, keepdims=keepdims))
+
+
 def index2onehot(index, N):
     """
     Transforms index to one-hot representation, for example
