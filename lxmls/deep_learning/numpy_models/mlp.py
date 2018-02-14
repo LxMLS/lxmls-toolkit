@@ -1,7 +1,6 @@
 import numpy as np
-from scipy.special import logsumexp
 from lxmls.deep_learning.mlp import MLP
-from lxmls.deep_learning.utils import index2onehot
+from lxmls.deep_learning.utils import index2onehot, logsumexp
 
 
 class NumpyMLP(MLP):
@@ -69,7 +68,7 @@ class NumpyMLP(MLP):
         z = np.dot(tilde_z, weight.T) + bias
 
         # Softmax is computed in log-domain to prevent underflow/overflow
-        log_tilde_z = z - logsumexp(z, axis=1)[:, None]
+        log_tilde_z = z - logsumexp(z, axis=1, keepdims=True)
 
         return log_tilde_z, layer_inputs
 

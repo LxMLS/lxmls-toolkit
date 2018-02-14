@@ -1,6 +1,10 @@
-from lxmls.deep_learning.utils import Model, glorot_weight_init, index2onehot
+from lxmls.deep_learning.utils import (
+    Model,
+    glorot_weight_init,
+    index2onehot,
+    logsumexp
+)
 import numpy as np
-from scipy.special import logsumexp
 
 
 class NumpyLogLinear(Model):
@@ -21,7 +25,7 @@ class NumpyLogLinear(Model):
         z = np.dot(input, self.weight.T) + self.bias
 
         # Softmax implemented in log domain
-        log_tilde_z = z - logsumexp(z, axis=1)[:, None]
+        log_tilde_z = z - logsumexp(z, axis=1, keepdims=True)
 
         return log_tilde_z
 
