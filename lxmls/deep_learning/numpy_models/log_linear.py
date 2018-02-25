@@ -6,6 +6,7 @@ from lxmls.deep_learning.utils import (
     logsumexp
 )
 
+
 class NumpyLogLinear(Model):
 
     def __init__(self, **config):
