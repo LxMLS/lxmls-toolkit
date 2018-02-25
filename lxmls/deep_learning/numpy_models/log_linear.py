@@ -1,10 +1,10 @@
+import numpy as np
 from lxmls.deep_learning.utils import (
     Model,
     glorot_weight_init,
     index2onehot,
     logsumexp
 )
-import numpy as np
 
 
 class NumpyLogLinear(Model):

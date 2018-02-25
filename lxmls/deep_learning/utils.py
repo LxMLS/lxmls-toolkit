@@ -9,7 +9,7 @@ def logsumexp(a, axis=None, keepdims=False):
     """
     This is an improvement over the original logsumexp of
     scipy/maxentropy/maxentutils.py that allows specifying an axis to sum
-    It also uses keepdims=True.
+    It also allows keepdims=True.
     """
     if axis is None:
         a = np.asarray(a)
