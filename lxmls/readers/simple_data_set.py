@@ -57,8 +57,11 @@ class SimpleDataSet:
         print(params)
         return params
 
-    def plot_data(self, params=np.array([]), name="Naive Bayes", print_bayes_opt=True):
+    def plot_data(self, params=np.array([]), name="Naive Bayes", print_bayes_opt=True, backend=None):
+        import matplotlib
         import matplotlib.pyplot as plt
+        if backend is not None:
+            matplotlib.use(backend)
         fig = plt.figure()
         fig.suptitle(self.get_name())
         axis = fig.add_subplot(1, 1, 1)
@@ -85,10 +88,11 @@ class SimpleDataSet:
         x_max = np.max(self.train_X)
         x_min = np.min(self.train_X)
         x = np.arange(x_min, x_max, 0.1, dtype="float")
-        y_star = ((params[1, 1]-params[1, 0])*x + (params[0, 1]-params[0, 0])) / (params[2, 0]-params[2, 1])
+        y_star = (
+            (params[1, 1]-params[1, 0])*x + (params[0, 1]-params[0, 0])
+        ) / (params[2, 0]-params[2, 1])
         axis.plot(x, y_star, 'g--', c=colour, label=name, linewidth=2)
         axis.legend()
-        #        fig.show()
         return fig, axis
 
 
