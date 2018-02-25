@@ -194,8 +194,7 @@ class RNN(Model):
         # Computation graph parameters as pickle file
         parameter_file = "%s/parameters.pkl" % model_folder
         with open(parameter_file, 'wb') as fid:
-        pickle.dump(self.parameters, fid, pickle.HIGHEST_PROTOCOL)
-
+            pickle.dump(self.parameters, fid, pickle.HIGHEST_PROTOCOL)
 
     def plot_weights(self, show=True, aspect='auto'):
         """
