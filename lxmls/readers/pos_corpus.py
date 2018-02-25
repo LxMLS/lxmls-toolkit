@@ -194,9 +194,9 @@ class PostagCorpusData():
     def __init__(self, **config):
 
         corpus = PostagCorpus()
-        train_seq = corpus.read_sequence_list_conll(en_train, max_sent_len=15, max_nr_sent=1000)
-        dev_seq = corpus.read_sequence_list_conll(en_dev, max_sent_len=15, max_nr_sent=1000)
-        test_seq = corpus.read_sequence_list_conll(en_test, max_sent_len=15, max_nr_sent=1000)
+        train_seq = corpus.read_sequence_list_conll(data.find('train-02-21.conll'), max_sent_len=15, max_nr_sent=1000)
+        dev_seq = corpus.read_sequence_list_conll(data.find('dev-22.conll'), max_sent_len=15, max_nr_sent=1000)
+        test_seq = corpus.read_sequence_list_conll(data.find('test-23.conll'), max_sent_len=15, max_nr_sent=1000)
 
         # Redo indices so that they are consecutive. Also cast all data to numpy arrays
         # of int32 for compatibility with GPUs and theano and add reverse index
