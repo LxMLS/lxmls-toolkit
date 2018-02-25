@@ -6,4 +6,5 @@ matplotlib
 # cairocffi  # solves problem with matplotlib; further needs libffi-dev
 nltk
 pytest>=2.9.1
+ipdb
 jupyter
