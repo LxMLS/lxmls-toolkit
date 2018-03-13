@@ -18,10 +18,10 @@ class NaiveBayes(lc.LinearClassifier):
         if self.xtype == "gaussian":
             params = self.train_gaussian(x, y, nr_x, nr_f, nr_c)
         elif self.xtype == "Multinomial":
-            print "Training a multinomial"
+            print("Training a multinomial")
             params = self.train_multinomial(x, y, nr_x, nr_f, nr_c)
         else:
-            print "Naive Bayes not implemented for this type of model of P(X|Y)"
+            print("Naive Bayes not implemented for this type of model of P(X|Y)")
         self.trained = True
         return params
 
@@ -37,17 +37,17 @@ class NaiveBayes(lc.LinearClassifier):
         classes = np.unique(y)
         means = np.zeros((nr_c, nr_f))
         variances = np.zeros((nr_c, nr_f))
-        for i in xrange(nr_c):
+        for i in range(nr_c):
             idx, _ = np.nonzero(y == classes[i])
             prior[i] = 1.0 * len(idx) / len(y)
-            for f in xrange(nr_f):
+            for f in range(nr_f):
                 g = estimate_gaussian(x[idx, f])
                 means[i, f] = g.mean
                 variances[i, f] = g.variance
         # Take the mean of the covariance for each matric
         variances = np.mean(variances, 1)
         params = np.zeros((nr_f+1, nr_c))
-        for i in xrange(nr_c):
+        for i in range(nr_c):
             params[0, i] = -1/(2*variances[i])*np.dot(means[i, :], means[i, :]) + np.log(prior[i])
 
             params[1:, i] = (1 / variances[i] * means[i]).transpose()
@@ -61,12 +61,12 @@ class NaiveBayes(lc.LinearClassifier):
         prior = np.zeros(nr_c)
         ind_per_class = {}
         classes = np.unique(y)
-        for i in xrange(nr_c):
+        for i in range(nr_c):
             idx, _ = np.nonzero(y == classes[i])
             ind_per_class = idx
         likelihood = np.zeros((nr_f, nr_c))
         sums = np.zeros((nr_f, 1))
-        for i in xrange(nr_c):
+        for i in range(nr_c):
             idx, _ = np.nonzero(y == classes[i])
             prior[i] = 1.0 * len(idx) / len(y)
 
@@ -74,11 +74,11 @@ class NaiveBayes(lc.LinearClassifier):
             sums[:, 0] += value
             likelihood[:, i] = value
 
-        for f in xrange(nr_f):
-            for i in xrange(nr_c):
+        for f in range(nr_f):
+            for i in range(nr_c):
                 likelihood[f, i] = likelihood[f, i] / sums[f, 0]
         params = np.zeros((nr_f+1, nr_c))
-        for i in xrange(nr_c):
+        for i in range(nr_c):
             params[0, i] = np.log(prior[i])
             params[1:, i] = np.nan_to_num(np.log(likelihood[:, i]))
         return params

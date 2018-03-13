@@ -32,7 +32,7 @@ class DependencyParser:
         self.weights = np.zeros(self.features.n_feats)
         total = np.zeros(self.features.n_feats)
         for epoch in range(n_epochs):
-            print "Epoch {0}".format(epoch+1)
+            print("Epoch {0}".format(epoch+1))
             n_mistakes = 0
             n_tokens = 0
             n_instances = 0
@@ -57,7 +57,7 @@ class DependencyParser:
                         n_mistakes += 1
                     n_tokens += 1
                 n_instances += 1
-            print "Training accuracy: {0}".format(np.double(n_tokens-n_mistakes) / np.double(n_tokens))
+            print("Training accuracy: {0}".format(np.double(n_tokens-n_mistakes) / np.double(n_tokens)))
             total += self.weights
 
         self.weights = total / np.double(n_epochs)
@@ -69,7 +69,7 @@ class DependencyParser:
         t = 0
         t0 = 1.0 / (sigma*eta0)
         for epoch in range(n_epochs):
-            print "Epoch {0}".format(epoch+1)
+            print("Epoch {0}".format(epoch+1))
             n_mistakes = 0
             n_tokens = 0
             n_instances = 0
@@ -107,7 +107,7 @@ class DependencyParser:
                 n_instances += 1
                 t += 1
 
-            print "Training objective: {0}".format(objective / n_instances)
+            print("Training objective: {0}".format(objective / n_instances))
 
     def test(self):
         n_mistakes = 0
@@ -134,6 +134,6 @@ class DependencyParser:
                 n_tokens += 1
             n_instances += 1
             arr_heads_pred.append(heads_pred)
-        print "Test accuracy ({0} test instances): {1}".format(n_instances, np.double(n_tokens-n_mistakes) / np.double(n_tokens))
+        print("Test accuracy ({0} test instances): {1}".format(n_instances, np.double(n_tokens-n_mistakes) / np.double(n_tokens)))
 
         self.writer.save(self.language, arr_heads_pred)

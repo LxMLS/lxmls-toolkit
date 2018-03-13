@@ -20,7 +20,7 @@ class Perceptron(lc.LinearClassifier):
         nr_x, nr_f = x.shape
         nr_c = np.unique(y).shape[0]
         w = np.zeros((nr_f, nr_c))
-        for epoch_nr in xrange(self.nr_epochs):
+        for epoch_nr in range(self.nr_epochs):
 
             # use seed to generate permutation
             np.random.seed(seed)
@@ -29,7 +29,7 @@ class Perceptron(lc.LinearClassifier):
             # change the seed so next epoch we don't get the same permutation
             seed += 1
 
-            for nr in xrange(nr_x):
+            for nr in range(nr_x):
                 # print "iter %i" %( epoch_nr*nr_x + nr)
                 inst = perm[nr]
                 y_hat = self.get_label(x[inst:inst+1, :], w)
@@ -46,7 +46,7 @@ class Perceptron(lc.LinearClassifier):
             y_pred = self.test(x_orig, w)
             acc = self.evaluate(y, y_pred)
             self.trained = False
-            print "Rounds: %i Accuracy: %f" % (epoch_nr, acc)
+            print("Rounds: %i Accuracy: %f" % (epoch_nr, acc))
         self.trained = True
 
         if self.averaged:

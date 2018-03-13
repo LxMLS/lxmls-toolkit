@@ -8,7 +8,7 @@ class SimpleDataSet:
 
     def __init__(self, nr_examples=100, g1=[[-5, -5], 1], g2=[[5, 5], 1], balance=0.5, split=[0.8, 0, 0.2]):
         nr_positive = int(nr_examples * balance)  # number of examples of "positive" class
-        nr_negative = nr_examples - nr_positive  # number of examples of "negative" class
+        nr_negative = int(nr_examples - nr_positive)  # number of examples of "negative" class
         self.mean1 = g1[0]  # mean of positive class
         self.mean2 = g2[0]  # mean of negative class
         self.variance1 = g1[1]  #
@@ -54,11 +54,14 @@ class SimpleDataSet:
         params[2, 0] = 1.0 / self.variance1 * self.mean1[1]
         params[1, 1] = 1.0 / self.variance2 * self.mean2[0]
         params[2, 1] = 1.0 / self.variance2 * self.mean2[1]
-        print params
+        print(params)
         return params
 
-    def plot_data(self, params=np.array([]), name="Naive Bayes", print_bayes_opt=True):
+    def plot_data(self, params=np.array([]), name="Naive Bayes", print_bayes_opt=True, backend=None):
+        import matplotlib
         import matplotlib.pyplot as plt
+        if backend is not None:
+            matplotlib.use(backend)
         fig = plt.figure()
         fig.suptitle(self.get_name())
         axis = fig.add_subplot(1, 1, 1)
@@ -85,16 +88,17 @@ class SimpleDataSet:
         x_max = np.max(self.train_X)
         x_min = np.min(self.train_X)
         x = np.arange(x_min, x_max, 0.1, dtype="float")
-        y_star = ((params[1, 1]-params[1, 0])*x + (params[0, 1]-params[0, 0])) / (params[2, 0]-params[2, 1])
+        y_star = (
+            (params[1, 1]-params[1, 0])*x + (params[0, 1]-params[0, 0])
+        ) / (params[2, 0]-params[2, 1])
         axis.plot(x, y_star, 'g--', c=colour, label=name, linewidth=2)
         axis.legend()
-        #        fig.show()
         return fig, axis
 
 
 def split_train_dev_test(X, y, train_per, dev_per, test_per):
     if train_per+dev_per+test_per > 1:
-        print "Train Dev Test split should sum to one"
+        print("Train Dev Test split should sum to one")
         return
     dim = y.shape[0]
     split1 = int(dim * train_per)
@@ -107,7 +111,7 @@ def split_train_dev_test(X, y, train_per, dev_per, test_per):
 
     else:
         split2 = int(dim * (train_per+dev_per))
-        print split2
+        print(split2)
         train_y, dev_y, test_y = np.vsplit(y, (split1, split2))
         train_X = X[0:split1, :]
         dev_X = X[split1:split2, :]
