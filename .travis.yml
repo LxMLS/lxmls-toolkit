@@ -22,4 +22,4 @@ script:
 # command to run tests
 before_script: cd tests
 
-script: runtests.py
+script: python runtests.py
