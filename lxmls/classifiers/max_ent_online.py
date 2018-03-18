@@ -10,7 +10,7 @@ import lxmls.classifiers.linear_classifier as lc
 # ----------
 class MaxEntOnline(lc.LinearClassifier):
 
-    def __init__(self, nr_epochs=10, initial_step=1.0, alpha=1.0, regularizer=1.0):
+    def __init__(self, nr_epochs=10, initial_step=1.0, alpha=1.0, regularizer=1.0):                  
         lc.LinearClassifier.__init__(self)
         self.trained = False
         self.nr_epochs = nr_epochs
@@ -19,13 +19,15 @@ class MaxEntOnline(lc.LinearClassifier):
         self.alpha = alpha
         self.regularizer = regularizer
 
-    def train(self, x, y):
+    def train(self, x, y, seed=1):
         self.params_per_round = []
         x_orig = x[:, :]
         x = self.add_intercept_term(x)
         nr_x, nr_f = x.shape
         nr_c = np.unique(y).shape[0]
         w = np.zeros((nr_f, nr_c))
+        # use seed to generate permutation
+        np.random.seed(seed)
         perm = np.random.permutation(nr_x)
         t = 0
         for epoch_nr in range(self.nr_epochs):

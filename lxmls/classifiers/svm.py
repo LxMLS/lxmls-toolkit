@@ -15,14 +15,15 @@ class SVM(lc.LinearClassifier):
         self.alpha = alpha
         self.regularizer = regularizer
 
-    def train(self, x, y):
+    def train(self, x, y, seed=1):
         self.params_per_round = []
         x_orig = x[:, :]
         x = self.add_intercept_term(x)
         nr_x, nr_f = x.shape
         nr_c = np.unique(y).shape[0]
         w = np.zeros((nr_f, nr_c))
-        # Randomize the examples
+        # use seed to generate permutation
+        np.random.seed(seed)
         perm = np.random.permutation(nr_x)
         # print "Starting Loop"
         t = 0
