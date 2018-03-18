@@ -1,4 +1,9 @@
+import sys
+import os
 import pytest
+
+LXMLS_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, LXMLS_ROOT)
 from numpy import allclose
 import warnings
 
@@ -129,7 +134,7 @@ def test_svm_online(sd, scr):
 
     y_pred_train = svm.test(scr.train_X,params_svm_sc)
     acc_train = svm.evaluate(scr.train_y, y_pred_train)
-    assert allclose(acc_train, 0.87875, tolerance)
+    assert allclose(acc_train, 0.87875, 0.01)
 
     y_pred_test = svm.test(scr.test_X,params_svm_sc)
     acc_test = svm.evaluate(scr.test_y, y_pred_test)

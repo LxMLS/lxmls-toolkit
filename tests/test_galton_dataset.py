@@ -1,4 +1,9 @@
+import sys
+import os
 import pytest
+
+LXMLS_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, LXMLS_ROOT)
 
 from numpy import array, array_equal, allclose
 import matplotlib

@@ -1,7 +1,12 @@
 from __future__ import division
+import sys
+import os
+import pytest
+
+LXMLS_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, LXMLS_ROOT)
 
 import numpy as np
-import pytest
 
 import lxmls.readers.pos_corpus as pcc
 import lxmls.readers.simple_sequence as ssr
