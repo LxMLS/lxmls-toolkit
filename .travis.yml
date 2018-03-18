@@ -1,33 +1,25 @@
-# config file for automatic testing at travis-ci.org
+
 language: python
 
-python:
-    - "3.6"
-
 sudo: false
-env:
-  global:
-    - LD_PRELOAD=/lib/x86_64-linux-gnu/libSegFault.so
-    - SEGFAULT_SIGNALS=all
-  matrix:
-    - TOXENV=py27,codecov
-    - TOXENV=py35,codecov
-    - TOXENV=py35,codecov
-before_install:
-  - python --version
-  - uname -a
-  - lsb_release -a
-install: pip install tox-travis tox
-script: tox
-after_failure:
-  - more .tox/log/* | cat
-  - more .tox/*/log/* | cat
-before_cache:
-  - rm -rf $HOME/.cache/pip/log
-cache:
-  directories:
-    - $HOME/.cache/pip
-notifications:
-  email:
-    on_success: never
-    on_failure: always
+
+python:
+   - "2.7"
+   - "3.5"
+   - "3.6"
+os:
+  - linux
+
+install:
+  - pip install -r requirements.txt
+
+
+script:
+  - if [[ $TRAVIS_PYTHON_VERSION == 2.7 ]]; then pip install http://download.pytorch.org/whl/cpu/torch-0.3.1-cp27-cp27mu-linux_x86_64.whl
+  - if [[ $TRAVIS_PYTHON_VERSION == 3.5 ]]; then pip install http://download.pytorch.org/whl/cpu/torch-0.3.1-cp35-cp35m-linux_x86_64.whl
+  - if [[ $TRAVIS_PYTHON_VERSION == 3.6 ]]; then pip install http://download.pytorch.org/whl/cpu/torch-0.3.1-cp36-cp36m-linux_x86_64.whl
+  
+# command to run tests
+before_script: cd tests
+
+script: runtests.py
