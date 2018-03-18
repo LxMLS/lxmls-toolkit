@@ -37,8 +37,8 @@ class HMM(sc.SequenceClassifier):
         self.final_counts = np.zeros(num_states)
         self.emission_counts = np.zeros([num_observations, num_states])
 
-    def train_EM(self, dataset, smoothing=0, num_epochs=10, evaluate=True):
-        self.initialize_random()
+    def train_EM(self, dataset, smoothing=0, num_epochs=10, evaluate=True, seed=1):
+        self.initialize_random(seed)
 
         if evaluate:
             acc = self.evaluate_EM(dataset)
@@ -113,7 +113,8 @@ class HMM(sc.SequenceClassifier):
             self.final_counts[sequence.y[-1]] += 1
 
     # Initializes the parameter randomnly
-    def initialize_random(self):
+    def initialize_random(self, seed=1):
+        np.random.seed(seed)
         jitter = 1
         num_states = self.get_num_states()
         num_observations = self.get_num_observations()
