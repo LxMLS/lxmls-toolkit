@@ -1,7 +1,11 @@
-from __future__ import division
+import sys
+import os
+import pytest
+
+LXMLS_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, LXMLS_ROOT)
 
 import numpy as np
-import pytest
 
 import lxmls.readers.pos_corpus as pcc
 import lxmls.sequences.crf_online as crfo
@@ -11,9 +15,6 @@ import lxmls.sequences.structured_perceptron as spc
 from lxmls import data
 
 tolerance = 1e-5
-np.random.seed(4242)
-epochs = 1
-
 
 @pytest.fixture(scope='module')
 def corpus_and_sequences():
@@ -45,13 +46,12 @@ def test_seq(corpus_and_sequences):
 
 
 def test_crf_id_features(corpus, train_seq, dev_seq, test_seq):
-    np.random.seed(4242)
 
     feature_mapper = idfc.IDFeatures(train_seq)
     feature_mapper.build_features()
 
     crf_online = crfo.CRFOnline(corpus.word_dict, corpus.tag_dict, feature_mapper)
-    crf_online.num_epochs = epochs
+    crf_online.num_epochs = 1
     crf_online.train_supervised(train_seq)
 
     pred_train = crf_online.viterbi_decode_corpus(train_seq)
@@ -68,13 +68,12 @@ def test_crf_id_features(corpus, train_seq, dev_seq, test_seq):
 
 
 def test_crf_extended_features(corpus, train_seq, dev_seq, test_seq):
-    np.random.seed(4242)
 
     feature_mapper = exfc.ExtendedFeatures(train_seq)
     feature_mapper.build_features()
 
     crf_online = crfo.CRFOnline(corpus.word_dict, corpus.tag_dict, feature_mapper)
-    crf_online.num_epochs = epochs
+    crf_online.num_epochs = 1
     crf_online.train_supervised(train_seq)
 
     pred_train = crf_online.viterbi_decode_corpus(train_seq)
@@ -91,13 +90,12 @@ def test_crf_extended_features(corpus, train_seq, dev_seq, test_seq):
 
 
 def test_perceptron_id_features(corpus, train_seq, dev_seq, test_seq):
-    np.random.seed(4242)
 
     feature_mapper = idfc.IDFeatures(train_seq)
     feature_mapper.build_features()
 
     sp = spc.StructuredPerceptron(corpus.word_dict, corpus.tag_dict, feature_mapper)
-    sp.num_epochs = epochs
+    sp.num_epochs = 1
     sp.train_supervised(train_seq)
 
     pred_train = sp.viterbi_decode_corpus(train_seq)
@@ -112,13 +110,12 @@ def test_perceptron_id_features(corpus, train_seq, dev_seq, test_seq):
 
 
 def test_perceptron_extended_features(corpus, train_seq, dev_seq, test_seq):
-    np.random.seed(4242)
 
     feature_mapper = exfc.ExtendedFeatures(train_seq)
     feature_mapper.build_features()
 
     sp = spc.StructuredPerceptron(corpus.word_dict, corpus.tag_dict, feature_mapper)
-    sp.num_epochs = epochs
+    sp.num_epochs = 1
     sp.train_supervised(train_seq)
 
     pred_train = sp.viterbi_decode_corpus(train_seq)

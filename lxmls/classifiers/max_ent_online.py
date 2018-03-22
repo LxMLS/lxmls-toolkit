@@ -1,6 +1,4 @@
-import sys
 import numpy as np
-import scipy.optimize.lbfgsb as opt2
 from lxmls.util.my_math_utils import *
 import lxmls.classifiers.linear_classifier as lc
 
@@ -10,7 +8,7 @@ import lxmls.classifiers.linear_classifier as lc
 # ----------
 class MaxEntOnline(lc.LinearClassifier):
 
-    def __init__(self, nr_epochs=10, initial_step=1.0, alpha=1.0, regularizer=1.0):
+    def __init__(self, nr_epochs=10, initial_step=1.0, alpha=1.0, regularizer=1.0, seed=1):
         lc.LinearClassifier.__init__(self)
         self.trained = False
         self.nr_epochs = nr_epochs
@@ -18,6 +16,8 @@ class MaxEntOnline(lc.LinearClassifier):
         self.initial_step = initial_step
         self.alpha = alpha
         self.regularizer = regularizer
+        # use seed to generate permutation
+        np.random.seed(seed)
 
     def train(self, x, y):
         self.params_per_round = []
@@ -52,8 +52,10 @@ class MaxEntOnline(lc.LinearClassifier):
                 emp_feat = np.zeros(w.shape)
                 emp_feat[:, y_true] = x[inst:inst+1, :].transpose()
                 # Update the model
-                objective += 0.5*self.regularizer*l2norm_squared(w) - log(probs[0][y_true[0]])
-                w = (1 - self.regularizer*learning_rate)*w + learning_rate*(emp_feat-exp_feat)
+                objective += 0.5 * self.regularizer * \
+                    l2norm_squared(w) - log(probs[0][y_true[0]])
+                w = (1 - self.regularizer * learning_rate) * \
+                    w + learning_rate * (emp_feat - exp_feat)
                 if np.any(np.isnan(w)):
                     print("error parameters became not a number")
                     return w

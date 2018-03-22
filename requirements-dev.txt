@@ -1,8 +1,7 @@
 six
-pyyaml
 numpy
 scipy
 matplotlib
 nltk
-ipdb
-jupyter
+pytest
+tox

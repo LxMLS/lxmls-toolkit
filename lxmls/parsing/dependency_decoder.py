@@ -271,7 +271,7 @@ class DependencyDecoder:
                 wh_cyc = cycle
 
         cycle = wh_cyc
-        cyc_nodes = list(cycle.keys())
+        cyc_nodes = sorted(list(cycle.keys()))
         rep = cyc_nodes[0]
 
         if self.verbose:
