@@ -86,7 +86,7 @@ algorithms described.
 
 ### Development
 
-To run the all tests sintall `tox` and `pytest` 
+To run the all tests install `tox` and `pytest` 
 
     pip install tox pytest
 
