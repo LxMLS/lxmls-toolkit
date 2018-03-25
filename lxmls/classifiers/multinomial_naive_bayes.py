@@ -40,20 +40,11 @@ class MultinomialNaiveBayes(lc.LinearClassifier):
         # corresponds to the fifth feature!
 
         # ----------
-        # Solution to Exercise 1.1
-        for i in range(n_classes):
-            docs_in_class, _ = np.nonzero(y == classes[i])  # docs_in_class = indices of documents in class i
-            prior[i] = 1.0 * len(docs_in_class) / n_docs  # prior = fraction of documents with this class
+        # Solution to Exercise 1
 
-            # word_count_in_class = count of word occurrences in documents of class i
-            word_count_in_class = x[docs_in_class, :].sum(0)
-            total_words_in_class = word_count_in_class.sum()  # total_words_in_class = total number of words in documents of class i
-            if not self.smooth:
-                # likelihood = count of occurrences of a word in a class
-                likelihood[:, i] = word_count_in_class / total_words_in_class
-            else:
-                likelihood[:, i] = (word_count_in_class+self.smooth_param) / (total_words_in_class + self.smooth_param*n_words)
-        # End solution to Exercise 1.1
+        raise NotImplementedError("Complete Exercise 1")
+
+        # End solution to Exercise 1
         # ----------
 
         params = np.zeros((n_words+1, n_classes))

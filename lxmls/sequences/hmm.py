@@ -141,28 +141,13 @@ class HMM(sc.SequenceClassifier):
         """ Used in the E-step in EM."""
 
         # ----------
-        # Solution to Exercise 2.10
+        # Solution to Exercise 10
 
-        num_states = self.get_num_states()  # Number of states.
-        length = len(sequence.x)  # Length of the sequence.
+        raise NotImplementedError("Complete Exercise 10")
 
-        # Take care of initial probs
-        for y in range(num_states):
-            self.initial_counts[y] += state_posteriors[0, y]
-        for pos in range(length):
-            x = sequence.x[pos]
-            for y in range(num_states):
-                self.emission_counts[x, y] += state_posteriors[pos, y]
-                if pos > 0:
-                    for y_prev in range(num_states):
-                        self.transition_counts[y, y_prev] += transition_posteriors[pos-1, y, y_prev]
+        # End of solution to Exercise 10
+        # ----------
 
-        # Final position
-        for y in range(num_states):
-            self.final_counts[y] += state_posteriors[length-1, y]
-
-            # End of solution to Exercise 2.10
-            # ----------
 
     def compute_parameters(self):
         """ Estimate the HMM parameters by normalizing the counts."""

@@ -98,28 +98,27 @@ class SequenceClassificationDecoder:
         # Most likely sequence.
         best_path = -np.ones(length, dtype=int)
 
-        # Initialization.
-        viterbi_scores[0, :] = emission_scores[0, :] + initial_scores
+        # ----------
+        # Solution to Exercise 8
 
-        # Viterbi loop.
-        for pos in range(1, length):
-            for current_state in range(num_states):
-                viterbi_scores[pos, current_state] = \
-                    np.max(viterbi_scores[pos-1, :] + transition_scores[pos-1, current_state, :])
-                viterbi_scores[pos, current_state] += emission_scores[pos, current_state]
-                viterbi_paths[pos, current_state] = \
-                    np.argmax(viterbi_scores[pos-1, :] + transition_scores[pos-1, current_state, :])
-        # Termination.
-        best_score = np.max(viterbi_scores[length-1, :] + final_scores)
-        best_path[length-1] = np.argmax(viterbi_scores[length-1, :] + final_scores)
+        raise NotImplementedError("Complete Exercise 8")
 
-        # Backtrack.
-        for pos in range(length-2, -1, -1):
-            best_path[pos] = viterbi_paths[pos+1, best_path[pos+1]]
+        #### Little guide of the implementation ####################################
+        # Initializatize the viterbi scores
+        #
+        # Do the double of the viterbi loop (lines 7 to 12 in the guide pdf)
+        # from 1 to length
+        #     from 0 to num_states
+        #       ...
+        #
+        # define the best_path and best_score
+        #
+        # backtrack the best_path using the viterbi paths (lines 17-18 pseudocode in the guide pdf)
+        #
+        # return best_path and best_score
+        ############################################################################
 
-        return best_path, best_score
-
-        # End of solution to Exercise 2.8
+        # End of solution to Exercise 8
         # ----------
 
     def run_forward_backward(self, initial_scores, transition_scores, final_scores, emission_scores):

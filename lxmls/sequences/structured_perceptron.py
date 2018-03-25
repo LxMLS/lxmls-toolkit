@@ -42,64 +42,11 @@ class StructuredPerceptron(dsc.DiscriminativeSequenceClassifier):
     def perceptron_update(self, sequence):
 
         # ----------
-        # Solution to Exercise 3.3
+        # Solution to Exercise 3
 
-        num_labels = 0
-        num_mistakes = 0
+        raise NotImplementedError("Complete Exercise 3")
 
-        predicted_sequence, _ = self.viterbi_decode(sequence)
-
-        y_hat = predicted_sequence.y
-
-        # Update initial features.
-        y_t_true = sequence.y[0]
-        y_t_hat = y_hat[0]
-
-        if y_t_true != y_t_hat:
-            true_initial_features = self.feature_mapper.get_initial_features(sequence, y_t_true)
-            self.parameters[true_initial_features] += self.learning_rate
-            hat_initial_features = self.feature_mapper.get_initial_features(sequence, y_t_hat)
-            self.parameters[hat_initial_features] -= self.learning_rate
-
-        for pos in range(len(sequence.x)):
-            y_t_true = sequence.y[pos]
-            y_t_hat = y_hat[pos]
-
-            # Update emission features.
-            num_labels += 1
-            if y_t_true != y_t_hat:
-                num_mistakes += 1
-                true_emission_features = self.feature_mapper.get_emission_features(sequence, pos, y_t_true)
-                self.parameters[true_emission_features] += self.learning_rate
-                hat_emission_features = self.feature_mapper.get_emission_features(sequence, pos, y_t_hat)
-                self.parameters[hat_emission_features] -= self.learning_rate
-
-            if pos > 0:
-                # update bigram features
-                # If true bigram != predicted bigram update bigram features
-                prev_y_t_true = sequence.y[pos-1]
-                prev_y_t_hat = y_hat[pos-1]
-                if y_t_true != y_t_hat or prev_y_t_true != prev_y_t_hat:
-                    true_transition_features = self.feature_mapper.get_transition_features(
-                        sequence, pos-1, y_t_true, prev_y_t_true)
-                    self.parameters[true_transition_features] += self.learning_rate
-                    hat_transition_features = self.feature_mapper.get_transition_features(
-                        sequence, pos-1, y_t_hat, prev_y_t_hat)
-                    self.parameters[hat_transition_features] -= self.learning_rate
-
-        pos = len(sequence.x)
-        y_t_true = sequence.y[pos-1]
-        y_t_hat = y_hat[pos-1]
-
-        if y_t_true != y_t_hat:
-            true_final_features = self.feature_mapper.get_final_features(sequence, y_t_true)
-            self.parameters[true_final_features] += self.learning_rate
-            hat_final_features = self.feature_mapper.get_final_features(sequence, y_t_hat)
-            self.parameters[hat_final_features] -= self.learning_rate
-
-        return num_labels, num_mistakes
-
-        # End of solution to Exercise 3.3
+        # End of Solution to Exercise 3
         # ----------
 
     def save_model(self, dir):

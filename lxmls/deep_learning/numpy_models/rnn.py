@@ -84,32 +84,11 @@ class NumpyRNN(RNN):
         gradient_W_y = np.zeros(W_y.shape)
 
         # ----------
-        # Solution to Exercise 6.1
+        # Solution to Exercise 1
 
-        # Gradient of the cost with respect to the last linear model
-        I = index2onehot(output, W_y.shape[0])
-        error = (p_y - I) / nr_steps
+        raise NotImplementedError("Implement Exercise 1")
 
-        # backward pass, with gradient computation
-        error_h_next = np.zeros_like(h[0, :])
-        for t in reversed(range(nr_steps)):
-
-            # Output linear
-            error_h = np.dot(W_y.T, error[t, :]) + error_h_next
-
-            # Non-linear
-            error_raw = h[t+1, :] * (1. - h[t+1, :]) * error_h
-
-            # Hidden-linear
-            error_h_next = np.dot(W_h.T, error_raw)
-
-            # Weight gradients
-            gradient_W_y += np.outer(error[t, :], h[t+1, :])
-            gradient_W_h += np.outer(error_raw, h[t, :])
-            gradient_W_x += np.outer(error_raw, z_e[t, :])
-            gradient_W_e[x[t], :] += W_x.T.dot(error_raw)
-
-        # End of Solution to Exercise 6.1
+        # End of Solution to Exercise 1
         # ----------
 
         # Normalize over sentence length

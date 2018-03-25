@@ -44,28 +44,11 @@ class PytorchMLP(MLP):
         tilde_z = input
 
         # ----------
-        # Solution to Exercise 6.4
-        for n in range(self.num_layers - 1):
+        # Solution to Exercise 4
 
-            # Get weigths and bias of the layer (even and odd positions)
-            weight, bias = self.parameters[n]
+        raise NotImplementedError("Implement Exercise 4")
 
-            # Linear transformation
-            z = torch.matmul(tilde_z, torch.t(weight)) + bias
-
-            # Non-linear transformation
-            tilde_z = torch.sigmoid(z)
-
-        # Get weigths and bias of the layer (even and odd positions)
-        weight, bias = self.parameters[self.num_layers - 1]
-
-        # Linear transformation
-        z = torch.matmul(tilde_z, torch.t(weight)) + bias
-
-        # Softmax is computed in log-domain to prevent underflow/overflow
-        log_tilde_z = self.logsoftmax(z)
-
-        # End of solution to Exercise 6.4
+        # End of solution to Exercise 4
         # ----------
 
         return log_tilde_z

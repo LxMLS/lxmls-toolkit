@@ -85,33 +85,11 @@ class PytorchRNN(RNN):
         # FORWARD PASS COMPUTATION GRAPH
 
         # ----------
-        # Solution to Exercise 6.2
+        # Solution to Exercise 2
 
-        # Word Embeddings
-        z_e = self.embedding_layer(input)
+        raise NotImplementedError("Implement Exercise 2")
 
-        # Recurrent layer
-        h = Variable(torch.FloatTensor(1, hidden_size).zero_())
-        hidden_variables = []
-        for t in range(nr_steps):
-
-            # Linear
-            z_t = torch.matmul(z_e[t, :], torch.t(W_x)) + \
-                torch.matmul(h, torch.t(W_h))
-
-            # Non-linear (sigmoid)
-            h = torch.sigmoid(z_t)
-
-            hidden_variables.append(h)
-
-        # Output layer
-        h_out = torch.cat(hidden_variables, 0)
-        y = torch.matmul(h_out, torch.t(W_y))
-
-        # Log-Softmax
-        log_p_y = self.logsoftmax(y)
-
-        # End of solution to Exercise 6.2
+        # End of solution to Exercise 2
         # ----------
 
         return log_p_y
