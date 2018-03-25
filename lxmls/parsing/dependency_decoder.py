@@ -69,8 +69,8 @@ class DependencyDecoder:
         incomplete[0, :, 0] -= np.inf
 
         # Loop from smaller items to larger items.
-        for k in xrange(1, N+1):
-            for s in xrange(N-k+1):
+        for k in range(1, N+1):
+            for s in range(N-k+1):
                 t = s + k
 
                 # First, create incomplete items.
@@ -98,7 +98,7 @@ class DependencyDecoder:
         self.backtrack_eisner(incomplete_backtrack, complete_backtrack, 0, N, 1, 1, heads)
 
         value_proj = 0.0
-        for m in xrange(1, N+1):
+        for m in range(1, N+1):
             h = heads[m]
             value_proj += scores[h, m]
 
@@ -172,13 +172,13 @@ class DependencyDecoder:
                     continue
 
         if self.verbose:
-            print "Starting C-L-E...\n"
+            print("Starting C-L-E...\n")
 
         scores_copy = scores.copy()
         final_edges = self.chu_liu_edmonds(scores_copy, curr_nodes, old_I, old_O, {}, reps)
         heads = np.zeros(nw+1, int)
         heads[0] = -1
-        for key in final_edges.keys():
+        for key in list(final_edges.keys()):
             ch = key
             pr = final_edges[key]
             heads[ch] = pr
@@ -211,11 +211,11 @@ class DependencyDecoder:
                     par[m] = h
 
         if self.verbose:
-            print "After init\n"
+            print("After init\n")
             for m in range(0, nw+1):
                 if 0 < curr_nodes[m]:
-                    print "{0}|{1} ".format(par[m], m)
-            print "\n"
+                    print("{0}|{1} ".format(par[m], m))
+            print("\n")
 
         # find a cycle
         cycles = []
@@ -266,19 +266,19 @@ class DependencyDecoder:
         max_cyc = 0
         wh_cyc = 0
         for cycle in cycles:
-            if np.size(cycle.keys()) > max_cyc:
-                max_cyc = np.size(cycle.keys())
+            if np.size(list(cycle.keys())) > max_cyc:
+                max_cyc = np.size(list(cycle.keys()))
                 wh_cyc = cycle
 
         cycle = wh_cyc
-        cyc_nodes = cycle.keys()
+        cyc_nodes = sorted(list(cycle.keys()))
         rep = cyc_nodes[0]
 
         if self.verbose:
-            print "Found Cycle\n"
+            print("Found Cycle\n")
             for node in cyc_nodes:
-                print "{0} ".format(node)
-            print "\n"
+                print("{0} ".format(node))
+            print("\n")
 
         cyc_weight = 0.0
         for node in cyc_nodes:
@@ -316,14 +316,14 @@ class DependencyDecoder:
             rep_con = {}
             keys = sorted(reps[int(cyc_nodes[i])].keys())
             if self.verbose:
-                print "{0}: ".format(cyc_nodes[i])
+                print("{0}: ".format(cyc_nodes[i]))
             for key in keys:
                 rep_con[key] = 0
                 if self.verbose:
-                    print "{0} ".format(key)
+                    print("{0} ".format(key))
             rep_cons.append(rep_con)
             if self.verbose:
-                print "\n"
+                print("\n")
 
         # don't consider not representative nodes
         # these nodes have been folded
@@ -337,7 +337,7 @@ class DependencyDecoder:
         # check each node in cycle, if one of its representatives
         # is a key in the final_edges, it is the one.
         if self.verbose:
-            print final_edges
+            print(final_edges)
         wh = -1
         found = False
         for i in range(0, np.size(rep_cons)):

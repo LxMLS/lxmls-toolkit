@@ -9,7 +9,7 @@ class TrimerCount(MRJob):
     def mapper(self, _, doc):
         c = {}
         # Process the document
-        for i in xrange(len(doc)-3):
+        for i in range(len(doc)-3):
             w = doc[i:i+3]
             if w in c:
                 c[w] += 1

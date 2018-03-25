@@ -37,14 +37,14 @@ class HMM(sc.SequenceClassifier):
         self.final_counts = np.zeros(num_states)
         self.emission_counts = np.zeros([num_observations, num_states])
 
-    def train_EM(self, dataset, smoothing=0, num_epochs=10, evaluate=True):
-        self.initialize_random()
+    def train_EM(self, dataset, smoothing=0, num_epochs=10, evaluate=True, seed=1):
+        self.initialize_random(seed)
 
         if evaluate:
             acc = self.evaluate_EM(dataset)
-            print "Initial accuracy: %f" % acc
+            print("Initial accuracy: %f" % acc)
 
-        for t in xrange(1, num_epochs):
+        for t in range(1, num_epochs):
             # E-Step
             total_log_likelihood = 0.0
             self.clear_counts(smoothing)
@@ -61,13 +61,13 @@ class HMM(sc.SequenceClassifier):
                 self.update_counts(sequence, state_posteriors, transition_posteriors)
                 total_log_likelihood += log_likelihood
 
-            print "Iter: %i Log Likelihood: %f" % (t, total_log_likelihood)
+            print("Iter: %i Log Likelihood: %f" % (t, total_log_likelihood))
             # M-Step
             self.compute_parameters()
             if evaluate:
                 # Evaluate accuracy at this iteration
                 acc = self.evaluate_EM(dataset)
-                print "Iter: %i Accuracy: %f" % (t, acc)
+                print("Iter: %i Accuracy: %f" % (t, acc))
 
     def evaluate_EM(self, dataset):
         # Evaluate accuracy at initial iteration
@@ -113,7 +113,8 @@ class HMM(sc.SequenceClassifier):
             self.final_counts[sequence.y[-1]] += 1
 
     # Initializes the parameter randomnly
-    def initialize_random(self):
+    def initialize_random(self, seed=1):
+        np.random.seed(seed)
         jitter = 1
         num_states = self.get_num_states()
         num_observations = self.get_num_observations()
@@ -146,18 +147,18 @@ class HMM(sc.SequenceClassifier):
         length = len(sequence.x)  # Length of the sequence.
 
         # Take care of initial probs
-        for y in xrange(num_states):
+        for y in range(num_states):
             self.initial_counts[y] += state_posteriors[0, y]
-        for pos in xrange(length):
+        for pos in range(length):
             x = sequence.x[pos]
-            for y in xrange(num_states):
+            for y in range(num_states):
                 self.emission_counts[x, y] += state_posteriors[pos, y]
                 if pos > 0:
-                    for y_prev in xrange(num_states):
+                    for y_prev in range(num_states):
                         self.transition_counts[y, y_prev] += transition_posteriors[pos-1, y, y_prev]
 
         # Final position
-        for y in xrange(num_states):
+        for y in range(num_states):
             self.final_counts[y] += state_posteriors[length-1, y]
 
             # End of solution to Exercise 2.10
@@ -188,7 +189,7 @@ class HMM(sc.SequenceClassifier):
         # Intermediate position.
         emission_scores = np.zeros([length, num_states]) + logzero()
         transition_scores = np.zeros([length-1, num_states, num_states]) + logzero()
-        for pos in xrange(length):
+        for pos in range(length):
             emission_scores[pos, :] = np.log(self.emission_probs[sequence.x[pos], :])
             if pos > 0:
                 transition_scores[pos-1, :, :] = np.log(self.transition_probs)
@@ -218,13 +219,13 @@ class HMM(sc.SequenceClassifier):
             posterior_pred_train = self.posterior_decode_corpus(train)
             eval_viterbi_train = self.evaluate_corpus(train, viterbi_pred_train)
             eval_posterior_train = self.evaluate_corpus(train, posterior_pred_train)
-            print "Smoothing %f --  Train Set Accuracy: Posterior Decode %.3f, Viterbi Decode: %.3f" % (i, eval_posterior_train, eval_viterbi_train)
+            print("Smoothing %f --  Train Set Accuracy: Posterior Decode %.3f, Viterbi Decode: %.3f" % (i, eval_posterior_train, eval_viterbi_train))
 
             viterbi_pred_test = self.viterbi_decode_corpus(test)
             posterior_pred_test = self.posterior_decode_corpus(test)
             eval_viterbi_test = self.evaluate_corpus(test, viterbi_pred_test)
             eval_posterior_test = self.evaluate_corpus(test, posterior_pred_test)
-            print "Smoothing %f -- Test Set Accuracy: Posterior Decode %.3f, Viterbi Decode: %.3f" % (i, eval_posterior_test, eval_viterbi_test)
+            print("Smoothing %f -- Test Set Accuracy: Posterior Decode %.3f, Viterbi Decode: %.3f" % (i, eval_posterior_test, eval_viterbi_test))
             if eval_posterior_test > max_acc:
                 max_acc = eval_posterior_test
                 max_smooth = i

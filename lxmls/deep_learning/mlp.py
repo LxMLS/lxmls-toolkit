@@ -3,7 +3,7 @@ Basic MLP class methods for parameters initialization, saving, loading
 plotting
 """
 import os
-import cPickle
+from six.moves import cPickle
 import yaml
 import numpy as np
 from copy import deepcopy

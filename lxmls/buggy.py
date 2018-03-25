@@ -16,6 +16,6 @@ def walk():
     return nr_iters
 
 
-walks = np.array([walk() for i in xrange(1000)])
+walks = np.array([walk() for i in range(1000)])
 
-print np.mean(walks)
+print(np.mean(walks))

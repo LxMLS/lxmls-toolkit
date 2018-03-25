@@ -21,7 +21,7 @@ class DependencyWriter:
         pos_dict = {}
         feat_counts = {}
         if language not in languages:
-            print "Language does not exist: \"%s\": Available are: %s" % (language, languages)
+            print("Language does not exist: \"%s\": Available are: %s" % (language, languages))
             return
 
         # Load test data

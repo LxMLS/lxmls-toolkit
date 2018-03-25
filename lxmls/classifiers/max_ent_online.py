@@ -1,6 +1,4 @@
-import sys
 import numpy as np
-import scipy.optimize.lbfgsb as opt2
 from lxmls.util.my_math_utils import *
 import lxmls.classifiers.linear_classifier as lc
 
@@ -10,7 +8,7 @@ import lxmls.classifiers.linear_classifier as lc
 # ----------
 class MaxEntOnline(lc.LinearClassifier):
 
-    def __init__(self, nr_epochs=10, initial_step=1.0, alpha=1.0, regularizer=1.0):
+    def __init__(self, nr_epochs=10, initial_step=1.0, alpha=1.0, regularizer=1.0, seed=1):
         lc.LinearClassifier.__init__(self)
         self.trained = False
         self.nr_epochs = nr_epochs
@@ -18,6 +16,8 @@ class MaxEntOnline(lc.LinearClassifier):
         self.initial_step = initial_step
         self.alpha = alpha
         self.regularizer = regularizer
+        # use seed to generate permutation
+        np.random.seed(seed)
 
     def train(self, x, y):
         self.params_per_round = []
@@ -28,9 +28,9 @@ class MaxEntOnline(lc.LinearClassifier):
         w = np.zeros((nr_f, nr_c))
         perm = np.random.permutation(nr_x)
         t = 0
-        for epoch_nr in xrange(self.nr_epochs):
+        for epoch_nr in range(self.nr_epochs):
             objective = 0.0
-            for nr in xrange(nr_x):
+            for nr in range(nr_x):
                 t += 1
                 learning_rate = self.initial_step * np.power(t, -self.alpha)
                 # print learning_rate
@@ -39,7 +39,7 @@ class MaxEntOnline(lc.LinearClassifier):
                 scores = self.get_scores(x[inst:inst+1, :], w)
                 exp_scores = np.exp(scores)
                 if np.any(np.isinf(exp_scores)):
-                    print "Overflow: removing max"
+                    print("Overflow: removing max")
                     # In case we overflow we remove the max
                     max_score = np.max(scores)
                     scores -= max_score
@@ -52,17 +52,19 @@ class MaxEntOnline(lc.LinearClassifier):
                 emp_feat = np.zeros(w.shape)
                 emp_feat[:, y_true] = x[inst:inst+1, :].transpose()
                 # Update the model
-                objective += 0.5*self.regularizer*l2norm_squared(w) - log(probs[0][y_true[0]])
-                w = (1 - self.regularizer*learning_rate)*w + learning_rate*(emp_feat-exp_feat)
+                objective += 0.5 * self.regularizer * \
+                    l2norm_squared(w) - log(probs[0][y_true[0]])
+                w = (1 - self.regularizer * learning_rate) * \
+                    w + learning_rate * (emp_feat - exp_feat)
                 if np.any(np.isnan(w)):
-                    print "error parameters became not a number"
+                    print("error parameters became not a number")
                     return w
             self.trained = True
             objective /= nr_x
             y_pred = self.test(x_orig, w)
             acc = self.evaluate(y, y_pred)
             self.trained = False
-            print "Epochs: %i Objective: %f" % (epoch_nr, objective)
-            print "Epochs: %i Accuracy: %f" % (epoch_nr, acc)
+            print("Epochs: %i Objective: %f" % (epoch_nr, objective))
+            print("Epochs: %i Accuracy: %f" % (epoch_nr, acc))
         self.trained = True
         return w
