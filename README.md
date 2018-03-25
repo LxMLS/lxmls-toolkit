@@ -53,8 +53,6 @@ Machine learning toolkit for natural language processing. Written for [LxMLS - L
 
 * Use the [student branch](https://github.com/LxMLS/lxmls-toolkit/tree/student) **not** this one!
 
-* You do not need to run setup.py or pip install, read instructions in the Day 0 chapter of the [LxMLS guide](https://github.com/LxMLS/lxmls_guide).
-
 ## Install with Anaconda
 
 The simplest method is to use `Anaconda`to handle your packages as described on
