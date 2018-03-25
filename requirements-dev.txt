@@ -1,7 +1,0 @@
-six
-numpy
-scipy
-matplotlib
-nltk
-pytest
-tox
