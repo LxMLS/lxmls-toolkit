@@ -44,17 +44,15 @@ class StructuredPerceptron(dsc.DiscriminativeSequenceClassifier):
         # ----------
         # Solution to Exercise 3.3
 
-        num_labels = 0
         num_mistakes = 0
+        num_labels = len(sequence.x)
 
         predicted_sequence, _ = self.viterbi_decode(sequence)
-
         y_hat = predicted_sequence.y
 
-        # Update initial features.
+        # Update initial features if true y and predicted y are not equal
         y_t_true = sequence.y[0]
         y_t_hat = y_hat[0]
-
         if y_t_true != y_t_hat:
             true_initial_features = self.feature_mapper.get_initial_features(sequence, y_t_true)
             self.parameters[true_initial_features] += self.learning_rate
@@ -65,8 +63,7 @@ class StructuredPerceptron(dsc.DiscriminativeSequenceClassifier):
             y_t_true = sequence.y[pos]
             y_t_hat = y_hat[pos]
 
-            # Update emission features.
-            num_labels += 1
+            # Update emission features
             if y_t_true != y_t_hat:
                 num_mistakes += 1
                 true_emission_features = self.feature_mapper.get_emission_features(sequence, pos, y_t_true)
@@ -75,7 +72,7 @@ class StructuredPerceptron(dsc.DiscriminativeSequenceClassifier):
                 self.parameters[hat_emission_features] -= self.learning_rate
 
             if pos > 0:
-                # update bigram features
+                # Update transition features
                 # If true bigram != predicted bigram update bigram features
                 prev_y_t_true = sequence.y[pos-1]
                 prev_y_t_hat = y_hat[pos-1]
@@ -92,6 +89,7 @@ class StructuredPerceptron(dsc.DiscriminativeSequenceClassifier):
         y_t_hat = y_hat[pos-1]
 
         if y_t_true != y_t_hat:
+            # Update final features
             true_final_features = self.feature_mapper.get_final_features(sequence, y_t_true)
             self.parameters[true_final_features] += self.learning_rate
             hat_final_features = self.feature_mapper.get_final_features(sequence, y_t_hat)
