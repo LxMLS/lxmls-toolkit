@@ -98,25 +98,28 @@ class SequenceClassificationDecoder:
         # Most likely sequence.
         best_path = -np.ones(length, dtype=int)
 
-        # Initialization.
+        #  Initialize the viterbi scores: viterbi(1, c_k )
         viterbi_scores[0, :] = emission_scores[0, :] + initial_scores
 
-        # Viterbi loop.
+        # viterbi loop.
         for pos in range(1, length):
             for current_state in range(num_states):
+                # viterbi(i, c_k)
                 viterbi_scores[pos, current_state] = \
-                    np.max(viterbi_scores[pos-1, :] + transition_scores[pos-1, current_state, :])
+                np.max(viterbi_scores[pos-1, :] + transition_scores[pos-1, current_state, :])
                 viterbi_scores[pos, current_state] += emission_scores[pos, current_state]
+                # backtrack(i, c_k)
                 viterbi_paths[pos, current_state] = \
                     np.argmax(viterbi_scores[pos-1, :] + transition_scores[pos-1, current_state, :])
-        # Termination.
+
+        # Termination: viterbi(N + 1, stop)
         best_score = np.max(viterbi_scores[length-1, :] + final_scores)
+        # backtrack(N + 1, stop)
         best_path[length-1] = np.argmax(viterbi_scores[length-1, :] + final_scores)
 
-        # Backtrack.
+        # backtrack.
         for pos in range(length-2, -1, -1):
             best_path[pos] = viterbi_paths[pos+1, best_path[pos+1]]
-
         return best_path, best_score
 
         # End of solution to Exercise 2.8
