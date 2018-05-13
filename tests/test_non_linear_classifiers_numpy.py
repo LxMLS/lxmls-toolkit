@@ -12,8 +12,7 @@ from lxmls.deep_learning.utils import Model, glorot_weight_init, index2onehot, l
 from lxmls.deep_learning.numpy_models.mlp import NumpyMLP
 from lxmls.deep_learning.mlp import get_mlp_parameter_handlers, get_mlp_loss_range
 
-tolerance = 2 #TODO #FIXME Implementations give random results in a +-1 margin.
-              # Check the source of this randomness
+tolerance = 1e-2
 
 @pytest.fixture(scope='module')
 def corpus():
