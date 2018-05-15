@@ -8,33 +8,6 @@
 [requires-image]: https://requires.io/github/LxMLS/lxmls-toolkit/requirements.svg?branch=master
 [requires-url]: https://requires.io/github/LxMLS/lxmls-toolkit/requirements/?branch=master
 
-[codecov-image]: https://codecov.io/github/LxMLS/lxmls-toolkit/coverage.svg?branch=master
-[codecov-url]: https://codecov.io/github/LxMLS/lxmls-toolkit
-
-[landscape-image]: https://landscape.io/github/LxMLS/lxmls-toolkit/master/landscape.svg?style=flat
-[landscape-url]: https://landscape.io/github/LxMLS/lxmls-toolkit/master
-
-[codacy-image]: https://img.shields.io/codacy/REPLACE_WITH_PROJECT_ID.svg?style=flat
-[codacy-url]: https://www.codacy.com/app/LxMLS/lxmls-toolkit
-
-[version-image]: https://img.shields.io/pypi/v/lxmls.svg?style=flat
-[version-url]: https://pypi.python.org/pypi/lxmls
-
-[downloads-image]: https://img.shields.io/pypi/dm/lxmls.svg?style=flat
-[downloads-url]: https://pypi.python.org/pypi/lxmls
-
-[wheel-image]: https://img.shields.io/pypi/wheel/lxmls.svg?style=flat
-[wheel-url]: https://pypi.python.org/pypi/lxmls
-
-[supported-versions-image]: https://img.shields.io/pypi/pyversions/lxmls.svg?style=flat
-[supported-versions-url]: https://pypi.python.org/pypi/lxmls
-
-[supported-implementations-image]: https://img.shields.io/pypi/implementation/lxmls.svg?style=flat
-[supported-implementations-url]: https://pypi.python.org/pypi/lxmls
-
-[scrutinizer-image]: https://img.shields.io/scrutinizer/g/LxMLS/lxmls-toolkit/master.svg?style=flat
-[scrutinizer-url]: https://scrutinizer-ci.com/g/LxMLS/lxmls-toolkit/
-
 # Summary
 
 Machine learning toolkit for natural language processing. Written for Lisbon Machine Learning Summer School (lxmls.it.pt). This covers
@@ -47,7 +20,7 @@ Machine learning toolkit for natural language processing. Written for Lisbon Mac
 * Feed-forward models in deep learning
 * Sequence models in deep learning
 
-Machine learning toolkit for natural language processing. Written for [LxMLS - Lisbon Machine Learning Summer School](http://lxmls.it.pt/)
+Machine learning toolkit for natural language processing. Written for [LxMLS - Lisbon Machine Learning Summer School](http://lxmls.it.pt)
 
 ## Instructions for Students
 
@@ -73,7 +46,7 @@ Finally call
 
     python setup.py develop
 
-to instal the toolkit in a way that is modifiable.
+to install the toolkit in a way that is modifiable.
 
 Bear in mind that the main purpose of the toolkit is educative. You may resort
 to other toolboxes if you are looking for efficient implementations of the
