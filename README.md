@@ -53,21 +53,22 @@ Machine learning toolkit for natural language processing. Written for [LxMLS - L
 
 * Use the [student branch](https://github.com/LxMLS/lxmls-toolkit/tree/student) **not** this one!
 
-## Install with Anaconda
+## Install with Anaconda or pip
 
-The simplest method is to use `Anaconda`to handle your packages as described on
-`Day 0` of the lxmls-guide.
+If you are new to Python, the simplest method is to use `Anaconda`to handle your packages, just go to
 
-## Alternative install with pip and virtualenv
+    https://www.anaconda.com/download/
 
-If you like `pip`, install the toolkit modules
+and follow the instructions. If you prefer `pip`, install the toolkit modules in a virtual environment
 
     virtualenv venv
     source venv/bin/activate
     pip install -r requirements.txt
 
-Then get the right `pip install` command for your platform for pytorch from
-`http://pytorch.org/` and apply them. Finally call
+In both cases, you will need to get a `pip` or `conda` command for your platform for pytorch from
+`http://pytorch.org/` and apply them. 
+
+Finally call
 
     python setup.py develop
 
