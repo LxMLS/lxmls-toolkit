@@ -47,7 +47,7 @@ Machine learning toolkit for natural language processing. Written for Lisbon Mac
 * Feed-forward models in deep learning
 * Sequence models in deep learning
 
-Machine learning toolkit for natural language processing. Written for [LxMLS - Lisbon Machine Learning Summer School](lxmls.it.pt)
+Machine learning toolkit for natural language processing. Written for [LxMLS - Lisbon Machine Learning Summer School](http://lxmls.it.pt/)
 
 ## Get the schools code-base
 
