@@ -49,7 +49,19 @@ Machine learning toolkit for natural language processing. Written for Lisbon Mac
 
 Machine learning toolkit for natural language processing. Written for [LxMLS - Lisbon Machine Learning Summer School](lxmls.it.pt)
 
-## Install with Anaconda or pip
+## Get the schools code-base
+
+If you are not familiar with `Git`, just download the zip available in the `Clone or Download` button. **Important**: Use the student version. It should be the one in the page displaying this README. Then unzip and enter the main folder. This will be your working folder
+
+    cd lxmls-toolkit-student
+
+If you feel comfortable with `Git` you may instead clone the repo and checkout the student branch
+
+    git clone https://github.com/LxMLS/lxmls-toolkit.git
+    cd lxmls-toolkit/
+    git checkout student
+
+## Install modules with Anaconda or pip
 
 If you are new to Python, the simplest method is to use `Anaconda`to handle your packages, just go to
 
@@ -61,7 +73,7 @@ and follow the instructions. If you prefer `pip`, install the toolkit modules in
     source venv/bin/activate
     pip install -r requirements.txt
 
-In both cases, you will need to get a `pip` or `conda` command for your platform for pytorch from
+This will not interfere with your existing installation.  In both cases, you will need to get a `pip` or `conda` command for your platform for pytorch from
 `http://pytorch.org/` and apply them. 
 
 Finally call
