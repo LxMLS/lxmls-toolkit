@@ -91,4 +91,8 @@ algorithms described.
 
 Some day will require you to complete code from previous days. If you have not completed the exercises you can allways use the `solve.py` command as for example
 
-    python solve.py 
+    python solve.py sequence_models
+
+**Important**: This will delete your code on the correspondig file!. Save it before. To undo solving (this wont return your code) do
+
+    python solve.py --undo sequence_models

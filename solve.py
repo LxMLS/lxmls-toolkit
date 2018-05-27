@@ -90,7 +90,7 @@ if __name__ == '__main__':
             "\nUsage:\n\n"
             "python solve.py sequence models  # To solve exercise\n\n"
             "python solve.py --undo sequence models  # To undo solve\n\n"
-            "Solvable days: %s" % ", ".join(code_day.keys())
+            "Solvable days: %s\n" % ", ".join(code_day.keys())
         )
         exit(1)
 
