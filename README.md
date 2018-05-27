@@ -49,7 +49,7 @@ Machine learning toolkit for natural language processing. Written for Lisbon Mac
 
 Machine learning toolkit for natural language processing. Written for [LxMLS - Lisbon Machine Learning Summer School](http://lxmls.it.pt/)
 
-## Get the schools code-base
+## Get the lxmls code-base
 
 If you are not familiar with `Git`, just download the zip available in the `Clone or Download` button. **Important**: Use the student version. It should be the one in the page displaying this README. Then unzip and enter the main folder. This will be your working folder
 
