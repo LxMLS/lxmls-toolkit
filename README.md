@@ -67,10 +67,11 @@ If you are new to Python, the simplest method is to use `Anaconda`to handle your
 
     https://www.anaconda.com/download/
 
-and follow the instructions. If you prefer `pip`, install the toolkit modules in a virtual environment
+and follow the instructions. If you prefer `pip`, install the toolkit modules in a virtual environment. It is safer to update `pip` and `setuptools` first
 
     virtualenv venv
     source venv/bin/activate
+    pip install pip setuptools --upgrade
     pip install -r requirements.txt
 
 This will not interfere with your existing installation.  In both cases, you will need to get a `pip` or `conda` command for your platform for pytorch from
@@ -85,3 +86,9 @@ to instal the toolkit in a way that is modifiable.
 Bear in mind that the main purpose of the toolkit is educative. You may resort
 to other toolboxes if you are looking for efficient implementations of the
 algorithms described.
+
+## Solving Exercises
+
+Some day will require you to complete code from previous days. If you have not completed the exercises you can allways use the `solve.py` command as for example
+
+    python solve.py 
