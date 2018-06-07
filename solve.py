@@ -3,7 +3,7 @@ This script solves the exercises of days that have been completed. Jut in case
 the students did not made it by their own.
 '''
 import sys
-import urllib2
+from urllib.request import urlopen
 
 
 def download_and_replace(url, target_file):
@@ -16,18 +16,18 @@ def download_and_replace(url, target_file):
     '''
     # Try to connect to the internet
     try:
-        u = urllib2.urlopen(url)
-    except Exception, err:
+        u = urlopen(url)
+    except Exception as err:
         if getattr(err, 'code', None):
-            print "\nError: %s Could not get file %s\n" % (err.code, url)
+            print("\nError: %s Could not get file %s\n" % (err.code, url))
         else:
             # A generic error is most possibly no available internet
-            print "\nCould not connect to the internet\n"
+            print("\nCould not connect to the internet\n")
         exit(1)
 
     with open(target_file, 'wb') as f:
         meta = u.info()
-        file_size = int(meta.getheaders("Content-Length")[0])
+        file_size = int(meta.get("Content-Length")[0])
         file_size_dl = 0
         block_sz = 8192
         while True:
@@ -86,19 +86,19 @@ if __name__ == '__main__':
         day = sys.argv[2]
 
     else:
-        print (
+        print(
             "\nUsage:\n\n"
-            "python solve.py sequence models  # To solve exercise\n\n"
-            "python solve.py --undo sequence models  # To undo solve\n\n"
+            "python solve.py sequence_models  # To solve exercise\n\n"
+            "python solve.py --undo sequence_models  # To undo solve\n\n"
             "Solvable days: %s\n" % ", ".join(code_day.keys())
         )
         exit(1)
 
     # CHECK THERE ARE FILES TO SAVE
     if day in code_day:
-        print "\nsolving %s" % day
+        print("\nsolving %s" % day)
     else:
-        print "\nTheres actually no code to solve on %s!\n" % day
+        print("\nTheres actually no code to solve on %s!\n" % day)
         exit()
 
     # OVERWRITE THE FILES TO SOLVE THEM
@@ -107,4 +107,4 @@ if __name__ == '__main__':
             download_and_replace(labs_URL + pyfile, pyfile)
         else:
             download_and_replace(master_URL + pyfile, pyfile)
-        print "Solving: %s" % pyfile
+        print("Solving: %s" % pyfile)
