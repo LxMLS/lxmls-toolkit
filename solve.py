@@ -3,7 +3,10 @@ This script solves the exercises of days that have been completed. Jut in case
 the students did not made it by their own.
 '''
 import sys
-from urllib.request import urlopen
+try: #python3
+    from urllib.request import urlopen
+except: #python2
+    from urllib2 import urlopen
 
 
 def download_and_replace(url, target_file):
