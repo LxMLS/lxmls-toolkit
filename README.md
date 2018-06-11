@@ -1,6 +1,4 @@
 [![Travis-CI Build Status][travis-image]][travis-url] [![Requirements Status][requires-image]][requires-url]
-[![Coverage Status][codecov-image]][codecov-url] [![Code Quality Status][landscape-image]][landscape-url]
-[![Scrutinizer Status][scrutinizer-image]][scrutinizer-url] [![Codacy Code Quality Status][codacy-image]][codacy-url]
 
 [travis-image]: https://travis-ci.org/LxMLS/lxmls-toolkit.svg?branch=master
 [travis-url]: https://travis-ci.org/LxMLS/lxmls-toolkit
