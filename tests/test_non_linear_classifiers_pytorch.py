@@ -13,8 +13,7 @@ from lxmls.deep_learning.utils import AmazonData
 from lxmls.deep_learning.utils import Model, glorot_weight_init
 from lxmls.deep_learning.pytorch_models.mlp import PytorchMLP
 
-tolerance = 2 #TODO #FIXME: Pytorch gives random results in a +-2 margin.
-              # Check the source of this randomness
+tolerance = 1e-2
 
 
 @pytest.fixture(scope='module')

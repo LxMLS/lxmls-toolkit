@@ -30,15 +30,16 @@ class SVM(lc.LinearClassifier):
             objective = 0.0
             for nr in range(nr_x):
                 t += 1
-                learning_rate = self.initial_step * np.power(t, -self.alpha)
                 inst = perm[nr]
+                learning_rate = self.initial_step * np.power(t, -self.alpha)
                 scores = self.get_scores(x[inst:inst+1, :], w)
                 y_true = y[inst:inst+1, 0]
                 cost_augmented_loss = scores + 1
+                #correct predictions should be made with a margin > 1
                 cost_augmented_loss[:, y_true] -= 1
                 y_hat = np.argmax(cost_augmented_loss, axis=1).transpose()
-                # if(y_true != y_hat):
-                objective += 0.5 * self.regularizer * l2norm_squared(w) - scores[:, y_true] + cost_augmented_loss[:, y_hat]
+                #minimize objective: sum of slack variables + 1/2*regularizer*l2norm_squared(w)
+                objective += (cost_augmented_loss[:, y_hat] - scores[:, y_true]) + 0.5 * self.regularizer * l2norm_squared(w)
                 w *= (1 - self.regularizer * learning_rate)
                 w[:, y_true] += learning_rate * x[inst:inst+1, :].transpose()
                 w[:, y_hat] -= learning_rate * x[inst:inst+1, :].transpose()
