@@ -1,10 +1,9 @@
-import sys
 import numpy as np
-from lxmls.parsing.dependency_reader import *
-from lxmls.parsing.dependency_writer import *
-from lxmls.parsing.dependency_features import *
-from lxmls.parsing.dependency_decoder import *
-from lxmls.util.my_math_utils import *
+
+from lxmls.parsing.dependency_decoder import DependencyDecoder
+from lxmls.parsing.dependency_features import DependencyFeatures
+from lxmls.parsing.dependency_reader import DependencyReader
+from lxmls.parsing.dependency_writer import DependencyWriter
 
 
 class DependencyParser:
@@ -70,8 +69,6 @@ class DependencyParser:
         t0 = 1.0 / (sigma*eta0)
         for epoch in range(n_epochs):
             print("Epoch {0}".format(epoch+1))
-            n_mistakes = 0
-            n_tokens = 0
             n_instances = 0
             objective = 0.0
             for instance in self.reader.train_instances:
