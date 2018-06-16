@@ -85,23 +85,10 @@ class SequenceClassificationDecoder:
 
         # ----------
         # Solution to Exercise 2.8
-
-        length = np.size(emission_scores, 0)  # Length of the sequence.
-        num_states = np.size(initial_scores)  # Number of states.
-
-        # Variables storing the Viterbi scores.
-        viterbi_scores = np.zeros([length, num_states]) + logzero()
-
-        # Variables storing the paths to backtrack.
-        viterbi_paths = -np.ones([length, num_states], dtype=int)
-
-        # Most likely sequence.
-        best_path = -np.ones(length, dtype=int)
-
+        # ...
+        raise NotImplementedError("Complete Exercise 8")
         # ----------
         # Solution to Exercise 8
-
-        raise NotImplementedError("Complete Exercise 8")
 
         #### Little guide of the implementation ####################################
         # Initializatize the viterbi scores
