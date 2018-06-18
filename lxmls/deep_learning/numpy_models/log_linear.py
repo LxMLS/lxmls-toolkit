@@ -21,7 +21,7 @@ class NumpyLogLinear(Model):
     def log_forward(self, input=None):
         """Forward pass of the computation graph"""
 
-        # Linear transformation
+        #
         z = np.dot(input, self.weight.T) + self.bias
 
         # Softmax implemented in log domain
