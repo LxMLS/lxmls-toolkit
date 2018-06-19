@@ -59,6 +59,8 @@ code_day = {
     'sequence_models': [
         'lxmls/sequences/hmm.py',
         'lxmls/sequences/sequence_classification_decoder.py',
+    ],
+    'structure_predictors': [
         'lxmls/sequences/structured_perceptron.py'
     ],
     'parsing': [
@@ -108,6 +110,7 @@ if __name__ == '__main__':
     for pyfile in code_day[day]:
         if undo_flag:
             download_and_replace(labs_URL + pyfile, pyfile)
+            print("Unsolving: %s" % pyfile)
         else:
             download_and_replace(master_URL + pyfile, pyfile)
-        print("Solving: %s" % pyfile)
+            print("Solving: %s" % pyfile)
