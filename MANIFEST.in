@@ -1,0 +1,25 @@
+graft docs
+graft data
+graft lxmls
+graft tests
+
+include .bumpversion.cfg
+include .coveragerc
+include .editorconfig
+include .isort.cfg
+
+include AUTHORS.md
+include CHANGELOG.md
+include CONTRIBUTING.md
+include LICENSE.txt
+include README.md
+
+include requirements.txt
+
+include tox.ini .travis.yml
+
+recursive-include *.md *.txt
+
+recursive-exclude data *.pred senna_50
+
+global-exclude *.py[cod] __pycache__ *.so *.dylib *.bak

@@ -1,0 +1,19 @@
+
+language: python
+
+sudo: false
+
+python:
+   - "2.7"
+   - "3.5"
+   - "3.6"
+os:
+  - linux
+
+install:
+  - pip install -r requirements.txt
+  - if [[ $TRAVIS_PYTHON_VERSION == 2.7 && $TRAVIS_OS_NAME == 'linux' ]] ; then pip install http://download.pytorch.org/whl/cpu/torch-0.3.1-cp27-cp27mu-linux_x86_64.whl; fi
+  - if [[ $TRAVIS_PYTHON_VERSION == 3.5 && $TRAVIS_OS_NAME == 'linux' ]] ; then pip install http://download.pytorch.org/whl/cpu/torch-0.3.1-cp35-cp35m-linux_x86_64.whl; fi
+  - if [[ $TRAVIS_PYTHON_VERSION == 3.6 && $TRAVIS_OS_NAME == 'linux' ]] ; then pip install http://download.pytorch.org/whl/cpu/torch-0.3.1-cp36-cp36m-linux_x86_64.whl; fi
+
+script: pytest

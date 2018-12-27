@@ -1,0 +1,16 @@
+[paths]
+source =
+   lxmls
+   */site-packages/lxmls
+
+[run]
+branch = True
+source =
+    lxmls
+    tests
+parallel = true
+
+[report]
+show_missing = true
+precision = 2
+omit = *migrations*
