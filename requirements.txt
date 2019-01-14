@@ -6,3 +6,5 @@ matplotlib
 nltk
 ipdb
 jupyter
+torch
+torchvision
