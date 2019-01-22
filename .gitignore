@@ -70,3 +70,6 @@ dist
 .ipynb_checkpoints/
 *.swp
 *.pred
+
+# Automatic python version of notebooks
+labs/scripts/*
