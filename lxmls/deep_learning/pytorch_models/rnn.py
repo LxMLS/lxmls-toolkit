@@ -3,6 +3,8 @@ import numpy as np
 import torch
 from torch.autograd import Variable
 from lxmls.deep_learning.rnn import RNN
+# To sample from model
+from torch.distributions.categorical import Categorical
 
 
 def cast_float(variable):
@@ -148,8 +150,8 @@ class PytorchRNN(RNN):
 
 class FastPytorchRNN(RNN):
     """
-    Basic RNN with forward-pass and gradient computation in Pytorch. Uses native
-    Pytorch RNN
+    Basic RNN with forward-pass and gradient computation in Pytorch. Uses
+    native Pytorch RNN
     """
 
     def __init__(self, **config):
@@ -181,6 +183,7 @@ class FastPytorchRNN(RNN):
         self.logsoftmax = torch.nn.LogSoftmax(dim=1)
 
         # Negative-log likelihood
+        # TODO: Switch here to RL loss depending on config
         self.loss = torch.nn.NLLLoss()
 
         # Get the parameters
@@ -196,6 +199,17 @@ class FastPytorchRNN(RNN):
         """
         p_y = np.exp(self._log_forward(input).data.numpy())
         return np.argmax(p_y, axis=1)
+
+    def _sample(self, input=None):
+        """
+        Return one sample from the model and its minus log-probability
+        """
+        logits = self._log_forward(input)
+        distribution = Categorical(logits=logits.view(-1, logits.size(-1)))
+        samples = distribution.sample()
+        log_probs = -distribution.log_prob(samples)
+
+        return samples, log_probs
 
     def update(self, input=None, output=None):
         """
