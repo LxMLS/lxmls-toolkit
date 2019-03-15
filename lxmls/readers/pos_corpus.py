@@ -1,5 +1,8 @@
 import codecs
 import gzip
+from itertools import chain
+from random import shuffle
+
 from lxmls.sequences.label_dictionary import *
 from lxmls.sequences.sequence import *
 from lxmls.sequences.sequence_list import *
@@ -228,6 +231,8 @@ class PostagCorpusData():
            sset: len(content['output'])
            for sset, content in self.datasets.items()
         }
+        self.maxL = max(chain(*[[len(seq) for seq in content['input']] for content in self.datasets.values()]))
+        return
 
     def size(self, set_name):
         return self.nr_samples[set_name]
@@ -254,6 +259,25 @@ class PostagCorpusData():
                 ])[0, :]
             data.append(data_batch)
 
+        return DataIterator(data, nr_samples=self.nr_samples[set_name])
+
+
+    def sample(self, set_name, batch_size=None):
+        dset = self.datasets[set_name]
+        nr_examples = self.nr_samples[set_name]
+        if batch_size is None:
+            nr_batch = 1
+            batch_size = nr_examples
+        else:
+            nr_batch = int(np.ceil(nr_examples*1./batch_size))
+        data = []
+        for batch_n in range(nr_batch):
+            #Colect data for this batch
+            data_batch = {}
+            sample = np.random.randint(0, nr_examples, batch_size)
+            for side in ['input', 'output']:
+                data_batch[side] = np.asarray(dset[side])[sample]
+            data.append(data_batch)
         return DataIterator(data, nr_samples=self.nr_samples[set_name])
 
 
