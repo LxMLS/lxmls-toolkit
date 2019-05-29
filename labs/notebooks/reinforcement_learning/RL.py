@@ -9,7 +9,6 @@ print(data.output_size)
 print(data.maxL)
 
 
-
 import numpy as np
 import time
 
@@ -21,8 +20,8 @@ test_set = data.batches('test', batch_size=batch_size)
 
 
 
-# Alterbative native CuDNN native implementation of RNNs
-from lxmls.deep_learning.pytorch_models.rnn import FastPytorchRNN
+# Alternative native CuDNN native implementation of RNNs
+#from lxmls.deep_learning.pytorch_models.rnn import FastPytorchRNN
 # model = FastPytorchRNN(
 #     input_size=data.input_size,
 #     embedding_size=50,
@@ -60,7 +59,7 @@ from lxmls.deep_learning.pytorch_models.rnn import FastPytorchRNN
 # print("Test accuracy %2.2f %%" % accuracy)
 
 
-# Alterbative native CuDNN native implementation of RNNs
+# Alternative native CuDNN native implementation of RNNs
 from lxmls.deep_learning.pytorch_models.rnn import PolicyRNN
 model = PolicyRNN(
     input_size=data.input_size,

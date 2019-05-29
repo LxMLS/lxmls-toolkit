@@ -267,6 +267,7 @@ class FastPytorchRNN(RNN):
 
         return gradient_parameters
 
+
 class PolicyRNN(FastPytorchRNN):
     """
     Basic RNN with forward-pass and gradient computation in Pytorch. Uses
@@ -287,7 +288,6 @@ class PolicyRNN(FastPytorchRNN):
         self._gamma = config.get('gamma', 0.9)
         self._maxL = config.get('maxL', None)
 
-
     def _sample(self, input=None):
         """
         Return one sample from the model and its minus log-probability
@@ -300,8 +300,6 @@ class PolicyRNN(FastPytorchRNN):
         log_probs = -distribution.log_prob(samples)
 
         return samples, log_probs
-
-
 
     def torch_ind2onehot(self, tensor_shape, idx, dim):
         onehot = torch.FloatTensor(tensor_shape)
@@ -354,7 +352,6 @@ class PolicyRNN(FastPytorchRNN):
         selected_logprobs = -R.reshape(-1) * log_p_y[np.arange(len(output)), output]
         loss = selected_logprobs.sum()/float(len(out.batch_sizes))# sum in time and class dimension mean over batch size
         return loss
-
 
     def cost_to_go(self, rwd, sizes=None, gamma=0.99, dim=1):
         #calculate cumulative cost to go
@@ -476,4 +473,3 @@ class PolicyRNN(FastPytorchRNN):
         w = np.dot(np.linalg.pinv(H), R.data.detach().numpy())
         b = np.dot(H, w)
         return cast_float(b, grad=False)
-

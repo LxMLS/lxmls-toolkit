@@ -52,9 +52,15 @@ def train():
         rew = gt(rewardlist[:], 0.99)
         grad_list = []
         for j, (state, action) in enumerate(state_action_list):
-            raise Exception(
-                "TODO: Implement here the gradient calculation and update"
-            )
+
+            # ----------
+            # Solution to Exercise 6.3
+
+            raise NotImplementedError("Exercise 6.3")
+
+            # End of solution to Exercise 6.3
+            # ----------
+
         value = (gt(rewardlist, 1))
         valuelist.append(value)
 
