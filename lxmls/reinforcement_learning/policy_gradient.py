@@ -17,7 +17,17 @@ class PolicyGradient(nn.Module):
         self.linear2 = nn.Linear(8, 2)
 
     def forward(self, state):
-        raise Exception("TODO: Implement the forward pass")
+
+        # ----------
+        # Solution to Exercise 6.4
+
+        # raise Exception("Exercise 6.4")
+
+        input1 = torch.autograd.Variable(torch.FloatTensor([state]))
+        return F.log_softmax(self.linear2(F.sigmoid(self.linear(input1))))
+
+        # End of solution to Exercise 6.4
+        # ----------
 
 
 def train():
