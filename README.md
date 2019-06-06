@@ -35,14 +35,7 @@ and follow the instructions. If you prefer `pip`, install the toolkit modules in
     virtualenv venv
     source venv/bin/activate
     pip install pip setuptools --upgrade
-    pip install -r requirements.txt
-
-In both cases, you will need to get a `pip` or `conda` command for your platform for pytorch from
-`http://pytorch.org/` and apply them. 
-
-Finally call
-
-    python setup.py develop
+    pip install --editable . 
 
 to install the toolkit in a way that is modifiable.
 
