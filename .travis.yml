@@ -10,7 +10,7 @@ os:
   - linux
 
 install:
-  - pip install -r requirements.txt
+  - pip install tox
 
 script: tox
 
