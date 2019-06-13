@@ -1,9 +1,11 @@
 from __future__ import division
+
 import numpy as np
 import scipy
 import scipy.linalg
 import torch
 from torch.autograd import Variable
+from torch.distributions import Categorical
 from lxmls.deep_learning.rnn import RNN
 # To sample from model
 from itertools import chain
@@ -296,7 +298,7 @@ class PolicyRNN(FastPytorchRNN):
         :return the samples and its neg. log probabilities
         """
         logits = self._log_forward(input)
-        distribution = torch.distributions.categorical.Categorical(
+        distribution = Categorical(
             logits=logits.view(-1, logits.size(-1))
         )
         samples = distribution.sample()
