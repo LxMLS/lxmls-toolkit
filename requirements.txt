@@ -6,6 +6,6 @@ matplotlib
 nltk
 ipdb
 jupyter
-torch==0.4.0
-torchvision
+torch==1.0.0
+torchvision==0.2.2
 gym

@@ -1,21 +1,18 @@
 from __future__ import division
+
 import sys
 import os
-import pytest
-
-LXMLS_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.insert(0, LXMLS_ROOT)
-
 import numpy as np
+import pytest
+import warnings
 
 import lxmls.readers.pos_corpus as pcc
 import lxmls.readers.simple_sequence as ssr
 import lxmls.sequences.hmm as hmmc
 from lxmls import data
 
-import warnings
-
 tolerance = 1e-5
+
 
 @pytest.fixture(scope='module')
 def simple():
@@ -205,6 +202,7 @@ def test_exercise_9(hmm_with_corpus, train_seq, dev_seq, test_seq):
         assert abs(best_smothing - 0.100) < tolerance
         assert abs(eval_posterior_test - 0.8367993662111309) < tolerance
         assert abs(eval_viterbi_test - 0.8265002970885323) < tolerance
+
 
 # Slow
 def test_exercise_11(hmm_with_corpus, train_seq, test_seq):
