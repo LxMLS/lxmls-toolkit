@@ -7,7 +7,6 @@ from torch.autograd import Variable
 from lxmls.deep_learning.rnn import RNN
 # To sample from model
 from torch.distributions.categorical import Categorical
-from IPython import embed
 from itertools import chain
 
 def cast_float(variable, grad=True):
