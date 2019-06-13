@@ -6,8 +6,8 @@ import torch
 from torch.autograd import Variable
 from lxmls.deep_learning.rnn import RNN
 # To sample from model
-from torch.distributions.categorical import Categorical
 from itertools import chain
+
 
 def cast_float(variable, grad=True):
     return Variable(torch.from_numpy(variable).float(), requires_grad=grad)
@@ -125,7 +125,7 @@ class PytorchRNN(RNN):
         Computes the gradients of the network with respect to cross entropy
         error cost
         """
-        
+
         # Ensure the type matches torch type
         output = Variable(torch.from_numpy(output).long())
 
@@ -296,7 +296,9 @@ class PolicyRNN(FastPytorchRNN):
         :return the samples and its neg. log probabilities
         """
         logits = self._log_forward(input)
-        distribution = Categorical(logits=logits.view(-1, logits.size(-1)))
+        distribution = torch.distributions.categorical.Categorical(
+            logits=logits.view(-1, logits.size(-1))
+        )
         samples = distribution.sample()
         log_probs = -distribution.log_prob(samples)
 
@@ -322,17 +324,27 @@ class PolicyRNN(FastPytorchRNN):
         :return: loss as a real value
         """
 
-        #lengths = cast_float(np.asarray(list(chain(*[[1/float(len(i))]*len(i) for i in loutput]))), grad=False)
         out = self.pack(loutput)
         output = out.data
-        out_vec = self.torch_ind2onehot(log_p_y.shape, output.reshape(-1, 1), -1)
-        cost = (torch.exp(log_p_y) - out_vec)**2  # torch.sum
-        #cost = lengths.reshape(-1, 1) * (torch.exp(log_p_y) - out_vec) ** 2  # torch.sum
-        R = self.cost_to_go(cost, out.batch_sizes, gamma=self._gamma, dim=0) #cost to go always positive
-        b = self.baseline(R) #compute baseline
+        out_vec = self.torch_ind2onehot(
+            log_p_y.shape,
+            output.reshape(-1, 1), -1
+        )
+        # torch.sum
+        cost = (torch.exp(log_p_y) - out_vec)**2
+        # cost to go always positive
+        R = self.cost_to_go(
+            cost,
+            out.batch_sizes,
+            gamma=self._gamma,
+            dim=0
+        )
+        # compute baseline
+        b = self.baseline(R)
         # Calculate loss
         selected_logprobs = - (R - b) * log_p_y
-        loss = selected_logprobs.sum()/float(len(out.batch_sizes)) # avg Sum_t cost to go over sequences
+        # avg Sum_t cost to go over sequences
+        loss = selected_logprobs.sum() / float(len(out.batch_sizes))
         return loss
 
     def reinforce_loss(self, log_p_y, loutput):
@@ -343,19 +355,26 @@ class PolicyRNN(FastPytorchRNN):
         :return: loss as a real value
         """
         sizes = [len(i) for i in loutput]
-        #lengths = cast_float(np.asarray(list(chain(*[[1/float(len(i))]*len(i) for i in loutput]))), grad=False)
         out = self.pack(loutput)
         output = out.data
         pred = torch.max(log_p_y, dim=1)[1]
-        cost = (pred==output).float() #* lengths
-        R = self.cost_to_go(cost.reshape(-1, 1), sizes, gamma=self._gamma, dim=0)
+        # * lengths
+        cost = (pred == output).float()
+        R = self.cost_to_go(
+            cost.reshape(-1, 1),
+            sizes,
+            gamma=self._gamma,
+            dim=0
+        )
         # Calculate loss
-        selected_logprobs = -R.reshape(-1) * log_p_y[np.arange(len(output)), output]
-        loss = selected_logprobs.sum()/float(len(out.batch_sizes))# sum in time and class dimension mean over batch size
+        selected_logprobs = -R.reshape(-1) * \
+            log_p_y[np.arange(len(output)), output]
+        # sum in time and class dimension mean over batch size
+        loss = selected_logprobs.sum() / float(len(out.batch_sizes))
         return loss
 
     def cost_to_go(self, rwd, sizes=None, gamma=0.99, dim=1):
-        #calculate cumulative cost to go
+        # calculate cumulative cost to go
         if sizes is None:
             col = [gamma**i for i in range(rwd.shape[dim])]
             row = np.zeros((rwd.shape[dim]), dtype=float)
@@ -366,7 +385,7 @@ class PolicyRNN(FastPytorchRNN):
         else:
             j = 0
             ctg = []
-            for i,T in enumerate(sizes):
+            for i, T in enumerate(sizes):
                 col = [gamma ** i for i in range(T)]
                 row = np.zeros((T), dtype=float)
                 row[0] = col[0]
@@ -383,9 +402,6 @@ class PolicyRNN(FastPytorchRNN):
         Forward pass
         """
         # Ensure the type matches torch type
-        #input = Variable(torch.from_numpy(input).long())
-
-
         input = self.pack(linput)
         # Get parameters and sizes
         W_e, W_x, W_h, W_y = self.parameters
@@ -396,7 +412,9 @@ class PolicyRNN(FastPytorchRNN):
         # Word Embeddings
 
         z_e = self.embedding_layer(input.data)
-        pack_z_e = torch.nn.utils.rnn.pack_sequence(self.unpack(z_e, input.batch_sizes))
+        pack_z_e = torch.nn.utils.rnn.pack_sequence(
+            self.unpack(z_e, input.batch_sizes)
+        )
 
         # RNN
         self.h, _ = self.rnn(pack_z_e)
@@ -436,27 +454,37 @@ class PolicyRNN(FastPytorchRNN):
 
     @staticmethod
     def batch_var_lenlist(loutput):
-        lengths = [(len(i), j) for j,i in enumerate(loutput)]
+        lengths = [(len(i), j) for j, i in enumerate(loutput)]
         lengths = sorted(lengths, reverse=True)
-        out_var = [cast_int(loutput[i], grad=False) for i in list(zip(*lengths))[1]]
+        out_var = [
+            cast_int(loutput[i], grad=False) for i in list(zip(*lengths))[1]
+        ]
         pad_output = torch.nn.utils.rnn.pad_sequence(out_var)
-        output = torch.nn.utils.rnn.pack_padded_sequence(pad_output, list(zip(*lengths))[0], batch_first=False)
+        output = torch.nn.utils.rnn.pack_padded_sequence(
+            pad_output,
+            list(zip(*lengths))[0], batch_first=False
+        )
         return output
 
     def pack(self, loutput, grad=False):
-        lengths = [(len(i), j) for j,i in enumerate(loutput)]
+        lengths = [(len(i), j) for j, i in enumerate(loutput)]
         lengths = sorted(lengths, key=lambda x: x[0], reverse=True)
         padded_output = np.zeros((self._maxL, len(loutput)), dtype=float)
         for i in range(len(loutput)):
-            padded_output[ :len(loutput[i]), i] = np.asarray(loutput[i])
+            padded_output[:len(loutput[i]), i] = np.asarray(loutput[i])
         out_var = cast_int(padded_output, grad=grad)
-        output = torch.nn.utils.rnn.pack_padded_sequence(out_var, list(list(zip(*lengths))[0]), batch_first=False)
+        output = torch.nn.utils.rnn.pack_padded_sequence(
+            out_var,
+            list(list(zip(*lengths))[0]), batch_first=False
+        )
         return output
 
     @staticmethod
     def unpack(mat, batch_sizes):
-        return [mat[sum(batch_sizes[:i]):sum(batch_sizes[:i + 1]), :] for i in range(len(batch_sizes))]
-
+        return [
+            mat[sum(batch_sizes[:i]):sum(batch_sizes[:i + 1]), :]
+            for i in range(len(batch_sizes))
+        ]
 
     def predict_loss(self, linput, loutput):
         prediction = self.predict(linput)
