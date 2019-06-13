@@ -73,7 +73,7 @@ class PytorchRNN(RNN):
             # Update weight
             self.parameters[m].data -= learning_rate * gradients[m]
 
-    def _log_forward(self, linput):
+    def _log_forward(self, input):
         """
         Forward pass
         """
@@ -126,7 +126,9 @@ class PytorchRNN(RNN):
         Computes the gradients of the network with respect to cross entropy
         error cost
         """
-        output = cast_float(output,grad=False)
+        
+        # Ensure the type matches torch type
+        output = Variable(torch.from_numpy(output).long())
 
         # Zero gradients
         for parameter in self.parameters:
