@@ -8,7 +8,7 @@ except ImportError:  # for pip <= 9.0.3
     from pip.req import parse_requirements
     from pip import download
 
-VERSION = '0.0.1'
+VERSION = '0.0.2'
 
 # parse_requirements() returns generator of pip.req.InstallRequirement
 # objects
@@ -21,6 +21,7 @@ install_requires = [str(ir.req) for ir in install_reqs]
 
 def read(filename):
     return open(os.path.join(os.path.dirname(__file__), filename)).read()
+
 
 package_data = {
     'lxmls.readers': ['*.map']
