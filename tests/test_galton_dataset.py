@@ -2,9 +2,6 @@ import sys
 import os
 import pytest
 
-LXMLS_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.insert(0, LXMLS_ROOT)
-
 from numpy import array, array_equal, allclose
 import matplotlib
 matplotlib.use('Agg')
@@ -14,9 +11,11 @@ from lxmls.readers import galton
 
 tolerance = 1e-5
 
+
 @pytest.fixture(scope='module')
 def galton_data():
     return galton.load()
+
 
 def test_galton_data(galton_data):
     mean = galton_data.mean(0)
@@ -32,6 +31,7 @@ def test_galton_data(galton_data):
     expected_bins = array([61.7, 62.9, 64.1, 65.3, 66.5, 67.7, 68.9, 70.1, 71.3, 72.5, 73.7])
     assert allclose(n, expected_n, tolerance)
     assert allclose(bins, expected_bins, tolerance)
+
 
 if __name__ == '__main__':
     pytest.main([__file__])

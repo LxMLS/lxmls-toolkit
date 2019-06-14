@@ -1,11 +1,9 @@
 import sys
 import os
-import pytest
-
-LXMLS_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.insert(0, LXMLS_ROOT)
 import numpy as np
+import pytest
 import torch
+
 from torch.autograd import Variable
 
 import lxmls.readers.sentiment_reader as srs
@@ -25,9 +23,8 @@ def corpus():
 def data(corpus):
     return AmazonData(corpus=corpus)
 
+
 # exercise 3
-
-
 def test_loglinear_pytorch(corpus, data):
 
     class PytorchLogLinear(Model):
@@ -101,7 +98,7 @@ def test_loglinear_pytorch(corpus, data):
     )
 
     # Hyper-parameters
-    num_epochs = 10
+    num_epochs = 2
     batch_size = 30
 
     # Get batch iterators for train and test
@@ -118,7 +115,7 @@ def test_loglinear_pytorch(corpus, data):
         # Evaluation
         accuracy = 100 * np.mean(hat_y == test_set['output'])
 
-    assert np.allclose(accuracy, 81, tolerance)
+    assert np.allclose(accuracy, 74, tolerance)
 
 
 # exercise 4
@@ -130,7 +127,7 @@ def test_backpropagation_pytorch(corpus, data):
 
     # Optimization
     learning_rate = 0.05
-    num_epochs = 10
+    num_epochs = 2
     batch_size = 30
 
     model = PytorchMLP(
@@ -153,7 +150,8 @@ def test_backpropagation_pytorch(corpus, data):
         # Evaluation
         accuracy = 100 * np.mean(hat_y == test_set['output'])
 
-    assert np.allclose(accuracy, 81, tolerance)
+    assert np.allclose(accuracy, 67.5, tolerance)
+
 
 if __name__ == '__main__':
     pytest.main([__file__])

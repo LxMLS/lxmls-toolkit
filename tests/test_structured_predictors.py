@@ -1,11 +1,7 @@
 import sys
 import os
-import pytest
-
-LXMLS_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.insert(0, LXMLS_ROOT)
-
 import numpy as np
+import pytest
 
 import lxmls.readers.pos_corpus as pcc
 import lxmls.sequences.crf_online as crfo
@@ -15,6 +11,7 @@ import lxmls.sequences.structured_perceptron as spc
 from lxmls import data
 
 tolerance = 1e-5
+
 
 @pytest.fixture(scope='module')
 def corpus_and_sequences():
@@ -46,7 +43,6 @@ def test_seq(corpus_and_sequences):
 
 
 def test_crf_id_features(corpus, train_seq, dev_seq, test_seq):
-
     feature_mapper = idfc.IDFeatures(train_seq)
     feature_mapper.build_features()
 
@@ -54,13 +50,13 @@ def test_crf_id_features(corpus, train_seq, dev_seq, test_seq):
     crf_online.num_epochs = 1
     crf_online.train_supervised(train_seq)
 
-    pred_train = crf_online.viterbi_decode_corpus(train_seq)
-    eval_train = crf_online.evaluate_corpus(train_seq, pred_train)
-    assert abs(eval_train - 0.8394407652685798) < tolerance
+    # pred_train = crf_online.viterbi_decode_corpus(train_seq)
+    # eval_train = crf_online.evaluate_corpus(train_seq, pred_train)
+    # assert abs(eval_train - 0.8394407652685798) < tolerance
 
-    pred_dev = crf_online.viterbi_decode_corpus(dev_seq)
-    eval_dev = crf_online.evaluate_corpus(dev_seq, pred_dev)
-    assert abs(eval_dev - 0.7957124842370744) < tolerance
+    # pred_dev = crf_online.viterbi_decode_corpus(dev_seq)
+    # eval_dev = crf_online.evaluate_corpus(dev_seq, pred_dev)
+    # assert abs(eval_dev - 0.7957124842370744) < tolerance
 
     pred_test = crf_online.viterbi_decode_corpus(test_seq)
     eval_test = crf_online.evaluate_corpus(test_seq, pred_test)
@@ -68,7 +64,6 @@ def test_crf_id_features(corpus, train_seq, dev_seq, test_seq):
 
 
 def test_crf_extended_features(corpus, train_seq, dev_seq, test_seq):
-
     feature_mapper = exfc.ExtendedFeatures(train_seq)
     feature_mapper.build_features()
 
@@ -76,13 +71,13 @@ def test_crf_extended_features(corpus, train_seq, dev_seq, test_seq):
     crf_online.num_epochs = 1
     crf_online.train_supervised(train_seq)
 
-    pred_train = crf_online.viterbi_decode_corpus(train_seq)
-    eval_train = crf_online.evaluate_corpus(train_seq, pred_train)
-    assert abs(eval_train - 0.9225901398086829) < tolerance
+    # pred_train = crf_online.viterbi_decode_corpus(train_seq)
+    # eval_train = crf_online.evaluate_corpus(train_seq, pred_train)
+    # assert abs(eval_train - 0.9225901398086829) < tolerance
 
-    pred_dev = crf_online.viterbi_decode_corpus(dev_seq)
-    eval_dev = crf_online.evaluate_corpus(dev_seq, pred_dev)
-    assert abs(eval_dev - 0.8738965952080706) < tolerance
+    # pred_dev = crf_online.viterbi_decode_corpus(dev_seq)
+    # eval_dev = crf_online.evaluate_corpus(dev_seq, pred_dev)
+    # assert abs(eval_dev - 0.8738965952080706) < tolerance
 
     pred_test = crf_online.viterbi_decode_corpus(test_seq)
     eval_test = crf_online.evaluate_corpus(test_seq, pred_test)
@@ -90,7 +85,6 @@ def test_crf_extended_features(corpus, train_seq, dev_seq, test_seq):
 
 
 def test_perceptron_id_features(corpus, train_seq, dev_seq, test_seq):
-
     feature_mapper = idfc.IDFeatures(train_seq)
     feature_mapper.build_features()
 
@@ -98,19 +92,20 @@ def test_perceptron_id_features(corpus, train_seq, dev_seq, test_seq):
     sp.num_epochs = 1
     sp.train_supervised(train_seq)
 
-    pred_train = sp.viterbi_decode_corpus(train_seq)
-    pred_dev = sp.viterbi_decode_corpus(dev_seq)
+    # pred_train = sp.viterbi_decode_corpus(train_seq)
+    # eval_train = sp.evaluate_corpus(train_seq, pred_train)
+    # assert abs(eval_train - 0.7980868285504047) < tolerance
+
+    # pred_dev = sp.viterbi_decode_corpus(dev_seq)
+    # eval_dev = sp.evaluate_corpus(dev_seq, pred_dev)
+    # assert abs(eval_dev - 0.7641866330390921) < tolerance
+
     pred_test = sp.viterbi_decode_corpus(test_seq)
-    eval_train = sp.evaluate_corpus(train_seq, pred_train)
-    eval_dev = sp.evaluate_corpus(dev_seq, pred_dev)
     eval_test = sp.evaluate_corpus(test_seq, pred_test)
-    assert abs(eval_train - 0.7980868285504047) < tolerance
-    assert abs(eval_dev - 0.7641866330390921) < tolerance
     assert abs(eval_test - 0.7187039764359352) < tolerance
 
 
 def test_perceptron_extended_features(corpus, train_seq, dev_seq, test_seq):
-
     feature_mapper = exfc.ExtendedFeatures(train_seq)
     feature_mapper.build_features()
 
@@ -118,14 +113,16 @@ def test_perceptron_extended_features(corpus, train_seq, dev_seq, test_seq):
     sp.num_epochs = 1
     sp.train_supervised(train_seq)
 
-    pred_train = sp.viterbi_decode_corpus(train_seq)
-    pred_dev = sp.viterbi_decode_corpus(dev_seq)
+    # pred_train = sp.viterbi_decode_corpus(train_seq)
+    # eval_train = sp.evaluate_corpus(train_seq, pred_train)
+    # assert abs(eval_train - 0.8679911699779249) < tolerance
+
+    # pred_dev = sp.viterbi_decode_corpus(dev_seq)
+    # eval_dev = sp.evaluate_corpus(dev_seq, pred_dev)
+    # assert abs(eval_dev - 0.8310214375788146) < tolerance
+
     pred_test = sp.viterbi_decode_corpus(test_seq)
-    eval_train = sp.evaluate_corpus(train_seq, pred_train)
-    eval_dev = sp.evaluate_corpus(dev_seq, pred_dev)
     eval_test = sp.evaluate_corpus(test_seq, pred_test)
-    assert abs(eval_train - 0.8679911699779249) < tolerance
-    assert abs(eval_dev - 0.8310214375788146) < tolerance
     assert abs(eval_test - 0.8181148748159057) < tolerance
 
 

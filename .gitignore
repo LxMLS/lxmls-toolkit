@@ -22,6 +22,7 @@ lib
 lib64
 venv*/
 pyvenv*/
+.python-version
 
 # Installer logs
 pip-log.txt
@@ -70,3 +71,6 @@ dist
 .ipynb_checkpoints/
 *.swp
 *.pred
+
+# Automatic python version of notebooks
+labs/scripts/*
