@@ -1,16 +1,21 @@
 from __future__ import division
 import numpy as np
+import scipy
+import scipy.linalg
 import torch
 from torch.autograd import Variable
+from torch.distributions import Categorical
 from lxmls.deep_learning.rnn import RNN
+# To sample from model
+from itertools import chain
 
 
-def cast_float(variable):
-    return Variable(torch.from_numpy(variable).float(), requires_grad=True)
+def cast_float(variable, grad=True):
+    return Variable(torch.from_numpy(variable).float(), requires_grad=grad)
 
 
-def cast_int(variable):
-    return Variable(torch.from_numpy(variable).long(), requires_grad=True)
+def cast_int(variable, grad=True):
+    return Variable(torch.from_numpy(variable).long(), requires_grad=grad)
 
 
 class PytorchRNN(RNN):
@@ -99,10 +104,9 @@ class PytorchRNN(RNN):
         Computes the gradients of the network with respect to cross entropy
         error cost
         """
-        output = Variable(
-            torch.from_numpy(output).long(),
-            requires_grad=False
-        )
+
+        # Ensure the type matches torch type
+        output = Variable(torch.from_numpy(output).long())
 
         # Zero gradients
         for parameter in self.parameters:
@@ -126,8 +130,8 @@ class PytorchRNN(RNN):
 
 class FastPytorchRNN(RNN):
     """
-    Basic RNN with forward-pass and gradient computation in Pytorch. Uses native
-    Pytorch RNN
+    Basic RNN with forward-pass and gradient computation in Pytorch. Uses
+    native Pytorch RNN
     """
 
     def __init__(self, **config):
@@ -173,6 +177,7 @@ class FastPytorchRNN(RNN):
         Predict model outputs given input
         """
         p_y = np.exp(self._log_forward(input).data.numpy())
+
         return np.argmax(p_y, axis=1)
 
     def update(self, input=None, output=None):
@@ -220,10 +225,7 @@ class FastPytorchRNN(RNN):
         Computes the gradients of the network with respect to cross entropy
         error cost
         """
-        output = Variable(
-            torch.from_numpy(output).long(),
-            requires_grad=False
-        )
+        output = cast_int(output, grad=False)
 
         # Zero gradients
         for parameter in self.parameters:

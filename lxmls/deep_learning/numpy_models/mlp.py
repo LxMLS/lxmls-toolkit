@@ -94,7 +94,7 @@ class NumpyMLP(MLP):
 
         # ----------
         # Solution to Exercise 2
-        
+
         raise NotImplementedError("Implement Exercise 2")
         
         # End of solution to Exercise 2

@@ -2,10 +2,14 @@
 This script solves the exercises of days that have been completed. Jut in case
 the students did not made it by their own.
 '''
+
+
 import sys
-try: #python3
+try:
+    # python3
     from urllib.request import urlopen
-except: #python2
+except ImportError:
+    # python2
     from urllib2 import urlopen
 
 
@@ -63,9 +67,6 @@ code_day = {
     'structure_predictors': [
         'lxmls/sequences/structured_perceptron.py'
     ],
-    'parsing': [
-        'lxmls/parsing/dependency_decoder.py'
-    ],
     'non-linear_classifiers': [
         'lxmls/deep_learning/numpy_models/mlp.py',
         'lxmls/deep_learning/pytorch_models/mlp.py',
@@ -73,6 +74,10 @@ code_day = {
     'non-linear_sequence_models': [
         'lxmls/deep_learning/numpy_models/rnn.py',
         'lxmls/deep_learning/pytorch_models/rnn.py',
+    ],
+    'reinforcement_learning': [
+        'lxmls/reinforcement_learning/policy_gradient.py',
+        'lxmls/reinforcement_learning/score_function_estimator.py'
     ]
 }
 

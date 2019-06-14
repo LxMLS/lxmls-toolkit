@@ -1,6 +1,4 @@
-import sys
-import numpy as np
-import os
+import codecs
 from os import path
 
 
@@ -34,10 +32,6 @@ class DependencyReader:
         self.test_instances = []
         base_deppars_dir = path.join(path.dirname(__file__), "..", "..", "data", "deppars")
         languages = ["danish", "dutch", "portuguese", "english"]
-        i = 0
-        word_dict = {}
-        pos_dict = {}
-        feat_counts = {}
         if language not in languages:
             print("Language does not exist: \"%s\": Available are: %s" % (language, languages))
             return
@@ -47,7 +41,7 @@ class DependencyReader:
         n_toks = 0
         word_id = 0
         pos_id = 0
-        conll_file = open(path.join(base_deppars_dir, language + "_train.conll"))
+        conll_file = codecs.open(path.join(base_deppars_dir, language + "_train.conll"), encoding='utf8')
 
         self.word_dict["__START__"] = word_id  # Start symbol
         word_id += 1
@@ -86,7 +80,7 @@ class DependencyReader:
         inst.words.append(self.word_dict["__START__"])
         inst.pos.append(self.pos_dict["__START__"])
         inst.heads.append(-1)
-        conll_file = open(path.join(base_deppars_dir, language + "_train.conll"))
+        conll_file = codecs.open(path.join(base_deppars_dir, language + "_train.conll"), encoding='utf8')
         for line in conll_file:
             line = line.rstrip()
             if len(line) == 0:
@@ -124,7 +118,7 @@ class DependencyReader:
         inst.words.append(self.word_dict["__START__"])
         inst.pos.append(self.pos_dict["__START__"])
         inst.heads.append(-1)
-        conll_file = open(path.join(base_deppars_dir, language + "_test.conll"))
+        conll_file = codecs.open(path.join(base_deppars_dir, language + "_test.conll"), encoding='utf8')
         for line in conll_file:
             line = line.rstrip()
             if len(line) == 0:
