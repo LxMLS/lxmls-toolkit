@@ -19,13 +19,21 @@ Machine learning toolkit for natural language processing. Written for Lisbon Mac
 * Sequence models in deep learning
 * Reinforcement Learning
 
-Machine learning toolkit for natural language processing. Written for [LxMLS - Lisbon Machine Learning Summer School](http://lxmls.it.pt)
+Machine learning toolkit for natural language processing. Written for [LxMLS - Lisbon Machine Learning Summer School](http://lxmls.it.pt/)
 
-## Instructions for Students
+## Get the lxmls code-base
 
-* Use the [student branch](https://github.com/LxMLS/lxmls-toolkit/tree/student) **not** this one!
+If you are not familiar with `Git`, just download the zip available in the `Clone or Download` button. **Important**: Use the student version. It should be the one in the page displaying this README. Then unzip and enter the main folder. This will be your working folder
 
-## Install with Anaconda or pip
+    cd lxmls-toolkit-student
+
+If you feel comfortable with `Git` you may instead clone the repo and checkout the student branch
+
+    git clone https://github.com/LxMLS/lxmls-toolkit.git
+    cd lxmls-toolkit/
+    git checkout student
+
+## Install modules with Anaconda or pip
 
 If you are new to Python, the simplest method is to use `Anaconda`to handle your packages, just go to
 
@@ -50,29 +58,13 @@ Bear in mind that the main purpose of the toolkit is educative. You may resort
 to other toolboxes if you are looking for efficient implementations of the
 algorithms described.
 
-### Running
 
-* Run from the project root directory. If an importing error occurs, try first adding the current path to the `PYTHONPATH` environment variable, e.g.:
-  * `export PYTHONPATH=.`
+## Solving Exercises
 
-### Development
+Some day will require you to complete code from previous days. If you have not completed the exercises you can allways use the `solve.py` command as for example
 
-To run the all tests install `tox` and `pytest` 
+    python solve.py sequence_models
 
-    pip install tox pytest
+**Important**: This will delete your code on the correspondig file!. Save it before. To undo solving (this wont return your code) do
 
-and run
-
-    tox
-
-Note, to combine the coverage data from all the tox environments run:
-
-* Windows
-    ```
-    set PYTEST_ADDOPTS=--cov-append
-    tox
-    ```
-* Other
-    ```
-    PYTEST_ADDOPTS=--cov-append tox
-    ```
+    python solve.py --undo sequence_models
