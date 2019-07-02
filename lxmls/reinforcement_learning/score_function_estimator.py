@@ -56,7 +56,7 @@ def train():
             # ----------
             # Solution to Exercise 6.3
 
-            # raise NotImplementedError("Exercise 6.3")
+            raise NotImplementedError("Exercise 6.3")
 
         # code needed at this identation level!
 
