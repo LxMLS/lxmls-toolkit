@@ -6,7 +6,7 @@
 [requires-image]: https://requires.io/github/LxMLS/lxmls-toolkit/requirements.svg?branch=master
 [requires-url]: https://requires.io/github/LxMLS/lxmls-toolkit/requirements/?branch=master
 
-# Summary
+# LxMLS 2019
 
 Machine learning toolkit for natural language processing. Written for Lisbon Machine Learning Summer School (lxmls.it.pt). This covers
 
@@ -17,6 +17,7 @@ Machine learning toolkit for natural language processing. Written for Lisbon Mac
 * Syntax and Parsing
 * Feed-forward models in deep learning
 * Sequence models in deep learning
+* Reinforcement Learning
 
 Machine learning toolkit for natural language processing. Written for [LxMLS - Lisbon Machine Learning Summer School](http://lxmls.it.pt)
 
@@ -30,14 +31,20 @@ If you are new to Python, the simplest method is to use `Anaconda`to handle your
 
     https://www.anaconda.com/download/
 
-and follow the instructions. If you prefer `pip`, install the toolkit modules in a virtual environment
+and follow the instructions. We strongly recommend using at least Python 3.
+
+If you prefer `pip` to Anaconda you can install the toolkit in a way that does
+not interfere with your existing installation. For this you can use a virtual
+environment as follows 
 
     virtualenv venv
     source venv/bin/activate
     pip install pip setuptools --upgrade
     pip install --editable . 
 
-to install the toolkit in a way that is modifiable.
+This will install the toolkit in a way that is modifiable. If you want to also
+virtualize you Python version (e.g. you are stuck with Python2 on your system),
+have a look at `pyenv`.
 
 Bear in mind that the main purpose of the toolkit is educative. You may resort
 to other toolboxes if you are looking for efficient implementations of the
