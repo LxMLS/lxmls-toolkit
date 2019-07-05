@@ -14,3 +14,7 @@ install:
 
 script: tox
 
+# add student to a blocklist (it has the uncompleted exercise exceptions)
+branches:
+  except:
+  - student
