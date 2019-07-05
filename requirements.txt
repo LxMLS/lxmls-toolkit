@@ -6,6 +6,9 @@ matplotlib
 nltk
 ipdb
 jupyter
-torch==1.0.0
-torchvision==0.2.2
+# on some platforms you ned to restrict to these versions
+# torch==1.0.0
+# torchvision==0.2.2
+torch
+torchvision
 gym
