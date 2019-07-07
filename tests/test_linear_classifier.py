@@ -75,7 +75,7 @@ def test_mira(sd):
 
     y_pred_train = mira.test(sd.train_X,params_mira_sd)
     acc_train = mira.evaluate(sd.train_y, y_pred_train)
-    assert allclose(acc_train, 0.960000, tolerance)
+    assert allclose(acc_train, 1.000000, tolerance)
 
     y_pred_test = mira.test(sd.test_X,params_mira_sd)
     acc_test = mira.evaluate(sd.test_y, y_pred_test)
