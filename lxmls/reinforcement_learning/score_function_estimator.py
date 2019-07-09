@@ -35,7 +35,7 @@ def train():
     valuelist = []
     rewards = np.array([10., 2., 3.])/10
     model = Model()
-    optim = torch.optim.SGD([model.t_policy], lr=0.0001)
+    optim = torch.optim.SGD([model.t_policy], lr=0.01)
     for i in range(10001):
         poli = torch.nn.functional.softmax(model.t_policy).data.numpy()
         state_action_list = []
@@ -66,6 +66,7 @@ def train():
         grads = torch.cat(grad_list, 0).mean()
         grads.backward()
         optim.step()
+        optim.zero_grad()
 
         # End of solution to Exercise 6.3
         # ----------
