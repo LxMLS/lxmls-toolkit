@@ -42,15 +42,15 @@ class NumpyLogLinear(Model):
 
         # Error derivative at softmax layer
         I = index2onehot(output, num_classes)
-        error = (class_probabilities - I) / batch_size
+        error = (I - class_probabilities) / batch_size
 
         # Weight gradient
         gradient_weight = np.zeros(self.weight.shape)
         for l in np.arange(batch_size):
-            gradient_weight += np.outer(error[l, :], input[l, :])
+            gradient_weight -= np.outer(error[l, :], input[l, :])
 
         # Bias gradient
-        gradient_bias = np.sum(error, axis=0, keepdims=True)
+        gradient_bias = -np.sum(error, axis=0, keepdims=True)
 
         # SGD update
         self.weight = self.weight - self.learning_rate * gradient_weight
