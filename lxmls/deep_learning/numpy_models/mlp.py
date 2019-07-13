@@ -88,8 +88,8 @@ class NumpyMLP(MLP):
         num_examples, num_clases = prob_y.shape
         num_hidden_layers = len(self.parameters) - 1
 
-        # For each layer in reverse store the backpropagated error, then compute
-        # the gradients from the errors and the layer inputs
+        # For each layer in reverse store the backpropagated error, then
+        # compute the gradients from the errors and the layer inputs
         errors = []
 
         # ----------
