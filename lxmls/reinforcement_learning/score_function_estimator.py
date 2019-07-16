@@ -24,10 +24,10 @@ def gt(rewardlist, gamma=0.1):
     >>> gt([10, 2, 3], gamma=0.1)
     10.23
     '''
-    summe = 0
+    discounted_sum = 0
     for i, value in enumerate(rewardlist):
-        summe += (gamma ** i) * value
-    return summe
+        discounted_sum += (gamma ** i) * value
+    return discounted_sum
 
 
 def train():
@@ -54,22 +54,22 @@ def train():
         for j, (state, action) in enumerate(state_action_list):
 
             # ----------
-            # Solution to Exercise 6.3
+            # Solution to Exercise 6.4
 
-            # raise NotImplementedError("Exercise 6.3")
+            # raise NotImplementedError("Exercise 6.4")
 
             value = model()
             # -grad log p(s,a) G_t(s,a) (minus because we are minimizing)
             value = -value[state, action] * rew
             grad_list.append(value.view(1, -1))
-
+                
+            # End of solution to Exercise 6.4
+            # ----------
         grads = torch.cat(grad_list, 0).mean()
         grads.backward()
         optim.step()
         optim.zero_grad()
 
-        # End of solution to Exercise 6.3
-        # ----------
 
         value = (gt(rewardlist, 1))
         valuelist.append(value)
