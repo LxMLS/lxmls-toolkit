@@ -21,7 +21,6 @@ model = PolicyRNN(
     output_size=data.output_size,
     learning_rate=0.05,
     gamma=0.8,
-    RL=True,
     maxL=data.maxL
 )
 
