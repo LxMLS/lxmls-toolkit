@@ -12,53 +12,6 @@ print(data.maxL)
 import numpy as np
 import time
 
-batch_size = 1
-# Get batch iterators for train and test
-train_batches = data.batches('train', batch_size=batch_size)
-dev_set = data.batches('dev', batch_size=batch_size)
-test_set = data.batches('test', batch_size=batch_size)
-
-
-
-# Alternative native CuDNN native implementation of RNNs
-#from lxmls.deep_learning.pytorch_models.rnn import FastPytorchRNN
-# model = FastPytorchRNN(
-#     input_size=data.input_size,
-#     embedding_size=50,
-#     hidden_size=100,
-#     output_size=data.output_size,
-#     learning_rate=0.05
-# )
-#
-#
-# num_epochs = 15
-# # Epoch loop
-# start = time.time()
-# for epoch in range(num_epochs):
-#
-#     # Batch loop
-#     for batch in train_batches:
-#         model.update(input=batch['input'], output=batch['output'])
-#
-#     # Evaluation dev
-#     is_hit = []
-#     for batch in dev_set:
-#         is_hit.extend(model.predict(input=batch['input']) == batch['output'])
-#     accuracy = 100 * np.mean(is_hit)
-#
-#     # Inform user
-#     print("Epoch %d: dev accuracy %2.2f %%" % (epoch + 1, accuracy))
-# print("Training took %2.2f seconds per epoch" % ((time.time() - start) / num_epochs))
-# # Evaluation test
-# is_hit = []
-# for batch in test_set:
-#     is_hit.extend(model.predict(input=batch['input']) == batch['output'])
-# accuracy = 100 * np.mean(is_hit)
-#
-# # Inform user
-# print("Test accuracy %2.2f %%" % accuracy)
-
-
 # Alternative native CuDNN native implementation of RNNs
 from lxmls.deep_learning.pytorch_models.rnn import PolicyRNN
 model = PolicyRNN(
@@ -73,10 +26,6 @@ model = PolicyRNN(
 )
 
 num_epochs = 15
-
-import numpy as np
-import time
-
 batch_size = 1
 # Get batch iterators for train and test
 train_batches = data.sample('train', batch_size=batch_size)
