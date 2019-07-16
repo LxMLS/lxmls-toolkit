@@ -19,14 +19,14 @@ class PolicyGradient(nn.Module):
     def forward(self, state):
 
         # ----------
-        # Solution to Exercise 6.4
+        # Solution to Exercise 6.5
 
-        # raise Exception("Exercise 6.4")
+        # raise Exception("Exercise 6.5")
 
         input1 = torch.autograd.Variable(torch.FloatTensor([state]))
         return F.log_softmax(self.linear2(F.sigmoid(self.linear(input1))))
 
-        # End of solution to Exercise 6.4
+        # End of solution to Exercise 6.5
         # ----------
 
 

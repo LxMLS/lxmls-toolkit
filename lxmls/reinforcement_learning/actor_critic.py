@@ -29,7 +29,21 @@ class Critic(nn.Module):
         self.linear3 = nn.Linear(12, 1)
 
     def forward(self, state, action):
-        raise Exception("TODO: Implement the forward pass")
+        ##TODO: implement the actor critic forward pass here
+        #raise Exception("TODO: Implement the forward pass")
+        ## solutions to exercise extra: actor-critic
+        input1 = torch.autograd.Variable(torch.FloatTensor([state]))
+        one_hot_action = np.zeros(2, dtype=np.float)
+        one_hot_action[action] = 1.0
+        input2 = torch.autograd.Variable(torch.FloatTensor([one_hot_action]))
+        a1 = self.linear(input1)
+        a2 = self.linear2(input2)
+        #print(a1, a2)
+        a3 = torch.cat([a1, a2], 1)
+        a4 = F.relu(a3)
+        return (self.linear3(a4))
+        ## end of solutions to actor critic
+
 
 
 def train():
