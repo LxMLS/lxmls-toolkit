@@ -278,76 +278,14 @@ class PolicyRNN(FastPytorchRNN):
     """
 
     def __init__(self, **config):
-
         # This will initialize
         # self.num_layers
         # self.config
         # self.parameters
         FastPytorchRNN.__init__(self, **config)
-        if config.get('RL', False):
-            self.loss = self.reinforce_loss
-        else:
-            self.loss = torch.nn.NLLLoss()
+        self.loss = self.reinforce_loss
         self._gamma = config.get('gamma', 0.9)
         self._maxL = config.get('maxL', None)
-
-    def _sample(self, input=None):
-        """
-        Return one sample from the model and its minus log-probability
-        sample from current policy
-        :return the samples and its neg. log probabilities
-        """
-        logits = self._log_forward(input)
-        distribution = Categorical(
-            logits=logits.view(-1, logits.size(-1))
-        )
-        samples = distribution.sample()
-        log_probs = -distribution.log_prob(samples)
-
-        return samples, log_probs
-
-    def torch_ind2onehot(self, tensor_shape, idx, dim):
-        onehot = torch.FloatTensor(tensor_shape)
-        onehot.zero_()
-        onehot.scatter_(dim, idx, 1)
-        return onehot
-
-    def torch_batch2onehot(self, batch, depth):
-        emb = torch.nn.Embedding(depth, depth)
-        emb.weight.data = torch.eye(depth)
-
-        return emb(batch)
-
-    def VRreinforce_loss(self, log_p_y, loutput):
-        """
-        Computes the REINFORCE loss over a batch of sequences
-        :param log_p_y: (Batch_size*Len)x dim
-        :param out: packed sequence w data (Batch_size*Len) and batch_sizes
-        :return: loss as a real value
-        """
-
-        out = self.pack(loutput)
-        output = out.data
-        out_vec = self.torch_ind2onehot(
-            log_p_y.shape,
-            output.reshape(-1, 1), -1
-        )
-        # torch.sum
-        cost = (torch.exp(log_p_y) - out_vec)**2
-        # cost to go always positive
-        R = self.cost_to_go(
-            cost,
-            out.batch_sizes,
-            gamma=self._gamma,
-            dim=0
-        )
-        # compute baseline
-        b = self.baseline(R)
-        # Calculate loss
-        selected_logprobs = - (R - b) * log_p_y
-        # avg Sum_t cost to go over sequences
-        loss = selected_logprobs.sum() / float(len(out.batch_sizes))
-        return loss
 
     def reinforce_loss(self, log_p_y, loutput):
         """
@@ -368,15 +306,19 @@ class PolicyRNN(FastPytorchRNN):
             gamma=self._gamma,
             dim=0
         )
+        ### TODO: Compute here the loss using the reinforce update
+        ### beginning of solutions to exercise 6.6
         # Calculate loss
         selected_logprobs = -R.reshape(-1) * \
             log_p_y[np.arange(len(output)), output]
         # sum in time and class dimension mean over batch size
         loss = selected_logprobs.sum() / float(len(out.batch_sizes))
+        ### end of solution of exercise 6.6
+
         return loss
 
     def cost_to_go(self, rwd, sizes=None, gamma=0.99, dim=1):
-        # calculate cumulative cost to go
+        # calculate the discounted returns
         if sizes is None:
             col = [gamma**i for i in range(rwd.shape[dim])]
             row = np.zeros((rwd.shape[dim]), dtype=float)
@@ -454,20 +396,6 @@ class PolicyRNN(FastPytorchRNN):
 
         return gradient_parameters
 
-    @staticmethod
-    def batch_var_lenlist(loutput):
-        lengths = [(len(i), j) for j, i in enumerate(loutput)]
-        lengths = sorted(lengths, reverse=True)
-        out_var = [
-            cast_int(loutput[i], grad=False) for i in list(zip(*lengths))[1]
-        ]
-        pad_output = torch.nn.utils.rnn.pad_sequence(out_var)
-        output = torch.nn.utils.rnn.pack_padded_sequence(
-            pad_output,
-            list(zip(*lengths))[0], batch_first=False
-        )
-        return output
-
     def pack(self, loutput, grad=False):
         lengths = [(len(i), j) for j, i in enumerate(loutput)]
         lengths = sorted(lengths, key=lambda x: x[0], reverse=True)
@@ -492,15 +420,3 @@ class PolicyRNN(FastPytorchRNN):
         prediction = self.predict(linput)
         output = self.pack(loutput).data.numpy()
         return prediction == output
-
-    def baseline(self, R):
-        """
-        compute baseline as E(R| w_1:t-1, a_1:t-a) = < h_t, w >
-        :return: <h_t,w>
-        """
-        # estimate baseline weights with all batch samples using OLS
-        H = self.h.data
-        H = H.detach().numpy()
-        w = np.dot(np.linalg.pinv(H), R.data.detach().numpy())
-        b = np.dot(H, w)
-        return cast_float(b, grad=False)
