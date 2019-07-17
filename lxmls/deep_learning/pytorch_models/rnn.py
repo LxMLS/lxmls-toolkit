@@ -283,9 +283,9 @@ class PolicyRNN(FastPytorchRNN):
             dim=0
         )
         ### TODO: Compute here the loss using the reinforce update
-        ### beginning of exercise 6.6
-        raise Exception("Complete exercise 6.6")
-        ### end of exercise 6.6
+        ### beginning of exercise 6.5
+        raise Exception("Complete exercise 6.5")
+        ### end of exercise 6.5
 
         return loss
 
