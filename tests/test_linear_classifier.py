@@ -1,13 +1,9 @@
 import sys
 import os
-import pytest
-
-LXMLS_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.insert(0, LXMLS_ROOT)
 from numpy import allclose
+import pytest
 import warnings
 
-from lxmls.classifiers import multinomial_naive_bayes as mnbb
 import lxmls.classifiers.gaussian_naive_bayes as gnbc
 import lxmls.classifiers.max_ent_batch as mebc
 import lxmls.classifiers.max_ent_online as meoc
@@ -16,16 +12,18 @@ import lxmls.classifiers.perceptron as percc
 import lxmls.classifiers.svm as svmc
 import lxmls.readers.sentiment_reader as srs
 import lxmls.readers.simple_data_set as sds
+from lxmls.classifiers import multinomial_naive_bayes as mnbb
 
 tolerance = 1e-5
+
 
 @pytest.fixture(scope='module')
 def scr():
     return srs.SentimentCorpus("books")
 
+
 # Exercise 1.1
 def test_naive_bayes(scr):
-
     mnb = mnbb.MultinomialNaiveBayes()
 
     with warnings.catch_warnings():
@@ -43,6 +41,7 @@ def test_naive_bayes(scr):
     acc_test = mnb.evaluate(scr.test_y, y_pred_test)
     assert allclose(acc_test, 0.635000, tolerance)
 
+
 @pytest.fixture(scope='module')
 def sd():
     return sds.SimpleDataSet(
@@ -52,6 +51,7 @@ def sd():
         balance=0.5,
         split=[0.5,0,0.5]
     )
+
 
 # Exercise 1.2
 def test_perceptron(sd):
@@ -66,6 +66,7 @@ def test_perceptron(sd):
     acc_test = perc.evaluate(sd.test_y, y_pred_test)
     assert allclose(acc_test, 0.960000, tolerance)
 
+
 # Exercise 1.3
 def test_mira(sd):
     mira = mirac.Mira()
@@ -74,11 +75,12 @@ def test_mira(sd):
 
     y_pred_train = mira.test(sd.train_X,params_mira_sd)
     acc_train = mira.evaluate(sd.train_y, y_pred_train)
-    assert allclose(acc_train, 0.960000, tolerance)
+    assert allclose(acc_train, 1.000000, tolerance)
 
     y_pred_test = mira.test(sd.test_X,params_mira_sd)
     acc_test = mira.evaluate(sd.test_y, y_pred_test)
     assert allclose(acc_test, 0.960000, tolerance)
+
 
 # Exercise 1.4
 def test_maxent_batch(sd, scr):
@@ -116,6 +118,7 @@ def test_maxent_online(scr):
     acc_test = me_sgd.evaluate(scr.test_y, y_pred_test)
     assert allclose(acc_test, 0.795000, tolerance)   
 
+
 # Exercise 1.5
 def test_svm_online(sd, scr):
     svm = svmc.SVM()
@@ -141,7 +144,6 @@ def test_svm_online(sd, scr):
     # TODO: py2 gives 0.805, check the reason for the different value
     assert allclose(acc_test, 0.810000, 0.01)
 
+
 if __name__ == '__main__':
     pytest.main([__file__])
-
-

@@ -1,14 +1,12 @@
 import sys
 import os
 import pytest
-
-LXMLS_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.insert(0, LXMLS_ROOT)
 import numpy as np
 
 import lxmls.parsing.dependency_parser as depp
 
 tolerance = 1e-5
+
 
 @pytest.fixture
 def dp():
@@ -56,8 +54,6 @@ def test_exercise_2(dp):
                                     1.,   1.,  -1.,  -2.,  -1.,  -1.,  -1.,   2.,   2.,   1.,   0.,
                                     1.,  -2.,   1.,   0.,   1.,   2.,   0.,   2.,   1.,  -6.,   0.,
                                     -1.,   0.,   1.,  -3.,  -2.,   0.,   1.,   1.,   1.,   0.])
-
-
     print(expected_weights)
     print(dp.weights)
     assert np.allclose(dp.weights, expected_weights, rtol=tolerance)

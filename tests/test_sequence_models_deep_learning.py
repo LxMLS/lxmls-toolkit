@@ -1,10 +1,7 @@
 import sys
 import os
-import pytest
-
-LXMLS_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.insert(0, LXMLS_ROOT)
 import numpy as np
+import pytest
 
 from lxmls.readers.pos_corpus import PostagCorpusData
 from lxmls.deep_learning.numpy_models.rnn import NumpyRNN
@@ -15,13 +12,14 @@ from lxmls.deep_learning.numpy_models.rnn import NumpyRNN
 
 tolerance = 1e-2
 
+
 @pytest.fixture(scope='module')
 def data(): 
     return PostagCorpusData()
 
+
 # exercise 1
 def test_numpy_rnn(data):
-
     model = NumpyRNN(
         input_size=data.input_size,
         embedding_size=50,
@@ -59,7 +57,7 @@ def test_numpy_rnn(data):
     assert np.allclose(current_gradient, -0.2927844936170676, tolerance)
 
     # Hyper-parameters
-    num_epochs = 2
+    num_epochs = 1
 
     # Get batch iterators for train and test
     train_batches = data.batches('train', batch_size=1)
@@ -79,7 +77,7 @@ def test_numpy_rnn(data):
         accuracy = 100*np.mean(is_hit)
 
     # tested for 2 epochs only
-    assert np.allclose(accuracy, 31.81, tolerance)
+    assert np.allclose(accuracy, 31.325, tolerance)
         
     # Evaluation test
     is_hit = []
@@ -87,11 +85,11 @@ def test_numpy_rnn(data):
         is_hit.extend(model.predict(input=batch['input']) == batch['output'])
     accuracy = 100*np.mean(is_hit)
 
-    assert np.allclose(accuracy, 30.50, tolerance)
+    assert np.allclose(accuracy, 30.105, tolerance)
+
 
 # exercise 2
 def test_pytorch_rnn(data):
-
     model = PytorchRNN(
         input_size=data.input_size,
         embedding_size=50,
@@ -103,7 +101,7 @@ def test_pytorch_rnn(data):
     # Get gradients for both models
     batch = data.batches('train', batch_size=1)[0]
 
-    num_epochs = 2
+    num_epochs = 1
 
     # Get batch iterators for train and test
     train_batches = data.batches('train', batch_size=1)
@@ -123,7 +121,7 @@ def test_pytorch_rnn(data):
         accuracy = 100*np.mean(is_hit)
 
     # tested for 2 epochs only
-    assert np.allclose(accuracy, 31.81, tolerance)
+    assert np.allclose(accuracy, 31.325, tolerance)
         
     # Evaluation test
     is_hit = []
@@ -131,4 +129,8 @@ def test_pytorch_rnn(data):
         is_hit.extend(model.predict(input=batch['input']) == batch['output'])
     accuracy = 100*np.mean(is_hit)
 
-    assert np.allclose(accuracy, 30.50, tolerance)
+    assert np.allclose(accuracy, 30.105, tolerance)
+
+
+if __name__ == '__main__':
+    pytest.main([__file__])
