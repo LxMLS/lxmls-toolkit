@@ -3,7 +3,10 @@ import os
 from setuptools import setup, find_packages
 try:  # for pip >=12
     from pip._internal.req import parse_requirements
-    from pip._internal import download
+    try:
+        from pip._internal import download
+    except ImportError:  # for pip >= 20
+        from pip._internal.network import session as download
 except ImportError:  # for pip <= 9.0.3
     from pip.req import parse_requirements
     from pip import download
@@ -16,7 +19,10 @@ install_reqs = parse_requirements(
     "requirements.txt", session=download.PipSession()
 )
 # install_requires is a list of requirement
-install_requires = [str(ir.req) for ir in install_reqs]
+try:
+    install_requires = [str(ir.req) for ir in install_reqs]
+except AttributeError:  # for pip >= 20
+    install_requires = [str(ir.requirement) for ir in install_reqs]
 
 
 def read(filename):
