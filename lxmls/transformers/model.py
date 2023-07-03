@@ -15,6 +15,8 @@ import torch.nn as nn
 from torch.nn import functional as F
 
 from lxmls.transformers.utils import CfgNode as CN
+from lxmls.transformers.bpe import BPETokenizer
+
 
 # -----------------------------------------------------------------------------
 
@@ -352,5 +354,60 @@ class GPT(nn.Module):
             out.append(idx_tmp)
         
         return(out)
+    
+    def prompt(self, p_text ="", tokens=20, num_samples=1, do_sample=True):
+        """
+        Human-usable promting function, for the most part just run with prompt and tokens
+        """
+        
+        if not hasattr(self, 'tok'):
+            self.tok = BPETokenizer()
+            
+        
+        if p_text == '':
+            # to create unconditional samples...
+            # manually create a tensor with only the special <|endoftext|> token
+            # similar to what openai's code does here https://github.com/openai/gpt-2/blob/master/src/generate_unconditional_samples.py
+            x = torch.tensor([[self.tok.encoder.encoder['<|endoftext|>']]], dtype=torch.long)
+        else:
+            device = next(self.parameters()).device
+            x = self.tok(p_text).to(device)
+            
+        # we'll process all desired num_samples in a batch, so expand out the batch dim
+        x = x.expand(num_samples, -1)
+        
+        # forward the model `steps` times to get samples, in a batch
+        y = self.generate(x, max_new_tokens=tokens, do_sample=do_sample, top_k=100)
+        
+        for i in range(num_samples):
+            out = self.tok.decode(y[i].cpu().squeeze())
+            print('-'*80)
+            print(out)              
+            
+    def prompt_topK(self, p_text ="", tokens=20, num_samples=5):
+        """
+        Human-usable prompting function. Deterministic, cah use for evaluation
+
+        """
+        
+        if not hasattr(self, 'tok'):
+            self.tok = BPETokenizer()        
+        
+        
+        if p_text == '':
+            # to create unconditional samples...
+            # manually create a tensor with only the special <|endoftext|> token
+            # similar to what openai's code does here https://github.com/openai/gpt-2/blob/master/src/generate_unconditional_samples.py
+            x = torch.tensor([[self.tok.encoder.encoder['<|endoftext|>']]], dtype=torch.long)
+        else:
+            device = next(self.parameters()).device
+            x = self.tok(p_text).to(device)
+            
+        y = self.gen_batch(x,max_new_tokens=tokens,batch=num_samples)
+        
+        for y_tmp in y:
+            out = self.tok.decode(y_tmp.cpu().squeeze())
+            print('-'*80)
+            print(out)        
         
 
