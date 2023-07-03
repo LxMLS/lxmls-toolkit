@@ -6,7 +6,7 @@
 [requires-image]: https://requires.io/github/LxMLS/lxmls-toolkit/requirements.svg?branch=master
 [requires-url]: https://requires.io/github/LxMLS/lxmls-toolkit/requirements/?branch=master
 
-# LxMLS 2022
+# LxMLS 2023
 
 Machine learning toolkit for natural language processing. Written for Lisbon Machine Learning Summer School (lxmls.it.pt). This covers
 
@@ -38,7 +38,7 @@ not interfere with your existing installation. For this you can use a virtual
 environment as follows 
 
     virtualenv venv
-    source venv/bin/activate
+    source venv/bin/activate (on Windows: .\venv\Scripts\activate)
     pip install pip setuptools --upgrade
     pip install --editable . 
 
