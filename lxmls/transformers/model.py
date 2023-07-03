@@ -199,6 +199,7 @@ class GPT(nn.Module):
 
         # copy while ensuring all of the parameters are aligned and match in names and shapes
         keys = [k for k in sd_hf if not k.endswith('attn.masked_bias')]  # ignore these
+        keys = [k for k in keys if not re.match("transformer\.h\.\d+\.attn\.bias", k)]  # ignore these
         sd_keys = [k for k in sd if not re.match("transformer\.h\.\d+\.attn\.bias", k)]  # ignore these
 
         transposed = ['attn.c_attn.weight', 'attn.c_proj.weight', 'mlp.c_fc.weight', 'mlp.c_proj.weight']
@@ -318,3 +319,38 @@ class GPT(nn.Module):
             idx = torch.cat((idx, idx_next), dim=1)
 
         return idx
+    
+    def gen_batch(self, idx, max_new_tokens, temperature=1.0, batch=10):
+        """
+        A dummy function for "fixed" test generation
+        We take a conditioning sequence of indices idx (LongTensor of shape (b,t)),
+        take the top "batch" predictions for first token and then complete 10 generations as normal
+        Most likely you'll want to make sure to be in model.eval() mode of operation for this.
+        """
+        
+        out = []
+        # if the sequence context is growing too long we must crop it at block_size
+        idx_cond = idx if idx.size(1) <= self.block_size else idx[:, -self.block_size:]
+            
+        # forward the model to get the logits for the index in the sequence
+        logits, _ = self(idx_cond)
+        
+        # pluck the logits at the final step and scale by desired temperature
+        logits = logits[:, -1, :] / temperature
+        
+        # apply softmax to convert logits to (normalized) probabilities
+        probs = F.softmax(logits, dim=-1)
+               
+        # Get the top "batch" predictions for the word
+        _, idx_list = torch.topk(probs, k=batch, dim=-1)
+        
+        for idx_next in idx_list[0,:]:
+            idx_tmp = torch.cat((idx, idx_next.reshape(-1,1)), dim=1)
+            
+            idx_tmp = self.generate(idx_tmp, max_new_tokens-1)
+        
+            out.append(idx_tmp)
+        
+        return(out)
+        
+
