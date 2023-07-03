@@ -15,6 +15,8 @@ import torch.nn as nn
 from torch.nn import functional as F
 
 from lxmls.transformers.utils import CfgNode as CN
+from lxmls.transformers.bpe import BPETokenizer
+
 
 # -----------------------------------------------------------------------------
 
@@ -199,6 +201,7 @@ class GPT(nn.Module):
 
         # copy while ensuring all of the parameters are aligned and match in names and shapes
         keys = [k for k in sd_hf if not k.endswith('attn.masked_bias')]  # ignore these
+        keys = [k for k in keys if not re.match("transformer\.h\.\d+\.attn\.bias", k)]  # ignore these
         sd_keys = [k for k in sd if not re.match("transformer\.h\.\d+\.attn\.bias", k)]  # ignore these
 
         transposed = ['attn.c_attn.weight', 'attn.c_proj.weight', 'mlp.c_fc.weight', 'mlp.c_proj.weight']
@@ -318,3 +321,93 @@ class GPT(nn.Module):
             idx = torch.cat((idx, idx_next), dim=1)
 
         return idx
+    
+    def gen_batch(self, idx, max_new_tokens, temperature=1.0, batch=10):
+        """
+        A dummy function for "fixed" test generation
+        We take a conditioning sequence of indices idx (LongTensor of shape (b,t)),
+        take the top "batch" predictions for first token and then complete 10 generations as normal
+        Most likely you'll want to make sure to be in model.eval() mode of operation for this.
+        """
+        
+        out = []
+        # if the sequence context is growing too long we must crop it at block_size
+        idx_cond = idx if idx.size(1) <= self.block_size else idx[:, -self.block_size:]
+            
+        # forward the model to get the logits for the index in the sequence
+        logits, _ = self(idx_cond)
+        
+        # pluck the logits at the final step and scale by desired temperature
+        logits = logits[:, -1, :] / temperature
+        
+        # apply softmax to convert logits to (normalized) probabilities
+        probs = F.softmax(logits, dim=-1)
+               
+        # Get the top "batch" predictions for the word
+        _, idx_list = torch.topk(probs, k=batch, dim=-1)
+        
+        for idx_next in idx_list[0,:]:
+            idx_tmp = torch.cat((idx, idx_next.reshape(-1,1)), dim=1)
+            
+            idx_tmp = self.generate(idx_tmp, max_new_tokens-1)
+        
+            out.append(idx_tmp)
+        
+        return(out)
+    
+    def prompt(self, p_text ="", tokens=20, num_samples=1, do_sample=True):
+        """
+        Human-usable promting function, for the most part just run with prompt and tokens
+        """
+        
+        if not hasattr(self, 'tok'):
+            self.tok = BPETokenizer()
+            
+        
+        if p_text == '':
+            # to create unconditional samples...
+            # manually create a tensor with only the special <|endoftext|> token
+            # similar to what openai's code does here https://github.com/openai/gpt-2/blob/master/src/generate_unconditional_samples.py
+            x = torch.tensor([[self.tok.encoder.encoder['<|endoftext|>']]], dtype=torch.long)
+        else:
+            device = next(self.parameters()).device
+            x = self.tok(p_text).to(device)
+            
+        # we'll process all desired num_samples in a batch, so expand out the batch dim
+        x = x.expand(num_samples, -1)
+        
+        # forward the model `steps` times to get samples, in a batch
+        y = self.generate(x, max_new_tokens=tokens, do_sample=do_sample, top_k=100)
+        
+        for i in range(num_samples):
+            out = self.tok.decode(y[i].cpu().squeeze())
+            print('-'*80)
+            print(out)              
+            
+    def prompt_topK(self, p_text ="", tokens=20, num_samples=5):
+        """
+        Human-usable prompting function. Deterministic, cah use for evaluation
+
+        """
+        
+        if not hasattr(self, 'tok'):
+            self.tok = BPETokenizer()        
+        
+        
+        if p_text == '':
+            # to create unconditional samples...
+            # manually create a tensor with only the special <|endoftext|> token
+            # similar to what openai's code does here https://github.com/openai/gpt-2/blob/master/src/generate_unconditional_samples.py
+            x = torch.tensor([[self.tok.encoder.encoder['<|endoftext|>']]], dtype=torch.long)
+        else:
+            device = next(self.parameters()).device
+            x = self.tok(p_text).to(device)
+            
+        y = self.gen_batch(x,max_new_tokens=tokens,batch=num_samples)
+        
+        for y_tmp in y:
+            out = self.tok.decode(y_tmp.cpu().squeeze())
+            print('-'*80)
+            print(out)        
+        
+
