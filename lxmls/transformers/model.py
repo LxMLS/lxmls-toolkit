@@ -31,13 +31,12 @@ class NewGELU(nn.Module):
             math.sqrt(2.0 / math.pi) * (x + 0.044715 * torch.pow(x, 3.0))))
 
 
-import math
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-
-
 class CausalSelfAttention(nn.Module):
+    """
+    A vanilla multi-head masked self-attention layer with a projection at the end.
+    It is possible to use torch.nn.MultiheadAttention here but I am including an
+    explicit implementation here to show that there is nothing too scary here.
+    """
 
     def __init__(self, config):
         super().__init__()
