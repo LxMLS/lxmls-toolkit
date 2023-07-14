@@ -6,7 +6,7 @@
 [requires-image]: https://requires.io/github/LxMLS/lxmls-toolkit/requirements.svg?branch=master
 [requires-url]: https://requires.io/github/LxMLS/lxmls-toolkit/requirements/?branch=master
 
-# LxMLS 2019
+# LxMLS 2023
 
 Machine learning toolkit for natural language processing. Written for Lisbon Machine Learning Summer School (lxmls.it.pt). This covers
 
@@ -19,21 +19,13 @@ Machine learning toolkit for natural language processing. Written for Lisbon Mac
 * Sequence models in deep learning
 * Reinforcement Learning
 
-Machine learning toolkit for natural language processing. Written for [LxMLS - Lisbon Machine Learning Summer School](http://lxmls.it.pt/)
+Machine learning toolkit for natural language processing. Written for [LxMLS - Lisbon Machine Learning Summer School](http://lxmls.it.pt)
 
-## Get the lxmls code-base
+## Instructions for Students
 
-If you are not familiar with `Git`, just download the zip available in the `Clone or Download` button. **Important**: Use the student version. It should be the one in the page displaying this README. Then unzip and enter the main folder. This will be your working folder
+* Use the [student branch](https://github.com/LxMLS/lxmls-toolkit/tree/student) **not** this one!
 
-    cd lxmls-toolkit-student
-
-If you feel comfortable with `Git` you may instead clone the repo and checkout the student branch
-
-    git clone https://github.com/LxMLS/lxmls-toolkit.git
-    cd lxmls-toolkit/
-    git checkout student
-
-## Install modules with Anaconda or pip
+## Install with Anaconda or pip
 
 If you are new to Python, the simplest method is to use `Anaconda`to handle your packages, just go to
 
@@ -46,7 +38,7 @@ not interfere with your existing installation. For this you can use a virtual
 environment as follows 
 
     virtualenv venv
-    source venv/bin/activate
+    source venv/bin/activate (on Windows: .\venv\Scripts\activate)
     pip install pip setuptools --upgrade
     pip install --editable . 
 
@@ -58,13 +50,29 @@ Bear in mind that the main purpose of the toolkit is educative. You may resort
 to other toolboxes if you are looking for efficient implementations of the
 algorithms described.
 
+### Running
 
-## Solving Exercises
+* Run from the project root directory. If an importing error occurs, try first adding the current path to the `PYTHONPATH` environment variable, e.g.:
+  * `export PYTHONPATH=.`
 
-Some day will require you to complete code from previous days. If you have not completed the exercises you can allways use the `solve.py` command as for example
+### Development
 
-    python solve.py sequence_models
+To run the all tests install `tox` and `pytest` 
 
-**Important**: This will delete your code on the correspondig file!. Save it before. To undo solving (this wont return your code) do
+    pip install tox pytest
 
-    python solve.py --undo sequence_models
+and run
+
+    tox
+
+Note, to combine the coverage data from all the tox environments run:
+
+* Windows
+    ```
+    set PYTEST_ADDOPTS=--cov-append
+    tox
+    ```
+* Other
+    ```
+    PYTEST_ADDOPTS=--cov-append tox
+    ```
