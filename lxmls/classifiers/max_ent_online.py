@@ -53,7 +53,7 @@ class MaxEntOnline(lc.LinearClassifier):
                 emp_feat[:, y_true] = x[inst:inst+1, :].transpose()
                 # Update the model
                 objective += 0.5 * self.regularizer * \
-                    l2norm_squared(w) - log(probs[0][y_true[0]])
+                    l2norm_squared(w) - np.log(probs[0][y_true[0]])
                 w = (1 - self.regularizer * learning_rate) * \
                     w + learning_rate * (emp_feat - exp_feat)
                 if np.any(np.isnan(w)):
