@@ -16,6 +16,7 @@ from torch.nn import functional as F
 
 from lxmls.transformers.utils import CfgNode as CN
 from lxmls.transformers.bpe import BPETokenizer
+from lxmls.transformers.pretrained_attention import PretrainedCausalSelfAttention
 
 # -----------------------------------------------------------------------------
 
@@ -119,7 +120,10 @@ class Block(nn.Module):
     def __init__(self, config):
         super().__init__()
         self.ln_1 = nn.LayerNorm(config.n_embd)
-        self.attn = CausalSelfAttention(config)
+        if config.pretrained:
+            self.attn = PretrainedCausalSelfAttention(config)
+        else:
+            self.attn = CausalSelfAttention(config)
         self.ln_2 = nn.LayerNorm(config.n_embd)
         self.mlp = nn.ModuleDict(
             dict(
@@ -156,6 +160,7 @@ class GPT(nn.Module):
         C.embd_pdrop = 0.1
         C.resid_pdrop = 0.1
         C.attn_pdrop = 0.1
+        C.pretrained = False
         return C
 
     def __init__(self, config):
@@ -247,6 +252,7 @@ class GPT(nn.Module):
         config.model_type = model_type
         config.vocab_size = 50257  # openai's model vocabulary
         config.block_size = 1024  # openai's model block_size
+        config.pretrained = True
         model = GPT(config)
         sd = model.state_dict()
 
