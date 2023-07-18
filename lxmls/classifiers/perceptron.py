@@ -50,9 +50,7 @@ class Perceptron(lc.LinearClassifier):
         self.trained = True
 
         if self.averaged:
-            new_w = 0
-            for old_w in self.params_per_round:
-                new_w += old_w
+            new_w = np.sum(self.params_per_round)
             new_w /= len(self.params_per_round)
             return new_w
         return w

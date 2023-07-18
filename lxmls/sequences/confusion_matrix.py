@@ -73,7 +73,7 @@ def get_average_purity_per_tag(conf_mat, best_tags):
     purity_per_tag = {}
     for tag, matrix in matrix_per_tag.items():
         values = list(get_clusters_purity(matrix_per_tag[tag]).values())
-        purity_per_tag[tag] = sum(values) / len(values)
+        purity_per_tag[tag] = np.mean(values)
     return sort_dic_by_value(purity_per_tag, reverse=True)
 
 
