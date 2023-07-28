@@ -252,8 +252,9 @@ class GPT(nn.Module):
         config.model_type = model_type
         config.vocab_size = 50257  # openai's model vocabulary
         config.block_size = 1024  # openai's model block_size
-        config.pretrained = True
+        config.pretrained = False
         model = GPT(config)
+        return model
         sd = model.state_dict()
 
         # init a huggingface/transformers model
@@ -275,11 +276,22 @@ class GPT(nn.Module):
             'attn.c_attn.weight', 'attn.c_proj.weight', 'mlp.c_fc.weight',
             'mlp.c_proj.weight'
         ]
+
         # basically the openai checkpoints use a "Conv1D" module, but we only want to use a vanilla nn.Linear.
         # this means that we have to transpose these weights when we import them
 
         # This assert might fail for some transformers library versions. Please comment out if that is the case
-        assert len(keys) == len(sd_keys)
+        def transfer_weights(state_dict, target_sd):
+            for name, param in state_dict.items():
+                if "c_attn" in name:
+                    q, k, v = param.T.split(param.T.shape[0] // 3, dim=0)
+                    target_sd[name.replace("c_attn.", "query_proj.")] = q.T
+                    target_sd[name.replace("c_attn.", "key_proj.")] = k.T
+                    target_sd[name.replace("c_attn.", "value_proj.")] = v.T
+            return target_sd
+
+        #assert len(keys) == len(sd_keys)
+        #sd = transfer_weights(sd_hf, sd)
 
         for k in keys:
             if any(k.endswith(w) for w in transposed):
