@@ -1,18 +1,12 @@
 # Import the necessary libraries:
 from mrjob.job import MRJob
-
+from collections import Counter
 
 class WordCount(MRJob):
 
     def mapper(self, _, doc):
-        c = {}
         # Process the document
-        for w in doc.split():
-            if w in c:
-                c[w] += 1
-            else:
-                c[w] = 1
-
+        c = dict(Counter(doc.split()))
         # Now, output the results
         for w, c in c.items():
             yield w, c
