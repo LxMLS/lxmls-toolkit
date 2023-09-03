@@ -121,12 +121,7 @@ class NumpyMLP(MLP):
         for n in range(num_hidden_layers + 1):
 
             # Weight gradient
-            weight_gradient = np.zeros(self.parameters[n][0].shape)
-            for l in range(num_examples):
-                weight_gradient += np.outer(
-                    errors[n][l, :],
-                    layer_inputs[n][l, :]
-                )
+            weight_gradient = np.dot(errors[n].T, layer_inputs[n])
 
             # Bias gradient
             bias_gradient = np.sum(errors[n], axis=0, keepdims=True)
