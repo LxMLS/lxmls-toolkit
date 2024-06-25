@@ -1,22 +1,22 @@
-from __future__ import division
-
 import numpy as np
 import scipy
 import scipy.linalg
 import torch
-from torch.autograd import Variable
 from torch.distributions import Categorical
 from lxmls.deep_learning.rnn import RNN
 # To sample from model
-from itertools import chain
 
 
-def cast_float(variable, grad=True):
-    return Variable(torch.from_numpy(variable).float(), requires_grad=grad)
+def cast_float(variable_np, grad=True):
+    variable = torch.from_numpy(variable_np).float()
+    variable.requires_grad = grad
+    return variable
 
 
-def cast_int(variable, grad=True):
-    return Variable(torch.from_numpy(variable).long(), requires_grad=grad)
+def cast_int(variable_np, grad=True):
+    variable = torch.from_numpy(variable_np).long()
+    variable.requires_grad = grad
+    return variable
 
 
 class PytorchRNN(RNN):
@@ -44,7 +44,7 @@ class PytorchRNN(RNN):
         self.parameters[0] = self.embedding_layer.weight
 
         # Log softmax
-        self.logsoftmax = torch.nn.LogSoftmax(dim=1)
+        self.log_softmax = torch.nn.LogSoftmax(dim=1)
 
         # Negative-log likelihood
         self.loss = torch.nn.NLLLoss()
@@ -59,8 +59,8 @@ class PytorchRNN(RNN):
         """
         Predict model outputs given input
         """
-        p_y = np.exp(self._log_forward(input).data.numpy())
-        return np.argmax(p_y, axis=1)
+        log_p_y = self._log_forward(input).data.numpy()
+        return np.argmax(log_p_y, axis=1)
 
     def update(self, input=None, output=None):
         """
@@ -80,7 +80,7 @@ class PytorchRNN(RNN):
         """
 
         # Ensure the type matches torch type
-        input = Variable(torch.from_numpy(input).long())
+        input = cast_int(input, grad=False)
 
         # Get parameters and sizes
         W_e, W_x, W_h, W_y = self.parameters
@@ -97,7 +97,7 @@ class PytorchRNN(RNN):
         z_e = self.embedding_layer(input)
 
         # Recurrent layer
-        h = Variable(torch.FloatTensor(1, hidden_size).zero_())
+        h = torch.zeros(1, hidden_size)
         hidden_variables = []
         for t in range(nr_steps):
 
@@ -115,7 +115,7 @@ class PytorchRNN(RNN):
         y = torch.matmul(h_out, torch.t(W_y))
 
         # Log-Softmax
-        log_p_y = self.logsoftmax(y)
+        log_p_y = self.log_softmax(y)
 
         # End of solution to Exercise 6.2
         # ----------
@@ -129,7 +129,7 @@ class PytorchRNN(RNN):
         """
 
         # Ensure the type matches torch type
-        output = Variable(torch.from_numpy(output).long())
+        output = cast_int(output, grad=False)
 
         # Zero gradients
         for parameter in self.parameters:
@@ -183,7 +183,7 @@ class FastPytorchRNN(RNN):
         # TODO: Set paremeters here
 
         # Log softmax
-        self.logsoftmax = torch.nn.LogSoftmax(dim=1)
+        self.log_softmax = torch.nn.LogSoftmax(dim=1)
 
         # Negative-log likelihood
         # TODO: Switch here to RL loss depending on config
@@ -200,9 +200,9 @@ class FastPytorchRNN(RNN):
         """
         Predict model outputs given input
         """
-        p_y = np.exp(self._log_forward(input).data.numpy())
+        log_p_y = self._log_forward(input).data.numpy()
 
-        return np.argmax(p_y, axis=1)
+        return np.argmax(log_p_y, axis=1)
 
     def update(self, input=None, output=None):
         """
@@ -240,7 +240,7 @@ class FastPytorchRNN(RNN):
         y = torch.matmul(h[:, 0, :], torch.t(W_y))
 
         # Log-Softmax
-        log_p_y = self.logsoftmax(y)
+        log_p_y = self.log_softmax(y)
 
         return log_p_y
 
@@ -393,7 +393,7 @@ class PolicyRNN(FastPytorchRNN):
                 row[0] = col[0]
                 gammas = scipy.linalg.toeplitz(row, col)
                 gammas = cast_float(gammas, grad=False)
-                rt = torch.matmul(gammas, rwd[j:j+T, :])
+                rt = torch.matmul(gammas, rwd[j:j + T, :])
                 j += T
                 ctg.append(rt)
             R = torch.cat(ctg, dim=0)
@@ -425,7 +425,7 @@ class PolicyRNN(FastPytorchRNN):
         y = torch.matmul(self.h.data, torch.t(W_y))
 
         # Log-Softmax
-        log_p_y = self.logsoftmax(y)
+        log_p_y = self.log_softmax(y)
 
         return log_p_y
 
