@@ -1,21 +1,22 @@
-from __future__ import division
 import numpy as np
 import scipy
 import scipy.linalg
 import torch
-from torch.autograd import Variable
 from torch.distributions import Categorical
 from lxmls.deep_learning.rnn import RNN
 # To sample from model
-from itertools import chain
 
 
-def cast_float(variable, grad=True):
-    return Variable(torch.from_numpy(variable).float(), requires_grad=grad)
+def cast_float(variable_np, grad=True):
+    variable = torch.from_numpy(variable_np).float()
+    variable.requires_grad = grad
+    return variable
 
 
-def cast_int(variable, grad=True):
-    return Variable(torch.from_numpy(variable).long(), requires_grad=grad)
+def cast_int(variable_np, grad=True):
+    variable = torch.from_numpy(variable_np).long()
+    variable.requires_grad = grad
+    return variable
 
 
 class PytorchRNN(RNN):
@@ -43,7 +44,7 @@ class PytorchRNN(RNN):
         self.parameters[0] = self.embedding_layer.weight
 
         # Log softmax
-        self.logsoftmax = torch.nn.LogSoftmax(dim=1)
+        self.log_softmax = torch.nn.LogSoftmax(dim=1)
 
         # Negative-log likelihood
         self.loss = torch.nn.NLLLoss()
@@ -58,8 +59,8 @@ class PytorchRNN(RNN):
         """
         Predict model outputs given input
         """
-        p_y = np.exp(self._log_forward(input).data.numpy())
-        return np.argmax(p_y, axis=1)
+        log_p_y = self._log_forward(input).data.numpy()
+        return np.argmax(log_p_y, axis=1)
 
     def update(self, input=None, output=None):
         """
@@ -79,7 +80,7 @@ class PytorchRNN(RNN):
         """
 
         # Ensure the type matches torch type
-        input = Variable(torch.from_numpy(input).long())
+        input = cast_int(input, grad=False)
 
         # Get parameters and sizes
         W_e, W_x, W_h, W_y = self.parameters
@@ -90,11 +91,11 @@ class PytorchRNN(RNN):
         # FORWARD PASS COMPUTATION GRAPH
 
         # ----------
-        # Solution to Exercise 2
+        # Solution to Exercise 6.2
 
         raise NotImplementedError("Implement Exercise 2")
 
-        # End of solution to Exercise 2
+        # End of solution to Exercise 6.2
         # ----------
 
         return log_p_y
@@ -106,7 +107,7 @@ class PytorchRNN(RNN):
         """
 
         # Ensure the type matches torch type
-        output = Variable(torch.from_numpy(output).long())
+        output = cast_int(output, grad=False)
 
         # Zero gradients
         for parameter in self.parameters:
@@ -160,9 +161,10 @@ class FastPytorchRNN(RNN):
         # TODO: Set paremeters here
 
         # Log softmax
-        self.logsoftmax = torch.nn.LogSoftmax(dim=1)
+        self.log_softmax = torch.nn.LogSoftmax(dim=1)
 
         # Negative-log likelihood
+        # TODO: Switch here to RL loss depending on config
         self.loss = torch.nn.NLLLoss()
 
         # Get the parameters
@@ -176,9 +178,9 @@ class FastPytorchRNN(RNN):
         """
         Predict model outputs given input
         """
-        p_y = np.exp(self._log_forward(input).data.numpy())
+        log_p_y = self._log_forward(input).data.numpy()
 
-        return np.argmax(p_y, axis=1)
+        return np.argmax(log_p_y, axis=1)
 
     def update(self, input=None, output=None):
         """
@@ -198,7 +200,7 @@ class FastPytorchRNN(RNN):
         """
 
         # Ensure the type matches torch type
-        input = Variable(torch.from_numpy(input).long())
+        input = cast_int(input)
 
         # Get parameters and sizes
         W_e, W_x, W_h, W_y = self.parameters
@@ -216,7 +218,7 @@ class FastPytorchRNN(RNN):
         y = torch.matmul(h[:, 0, :], torch.t(W_y))
 
         # Log-Softmax
-        log_p_y = self.logsoftmax(y)
+        log_p_y = self.log_softmax(y)
 
         return log_p_y
 
@@ -243,7 +245,7 @@ class FastPytorchRNN(RNN):
         gradient_parameters = []
         for index in range(0, num_parameters):
             gradient_parameters.append(self.parameters[index].grad.data)
-    
+
         return gradient_parameters
 
 
@@ -254,14 +256,76 @@ class PolicyRNN(FastPytorchRNN):
     """
 
     def __init__(self, **config):
+
         # This will initialize
         # self.num_layers
         # self.config
         # self.parameters
         FastPytorchRNN.__init__(self, **config)
-        self.loss = self.reinforce_loss
+        if config.get('RL', False):
+            self.loss = self.reinforce_loss
+        else:
+            self.loss = torch.nn.NLLLoss()
         self._gamma = config.get('gamma', 0.9)
         self._maxL = config.get('maxL', None)
+
+    def _sample(self, input=None):
+        """
+        Return one sample from the model and its minus log-probability
+        sample from current policy
+        :return the samples and its neg. log probabilities
+        """
+        logits = self._log_forward(input)
+        distribution = Categorical(
+            logits=logits.view(-1, logits.size(-1))
+        )
+        samples = distribution.sample()
+        log_probs = -distribution.log_prob(samples)
+
+        return samples, log_probs
+
+    def torch_ind2onehot(self, tensor_shape, idx, dim):
+        onehot = torch.FloatTensor(tensor_shape)
+        onehot.zero_()
+        onehot.scatter_(dim, idx, 1)
+        return onehot
+
+    def torch_batch2onehot(self, batch, depth):
+        emb = torch.nn.Embedding(depth, depth)
+        emb.weight.data = torch.eye(depth)
+
+        return emb(batch)
+
+    def VRreinforce_loss(self, log_p_y, loutput):
+        """
+        Computes the REINFORCE loss over a batch of sequences
+        :param log_p_y: (Batch_size*Len)x dim
+        :param out: packed sequence w data (Batch_size*Len) and batch_sizes
+        :return: loss as a real value
+        """
+
+        out = self.pack(loutput)
+        output = out.data
+        out_vec = self.torch_ind2onehot(
+            log_p_y.shape,
+            output.reshape(-1, 1), -1
+        )
+        # torch.sum
+        cost = (torch.exp(log_p_y) - out_vec)**2
+        # cost to go always positive
+        R = self.cost_to_go(
+            cost,
+            out.batch_sizes,
+            gamma=self._gamma,
+            dim=0
+        )
+        # compute baseline
+        b = self.baseline(R)
+        # Calculate loss
+        selected_logprobs = - (R - b) * log_p_y
+        # avg Sum_t cost to go over sequences
+        loss = selected_logprobs.sum() / float(len(out.batch_sizes))
+        return loss
 
     def reinforce_loss(self, log_p_y, loutput):
         """
@@ -282,15 +346,15 @@ class PolicyRNN(FastPytorchRNN):
             gamma=self._gamma,
             dim=0
         )
-        ### TODO: Compute here the loss using the reinforce update
-        ### beginning of exercise 6.5
-        raise Exception("Complete exercise 6.5")
-        ### end of exercise 6.5
-
+        # Calculate loss
+        selected_logprobs = -R.reshape(-1) * \
+            log_p_y[np.arange(len(output)), output]
+        # sum in time and class dimension mean over batch size
+        loss = selected_logprobs.sum() / float(len(out.batch_sizes))
         return loss
 
     def cost_to_go(self, rwd, sizes=None, gamma=0.99, dim=1):
-        # calculate the discounted returns
+        # calculate cumulative cost to go
         if sizes is None:
             col = [gamma**i for i in range(rwd.shape[dim])]
             row = np.zeros((rwd.shape[dim]), dtype=float)
@@ -307,7 +371,7 @@ class PolicyRNN(FastPytorchRNN):
                 row[0] = col[0]
                 gammas = scipy.linalg.toeplitz(row, col)
                 gammas = cast_float(gammas, grad=False)
-                rt = torch.matmul(gammas, rwd[j:j+T, :])
+                rt = torch.matmul(gammas, rwd[j:j + T, :])
                 j += T
                 ctg.append(rt)
             R = torch.cat(ctg, dim=0)
@@ -339,7 +403,7 @@ class PolicyRNN(FastPytorchRNN):
         y = torch.matmul(self.h.data, torch.t(W_y))
 
         # Log-Softmax
-        log_p_y = self.logsoftmax(y)
+        log_p_y = self.log_softmax(y)
 
         return log_p_y
 
@@ -368,6 +432,20 @@ class PolicyRNN(FastPytorchRNN):
 
         return gradient_parameters
 
+    @staticmethod
+    def batch_var_lenlist(loutput):
+        lengths = [(len(i), j) for j, i in enumerate(loutput)]
+        lengths = sorted(lengths, reverse=True)
+        out_var = [
+            cast_int(loutput[i], grad=False) for i in list(zip(*lengths))[1]
+        ]
+        pad_output = torch.nn.utils.rnn.pad_sequence(out_var)
+        output = torch.nn.utils.rnn.pack_padded_sequence(
+            pad_output,
+            list(zip(*lengths))[0], batch_first=False
+        )
+        return output
+
     def pack(self, loutput, grad=False):
         lengths = [(len(i), j) for j, i in enumerate(loutput)]
         lengths = sorted(lengths, key=lambda x: x[0], reverse=True)
@@ -392,3 +470,15 @@ class PolicyRNN(FastPytorchRNN):
         prediction = self.predict(linput)
         output = self.pack(loutput).data.numpy()
         return prediction == output
+
+    def baseline(self, R):
+        """
+        compute baseline as E(R| w_1:t-1, a_1:t-a) = < h_t, w >
+        :return: <h_t,w>
+        """
+        # estimate baseline weights with all batch samples using OLS
+        H = self.h.data
+        H = H.detach().numpy()
+        w = np.dot(np.linalg.pinv(H), R.data.detach().numpy())
+        b = np.dot(H, w)
+        return cast_float(b, grad=False)
