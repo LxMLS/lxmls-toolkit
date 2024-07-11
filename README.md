@@ -23,7 +23,7 @@ Machine learning toolkit for natural language processing. Written for [LxMLS - L
 
 ## Instructions for Students
 
-* Use the [student branch](https://github.com/LxMLS/lxmls-toolkit/tree/student) **not** this one!
+* This is [student branch](https://github.com/LxMLS/lxmls-toolkit/tree/student). **You are on the correct branch**!
 
 ## Install with Anaconda or pip
 
