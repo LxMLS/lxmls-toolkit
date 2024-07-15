@@ -42,7 +42,7 @@ class NumpyLogLinear(Model):
 
         # Error derivative at softmax layer
         I = index2onehot(output, num_classes)
-        error = (class_probabilities - I) / batch_size
+        error = - (I - class_probabilities) / batch_size
 
         # Weight gradient
         gradient_weight = np.zeros(self.weight.shape)
