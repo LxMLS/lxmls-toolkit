@@ -8,47 +8,47 @@
 
 # LxMLS 2024
 
-Machine learning toolkit for natural language processing. Written for Lisbon Machine Learning Summer School (lxmls.it.pt). This covers
+Machine learning toolkit for natural language processing. Written for [LxMLS - Lisbon Machine Learning Summer School](http://lxmls.it.pt)
 
 * Scientific Python and Mathematical background
-* Linear Classifiers
-* Sequence Models
-* Structured Prediction
-* Syntax and Parsing
-* Feed-forward models in deep learning
-* Sequence models in deep learning
-* Reinforcement Learning
+* Linear Classifiers (Gradient Descent)
+* Non-linear Models (Backpropagation)
+* Attention Models (Transformers)
 
-Machine learning toolkit for natural language processing. Written for [LxMLS - Lisbon Machine Learning Summer School](http://lxmls.it.pt)
+Bear in mind that the main purpose of the toolkit is educational. You may resort
+to other toolboxes if you are looking for efficient implementations of the
+algorithms described.
 
 ## Instructions for Students
 
-* Use the [student branch](https://github.com/LxMLS/lxmls-toolkit/tree/student) **not** this one!
+* Use the [student branch](https://github.com/LxMLS/lxmls-toolkit/tree/student) **not** this one 🚨!
 
-## Install with Anaconda or pip
+Download the code. If you are used to git just clone the student branch. For
+example from the command line in do
 
-If you are new to Python, the simplest method is to use `Anaconda`to handle your packages, just go to
+    git clone git@github.com:LxMLS/lxmls-toolkit.git lxmls-toolkit-student
 
-    https://www.anaconda.com/download/
+If you do not have a pyhon installation, install miniconda. Go to
 
-and follow the instructions. We strongly recommend using at least Python 3.
+    https://docs.conda.io/en/latest/miniconda.html
 
-If you prefer `pip` to Anaconda you can install the toolkit in a way that does
-not interfere with your existing installation. For this you can use a virtual
-environment as follows 
+and follow the instructions for your platform (Windows, Linux, OSX). We reccomend
+that you create your virtual environment with a recent python version i.e.
 
-    virtualenv venv
-    source venv/bin/activate (on Windows: .\venv\Scripts\activate)
+    cd lxmls-toolkit-student
+    conda create -y -p ./lxmls2023 python=3.9 -y
+    conda activate ./lxmls2023
+
+Note the `./` in `./lxmls2023` -- this will install the virtual environment
+locally, so if you delete `lxmls-toolkit-student` you will also remove the
+environment.
+
+Then install the toolkit, just to be sure upgrade your pip (always good)
+
     pip install pip setuptools --upgrade
-    pip install --editable . 
+    pip install -r requirements.txt
 
-This will install the toolkit in a way that is modifiable. If you want to also
-virtualize you Python version (e.g. you are stuck with Python2 on your system),
-have a look at `pyenv`.
-
-Bear in mind that the main purpose of the toolkit is educative. You may resort
-to other toolboxes if you are looking for efficient implementations of the
-algorithms described.
+This will install the toolkit in a way that is modifiable. Remember to run scripts from the root directory `lxmls-toolkit-student`
 
 ### Running
 
@@ -57,7 +57,7 @@ algorithms described.
 
 ### Development
 
-To run the all tests install `tox` and `pytest` 
+To run the all tests install `tox` and `pytest`
 
     pip install tox pytest
 
