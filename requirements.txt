@@ -1,4 +1,3 @@
-gym
 ipdb
 jupyter
 matplotlib
