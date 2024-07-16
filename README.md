@@ -6,7 +6,7 @@
 [requires-image]: https://requires.io/github/LxMLS/lxmls-toolkit/requirements.svg?branch=master
 [requires-url]: https://requires.io/github/LxMLS/lxmls-toolkit/requirements/?branch=master
 
-# LxMLS 2023
+# LxMLS 2024
 
 Machine learning toolkit for natural language processing. Written for Lisbon Machine Learning Summer School (lxmls.it.pt). This covers
 
