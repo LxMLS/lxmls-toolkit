@@ -15,19 +15,19 @@ class NumpyMLP(MLP):
         # self.parameters
         MLP.__init__(self, **config)
 
-    def predict(self, input=None):
+    def predict(self, X):
         """
         Predict model outputs given input
         """
-        log_class_probabilities, _ = self.log_forward(input)
-        return np.argmax(np.exp(log_class_probabilities), axis=1)
+        log_class_probabilities, _ = self.log_forward(X)
+        return np.argmax(log_class_probabilities, axis=1)
 
-    def update(self, input=None, output=None):
+    def update(self, X, y):
         """
         Update model parameters given batch of data
         """
 
-        gradients = self.backpropagation(input, output)
+        gradients = self.backpropagation(X, y)
 
         learning_rate = self.config['learning_rate']
         num_parameters = len(self.parameters)
@@ -39,11 +39,11 @@ class NumpyMLP(MLP):
             # Update bias
             self.parameters[m][1] -= learning_rate * gradients[m][1]
 
-    def log_forward(self, input):
+    def log_forward(self, X):
         """Forward pass for sigmoid hidden layers and output softmax"""
 
         # Input
-        tilde_z = input
+        tilde_z = X
         layer_inputs = []
 
         # Hidden layers
@@ -72,17 +72,17 @@ class NumpyMLP(MLP):
 
         return log_tilde_z, layer_inputs
 
-    def cross_entropy_loss(self, input, output):
+    def cross_entropy_loss(self, X, y):
         """Cross entropy loss"""
-        num_examples = input.shape[0]
-        log_probability, _ = self.log_forward(input)
-        return -log_probability[range(num_examples), output].mean()
+        num_examples = X.shape[0]
+        log_probability, _ = self.log_forward(X)
+        return -log_probability[range(num_examples), y].mean()
 
-    def backpropagation(self, input, output):
+    def backpropagation(self, X, y):
         """Gradients for sigmoid hidden layers and output softmax"""
 
         # Run forward and store activations for each layer
-        log_prob_y, layer_inputs = self.log_forward(input)
+        log_prob_y, layer_inputs = self.log_forward(X)
         prob_y = np.exp(log_prob_y)
 
         num_examples, num_clases = prob_y.shape
@@ -97,7 +97,7 @@ class NumpyMLP(MLP):
 
         # Initial error is the cost derivative at the last layer (for cross
         # entropy cost)
-        I = index2onehot(output, num_clases)
+        I = index2onehot(y, num_clases)
         error = - (I - prob_y) / num_examples
         errors.append(error)
 
@@ -105,10 +105,10 @@ class NumpyMLP(MLP):
         for n in reversed(range(num_hidden_layers)):
 
             # Backpropagate through linear layer
-            error = np.dot(error, self.parameters[n+1][0])
+            error = np.dot(error, self.parameters[n + 1][0])
 
             # Backpropagate through sigmoid layer
-            error *= layer_inputs[n+1] * (1-layer_inputs[n+1])
+            error *= layer_inputs[n + 1] * (1 - layer_inputs[n + 1])
 
             # Collect error
             errors.append(error)
