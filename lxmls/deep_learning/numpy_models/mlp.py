@@ -98,7 +98,7 @@ class NumpyMLP(MLP):
         # Initial error is the cost derivative at the last layer (for cross
         # entropy cost)
         I = index2onehot(output, num_clases)
-        error = (prob_y - I) / num_examples
+        error = - (I - prob_y) / num_examples
         errors.append(error)
 
         # Backpropagate through each layer
@@ -121,12 +121,7 @@ class NumpyMLP(MLP):
         for n in range(num_hidden_layers + 1):
 
             # Weight gradient
-            weight_gradient = np.zeros(self.parameters[n][0].shape)
-            for l in range(num_examples):
-                weight_gradient += np.outer(
-                    errors[n][l, :],
-                    layer_inputs[n][l, :]
-                )
+            weight_gradient = np.dot(errors[n].T, layer_inputs[n])
 
             # Bias gradient
             bias_gradient = np.sum(errors[n], axis=0, keepdims=True)

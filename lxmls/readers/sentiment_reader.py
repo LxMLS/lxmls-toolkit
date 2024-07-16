@@ -1,7 +1,7 @@
 # http://www.scipy.org/SciPyPackages/Sparse
 from __future__ import division
 
-import codecs
+
 
 import numpy as np
 from os import path
@@ -65,7 +65,7 @@ def build_dicts(domain):
 
     # Build Dictionarie wit counts
     nr_pos = 0
-    pos_file = codecs.open(path.join(_base_sentiment_dir, domain, "positive.review"), 'r', 'utf8')
+    pos_file = open(path.join(_base_sentiment_dir, domain, "positive.review"), 'r', 'utf8')
     for line in pos_file:
         nr_pos += 1
         toks = line.split(" ")
@@ -76,7 +76,7 @@ def build_dicts(domain):
             feat_counts[name] += int(counts)
     pos_file.close()
     nr_neg = 0
-    neg_file = codecs.open(path.join(_base_sentiment_dir, domain, "negative.review"), 'r', 'utf8')
+    neg_file = open(path.join(_base_sentiment_dir, domain, "negative.review"), 'r', 'utf8')
     for line in neg_file:
         nr_neg += 1
         toks = line.split(" ")
@@ -110,7 +110,7 @@ def build_dicts(domain):
 
     X = np.zeros((size, nr_feat), dtype=float)
     y = np.vstack((np.zeros([nr_pos, 1], dtype=int), np.ones([nr_neg, 1], dtype=int)))
-    pos_file = codecs.open(path.join(_base_sentiment_dir, domain, "positive.review"), 'r', 'utf8')
+    pos_file = open(path.join(_base_sentiment_dir, domain, "positive.review"), 'r', 'utf8')
     nr_pos = 0
     for line in pos_file:
         toks = line.split(" ")
@@ -120,7 +120,7 @@ def build_dicts(domain):
                 # print "adding %s with counts %s"%(name,counts)
                 X[nr_pos, feat_dict[name]] = int(counts)
         nr_pos += 1
-    neg_file = codecs.open(path.join(_base_sentiment_dir, domain, "negative.review"), 'r', 'utf8')
+    neg_file = open(path.join(_base_sentiment_dir, domain, "negative.review"), 'r', 'utf8')
     nr_neg = 0
     for line in neg_file:
         toks = line.split(" ")
