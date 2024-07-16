@@ -98,7 +98,7 @@ class NumpyMLP(MLP):
         # Initial error is the cost derivative at the last layer (for cross
         # entropy cost)
         I = index2onehot(output, num_clases)
-        error = (prob_y - I) / num_examples
+        error = - (I - prob_y) / num_examples
         errors.append(error)
 
         # Backpropagate through each layer

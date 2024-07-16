@@ -88,7 +88,7 @@ class NumpyRNN(RNN):
 
         # Gradient of the cost with respect to the last linear model
         I = index2onehot(output, W_y.shape[0])
-        error = (p_y - I) / nr_steps
+        error = - (I - p_y) / nr_steps
 
         # backward pass, with gradient computation
         error_h_next = np.zeros_like(h[0, :])
