@@ -15,7 +15,7 @@ Machine learning toolkit for natural language processing. Written for [LxMLS - L
 * Non-linear Models (Backpropagation)
 * Attention Models (Transformers)
 
-Bear in mind that the main purpose of the toolkit is educative. You may resort
+Bear in mind that the main purpose of the toolkit is educational. You may resort
 to other toolboxes if you are looking for efficient implementations of the
 algorithms described.
 
@@ -33,17 +33,17 @@ If you do not have a pyhon installation, install miniconda. Go to
     https://docs.conda.io/en/latest/miniconda.html
 
 and follow the instructions for your platform (Windows, Linux, OSX). We reccomend
-that you create you virtual environment with a recent python version i.e.
+that you create your virtual environment with a recent python version i.e.
 
     cd lxmls-toolkit-student
     conda create -y -p ./lxmls2023 python=3.9 -y
     conda activate ./lxmls2023
 
-Note the `./` in `./lxmls2023` this will install the virtual environment
+Note the `./` in `./lxmls2023` -- this will install the virtual environment
 locally, so if you delete `lxmls-toolkit-student` you will also remove the
 environment.
 
-Then install the toolkit, just to be sure upgrade your pip (allways good)
+Then install the toolkit, just to be sure upgrade your pip (always good)
 
     pip install pip setuptools --upgrade
     pip install -r requirements.txt
@@ -57,7 +57,7 @@ This will install the toolkit in a way that is modifiable. Remember to run scrip
 
 ### Development
 
-To run the all tests install `tox` and `pytest` 
+To run the all tests install `tox` and `pytest`
 
     pip install tox pytest
 
