@@ -35,7 +35,7 @@ class PytorchRNN(RNN):
         # First parameters are the embeddings
         # instantiate the embedding layer first
         self.embedding_layer = torch.nn.Embedding(
-            config['input_size'],
+            config['X_size'],
             config['embedding_size']
         )
 
@@ -55,18 +55,18 @@ class PytorchRNN(RNN):
             # Get weigths and bias of the layer (even and odd positions)
             self.parameters[index] = cast_float(self.parameters[index])
 
-    def predict(self, input=None):
+    def predict(self, X):
         """
-        Predict model outputs given input
+        Predict model outputs given X
         """
-        log_p_y = self._log_forward(input).data.numpy()
+        log_p_y = self._log_forward(X).data.numpy()
         return np.argmax(log_p_y, axis=1)
 
-    def update(self, input=None, output=None):
+    def update(self, X, y):
         """
         Update model parameters given batch of data
         """
-        gradients = self.backpropagation(input, output)
+        gradients = self.backpropagation(X, y)
         learning_rate = self.config['learning_rate']
         # Update each parameter with SGD rule
         num_parameters = len(self.parameters)
@@ -74,19 +74,19 @@ class PytorchRNN(RNN):
             # Update weight
             self.parameters[m].data -= learning_rate * gradients[m]
 
-    def _log_forward(self, input):
+    def _log_forward(self, X):
         """
         Forward pass
         """
 
         # Ensure the type matches torch type
-        input = cast_int(input, grad=False)
+        X = cast_int(X, grad=False)
 
         # Get parameters and sizes
         W_e, W_x, W_h, W_y = self.parameters
         embedding_size, vocabulary_size = W_e.shape
         hidden_size = W_h.shape[0]
-        nr_steps = input.shape[0]
+        nr_steps = X.shape[0]
 
         # FORWARD PASS COMPUTATION GRAPH
 
@@ -94,7 +94,7 @@ class PytorchRNN(RNN):
         # Solution to Exercise 6.2
 
         # Word Embeddings
-        z_e = self.embedding_layer(input)
+        z_e = self.embedding_layer(X)
 
         # Recurrent layer
         h = torch.zeros(1, hidden_size)
@@ -122,14 +122,14 @@ class PytorchRNN(RNN):
 
         return log_p_y
 
-    def backpropagation(self, input, output):
+    def backpropagation(self, X, y):
         """
         Computes the gradients of the network with respect to cross entropy
         error cost
         """
 
         # Ensure the type matches torch type
-        output = cast_int(output, grad=False)
+        y = cast_int(y, grad=False)
 
         # Zero gradients
         for parameter in self.parameters:
@@ -137,8 +137,8 @@ class PytorchRNN(RNN):
                 parameter.grad.data.zero_()
 
         # Compute negative log-likelihood loss
-        log_p_y = self._log_forward(input)
-        cost = self.loss(log_p_y, output)
+        log_p_y = self._log_forward(X)
+        cost = self.loss(log_p_y, y)
         # Use autograd to compute the backward pass.
         cost.backward()
 
@@ -168,7 +168,7 @@ class FastPytorchRNN(RNN):
         # First parameters are the embeddings
         # instantiate the embedding layer first
         self.embedding_layer = torch.nn.Embedding(
-            config['input_size'],
+            config['X_size'],
             config['embedding_size']
         )
         # Set its value to the stored weight
@@ -196,19 +196,19 @@ class FastPytorchRNN(RNN):
             [cast_float(self.parameters[-1])]
         )
 
-    def predict(self, input=None):
+    def predict(self, X):
         """
-        Predict model outputs given input
+        Predict model outputs given X
         """
-        log_p_y = self._log_forward(input).data.numpy()
+        log_p_y = self._log_forward(X).data.numpy()
 
         return np.argmax(log_p_y, axis=1)
 
-    def update(self, input=None, output=None):
+    def update(self, X, y):
         """
         Update model parameters given batch of data
         """
-        gradients = self.backpropagation(input, output)
+        gradients = self.backpropagation(X, y)
         learning_rate = self.config['learning_rate']
         # Update each parameter with SGD rule
         num_parameters = len(self.parameters)
@@ -216,13 +216,13 @@ class FastPytorchRNN(RNN):
             # Update weight
             self.parameters[m].data -= learning_rate * gradients[m]
 
-    def _log_forward(self, input):
+    def _log_forward(self, X):
         """
         Forward pass
         """
 
         # Ensure the type matches torch type
-        input = cast_int(input)
+        X = cast_int(X)
 
         # Get parameters and sizes
         W_e, W_x, W_h, W_y = self.parameters
@@ -231,7 +231,7 @@ class FastPytorchRNN(RNN):
         # FORWARD PASS COMPUTATION GRAPH
 
         # Word Embeddings
-        z_e = self.embedding_layer(input)
+        z_e = self.embedding_layer(X)
 
         # RNN
         h, _ = self.rnn(z_e[:, None, :])
@@ -244,12 +244,12 @@ class FastPytorchRNN(RNN):
 
         return log_p_y
 
-    def backpropagation(self, input, output):
+    def backpropagation(self, X, y):
         """
         Computes the gradients of the network with respect to cross entropy
         error cost
         """
-        output = cast_int(output, grad=False)
+        y = cast_int(y, grad=False)
 
         # Zero gradients
         for parameter in self.parameters:
@@ -257,8 +257,8 @@ class FastPytorchRNN(RNN):
                 parameter.grad.data.zero_()
 
         # Compute negative log-likelihood loss
-        log_p_y = self._log_forward(input)
-        cost = self.loss(log_p_y, output)
+        log_p_y = self._log_forward(X)
+        cost = self.loss(log_p_y, y)
         # Use autograd to compute the backward pass.
         cost.backward()
 
