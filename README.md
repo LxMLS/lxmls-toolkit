@@ -35,8 +35,8 @@ After setting up the anaconda:
 	navigate to the folder where the repository resides
 
 	install anaconda (see instruction)
-	conda create --name lxmls_new
-	conda activate lxmls_new
+	conda create --name lxmls_venv
+	conda activate lxmls_venv
 	conda install pip
 	pip install --editable . 
 
@@ -44,8 +44,8 @@ If you prefer `pip` to Anaconda you can install the toolkit in a way that does
 not interfere with your existing installation. For this you can use a virtual
 environment as follows 
 
-    virtualenv venv
-    source venv/bin/activate (on Windows: .\venv\Scripts\activate)
+    virtualenv lxmls_venv
+    source lxmls_venv/bin/activate (on Windows: .\lxmls_venv\Scripts\activate)
     pip install pip setuptools --upgrade
     pip install --editable . 
 
