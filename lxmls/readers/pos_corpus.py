@@ -117,7 +117,7 @@ class PostagCorpus(object):
             reader = codecs.getreader("utf-8")
             contents = reader(zf)
         else:
-            contents = codecs.open(file, "r", "utf-8")
+            contents = open(file, "r", "utf-8")
 
         nr_sent = 0
         instances = []
@@ -155,7 +155,7 @@ class PostagCorpus(object):
         """Dumps a corpus into a file"""
         if not os.path.isdir(dir + "/"):
             os.mkdir(dir + "/")
-        word_fn = codecs.open(dir + "word.dic", "w", "utf-8")
+        word_fn = open(dir + "word.dic", "w", "utf-8")
         for word_id, word in enumerate(self.int_to_word):
             word_fn.write("%i\t%s\n" % (word_id, word))
         word_fn.close()
@@ -171,7 +171,7 @@ class PostagCorpus(object):
 
     def load_corpus(self, dir):
         """Loads a corpus from a file"""
-        word_fn = codecs.open(dir + "word.dic", "r", "utf-8")
+        word_fn = open(dir + "word.dic", "r", "utf-8")
         for line in word_fn:
             word_nr, word = line.strip().split("\t")
             self.int_to_word.append(word)
