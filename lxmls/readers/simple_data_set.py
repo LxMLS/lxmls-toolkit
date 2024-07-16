@@ -23,8 +23,8 @@ class SimpleDataSet:
         X_neg_1 = np.random.normal(g2[0][0], g2[1], [nr_negative, 1])
         X_neg_2 = np.random.normal(g2[0][1], g2[1], [nr_negative, 1])
         X_neg = np.hstack([X_neg_1, X_neg_2])
-        y_pos = np.zeros([nr_positive, 1], dtype=np.int)
-        y_neg = np.ones([nr_negative, 1], dtype=np.int)
+        y_pos = np.zeros([nr_positive, 1], dtype=int)
+        y_neg = np.ones([nr_negative, 1], dtype=int)
         X = np.vstack([X_pos, X_neg])
         y = np.vstack([y_pos, y_neg])
 

@@ -22,8 +22,8 @@ class DependencyDecoder:
 
         nw = nr - 1
 
-        s = np.matrix(scores)
-        lap = np.matrix(np.zeros((nw+1, nw+1)))
+        s = np.array(scores)
+        lap = np.array(np.zeros((nw+1, nw+1)))
         for m in range(1, nw+1):
             d = 0.0
             for h in range(0, nw+1):
@@ -56,7 +56,7 @@ class DependencyDecoder:
 
         raise NotImplementedError("Complete Exercise 3.6")
 
-        # End of solution to Exercise 3.6
+        # End of solution to Exercise 4.3.6
         # ----------
 
     def backtrack_eisner(self, incomplete_backtrack, complete_backtrack, s, t, direction, complete, heads):

@@ -1,27 +1,30 @@
 import os
+# import sys
 from setuptools import setup, find_packages
-
-try:
+try:  # for pip >=12
+    from pip._internal.req import parse_requirements
+    try:
+        from pip._internal import download
+    except ImportError:  # for pip >= 20
+        from pip._internal.network import session as download
+except ImportError:  # for pip <= 9.0.3
     from pip.req import parse_requirements
-    import pip.download
+    from pip import download
 
-    # parse_requirements() returns generator of pip.req.InstallRequirement
-    # objects
-    install_reqs = parse_requirements(
-        "requirements.txt",
-        session=pip.download.PipSession()
-    )
-    # install_requires is a list of requirement
+VERSION = '0.0.2'
+
+# parse_requirements() returns generator of pip.req.InstallRequirement
+# objects
+install_reqs = parse_requirements(
+    "requirements.txt", session=download.PipSession()
+)
+# install_requires is a list of requirement
+try:
     install_requires = [str(ir.req) for ir in install_reqs]
-except:
-    # This is a bit of an ugly hack, but pip is not installed on EMR
-    install_requires = []
+except AttributeError:  # for pip >= 20
+    install_requires = [str(ir.requirement) for ir in install_reqs]
 
 
-# Utility function to read the README file.
-# Used for the long_description.  It's nice, because now 1) we have a top level
-# README file and 2) it's easier to type in the README file than to put a raw
-# string in below ...
 def read(filename):
     return open(os.path.join(os.path.dirname(__file__), filename)).read()
 
@@ -32,7 +35,7 @@ package_data = {
 
 setup(
     name='LxMLS Toolkit',
-    version='0.0.1',
+    version=VERSION,
     author='LxMLS team',
     description='Machine Learning and Natural Language toolkit',
     long_description=read('README.md'),
@@ -49,6 +52,9 @@ setup(
         'Programming Language :: Python',
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
         'Operating System :: OS Independent',
         'License :: OSI Approved :: MIT License',
     ],

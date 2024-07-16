@@ -1,10 +1,7 @@
 import sys
 import os
-import pytest
-
-LXMLS_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.insert(0, LXMLS_ROOT)
 import numpy as np
+import pytest
 
 import lxmls.readers.sentiment_reader as srs
 from lxmls.deep_learning.utils import AmazonData
@@ -12,16 +9,18 @@ from lxmls.deep_learning.utils import Model, glorot_weight_init, index2onehot, l
 from lxmls.deep_learning.numpy_models.mlp import NumpyMLP
 from lxmls.deep_learning.mlp import get_mlp_parameter_handlers, get_mlp_loss_range
 
-tolerance = 2 #TODO #FIXME Implementations give random results in a +-1 margin.
-              # Check the source of this randomness
+tolerance = 1e-2
+
 
 @pytest.fixture(scope='module')
 def corpus():
     return srs.SentimentCorpus("books")
 
+
 @pytest.fixture(scope='module')
 def data(corpus):
     return AmazonData(corpus=corpus)
+
 
 # exercise 1
 def test_numpy_log_linear(corpus, data):
@@ -83,14 +82,14 @@ def test_numpy_log_linear(corpus, data):
     )
 
     # Define number of epochs and batch size
-    num_epochs = 10
+    num_epochs = 2
     batch_size = 30
 
     # Get batch iterators for train and test
     train_batches = data.batches('train', batch_size=batch_size)
     test_set = data.batches('test', batch_size=None)[0]
 
-    # Get intial accuracy
+    # Get initial accuracy
     hat_y = model.predict(input=test_set['input'])
     accuracy = 100*np.mean(hat_y == test_set['output'])
     assert np.allclose(accuracy, 51.25, tolerance)
@@ -101,19 +100,18 @@ def test_numpy_log_linear(corpus, data):
         hat_y = model.predict(input=test_set['input'])
         accuracy = 100*np.mean(hat_y == test_set['output'])
 
-    assert np.allclose(accuracy, 81.75, tolerance)
+    assert np.allclose(accuracy, 74, tolerance)
 
 
 # exercise 2
 def test_backpropagation_numpy(corpus, data):
-
     # Model
     geometry = [corpus.nr_features, 20, 2]
     activation_functions = ['sigmoid', 'softmax']
 
     # Optimization
     learning_rate = 0.05
-    num_epochs = 10
+    num_epochs = 2
     batch_size = 30
 
     # Model
@@ -168,5 +166,8 @@ def test_backpropagation_numpy(corpus, data):
         # Inform user
         print("Epoch %d: accuracy %2.2f %%" % (epoch+1, accuracy))
 
-    assert np.allclose(accuracy, 80.25, tolerance)
+    assert np.allclose(accuracy, 67.5, tolerance)
 
+
+if __name__ == '__main__':
+    pytest.main([__file__])

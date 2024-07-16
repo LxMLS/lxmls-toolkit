@@ -4,8 +4,8 @@ from __future__ import division
 import codecs
 
 import numpy as np
-import os
 from os import path
+from collections import OrderedDict
 
 
 class SentimentCorpus:
@@ -55,7 +55,7 @@ _base_sentiment_dir = path.join(path.dirname(__file__), "..", "..", "data", "sen
 def build_dicts(domain):
     """Builds feature dictionaries for a given domain of the sentiment analysis corpus."""
     sentiment_domains = ["books", "dvd", "electronics", "kitchen"]
-    feat_counts = {}
+    feat_counts = OrderedDict()
     if domain not in sentiment_domains:
         print(
             "Domain does not exist: \"%s\": Available are: %s" % 
@@ -101,7 +101,7 @@ def build_dicts(domain):
 
     nr_feat = len(feat_counts)
     # print nr_feat
-    feat_dict = {}
+    feat_dict = OrderedDict()
     i = 0
     # print "After removing %i %i"%(len(feat_counts),sum(feat_counts.values()))
     for key in list(feat_counts.keys()):
