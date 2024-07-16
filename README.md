@@ -12,7 +12,8 @@ Machine learning toolkit for natural language processing. Written for [LxMLS - L
 
 * Scientific Python and Mathematical background
 * Linear Classifiers (Gradient Descent)
-* Non-linear Models (Backpropagation)
+* Feed-forward models in deep learning (Backpropagation)
+* Sequence models in deep learning
 * Attention Models (Transformers)
 
 Bear in mind that the main purpose of the toolkit is educational. You may resort
@@ -31,6 +32,20 @@ example from the command line in do
 If you do not have a pyhon installation, install miniconda. Go to
 
     https://docs.conda.io/en/latest/miniconda.html
+
+and follow the instructions for installation using Python 3.
+
+After setting up the anaconda:
+
+	use your favorite git tool to create a clone of this repository
+	navigate to the folder where the repository resides
+	
+	install anaconda (see instruction)
+	conda create --name lxmls_new
+	conda activate lxmls_new
+	conda install pip
+	pip install --editable . 
+
 
 and follow the instructions for your platform (Windows, Linux, OSX). We reccomend
 that you create your virtual environment with a recent python version i.e.
@@ -54,7 +69,7 @@ This will install the toolkit in a way that is modifiable. Remember to run scrip
 
 * Run from the project root directory. If an importing error occurs, try first adding the current path to the `PYTHONPATH` environment variable, e.g.:
   * `export PYTHONPATH=.`
-
+```
 ### Development
 
 To run the all tests install `tox` and `pytest`
@@ -67,12 +82,10 @@ and run
 
 Note, to combine the coverage data from all the tox environments run:
 
+
 * Windows
-    ```
     set PYTEST_ADDOPTS=--cov-append
-    tox
-    ```
+	
 * Other
-    ```
     PYTEST_ADDOPTS=--cov-append tox
-    ```
+```
