@@ -11,13 +11,10 @@
 Machine learning toolkit for natural language processing. Written for Lisbon Machine Learning Summer School (lxmls.it.pt). This covers
 
 * Scientific Python and Mathematical background
-* Linear Classifiers
-* Sequence Models
-* Structured Prediction
-* Syntax and Parsing
-* Feed-forward models in deep learning
+* Linear Classifiers (Gradient Descent)
+* Non-linear Models (Backpropagation)
 * Sequence models in deep learning
-* Reinforcement Learning
+* Attention Models (Transformers)
 
 Machine learning toolkit for natural language processing. Written for [LxMLS - Lisbon Machine Learning Summer School](http://lxmls.it.pt)
 
@@ -31,7 +28,17 @@ If you are new to Python, the simplest method is to use `Anaconda`to handle your
 
     https://www.anaconda.com/download/
 
-and follow the instructions. We strongly recommend using at least Python 3.
+and follow the instructions for installation using Python 3.
+After setting up the anaconda:
+
+	use your favorite git tool to create a clone of this repository
+	navigate to the folder where the repository resides
+
+	install anaconda (see instruction)
+	conda create --name lxmls_new
+	conda activate lxmls_new
+	conda install pip
+	pip install --editable . 
 
 If you prefer `pip` to Anaconda you can install the toolkit in a way that does
 not interfere with your existing installation. For this you can use a virtual
@@ -55,24 +62,4 @@ algorithms described.
 * Run from the project root directory. If an importing error occurs, try first adding the current path to the `PYTHONPATH` environment variable, e.g.:
   * `export PYTHONPATH=.`
 
-### Development
 
-To run the all tests install `tox` and `pytest` 
-
-    pip install tox pytest
-
-and run
-
-    tox
-
-Note, to combine the coverage data from all the tox environments run:
-
-* Windows
-    ```
-    set PYTEST_ADDOPTS=--cov-append
-    tox
-    ```
-* Other
-    ```
-    PYTEST_ADDOPTS=--cov-append tox
-    ```
