@@ -2,7 +2,7 @@
 Removes get_ipython() inline calls from scripts
 """
 import re
-import codecs
+
 import sys
 
 EXCLUDE_LINES = re.compile('[^#]*get_ipython().*')
@@ -20,7 +20,7 @@ if __name__ == '__main__':
         exit(1)
 
     # Line filtering
-    with codecs.open(script_file, 'r', 'utf-8') as fid:
+    with open(script_file, 'r', 'utf-8') as fid:
         new_lines = []
         for line in fid.readlines():
             if EXCLUDE_LINES.match(line.strip()):
@@ -29,6 +29,6 @@ if __name__ == '__main__':
                 new_lines.append(line)
 
     # Rewrite file
-    with codecs.open(script_file, 'w', 'utf-8') as fid:
+    with open(script_file, 'w', 'utf-8') as fid:
         for line in new_lines:
             fid.write(line)

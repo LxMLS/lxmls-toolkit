@@ -1,6 +1,6 @@
 import os
 import sys
-import codecs
+
 
 from lxmls import data
 from sequences.sequence import *
