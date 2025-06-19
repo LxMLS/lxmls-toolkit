@@ -96,24 +96,6 @@ class CLIPVisionEmbeddings(nn.Module):
         self.position_embedding = nn.Embedding(self.num_positions, self.embed_dim)
         self.register_buffer("position_ids", torch.arange(self.num_positions).expand((1, -1)), persistent=False)
 
-    # def forward(self, pixel_values: torch.FloatTensor, interpolate_pos_encoding=False) -> torch.Tensor:
-    #     batch_size, _, height, width = pixel_values.shape
-    #     if not interpolate_pos_encoding and (height != self.image_size or width != self.image_size):
-    #         raise ValueError(
-    #             f"Input image size ({height}*{width}) doesn't match model ({self.image_size}*{self.image_size})."
-    #         )
-    #     target_dtype = self.patch_embedding.weight.dtype
-    #     patch_embeds = self.patch_embedding(pixel_values.to(dtype=target_dtype))  # shape = [*, width, grid, grid]
-    #     patch_embeds = patch_embeds.flatten(2).transpose(1, 2)
-
-    #     class_embeds = self.class_embedding.expand(batch_size, 1, -1)
-    #     embeddings = torch.cat([class_embeds, patch_embeds], dim=1)
-    #     if interpolate_pos_encoding:
-    #         embeddings = embeddings + self.interpolate_pos_encoding(embeddings, height, width)
-    #     else:
-    #         embeddings = embeddings + self.position_embedding(self.position_ids)
-    #     return embeddings
-
 
 class CLIPTextEmbeddings(nn.Module):
     def __init__(self, config: CLIPTextConfig):
@@ -635,42 +617,6 @@ class CLIPVisionTransformer(nn.Module):
         self.pre_layrnorm = nn.LayerNorm(embed_dim, eps=config.layer_norm_eps)
         self.encoder = CLIPEncoder(config)
         self.post_layernorm = nn.LayerNorm(embed_dim, eps=config.layer_norm_eps)
-
-    # @can_return_tuple
-    # def forward(
-    #     self,
-    #     pixel_values: Optional[torch.FloatTensor] = None,
-    #     output_attentions: Optional[bool] = None,
-    #     output_hidden_states: Optional[bool] = None,
-    #     interpolate_pos_encoding: Optional[bool] = False,
-    # ) -> BaseModelOutputWithPooling:
-    #     output_attentions = output_attentions if output_attentions is not None else self.config.output_attentions
-    #     output_hidden_states = (
-    #         output_hidden_states if output_hidden_states is not None else self.config.output_hidden_states
-    #     )
-
-    #     if pixel_values is None:
-    #         raise ValueError("You have to specify pixel_values")
-
-    #     hidden_states = self.embeddings(pixel_values, interpolate_pos_encoding=interpolate_pos_encoding)
-    #     hidden_states = self.pre_layrnorm(hidden_states)
-
-    #     encoder_outputs: BaseModelOutput = self.encoder(
-    #         inputs_embeds=hidden_states,
-    #         output_attentions=output_attentions,
-    #         output_hidden_states=output_hidden_states,
-    #     )
-
-    #     last_hidden_state = encoder_outputs.last_hidden_state
-    #     pooled_output = last_hidden_state[:, 0, :]
-    #     pooled_output = self.post_layernorm(pooled_output)
-
-    #     return BaseModelOutputWithPooling(
-    #         last_hidden_state=last_hidden_state,
-    #         pooler_output=pooled_output,
-    #         hidden_states=encoder_outputs.hidden_states,
-    #         attentions=encoder_outputs.attentions,
-    #     )
 
 
 class CLIPVisionModel(CLIPPreTrainedModel):
