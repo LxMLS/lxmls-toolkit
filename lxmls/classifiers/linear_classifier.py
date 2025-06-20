@@ -1,9 +1,9 @@
 from __future__ import division
+
 import numpy as np
 
 
 class LinearClassifier:
-
     def __init__(self):
         self.trained = False
 
@@ -11,7 +11,7 @@ class LinearClassifier:
         """
         Returns the weight vector
         """
-        raise NotImplementedError('LinearClassifier.train not implemented')
+        raise NotImplementedError("LinearClassifier.train not implemented")
 
     def get_scores(self, x, w):
         """
@@ -37,7 +37,7 @@ class LinearClassifier:
         return self.get_label(x, w)
 
     def add_intercept_term(self, x):
-        """ Adds a column of ones to estimate the intercept term for separation boundary"""
+        """Adds a column of ones to estimate the intercept term for separation boundary"""
         nr_x, nr_f = x.shape
         intercept = np.ones([nr_x, 1])
         x = np.hstack((intercept, x))

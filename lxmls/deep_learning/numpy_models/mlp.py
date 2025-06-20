@@ -1,4 +1,5 @@
 import numpy as np
+
 from lxmls.deep_learning.mlp import MLP
 from lxmls.deep_learning.utils import index2onehot, logsumexp
 
@@ -9,34 +10,28 @@ class NumpyMLP(MLP):
     """
 
     def __init__(self, **config):
-
         # This will initialize
         # self.config
         # self.parameters
         MLP.__init__(self, **config)
 
-    def predict(self, input=None):
-        """
-        Predict model outputs given input
-        """
+    def predict(self, input):
+        """Predict model outputs given input"""
         log_class_probabilities, _ = self.log_forward(input)
         return np.argmax(np.exp(log_class_probabilities), axis=1)
 
-    def update(self, input=None, output=None):
-        """
-        Update model parameters given batch of data
-        """
-
+    def update(self, input, output):
+        """Update model parameters given batch of data"""
         gradients = self.backpropagation(input, output)
 
-        learning_rate = self.config['learning_rate']
+        learning_rate = self.config["learning_rate"]
         num_parameters = len(self.parameters)
         for m in np.arange(num_parameters):
-
             # Update weight
             self.parameters[m][0] -= learning_rate * gradients[m][0]
 
             # Update bias
+            self.parameters[m][1] -= learning_rate * gradients[m][1]
             self.parameters[m][1] -= learning_rate * gradients[m][1]
 
     def log_forward(self, input):
@@ -49,7 +44,6 @@ class NumpyMLP(MLP):
         # Hidden layers
         num_hidden_layers = len(self.parameters) - 1
         for n in range(num_hidden_layers):
-
             # Store input to this layer (needed for backpropagation)
             layer_inputs.append(tilde_z)
 
@@ -97,18 +91,17 @@ class NumpyMLP(MLP):
 
         # Initial error is the cost derivative at the last layer (for cross
         # entropy cost)
-        I = index2onehot(output, num_clases)
-        error = - (I - prob_y) / num_examples
+        dL = index2onehot(output, num_clases)
+        error = -(dL - prob_y) / num_examples
         errors.append(error)
 
         # Backpropagate through each layer
         for n in reversed(range(num_hidden_layers)):
-
             # Backpropagate through linear layer
-            error = np.dot(error, self.parameters[n+1][0])
+            error = np.dot(error, self.parameters[n + 1][0])
 
             # Backpropagate through sigmoid layer
-            error *= layer_inputs[n+1] * (1-layer_inputs[n+1])
+            error *= layer_inputs[n + 1] * (1 - layer_inputs[n + 1])
 
             # Collect error
             errors.append(error)
@@ -119,7 +112,6 @@ class NumpyMLP(MLP):
         # Compute gradients from errors
         gradients = []
         for n in range(num_hidden_layers + 1):
-
             # Weight gradient
             weight_gradient = np.dot(errors[n].T, layer_inputs[n])
 

@@ -1,14 +1,16 @@
 import numpy as np
-from lxmls.util.my_math_utils import *
+
 import lxmls.classifiers.linear_classifier as lc
+from lxmls.utils.math import l2norm_squared
 
 
 # ----------
 # Train a maxent in a online setting using stochastic gradient
 # ----------
 class MaxEntOnline(lc.LinearClassifier):
-
-    def __init__(self, nr_epochs=10, initial_step=1.0, alpha=1.0, regularizer=1.0, seed=1):
+    def __init__(
+        self, nr_epochs=10, initial_step=1.0, alpha=1.0, regularizer=1.0, seed=1
+    ):
         lc.LinearClassifier.__init__(self)
         self.trained = False
         self.nr_epochs = nr_epochs
@@ -35,8 +37,8 @@ class MaxEntOnline(lc.LinearClassifier):
                 learning_rate = self.initial_step * np.power(t, -self.alpha)
                 # print learning_rate
                 inst = perm[nr]
-                y_true = y[inst:inst+1, 0]
-                scores = self.get_scores(x[inst:inst+1, :], w)
+                y_true = y[inst : inst + 1, 0]
+                scores = self.get_scores(x[inst : inst + 1, :], w)
                 exp_scores = np.exp(scores)
                 if np.any(np.isinf(exp_scores)):
                     print("Overflow: removing max")
@@ -47,15 +49,17 @@ class MaxEntOnline(lc.LinearClassifier):
                 z = exp_scores.sum()
                 probs = exp_scores / z
                 # Compute feature expectations
-                exp_feat = np.dot(x[inst:inst+1, :].transpose(), probs)
+                exp_feat = np.dot(x[inst : inst + 1, :].transpose(), probs)
                 # Compute empirical features for this example
                 emp_feat = np.zeros(w.shape)
-                emp_feat[:, y_true] = x[inst:inst+1, :].transpose()
+                emp_feat[:, y_true] = x[inst : inst + 1, :].transpose()
                 # Update the model
-                objective += 0.5 * self.regularizer * \
-                    l2norm_squared(w) - np.log(probs[0][y_true[0]])
-                w = (1 - self.regularizer * learning_rate) * \
-                    w + learning_rate * (emp_feat - exp_feat)
+                objective += 0.5 * self.regularizer * l2norm_squared(w) - np.log(
+                    probs[0][y_true[0]]
+                )
+                w = (1 - self.regularizer * learning_rate) * w + learning_rate * (
+                    emp_feat - exp_feat
+                )
                 if np.any(np.isnan(w)):
                     print("error parameters became not a number")
                     return w

@@ -2,7 +2,6 @@ import numpy as np
 
 
 class Multinomial:
-
     def __init__(self, params):
         self.params = params
 

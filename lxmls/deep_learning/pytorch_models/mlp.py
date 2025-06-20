@@ -1,5 +1,6 @@
 import numpy as np
 import torch
+
 from lxmls.deep_learning.mlp import MLP
 
 
@@ -10,12 +11,9 @@ def cast_float(variable_np):
 
 
 class PytorchMLP(MLP):
-    """
-    Basic MLP with forward-pass and gradient computation in Pytorch
-    """
+    """Basic MLP with forward-pass and gradient computation in Pytorch"""
 
     def __init__(self, **config):
-
         # This will initialize
         # self.num_layers
         # self.config
@@ -32,11 +30,9 @@ class PytorchMLP(MLP):
         self.log_softmax = torch.nn.LogSoftmax(dim=1)
         self.loss_function = torch.nn.NLLLoss()
 
-    # TODO: Move these outside fo the class as in the numpy case
+    # TODO: Move these outside of the class as in the numpy case
     def _log_forward(self, input):
-        """
-        Forward pass
-        """
+        """Forward pass"""
 
         # Ensure the type matches torch type
         input = cast_float(input)
@@ -47,7 +43,6 @@ class PytorchMLP(MLP):
         # ----------
         # Solution to Exercise 6.4
         for n in range(self.num_layers - 1):
-
             # Get weights and bias of the layer (even and odd positions)
             weight, bias = self.parameters[n]
 
@@ -72,10 +67,7 @@ class PytorchMLP(MLP):
         return log_tilde_z
 
     def gradients(self, input, output):
-        """
-        Computes the gradients of the network with respect to cross entropy
-        error cost
-        """
+        """Computes the gradients of the network with respect to cross entropy error cost"""
         true_class = torch.from_numpy(output).long()
 
         # Compute negative log-likelihood loss
@@ -90,19 +82,15 @@ class PytorchMLP(MLP):
             nabla_parameters.append([weight.grad.data, bias.grad.data])
         return nabla_parameters
 
-    def predict(self, input=None):
-        """
-        Predict model outputs given input
-        """
+    def predict(self, input):
+        """Predict model outputs given input"""
         log_forward = self._log_forward(input).data.numpy()
         return np.argmax(log_forward, axis=1)
 
-    def update(self, input=None, output=None):
-        """
-        Update model parameters given batch of data
-        """
+    def update(self, input, output):
+        """Update model parameters given batch of data"""
         gradients = self.gradients(input, output)
-        learning_rate = self.config['learning_rate']
+        learning_rate = self.config["learning_rate"]
         # Update each parameter with SGD rule
         for m in range(self.num_layers):
             # Update weight
