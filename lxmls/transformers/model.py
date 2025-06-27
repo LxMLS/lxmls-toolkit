@@ -265,10 +265,10 @@ class GPT(nn.Module):
                 if not k.endswith('attn.masked_bias')]  # ignore these
         keys = [
             k for k in keys
-            if not re.match("transformer\.h\.\d+\.attn\.bias", k)
+            if not re.match(r"transformer\.h\.\d+\.attn\.bias", k)
         ]  # ignore these
         sd_keys = [
-            k for k in sd if not re.match("transformer\.h\.\d+\.attn\.bias", k)
+            k for k in sd if not re.match(r"transformer\.h\.\d+\.attn\.bias", k)
         ]  # ignore these
 
         transposed = [
@@ -477,10 +477,13 @@ class GPT(nn.Module):
                           do_sample=do_sample,
                           top_k=100)
 
+        out_l = []
         for i in range(num_samples):
             out = self.tok.decode(y[i].cpu().squeeze())
             print('-' * 80)
             print(out)
+            out_l.append(out)
+        return(out_l)
 
     def prompt_topK(self, p_text="", tokens=20, num_samples=5):
         """
@@ -503,7 +506,10 @@ class GPT(nn.Module):
 
         y = self.gen_batch(x, max_new_tokens=tokens, batch=num_samples)
 
+        out_l = []
         for y_tmp in y:
             out = self.tok.decode(y_tmp.cpu().squeeze())
             print('-' * 80)
             print(out)
+            out_l.append(out)
+        return(out_l)
