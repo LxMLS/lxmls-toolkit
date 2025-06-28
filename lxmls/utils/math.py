@@ -1,9 +1,7 @@
-import numpy as np
-from scipy import *
-from scipy.sparse import *
-
-
 import operator
+
+import numpy as np
+from scipy.sparse import issparse
 
 
 def sort_dic_by_value(dic, reverse=False):
@@ -19,11 +17,9 @@ def dict_max(dic):
     return max_value, aux[max_value]
 
 
-# ----------
 # Dot products that works for sparse matrix as well
 # Taken from:
 # http://old.nabble.com/Sparse-matrices-and-dot-product-td30315992.html
-# ----------
 def spdot(A, B):
     """The same as np.dot(A, B), except it works even if A or B or both might be sparse."""
     if issparse(A) and issparse(B):
@@ -36,12 +32,10 @@ def spdot(A, B):
         return np.dot(A, B)
 
 
-# ----------
 # Gets a perpendicualar line in 2D
-# ----------
 def perp_2d(a):
-    res = 1. / a
-    res = res[:, ] * [-1, 1]
+    res = 1.0 / a
+    res = res[:,] * [-1, 1]
     return res
 
 
@@ -59,12 +53,10 @@ def l2norm_squared(a):
     return value
 
 
-# ----------
 # Normalizes an array to sum to one, either column wize, or row wize or the full array.
 # Column wize - 0 default
 # Rown wize - 1 default
 # All - 2 default
-# ----------
 def normalize_array(a, direction="column"):
     b = a.copy()
     if direction == "column":

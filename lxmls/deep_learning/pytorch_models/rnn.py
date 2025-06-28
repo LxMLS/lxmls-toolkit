@@ -1,9 +1,8 @@
 import numpy as np
-import scipy
-import scipy.linalg
 import torch
-from torch.distributions import Categorical
+
 from lxmls.deep_learning.rnn import RNN
+
 # To sample from model
 
 
@@ -20,12 +19,9 @@ def cast_int(variable_np, grad=True):
 
 
 class PytorchRNN(RNN):
-    """
-    Basic RNN with forward-pass and gradient computation in Pytorch
-    """
+    """Basic RNN with forward-pass and gradient computation in Pytorch"""
 
     def __init__(self, **config):
-
         # This will initialize
         # self.num_layers
         # self.config
@@ -34,10 +30,7 @@ class PytorchRNN(RNN):
 
         # First parameters are the embeddings
         # instantiate the embedding layer first
-        self.embedding_layer = torch.nn.Embedding(
-            config['input_size'],
-            config['embedding_size']
-        )
+        self.embedding_layer = torch.nn.Embedding(config["input_size"], config["embedding_size"])
 
         # Set its value to the stored weight
         self.embedding_layer.weight.data = cast_float(self.parameters[0]).data
@@ -55,19 +48,15 @@ class PytorchRNN(RNN):
             # Get weigths and bias of the layer (even and odd positions)
             self.parameters[index] = cast_float(self.parameters[index])
 
-    def predict(self, input=None):
-        """
-        Predict model outputs given input
-        """
+    def predict(self, input):
+        """Predict model outputs given input"""
         log_p_y = self._log_forward(input).data.numpy()
         return np.argmax(log_p_y, axis=1)
 
-    def update(self, input=None, output=None):
-        """
-        Update model parameters given batch of data
-        """
+    def update(self, input, output):
+        """Update model parameters given batch of data"""
         gradients = self.backpropagation(input, output)
-        learning_rate = self.config['learning_rate']
+        learning_rate = self.config["learning_rate"]
         # Update each parameter with SGD rule
         num_parameters = len(self.parameters)
         for m in np.arange(num_parameters):
@@ -75,9 +64,7 @@ class PytorchRNN(RNN):
             self.parameters[m].data -= learning_rate * gradients[m]
 
     def _log_forward(self, input):
-        """
-        Forward pass
-        """
+        """Forward pass"""
 
         # Ensure the type matches torch type
         input = cast_int(input, grad=False)
@@ -100,10 +87,8 @@ class PytorchRNN(RNN):
         h = torch.zeros(1, hidden_size)
         hidden_variables = []
         for t in range(nr_steps):
-
             # Linear
-            z_t = torch.matmul(z_e[t, :], torch.t(W_x)) + \
-                torch.matmul(h, torch.t(W_h))
+            z_t = torch.matmul(z_e[t, :], torch.t(W_x)) + torch.matmul(h, torch.t(W_h))
 
             # Non-linear (sigmoid)
             h = torch.sigmoid(z_t)
@@ -158,7 +143,6 @@ class FastPytorchRNN(RNN):
     """
 
     def __init__(self, **config):
-
         # This will initialize
         # self.num_layers
         # self.config
@@ -167,19 +151,12 @@ class FastPytorchRNN(RNN):
 
         # First parameters are the embeddings
         # instantiate the embedding layer first
-        self.embedding_layer = torch.nn.Embedding(
-            config['input_size'],
-            config['embedding_size']
-        )
+        self.embedding_layer = torch.nn.Embedding(config["input_size"], config["embedding_size"])
         # Set its value to the stored weight
         self.embedding_layer.weight.data = cast_float(self.parameters[0]).data
 
         # RNN
-        self.rnn = torch.nn.RNN(
-            config['embedding_size'],
-            config['hidden_size'],
-            bias=False
-        )
+        self.rnn = torch.nn.RNN(config["embedding_size"], config["hidden_size"], bias=False)
         # TODO: Set paremeters here
 
         # Log softmax
@@ -191,25 +168,19 @@ class FastPytorchRNN(RNN):
 
         # Get the parameters
         self.parameters = (
-            [self.embedding_layer.weight] +
-            list(self.rnn.parameters()) +
-            [cast_float(self.parameters[-1])]
+            [self.embedding_layer.weight] + list(self.rnn.parameters()) + [cast_float(self.parameters[-1])]
         )
 
-    def predict(self, input=None):
-        """
-        Predict model outputs given input
-        """
+    def predict(self, input):
+        """Predict model outputs given input"""
         log_p_y = self._log_forward(input).data.numpy()
 
         return np.argmax(log_p_y, axis=1)
 
-    def update(self, input=None, output=None):
-        """
-        Update model parameters given batch of data
-        """
+    def update(self, input, output):
+        """Update model parameters given batch of data"""
         gradients = self.backpropagation(input, output)
-        learning_rate = self.config['learning_rate']
+        learning_rate = self.config["learning_rate"]
         # Update each parameter with SGD rule
         num_parameters = len(self.parameters)
         for m in np.arange(num_parameters):
@@ -217,9 +188,7 @@ class FastPytorchRNN(RNN):
             self.parameters[m].data -= learning_rate * gradients[m]
 
     def _log_forward(self, input):
-        """
-        Forward pass
-        """
+        """Forward pass"""
 
         # Ensure the type matches torch type
         input = cast_int(input)
@@ -266,6 +235,6 @@ class FastPytorchRNN(RNN):
         # Update parameters
         gradient_parameters = []
         for index in range(0, num_parameters):
-            gradient_parameters.append(self.parameters[index].grad.data)
+            gradient_parameters.append(self.parameters[index].grad.data)  # type: ignore
 
         return gradient_parameters

@@ -1,15 +1,10 @@
 import numpy as np
 
 
-# ----------
 # Class for univariate gaussian
 # p(x) = 1/sqrt(2*pi*simga^2) * e ^ - (x-miu)^2/2*sigma^2
 # Where miu is the gaussian mean, and sigma^2 is the gaussian variance
-# ----------
-
-
 class Gaussian:
-
     def __init__(self, mean, variance):
         self.mean = mean
         self.variance = variance

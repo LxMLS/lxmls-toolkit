@@ -1,8 +1,9 @@
-import torch
-import random
 import pickle
-from torch.utils.data import Dataset
+import random
+
 import numpy as np
+import torch
+from torch.utils.data import Dataset
 
 
 class WeatherDataset(Dataset):
@@ -19,7 +20,7 @@ class WeatherDataset(Dataset):
     """
 
     def __init__(self, split, seq_len=6, num_instances=10000, proba=False):
-        assert split in {'train', 'test'}
+        assert split in {"train", "test"}
         self.split = split
         self.size = num_instances
 
@@ -36,7 +37,7 @@ class WeatherDataset(Dataset):
         self.length = seq_len
 
     def __len__(self):
-        return (self.size)
+        return self.size
 
     def get_block_size(self):
         # the length of the sequence that will feed into transformer,
@@ -46,7 +47,7 @@ class WeatherDataset(Dataset):
 
     def get_vocab_size(self):
         # Our vocabulary is the size of observation + states
-        return (len(self.obs) + len(self.states))
+        return len(self.obs) + len(self.states)
 
     def generate_voc(self):
         """Generating vocabulary for the HMM model.
@@ -63,34 +64,27 @@ class WeatherDataset(Dataset):
 
     # Dummy function for decoding
     def decode_obs(self, obs):
-        return ([self.obs[i] for i in obs])
+        return [self.obs[i] for i in obs]
 
     # State IDs are offset by number of observations
     def decode_st(self, st):
         ofs = len(self.obs)
-        return ([self.states[i - ofs] for i in st])
+        return [self.states[i - ofs] for i in st]
 
     def decode_seq(self, x, y):
-
         return (self.decode_obs(x), self.decode_st(y))
 
     # Dummy function for converting random logits to probabilities
     def logits_to_probs(self, logits):
-        logits = np.array(
-            logits
-        )  # Convert the list to a numpy array for efficient calculations
-        exp_logits = np.exp(
-            logits)  # Apply the exponential function to each element
-        probabilities = exp_logits / np.sum(
-            exp_logits)  # Divide each element by the sum of all elements
-        return probabilities.tolist(
-        )  # Convert the numpy array back to a Python list
+        logits = np.array(logits)  # Convert the list to a numpy array for efficient calculations
+        exp_logits = np.exp(logits)  # Apply the exponential function to each element
+        probabilities = exp_logits / np.sum(exp_logits)  # Divide each element by the sum of all elements
+        return probabilities.tolist()  # Convert the numpy array back to a Python list
 
     # We should NOT use that.
     # Mostly for debugging purposes
     # The resulting dataset is almost unlearnable as it's randomly generated
     def generate_random_proba(self):
-
         # Generating a probability distribution for HMM
         self.proba = {}
 
@@ -155,24 +149,23 @@ class WeatherDataset(Dataset):
         y = []
 
         while not eos:
-
             # Start of sequence
             if c_s == 99:
                 # Sample from initial
-                c_s = self.sample_p(self.proba["initial"])
+                c_s = self.sample_p(self.proba["initial"])  # type: ignore
 
             # Consecutive iterations
 
             # We generate until we get length of self length
             elif len(x) < self.length:
                 # Sample from transition of last state
-                c_s = self.sample_p(self.proba["transition"][c_s])
+                c_s = self.sample_p(self.proba["transition"][c_s])  # type: ignore
 
                 # Generate emission
 
                 # Note that we append the states as labels and observations as input
                 y.append(c_s)
-                x.append(self.sample_p(self.proba["emission"][c_s]))
+                x.append(self.sample_p(self.proba["emission"][c_s]))  # type: ignore
 
             else:
                 eos = True
@@ -183,16 +176,14 @@ class WeatherDataset(Dataset):
         return (x, y)
 
     def __getitem__(self, idx):
-
         # use rejection sampling to generate an input example from the desired split
         while True:
-
             # Generate observation and its states
             obs, st = self.generate_seq()
 
             # figure out if this generated example is train or test based on its hash
             h = hash(pickle.dumps(obs))
-            inp_split = 'test' if h % 4 == 0 else 'train'  # designate 25% of examples as test
+            inp_split = "test" if h % 4 == 0 else "train"  # designate 25% of examples as test
             if inp_split == self.split:
                 break  # ok
 
@@ -203,5 +194,5 @@ class WeatherDataset(Dataset):
         x = cat[:-1].clone()
         y = cat[1:].clone()
         # we only want to predict at output locations, mask out the loss at the input locations
-        y[:self.length - 1] = -1
+        y[: self.length - 1] = -1
         return x, y
