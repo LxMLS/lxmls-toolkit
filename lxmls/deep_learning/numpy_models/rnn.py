@@ -11,18 +11,18 @@ class NumpyRNN(RNN):
         # self.parameters
         RNN.__init__(self, **config)
 
-    def predict(self, input=None):
+    def predict(self, model_input=None):
         """
         Predict model outputs given input
         """
-        p_y = np.exp(self.log_forward(input)[0])
+        p_y = np.exp(self.log_forward(model_input)[0])
         return np.argmax(p_y, axis=1)
 
-    def update(self, input=None, output=None):
+    def update(self, model_input=None, output=None):
         """
         Update model parameters given batch of data
         """
-        gradients = self.backpropagation(input, output)
+        gradients = self.backpropagation(model_input, output)
         learning_rate = self.config['learning_rate']
         # Update each parameter with SGD rule
         num_parameters = len(self.parameters)
@@ -30,15 +30,17 @@ class NumpyRNN(RNN):
             # Update weight
             self.parameters[m] -= learning_rate * gradients[m]
 
-    def log_forward(self, input):
+    def log_forward(self, model_input):
 
         # Get parameters and sizes
         W_e, W_x, W_h, W_y = self.parameters
         hidden_size = W_h.shape[0]
-        nr_steps = input.shape[0]
+        nr_steps = model_input.shape[0]
+        nr_tokens = W_e.shape[1]
 
         # Embedding layer
-        z_e = W_e[input, :]
+        input_ohe = index2onehot(model_input, nr_tokens)
+        z_e = input_ohe @ W_e.T
 
         # Recurrent layer
         h = np.zeros((nr_steps + 1, hidden_size))
@@ -56,19 +58,21 @@ class NumpyRNN(RNN):
         # Softmax
         log_p_y = y - logsumexp(y, axis=1, keepdims=True)
 
-        return log_p_y, y, h, z_e, input
+        return log_p_y, y, h, z_e, model_input
 
-    def backpropagation(self, input, output):
+    def backpropagation(self, model_input, output) -> list[np.ndarray]:
+        """
+        Compute gradients for the RNN, with the back-propagation method.
 
-        '''
-        Compute gradientes, with the back-propagation method
-        inputs:
-            x: vector with the (embedding) indicies of the words of a
+        Inputs:
+            x: vector with the (embedding) indices of the words of a
                 sentence
-            outputs: vector with the indicies of the tags for each word of
-                        the sentence outputs:
-            gradient_parameters: vector with parameters gradientes
-        '''
+            outputs: vector with the indices of the tags for each word of
+                        the sentence
+        Outputs:
+            gradient_parameters (list[np.ndarray]): List with W_e, W_x, W_h, W_y parameters' gradients
+        """
+        # print(f"Model input shape: {model_input.shape}, Output shape: {output.shape}")
 
         # Get parameters and sizes
         W_e, W_x, W_h, W_y = self.parameters

@@ -14,7 +14,7 @@ tolerance = 1e-2
 
 
 @pytest.fixture(scope='module')
-def data(): 
+def data():
     return PostagCorpusData()
 
 
@@ -33,7 +33,7 @@ def test_numpy_rnn(data):
     # Get functions to get and set values of a particular weight of the model
     get_parameter, set_parameter = get_rnn_parameter_handlers(
         layer_index=-1,
-        row=0, 
+        row=0,
         column=0
     )
 
@@ -68,21 +68,21 @@ def test_numpy_rnn(data):
 
         # Batch loop
         for batch in train_batches:
-            model.update(input=batch['input'], output=batch['output'])
+            model.update(model_input=batch['input'], output=batch['output'])
 
         # Evaluation dev
         is_hit = []
         for batch in dev_set:
-            is_hit.extend(model.predict(input=batch['input']) == batch['output'])
+            is_hit.extend(model.predict(model_input=batch['input']) == batch['output'])
         accuracy = 100*np.mean(is_hit)
 
     # tested for 2 epochs only
     assert np.allclose(accuracy, 31.325, tolerance)
-        
+
     # Evaluation test
     is_hit = []
     for batch in test_set:
-        is_hit.extend(model.predict(input=batch['input']) == batch['output'])
+        is_hit.extend(model.predict(model_input=batch['input']) == batch['output'])
     accuracy = 100*np.mean(is_hit)
 
     assert np.allclose(accuracy, 30.105, tolerance)
@@ -122,7 +122,7 @@ def test_pytorch_rnn(data):
 
     # tested for 2 epochs only
     assert np.allclose(accuracy, 31.325, tolerance)
-        
+
     # Evaluation test
     is_hit = []
     for batch in test_set:

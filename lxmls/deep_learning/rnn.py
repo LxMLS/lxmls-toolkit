@@ -51,7 +51,7 @@ def initialize_rnn_parameters(input_size, embedding_size, hidden_size,
         W_e, W_x, W_h, W_y = loaded_parameters
 
         # Note: Pytorch requires this shape order fro nn.Embedding()
-        assert W_e.shape == (input_size, embedding_size), \
+        assert W_e.shape == (embedding_size, input_size), \
             "Embedding layer ze not matching saved model"
         assert W_x.shape == (hidden_size, embedding_size), \
             "Input layer ze not matching saved model"
@@ -65,7 +65,7 @@ def initialize_rnn_parameters(input_size, embedding_size, hidden_size,
         # INITIALIZE
 
         # Input layer
-        W_e = 0.01*random_seed.uniform(size=(input_size, embedding_size))
+        W_e = 0.01*random_seed.uniform(size=(embedding_size, input_size))
         # Input layer
         W_x = random_seed.uniform(size=(hidden_size, embedding_size))
         # Recurrent layer
