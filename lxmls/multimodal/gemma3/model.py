@@ -6,16 +6,14 @@ from typing import Optional
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+
+# import transformers.models.gemma3 as OG
 from safetensors.torch import load_file
-from transformers import DynamicCache
-from transformers.masking_utils import (
-    create_causal_mask,
-    create_sliding_window_causal_mask,
-    tensor_to_mask_visual,
-)
+from transformers import AutoModel, DynamicCache
+from transformers.masking_utils import create_causal_mask, create_sliding_window_causal_mask
 
 # from lxmls.multimodal.gemma3.siglip import SiglipVisionConfig, SiglipVisionModel
-from transformers.models.siglip.modeling_siglip import SiglipVisionConfig, SiglipVisionModel
+from transformers.models.siglip.modeling_siglip import SiglipVisionConfig
 
 logger = logging.getLogger(__name__)
 formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)7s - %(message)s")
@@ -245,7 +243,6 @@ class Attention(nn.Module):
         return attn_out
 
     def forward(self, x, pe, mask, past_kv, cache_pos):
-        logger.debug(f"Attention.forward START - {x.shape}")
         input_shape = x.shape[:-1]
         hidden_shape = (*input_shape, -1, self.head_dim)
 
@@ -273,7 +270,6 @@ class Attention(nn.Module):
         attn_out = attn_out.reshape(*input_shape, -1).contiguous()
         attn_out = self.o_proj(attn_out)
 
-        logger.debug(f"Attention.forward END - {x.shape}")
         return attn_out
 
 
@@ -303,7 +299,6 @@ class DecoderLayer(nn.Module):
         past_kv=None,
         cache_pos=None,
     ):
-        logger.debug(f"DecoderLayer[{self.layer_idx}].forward START - {x.shape}")
         residual = x
 
         x = self.input_layernorm(x)
@@ -323,13 +318,11 @@ class DecoderLayer(nn.Module):
         x = self.post_feedforward_layernorm(x)
         x = residual + x
 
-        logger.debug(f"DecoderLayer[{self.layer_idx}].forward END - {x.shape}")
         return x
 
 
 class Gemma3TextModel(nn.Module):
     def __init__(self, config: Gemma3TextConfig):
-        logger.debug("Gemma3TextModel.__init__ START")
         super().__init__()
         self.config = config
         self.padding_idx = config.pad_token_id
@@ -355,7 +348,6 @@ class Gemma3TextModel(nn.Module):
             rope_scaling={"rope_type": "default"},
             head_dim=config.head_dim,
         )
-        logger.debug("Gemma3TextModel.__init__ END")
 
     def forward(
         self,
@@ -366,7 +358,6 @@ class Gemma3TextModel(nn.Module):
         past_kv=None,
         cache_pos=None,
     ):
-        logger.debug("Gemma3TextModel.forward START")
         if input_embeds is None:
             assert input_ids is not None, "Either input_ids or input_embeds must be provided."
             input_embeds = self.embed_tokens(input_ids)
@@ -404,9 +395,7 @@ class Gemma3TextModel(nn.Module):
 
         for decoder_layer in self.layers[: self.config.num_hidden_layers]:
             assert isinstance(decoder_layer.attention_type, str)
-            logger.debug(f"SHAPE: {x.shape}")
             attn_mask = causal_mask_mapping[decoder_layer.attention_type]
-            logger.debug(f"ATTN_MASK\n{tensor_to_mask_visual(attn_mask.squeeze()) if attn_mask is not None else None}")
             x = decoder_layer(
                 x,
                 pe_global=pe_global,
@@ -419,7 +408,6 @@ class Gemma3TextModel(nn.Module):
 
         x = self.norm(x)
 
-        logger.debug("Gemma3TextModel.forward END")
         return x, past_kv
 
 
@@ -433,14 +421,12 @@ class Gemma3ForCausalLM(nn.Module):
         self.lm_head = nn.Linear(config.hidden_size, config.vocab_size, bias=False)
 
     def forward(self, input_ids, attention_mask, position_ids=None, past_kv=None, cache_pos=None):
-        logger.debug("Gemma3ForCausalLM.forward START")
         out, _ = self.model(input_ids, attention_mask, position_ids, past_kv, cache_pos)
         logits = self.lm_head(out[:, slice(0, None), :])
-        logger.debug("Gemma3ForCausalLM.forward END")
         return logits
 
     def load_weights(self, shards_dir: Path | str):
-        logger.debug(f"Loading weights from {shards_dir}")
+        logger.info(f"Loading weights from {shards_dir}")
         shards_dir = Path(shards_dir)
         state_dict = {}
         for shard_file in sorted(list(shards_dir.glob("*.safetensors"))):
@@ -455,7 +441,6 @@ class Gemma3ForCausalLM(nn.Module):
 
 class Gemma3MultiModalProjector(nn.Module):
     def __init__(self, config: Gemma3Config):
-        logger.debug("Gemma3MultiModalProjector.__init__ START")
         super().__init__()
         self.mm_input_projection_weight = nn.Parameter(
             torch.zeros(config.vision_config.hidden_size, config.text_config.hidden_size)
@@ -466,7 +451,6 @@ class Gemma3MultiModalProjector(nn.Module):
         self.tokens_per_side = int(config.mm_tokens_per_image**0.5)
         self.kernel_size = self.patches_per_image // self.tokens_per_side
         self.avg_pool = nn.AvgPool2d(kernel_size=self.kernel_size, stride=self.kernel_size)
-        logger.debug("Gemma3MultiModalProjector.__init__ END")
 
     def forward(self, vision_outputs: torch.Tensor):
         logger.debug(f"Gemma3MultiModalProjector.forward START - {vision_outputs.shape}")
@@ -516,7 +500,8 @@ class Gemma3Model(nn.Module):
         super().__init__()
         self.config = config
 
-        self.vision_tower = SiglipVisionModel(self.config.vision_config)
+        # self.vision_tower = SiglipVisionModel(self.config.vision_config)
+        self.vision_tower = AutoModel.from_config(self.config.vision_config)
         self.multi_modal_projector = Gemma3MultiModalProjector(self.config)
         self.language_model = Gemma3TextModel(self.config.text_config)
 
@@ -637,7 +622,7 @@ class Gemma3ForConditionalGeneration(nn.Module):
         cache_pos=None,
     ):
         logger.debug("Gemma3ForConditionalGeneration.forward START")
-        out, past_kv = self.model(
+        outputs = self.model(
             input_ids=input_ids,
             pixel_values=pixel_values,
             attention_mask=attention_mask,
@@ -646,6 +631,10 @@ class Gemma3ForConditionalGeneration(nn.Module):
             cache_pos=cache_pos,
             token_type_ids=token_type_ids,
         )
+        if isinstance(outputs, tuple):
+            out, past_kv = outputs
+        else:
+            out, past_kv = outputs.last_hidden_state, outputs.past_key_values
         logits = self.lm_head(out[:, slice(0, None), :])
         logger.debug("Gemma3ForConditionalGeneration.forward END")
         return logits, past_kv
@@ -658,33 +647,41 @@ class Gemma3ForConditionalGeneration(nn.Module):
             shard = load_file(shard_file, device="cpu")
             state_dict.update(shard)
         lm_state_dict = {
-            k[len("language_model.") :]: v for k, v in state_dict.items() if k.startswith("language_model.")
+            k[len("language_model.model.") :]: v for k, v in state_dict.items() if k.startswith("language_model.")
         }
-        self.model.language_model.load_state_dict(lm_state_dict, strict=False)
+        self.model.language_model.load_state_dict(lm_state_dict, strict=True)
 
         mm_state_dict = {
             k[len("multi_modal_projector.") :]: v
             for k, v in state_dict.items()
             if k.startswith("multi_modal_projector.")
         }
-        self.model.multi_modal_projector.load_state_dict(mm_state_dict, strict=False)
+        self.model.multi_modal_projector.load_state_dict(mm_state_dict, strict=True)
 
         vm_state_dict = {k[len("vision_tower.") :]: v for k, v in state_dict.items() if k.startswith("vision_tower.")}
-        self.model.vision_tower.load_state_dict(vm_state_dict, strict=False)
+        self.model.vision_tower.load_state_dict(vm_state_dict, strict=True)
 
         self.lm_head.weight = nn.Parameter(self.model.language_model.embed_tokens.weight)
         logger.debug("Gemma3ConditionalGeneration.load_weights END")
 
 
-def decode(logits: torch.Tensor, tokenizer, temperature: float = 0.8):
+def decode(
+    logits: torch.Tensor,
+    tokenizer,
+    temperature: float = 0.8,
+    top_k: Optional[int] = None,
+    top_p: Optional[float] = None,
+):
     logger.debug("Decoding logits")
-    # Get logits of last token
-    # NOTE Hardcoded batch=0
-    x = logits[0, -1, :]
-    x /= temperature
-    probs = F.softmax(x, dim=-1)
-    idx = torch.argmax(probs, dim=-1).detach().cpu()
-    return tokenizer.decode(idx, skip_special_tokens=True)
+    # Get logits of the last token (assuming batch size of 1)
+    logits = logits[0, -1, :]
+    if temperature != 0:
+        logits /= temperature
+
+    probs = F.softmax(logits, dim=-1)
+    next_token = torch.argmax(probs, dim=-1).detach().cpu()
+    gen = tokenizer.decode(next_token, skip_special_tokens=False)
+    return gen
 
 
 def test_textonly(shards, prompt, len):
@@ -710,7 +707,7 @@ def test_textonly(shards, prompt, len):
             prompt += gen
 
 
-def test_multimodal(shards, len: int):
+def test_multimodal(shards, len: int, temperature: float):
     from transformers import AutoProcessor
 
     logger.info("Testing Gemma3ForConditionalGeneration")
@@ -721,6 +718,10 @@ def test_multimodal(shards, len: int):
             "role": "system",
             "content": [{"type": "text", "text": "You are a helpful assistant."}],
         },
+        # {
+        #     "role": "user",
+        #     "content": [{"type": "text", "text": "Write a poem about a chonky cat."}],
+        # },
         {
             "role": "user",
             "content": [
@@ -752,9 +753,8 @@ def test_multimodal(shards, len: int):
                 return_dict=True,
                 return_tensors="pt",
             ).to(device, dtype=torch.bfloat16)
-            # TODO Use cache
             logits, past_kv = model(**inputs)
-            gen = decode(logits, processor)
+            gen = decode(logits, processor, temperature=temperature, top_k=65, top_p=0.95)
             print(gen, end="", flush=True)
 
             if i == 0:
@@ -770,6 +770,7 @@ if __name__ == "__main__":
     parser.add_argument("--shards", type=str, required=True)
     parser.add_argument("--len", type=int, default=42)
     parser.add_argument("--prompt", type=str, default="Write a poem about a chonky cat.")
+    parser.add_argument("--temperature", type=float, default=0.8)
     parser.add_argument("--debug", action="store_true")
     args = parser.parse_args()
 
@@ -778,4 +779,4 @@ if __name__ == "__main__":
         logger.debug("Debugging")
 
     # test_textonly(args.shards, args.prompt, args.len)
-    test_multimodal(args.shards, args.len)
+    test_multimodal(args.shards, args.len, args.temperature)
