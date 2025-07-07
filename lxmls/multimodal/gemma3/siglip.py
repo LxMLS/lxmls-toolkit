@@ -276,7 +276,10 @@ class SiglipVisionModel(nn.Module):
         self.vision_model = SiglipVisionTransformer(config)
 
     def forward(self, pixel_values, interpolate_pos_encoding: bool = False, **kwargs) -> torch.Tensor:
-        return self.vision_model(pixel_values=pixel_values, interpolate_pos_encoding=interpolate_pos_encoding)
+        logger.debug(f"SiglipVisionModel.forward START - {pixel_values.shape}")
+        out = self.vision_model(pixel_values=pixel_values, interpolate_pos_encoding=interpolate_pos_encoding)
+        logger.debug(f"SiglipVisionModel.forward END - {out.shape}")
+        return out
 
     def load_weights(self, shards_dir: Path | str):
         logger.debug(f"Loading weights from {shards_dir}")

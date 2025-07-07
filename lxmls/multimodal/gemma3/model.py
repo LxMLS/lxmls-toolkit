@@ -7,10 +7,15 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from safetensors.torch import load_file
-from transformers import AutoTokenizer, DynamicCache
-from transformers.masking_utils import create_causal_mask, create_sliding_window_causal_mask, tensor_to_mask_visual
+from transformers import DynamicCache
+from transformers.masking_utils import (
+    create_causal_mask,
+    create_sliding_window_causal_mask,
+    tensor_to_mask_visual,
+)
 
-from lxmls.multimodal.gemma3.siglip import SiglipVisionConfig, SiglipVisionModel
+# from lxmls.multimodal.gemma3.siglip import SiglipVisionConfig, SiglipVisionModel
+from transformers.models.siglip.modeling_siglip import SiglipVisionConfig, SiglipVisionModel
 
 logger = logging.getLogger(__name__)
 formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)7s - %(message)s")
@@ -62,7 +67,19 @@ class Gemma3TextConfig:
 class Gemma3Config:
     def __init__(self):
         self.text_config = Gemma3TextConfig()
-        self.vision_config = SiglipVisionConfig()
+        # self.vision_config = SiglipVisionConfig()
+        self.vision_config = SiglipVisionConfig(
+            **{
+                "hidden_size": 1152,
+                "image_size": 896,
+                "intermediate_size": 4304,
+                "model_type": "siglip_vision_model",
+                "num_attention_heads": 16,
+                "num_hidden_layers": 27,
+                "patch_size": 14,
+                "vision_use_head": False,
+            }
+        )
         self.mm_tokens_per_image = 256
         self.image_token_id = 262144
         self.image_token_index = 262144
@@ -73,7 +90,13 @@ class Gemma3Config:
 
 
 class ScaledWordEmbedding(nn.Embedding):
-    def __init__(self, num_embeddings: int, embedding_dim: int, padding_idx: int, embed_scale: float = 1.0):
+    def __init__(
+        self,
+        num_embeddings: int,
+        embedding_dim: int,
+        padding_idx: int,
+        embed_scale: float = 1.0,
+    ):
         super().__init__(num_embeddings, embedding_dim, padding_idx)
         # https://github.com/pytorch/pytorch/issues/18056#issue-421475751
         self.register_buffer("embed_scale", torch.tensor(embed_scale), persistent=False)
@@ -124,7 +147,10 @@ class RotaryEmbedding(nn.Module):
             inv_freq = self._init_default(rope_theta=rope_theta, head_dim=head_dim, device=device)
         elif rope_type == "linear":
             inv_freq = self._init_linear(
-                rope_theta=rope_theta, head_dim=head_dim, factor=rope_scaling.get("factor"), device=device
+                rope_theta=rope_theta,
+                head_dim=head_dim,
+                factor=rope_scaling.get("factor"),
+                device=device,
             )
         else:
             raise NotImplementedError()
@@ -267,7 +293,16 @@ class DecoderLayer(nn.Module):
         self.pre_feedforward_layernorm = RMSNorm(config.hidden_size, config.rms_norm_eps)
         self.post_feedforward_layernorm = RMSNorm(config.hidden_size, config.rms_norm_eps)
 
-    def forward(self, x, pe_global, pe_local, attention_mask, position_ids=None, past_kv=None, cache_pos=None):
+    def forward(
+        self,
+        x,
+        pe_global,
+        pe_local,
+        attention_mask,
+        position_ids=None,
+        past_kv=None,
+        cache_pos=None,
+    ):
         logger.debug(f"DecoderLayer[{self.layer_idx}].forward START - {x.shape}")
         residual = x
 
@@ -294,36 +329,57 @@ class DecoderLayer(nn.Module):
 
 class Gemma3TextModel(nn.Module):
     def __init__(self, config: Gemma3TextConfig):
+        logger.debug("Gemma3TextModel.__init__ START")
         super().__init__()
         self.config = config
         self.padding_idx = config.pad_token_id
         self.vocab_size = config.vocab_size
 
         self.embed_tokens = ScaledWordEmbedding(
-            config.vocab_size, config.hidden_size, self.padding_idx, embed_scale=self.config.hidden_size**0.5
+            config.vocab_size,
+            config.hidden_size,
+            self.padding_idx,
+            embed_scale=self.config.hidden_size**0.5,
         )
 
         self.layers = nn.ModuleList([DecoderLayer(config, layer_idx) for layer_idx in range(config.num_hidden_layers)])
         self.norm = RMSNorm(config.hidden_size, eps=config.rms_norm_eps)
 
         self.rope_global = RotaryEmbedding(
-            rope_theta=config.rope_theta, rope_scaling=config.rope_scaling, head_dim=config.head_dim
+            rope_theta=config.rope_theta,
+            rope_scaling=config.rope_scaling,
+            head_dim=config.head_dim,
         )
         self.rope_local = RotaryEmbedding(
-            rope_theta=config.rope_local_base_freq, rope_scaling={"rope_type": "default"}, head_dim=config.head_dim
+            rope_theta=config.rope_local_base_freq,
+            rope_scaling={"rope_type": "default"},
+            head_dim=config.head_dim,
         )
+        logger.debug("Gemma3TextModel.__init__ END")
 
-    def forward(self, input_ids, attention_mask, position_ids=None, past_kv=None, cache_pos=None):
+    def forward(
+        self,
+        input_ids=None,
+        attention_mask=None,
+        input_embeds=None,
+        position_ids=None,
+        past_kv=None,
+        cache_pos=None,
+    ):
         logger.debug("Gemma3TextModel.forward START")
-        input_embeds = self.embed_tokens(input_ids)
+        if input_embeds is None:
+            assert input_ids is not None, "Either input_ids or input_embeds must be provided."
+            input_embeds = self.embed_tokens(input_ids)
 
         if past_kv is None:
-            past_kv = DynamicCache()  # TODO Free from HF
+            past_kv = DynamicCache()
 
         if cache_pos is None:
             past_seen_tokens = past_kv.get_seq_length() if past_kv is not None else 0
             cache_pos = torch.arange(
-                past_seen_tokens, past_seen_tokens + input_embeds.shape[1], device=input_embeds.device
+                past_seen_tokens,
+                past_seen_tokens + input_embeds.shape[1],
+                device=input_embeds.device,
             )
 
         if position_ids is None:
@@ -375,7 +431,6 @@ class Gemma3ForCausalLM(nn.Module):
 
         self.model = Gemma3TextModel(config)
         self.lm_head = nn.Linear(config.hidden_size, config.vocab_size, bias=False)
-        self.lm_head.weight = nn.Parameter(self.model.embed_tokens.weight)
 
     def forward(self, input_ids, attention_mask, position_ids=None, past_kv=None, cache_pos=None):
         logger.debug("Gemma3ForCausalLM.forward START")
@@ -395,10 +450,12 @@ class Gemma3ForCausalLM(nn.Module):
             k[len("language_model.") :]: v for k, v in state_dict.items() if k.startswith("language_model.")
         }
         self.load_state_dict(lm_state_dict, strict=False)
+        self.lm_head.weight = nn.Parameter(self.model.embed_tokens.weight)
 
 
 class Gemma3MultiModalProjector(nn.Module):
     def __init__(self, config: Gemma3Config):
+        logger.debug("Gemma3MultiModalProjector.__init__ START")
         super().__init__()
         self.mm_input_projection_weight = nn.Parameter(
             torch.zeros(config.vision_config.hidden_size, config.text_config.hidden_size)
@@ -409,8 +466,10 @@ class Gemma3MultiModalProjector(nn.Module):
         self.tokens_per_side = int(config.mm_tokens_per_image**0.5)
         self.kernel_size = self.patches_per_image // self.tokens_per_side
         self.avg_pool = nn.AvgPool2d(kernel_size=self.kernel_size, stride=self.kernel_size)
+        logger.debug("Gemma3MultiModalProjector.__init__ END")
 
     def forward(self, vision_outputs: torch.Tensor):
+        logger.debug(f"Gemma3MultiModalProjector.forward START - {vision_outputs.shape}")
         batch_size, _, seq_length = vision_outputs.shape
 
         reshaped_vision_outputs = vision_outputs.transpose(1, 2)
@@ -426,6 +485,7 @@ class Gemma3MultiModalProjector(nn.Module):
         normed_vision_outputs = self.mm_soft_emb_norm(pooled_vision_outputs)
 
         projected_vision_outputs = torch.matmul(normed_vision_outputs, self.mm_input_projection_weight)
+        logger.debug(f"Gemma3MultiModalProjector.forward END - {projected_vision_outputs.shape}")
         return projected_vision_outputs.type_as(vision_outputs)
 
 
@@ -452,6 +512,7 @@ def token_type_ids_mask_function(token_type_ids: Optional[torch.Tensor], tokens_
 
 class Gemma3Model(nn.Module):
     def __init__(self, config: Gemma3Config):
+        logger.debug("Gemma3Model.__init__ START")
         super().__init__()
         self.config = config
 
@@ -463,6 +524,7 @@ class Gemma3Model(nn.Module):
         self.pad_token_id = (
             self.config.text_config.pad_token_id if self.config.text_config.pad_token_id is not None else -1
         )
+        logger.debug("Gemma3Model.__init__ END")
 
     def forward(
         self,
@@ -475,6 +537,7 @@ class Gemma3Model(nn.Module):
         token_type_ids=None,
         **kwargs,
     ):
+        logger.debug("Gemma3Model.forward START")
         # Replace image id woth PAD if the image token if OOV, to avoid index-errors
         if input_ids is not None and self.config.image_token_id >= self.vocab_size:
             special_image_mask = input_ids == self.config.image_token_id
@@ -483,72 +546,85 @@ class Gemma3Model(nn.Module):
         else:
             llm_input_ids = input_ids
 
-        inputs_embeds = self.language_model.embed_tokens(llm_input_ids)
+        input_embeds = self.language_model.embed_tokens(llm_input_ids)
 
         if cache_pos is None:
             past_seen_tokens = past_kv.get_seq_length() if past_kv is not None else 0
             cache_pos = torch.arange(
-                past_seen_tokens, past_seen_tokens + inputs_embeds.shape[1], device=inputs_embeds.device
+                past_seen_tokens,
+                past_seen_tokens + input_embeds.shape[1],
+                device=input_embeds.device,
             )
         # Merge text and images
         if pixel_values is not None:
             vision_outputs = self.vision_tower(pixel_values)
+            if not isinstance(vision_outputs, torch.Tensor):
+                vision_outputs = vision_outputs.last_hidden_state
             image_features = self.multi_modal_projector(vision_outputs)
 
             if input_ids is None:
-                special_image_mask = inputs_embeds == self.language_model.embed_tokens(
-                    torch.tensor(self.config.image_token_id, dtype=torch.long, device=inputs_embeds.device)
+                special_image_mask = input_embeds == self.language_model.embed_tokens(
+                    torch.tensor(
+                        self.config.image_token_id,
+                        dtype=torch.long,
+                        device=input_embeds.device,
+                    )
                 )
             else:
                 special_image_mask = (input_ids == self.config.image_token_id).unsqueeze(-1)
-                special_image_mask = special_image_mask.expand_as(inputs_embeds).to(inputs_embeds.device)
+                special_image_mask = special_image_mask.expand_as(input_embeds).to(input_embeds.device)
 
-            if inputs_embeds[special_image_mask].numel() != image_features.numel():
+            if input_embeds[special_image_mask].numel() != image_features.numel():
                 image_tokens_in_text = (special_image_mask).sum(dim=1).sum(dim=0)[0]
                 raise ValueError(
                     f"Number of images does not match number of special image tokens in the input text. "
                     f"Got {image_tokens_in_text} image tokens in the text but {image_features.shape[0] * image_features.shape[1]} "
                     "tokens from image embeddings."
                 )
-            image_features = image_features.to(inputs_embeds.device, inputs_embeds.dtype)
-            inputs_embeds = inputs_embeds.masked_scatter(special_image_mask, image_features)
+            image_features = image_features.to(input_embeds.device, input_embeds.dtype)
+            input_embeds = input_embeds.masked_scatter(special_image_mask, image_features)
 
-            if not isinstance(causal_mask_mapping := attention_mask, dict):
-                # Prepare mask arguments
-                mask_kwargs = {
-                    "config": self.config.text_config,
-                    "input_embeds": inputs_embeds,
-                    "attention_mask": attention_mask,
-                    "cache_position": cache_pos,
-                    "past_key_values": past_kv,
-                }
-                if token_type_ids is not None and inputs_embeds.shape[1] != 1:
-                    # We need to pass an additional mask function to account for token type ids, and it needs to be an `or`
-                    mask_kwargs["or_mask_function"] = token_type_ids_mask_function(
-                        token_type_ids.to(cache_pos.device), self.config.mm_tokens_per_image
-                    )
+        if not isinstance(causal_mask_mapping := attention_mask, dict):
+            # Prepare mask arguments
+            mask_kwargs = {
+                "config": self.config.text_config,
+                "input_embeds": input_embeds,
+                "attention_mask": attention_mask,
+                "cache_position": cache_pos,
+                "past_key_values": past_kv,
+            }
+            if token_type_ids is not None and input_embeds.shape[1] != 1:
+                # We need to pass an additional mask function to account for token type ids, and it needs to be an `or`
+                mask_kwargs["or_mask_function"] = token_type_ids_mask_function(
+                    token_type_ids.to(cache_pos.device),
+                    self.config.mm_tokens_per_image,
+                )
 
-                # Create the masks
-                causal_mask_mapping = {
-                    "full_attention": create_causal_mask(**mask_kwargs),
-                    "sliding_attention": create_sliding_window_causal_mask(**mask_kwargs),
-                }
+            # Create the masks
+            causal_mask_mapping = {
+                "full_attention": create_causal_mask(**mask_kwargs),
+                "sliding_attention": create_sliding_window_causal_mask(**mask_kwargs),
+            }
 
-            out = self.language_model(
-                inputs_embeds=inputs_embeds,
-                attention_mask=causal_mask_mapping,
-                position_ids=position_ids,
-                past_kv=past_kv,
-                cache_pos=cache_pos,
-            )
-            return out
+        out, past_kv = self.language_model(
+            input_embeds=input_embeds,
+            attention_mask=causal_mask_mapping,
+            position_ids=position_ids,
+            past_kv=past_kv,
+            cache_pos=cache_pos,
+        )
+        logger.debug("Gemma3Model.forward END")
+        return out, past_kv
 
 
 class Gemma3ForConditionalGeneration(nn.Module):
     def __init__(self, config: Gemma3Config):
+        logger.debug("Gemma3ForConditionalGeneration.__init__ START")
+        super().__init__()
         self.config = config
         self.model = Gemma3Model(config)
         self.lm_head = nn.Linear(config.text_config.hidden_size, config.text_config.vocab_size, bias=False)
+        logger.debug("Gemma3ForConditionalGeneration.__init__ END")
 
     def forward(
         self,
@@ -560,7 +636,8 @@ class Gemma3ForConditionalGeneration(nn.Module):
         token_type_ids=None,
         cache_pos=None,
     ):
-        out = self.model(
+        logger.debug("Gemma3ForConditionalGeneration.forward START")
+        out, past_kv = self.model(
             input_ids=input_ids,
             pixel_values=pixel_values,
             attention_mask=attention_mask,
@@ -570,10 +647,11 @@ class Gemma3ForConditionalGeneration(nn.Module):
             token_type_ids=token_type_ids,
         )
         logits = self.lm_head(out[:, slice(0, None), :])
-        return logits
+        logger.debug("Gemma3ForConditionalGeneration.forward END")
+        return logits, past_kv
 
     def load_weights(self, shards: Path | str):
-        logger.debug(f"Loading weights from {shards}")
+        logger.debug(f"Gemma3ConditionalGeneration.load_weights START - {shards}")
         shards = Path(shards)
         state_dict = {}
         for shard_file in sorted(list(shards.glob("*.safetensors"))):
@@ -594,13 +672,8 @@ class Gemma3ForConditionalGeneration(nn.Module):
         vm_state_dict = {k[len("vision_tower.") :]: v for k, v in state_dict.items() if k.startswith("vision_tower.")}
         self.model.vision_tower.load_state_dict(vm_state_dict, strict=False)
 
-        self.lm_head.load_state_dict(
-            {
-                k[len("language_model.lm_head.") :]: v
-                for k, v in state_dict.items()
-                if k.startswith("language_model.lm_head.")
-            }
-        )
+        self.lm_head.weight = nn.Parameter(self.model.language_model.embed_tokens.weight)
+        logger.debug("Gemma3ConditionalGeneration.load_weights END")
 
 
 def decode(logits: torch.Tensor, tokenizer, temperature: float = 0.8):
@@ -614,30 +687,40 @@ def decode(logits: torch.Tensor, tokenizer, temperature: float = 0.8):
     return tokenizer.decode(idx, skip_special_tokens=True)
 
 
-def text_textonly(shards, prompt, len):
-    logger.debug("Initialising Gemma3TextConfig")
+def test_textonly(shards, prompt, len):
+    from transformers import AutoTokenizer
+
+    logger.info("Initialising Gemma3TextConfig")
     config = Gemma3TextConfig()
 
-    logger.debug("Initialising Gemma3ForCausalLM")
+    logger.info("Initialising Gemma3ForCausalLM")
     model = Gemma3ForCausalLM(config)
     model.load_weights(shards)
+    model.eval()
 
-    logger.debug("Loading tokenizer")
+    logger.info("Loading tokenizer")
     tokenizer = AutoTokenizer.from_pretrained("google/gemma-3-4b-it")
 
     for _ in range(len):
-        inputs = tokenizer(prompt, return_tensors="pt")
-        logits = model(**inputs)
-        gen = decode(logits, tokenizer)
-        print(gen, end="", flush=True)
-        prompt += gen
+        with torch.no_grad():
+            inputs = tokenizer(prompt, return_tensors="pt")
+            logits = model(**inputs)
+            gen = decode(logits, tokenizer)
+            print(gen, end="", flush=True)
+            prompt += gen
 
 
 def test_multimodal(shards, len: int):
     from transformers import AutoProcessor
 
+    logger.info("Testing Gemma3ForConditionalGeneration")
+    device = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.mps.is_available() else "cpu")
+
     messages = [
-        {"role": "system", "content": [{"type": "text", "text": "You are a helpful assistant."}]},
+        {
+            "role": "system",
+            "content": [{"type": "text", "text": "You are a helpful assistant."}],
+        },
         {
             "role": "user",
             "content": [
@@ -649,31 +732,43 @@ def test_multimodal(shards, len: int):
             ],
         },
     ]
+    logger.info("Loading Gemma3Config and Processor")
     config = Gemma3Config()
-    processor = AutoProcessor.from_pretrained("google/gemma-3-4b-it")
+    processor = AutoProcessor.from_pretrained("google/gemma-3-4b-it", use_fast=True)
+
+    logger.info("Initialising Gemma3ForConditionalGeneration")
     model = Gemma3ForConditionalGeneration(config)
     model.load_weights(shards)
+    model.eval()
+    model.to(device)
 
+    logger.info("Processing inputs")
     for i in range(len):
-        inputs = processor.apply_chat_template(
-            messages, add_generation_prompt=True, tokenize=True, return_dict=True, return_tensors="pt"
-        ).to(model.device, dtype=torch.bfloat16)
-        logits = model(**inputs)
-        gen = decode(logits, processor)
-        print(gen, end="", flush=True)
+        with torch.no_grad():
+            inputs = processor.apply_chat_template(
+                messages,
+                add_generation_prompt=True,
+                tokenize=True,
+                return_dict=True,
+                return_tensors="pt",
+            ).to(device, dtype=torch.bfloat16)
+            # TODO Use cache
+            logits, past_kv = model(**inputs)
+            gen = decode(logits, processor)
+            print(gen, end="", flush=True)
 
-        if i == 0:
-            messages.append({"role": "assistant", "content": [{"type": "text", "text": gen}]})
-        else:
-            messages[-1]["content"][0]["text"] += gen
+            if i == 0:
+                messages.append({"role": "assistant", "content": [{"type": "text", "text": gen}]})
+            else:
+                messages[-1]["content"][0]["text"] += gen
 
 
 if __name__ == "__main__":
     from argparse import ArgumentParser
 
     parser = ArgumentParser()
-    parser.add_argument("--shards", type=str)
-    parser.add_argument("--len", type=int, default=10)
+    parser.add_argument("--shards", type=str, required=True)
+    parser.add_argument("--len", type=int, default=42)
     parser.add_argument("--prompt", type=str, default="Write a poem about a chonky cat.")
     parser.add_argument("--debug", action="store_true")
     args = parser.parse_args()
@@ -682,4 +777,5 @@ if __name__ == "__main__":
         logger.setLevel(logging.DEBUG)
         logger.debug("Debugging")
 
-    text_textonly(args.shards, args.prompt, args.len)
+    # test_textonly(args.shards, args.prompt, args.len)
+    test_multimodal(args.shards, args.len)
