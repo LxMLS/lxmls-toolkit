@@ -11,18 +11,18 @@ class NumpyRNN(RNN):
         # self.parameters
         RNN.__init__(self, **config)
 
-    def predict(self, input=None):
+    def predict(self, X):
         """
         Predict model outputs given input
         """
-        p_y = np.exp(self.log_forward(input)[0])
-        return np.argmax(p_y, axis=1)
+        log_p_y = self.log_forward(X)[0]
+        return np.argmax(log_p_y, axis=1)
 
-    def update(self, input=None, output=None):
+    def update(self, X, y):
         """
         Update model parameters given batch of data
         """
-        gradients = self.backpropagation(input, output)
+        gradients = self.backpropagation(X, y)
         learning_rate = self.config['learning_rate']
         # Update each parameter with SGD rule
         num_parameters = len(self.parameters)
@@ -30,15 +30,15 @@ class NumpyRNN(RNN):
             # Update weight
             self.parameters[m] -= learning_rate * gradients[m]
 
-    def log_forward(self, input):
+    def log_forward(self, X):
 
         # Get parameters and sizes
         W_e, W_x, W_h, W_y = self.parameters
         hidden_size = W_h.shape[0]
-        nr_steps = input.shape[0]
+        nr_steps = X.shape[0]
 
         # Embedding layer
-        z_e = W_e[input, :]
+        z_e = W_e[X, :]
 
         # Recurrent layer
         h = np.zeros((nr_steps + 1, hidden_size))
@@ -48,7 +48,7 @@ class NumpyRNN(RNN):
             z_t = W_x.dot(z_e[t, :]) + W_h.dot(h[t, :])
 
             # Non-linear
-            h[t+1, :] = 1.0 / (1 + np.exp(-z_t))
+            h[t + 1, :] = 1.0 / (1 + np.exp(-z_t))
 
         # Output layer
         y = h[1:, :].dot(W_y.T)
@@ -56,25 +56,25 @@ class NumpyRNN(RNN):
         # Softmax
         log_p_y = y - logsumexp(y, axis=1, keepdims=True)
 
-        return log_p_y, y, h, z_e, input
+        return log_p_y, y, h, z_e, X  # why does this return its own input?
 
-    def backpropagation(self, input, output):
+    def backpropagation(self, X, y):
 
         '''
         Compute gradientes, with the back-propagation method
         inputs:
-            x: vector with the (embedding) indicies of the words of a
+            X: matrix with the (embedding) indicies of the words of a
                 sentence
-            outputs: vector with the indicies of the tags for each word of
+            y: vector with the indicies of the tags for each word of
                         the sentence outputs:
             gradient_parameters: vector with parameters gradientes
         '''
 
         # Get parameters and sizes
         W_e, W_x, W_h, W_y = self.parameters
-        nr_steps = input.shape[0]
+        nr_steps = X.shape[0]
 
-        log_p_y, y, h, z_e, x = self.log_forward(input)
+        log_p_y, y, h, z_e, x = self.log_forward(X)
         p_y = np.exp(log_p_y)
 
         # Initialize gradients with zero entrances
@@ -87,7 +87,7 @@ class NumpyRNN(RNN):
         # Solution to Exercise 6.1
 
         # Gradient of the cost with respect to the last linear model
-        I = index2onehot(output, W_y.shape[0])
+        I = index2onehot(y, W_y.shape[0])
         error = - (I - p_y) / nr_steps
 
         # backward pass, with gradient computation
@@ -119,8 +119,8 @@ class NumpyRNN(RNN):
 
         return gradient_parameters
 
-    def cross_entropy_loss(self, input, output):
+    def cross_entropy_loss(self, X, y):
         """Cross entropy loss"""
-        nr_steps = input.shape[0]
-        log_probability = self.log_forward(input)[0]
-        return -log_probability[range(nr_steps), output].mean()
+        nr_steps = X.shape[0]
+        log_probability = self.log_forward(X)[0]
+        return -log_probability[range(nr_steps), y].mean()

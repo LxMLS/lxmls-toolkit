@@ -20,14 +20,14 @@ class PytorchLogLinear(Model):
         self.log_softmax = torch.nn.LogSoftmax(dim=1)
         self.loss_function = torch.nn.NLLLoss()
 
-    def _log_forward(self, input=None):
+    def _log_forward(self, X):
         """Forward pass of the computation graph in logarithm domain (pytorch)"""
 
         # IMPORTANT: Cast to pytorch format
-        input = torch.from_numpy(input).float()
+        X = torch.from_numpy(X).float()
 
         # Linear transformation
-        z =  torch.matmul(input, torch.t(self.weight)) + self.bias
+        z =  torch.matmul(X, torch.t(self.weight)) + self.bias
 
         # Softmax implemented in log domain
         log_tilde_z = self.log_softmax(z)
@@ -35,19 +35,19 @@ class PytorchLogLinear(Model):
         # NOTE that this is a pytorch class!
         return log_tilde_z
 
-    def predict(self, input=None):
+    def predict(self, X):
         """Most probable class index"""
-        log_forward = self._log_forward(input).data.numpy()
+        log_forward = self._log_forward(X).data.numpy()
         return np.argmax(log_forward, axis=1)
 
-    def update(self, input=None, output=None):
+    def update(self, X, y):
         """Stochastic Gradient Descent update"""
 
         # IMPORTANT: Class indices need to be casted to LONG
-        true_class = torch.from_numpy(output).long()
+        true_class = torch.from_numpy(y).long()
 
         # Compute negative log-likelihood loss
-        loss = self.loss_function(self._log_forward(input), true_class)
+        loss = self.loss_function(self._log_forward(X), true_class)
 
         # Use autograd to compute the backward pass.
         loss.backward()
