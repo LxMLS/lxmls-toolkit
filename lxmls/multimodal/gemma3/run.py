@@ -39,7 +39,7 @@ def main(args):
     data_dir = Path(args.ckpt).parent
 
     # Construct the model config.
-    model_config = config.get_model_config(args.variant)
+    model_config = config.get_model_config()
     model_config.dtype = "float32"
     model_config.quant = args.quant
     image_paths = {

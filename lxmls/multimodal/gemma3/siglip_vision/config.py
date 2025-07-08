@@ -58,8 +58,3 @@ class SiglipVisionModelConfig:
     quant: bool = False
     # The sequence length of the encoding.
     encoding_sequence_length: int = 256
-
-
-def get_siglip_vision_model_config() -> SiglipVisionModelConfig:
-    """Returns the default model config for the vision model of Gemma 3 and PaliGemma."""
-    return SiglipVisionModelConfig()

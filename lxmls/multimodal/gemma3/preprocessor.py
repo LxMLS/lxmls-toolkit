@@ -13,21 +13,90 @@
 # limitations under the License.
 """Preprocessor for Gemma3 input."""
 
-from typing import Any, Sequence, Union
+from collections.abc import Sequence
+from typing import Any, Union
 
+import numpy as np
 import torch
 from PIL import Image
 
 import lxmls.multimodal.gemma3.config as gemma_config
 from lxmls.multimodal.gemma3 import tokenizer
-from lxmls.multimodal.gemma3.siglip_vision import pan_and_scan
 from lxmls.multimodal.gemma3.siglip_vision import preprocessor as siglip_vision_preprocessor
 
 CROPPED_IMAGE_PREFIX = "here is the original image"
 CROPPED_IMAGE_FILLER = "and here are some crops to help you see better"
 
 
-def gemma3_input_preprocessor(
+def pan_and_scan(img: Image.Image, *, min_crop_size: int = 256, max_num_crops: int = 4) -> Sequence[Image.Image]:
+    """Pan and scan an image for open source.
+
+    If the image is landscape, the crops are made horizontally and if the image is
+    portrait, the crops are made vertically. The longer side of the image is split
+    into [2 - max_num_crops] crops.
+
+    Args:
+        img: PIL Image object.
+        min_crop_size: The minimum size of each crop.
+        max_num_crops: The maximum desired number of crops to be generated.
+
+    Returns:
+        List of cropped PIL Image objects and a list of crop positions.
+    """
+    w, h = img.size
+
+    # Square or landscape image.
+    if w >= h:
+        if w / h < 1.5:
+            # return [img], [(0, 0, h, w)]
+            return [img]
+
+        # Select ideal number of crops close to the image aspect ratio and such that
+        # crop_size > min_crop_size.
+        num_crops_w = int(np.floor(w / h + 0.5))  # Half round up rounding.
+        num_crops_w = min(int(np.floor(w / min_crop_size)), num_crops_w)
+
+        # Make sure the number of crops is in range [2, max_num_crops].
+        num_crops_w = max(2, num_crops_w)
+        num_crops_w = min(max_num_crops, num_crops_w)
+        num_crops_h = 1
+
+    # Portrait image.
+    else:
+        if h / w < 1.5:
+            # return [img], [(0, 0, h, w)]
+            return [img]
+
+        num_crops_h = int(np.floor(h / w + 0.5))
+        num_crops_h = min(int(np.floor(h / min_crop_size)), num_crops_h)
+        num_crops_h = max(2, num_crops_h)
+        num_crops_h = min(max_num_crops, num_crops_h)
+        num_crops_w = 1
+
+    crop_size_w = int(np.ceil(w / num_crops_w))
+    crop_size_h = int(np.ceil(h / num_crops_h))
+
+    # Don't apply pan and scan if crop size is too small.
+    if min(crop_size_w, crop_size_h) < min_crop_size:
+        # return [img], [(0, 0, h, w)]
+        return [img]
+
+    crop_positions_w = [crop_size_w * i for i in range(num_crops_w)]
+    crop_positions_h = [crop_size_h * i for i in range(num_crops_h)]
+
+    # Generate crops.
+    crops = []
+    crop_positions = []
+    for pos_h in crop_positions_h:
+        for pos_w in crop_positions_w:
+            crops.append(img.crop((pos_w, pos_h, pos_w + crop_size_w, pos_h + crop_size_h)))
+            crop_positions.append((pos_h, pos_w, pos_h + crop_size_h, pos_w + crop_size_w))
+
+    # return crops, crop_positions
+    return crops
+
+
+def input_preprocessor(
     raw_user_prompt: Sequence[Union[Image.Image, str]],
 ) -> Sequence[Union[torch.Tensor, str]]:
     """Preprocessor for Gemma3 input.
@@ -41,7 +110,7 @@ def gemma3_input_preprocessor(
     preprocessed_input: list[Union[torch.Tensor, str]] = []
     for element in raw_user_prompt:
         if isinstance(element, Image.Image):
-            cropped_images = pan_and_scan.pan_and_scan(element)
+            cropped_images = pan_and_scan(element)
             preprocessed_images_cropped = siglip_vision_preprocessor.preprocess_images_for_siglip_vision(cropped_images)
             preprocessed_images_uncropped = siglip_vision_preprocessor.preprocess_images_for_siglip_vision([element])
             if len(preprocessed_images_cropped) == 1:
@@ -59,11 +128,11 @@ def gemma3_input_preprocessor(
     return preprocessed_input
 
 
-def gemma3_batch_input_preprocessor(raw_input: Sequence[Sequence[Union[Image.Image, str]]]):
+def batch_input_preprocessor(raw_input: Sequence[Sequence[Union[Image.Image, str]]]):
     """Preprocessor for Gemma3 batch input."""
     preprocessed_input: list[Sequence[Union[torch.Tensor, str]]] = []
     for element in raw_input:
-        preprocessed_input.append(gemma3_input_preprocessor(element))
+        preprocessed_input.append(input_preprocessor(element))
     return preprocessed_input
 
 
@@ -91,7 +160,7 @@ def tokenize_raw_input(
     if config.vision_config is None:
         raise ValueError("vision_config must be provided for Gemma3.")
 
-    preprocessed_batch = gemma3_batch_input_preprocessor(raw_input)
+    preprocessed_batch = batch_input_preprocessor(raw_input)
 
     # Initialize lists to store token IDs and image tensors
     all_token_ids = []

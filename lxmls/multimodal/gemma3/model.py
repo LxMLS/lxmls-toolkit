@@ -24,7 +24,7 @@ from PIL import Image
 from torch import nn
 
 import lxmls.multimodal.gemma3.config as gemma_config
-from lxmls.multimodal.gemma3 import gemma3_preprocessor, tokenizer
+from lxmls.multimodal.gemma3 import preprocessor, tokenizer
 from lxmls.multimodal.gemma3.siglip_vision import siglip_vision_model
 
 
@@ -142,12 +142,7 @@ class Embedding(nn.Module):
 
 
 class RMSNorm(torch.nn.Module):
-    def __init__(
-        self,
-        dim: int,
-        eps: float = 1e-6,
-        add_unit_offset: bool = True,
-    ):
+    def __init__(self, dim: int, eps: float = 1e-6, add_unit_offset: bool = True):
         super().__init__()
         self.eps = eps
         self.add_unit_offset = add_unit_offset
@@ -168,12 +163,7 @@ class RMSNorm(torch.nn.Module):
 
 
 class GemmaMLP(nn.Module):
-    def __init__(
-        self,
-        hidden_size: int,
-        intermediate_size: int,
-        quant: bool,
-    ):
+    def __init__(self, hidden_size: int, intermediate_size: int, quant: bool):
         super().__init__()
         self.gate_proj = Linear(hidden_size, intermediate_size, quant)
         self.up_proj = Linear(hidden_size, intermediate_size, quant)
@@ -189,11 +179,7 @@ class GemmaMLP(nn.Module):
 
 
 class GemmaAttention(nn.Module):
-    def __init__(
-        self,
-        config: gemma_config.GemmaConfig,
-        attn_type: gemma_config.AttentionType,
-    ):
+    def __init__(self, config: gemma_config.GemmaConfig, attn_type: gemma_config.AttentionType):
         super().__init__()
 
         self.num_heads = config.num_attention_heads
@@ -300,22 +286,16 @@ class GemmaAttention(nn.Module):
 
 
 class GemmaDecoderLayer(nn.Module):
-    def __init__(
-        self,
-        config: gemma_config.GemmaConfig,
-    ):
+    def __init__(self, config: gemma_config.GemmaConfig):
         super().__init__()
         self.attn_type = gemma_config.AttentionType.GLOBAL
         self.self_attn = GemmaAttention(config=config, attn_type=self.attn_type)
         self.mlp = GemmaMLP(
-            hidden_size=config.hidden_size,
-            intermediate_size=config.intermediate_size,
-            quant=config.quant,
+            hidden_size=config.hidden_size, intermediate_size=config.intermediate_size, quant=config.quant
         )
         self.input_layernorm = RMSNorm(config.hidden_size, eps=config.rms_norm_eps)
         self.post_attention_layernorm = RMSNorm(config.hidden_size, eps=config.rms_norm_eps)
 
-    # TODO(imayank): Decouple Gemma versions into separate files.
     def forward(
         self,
         hidden_states: torch.Tensor,
@@ -347,17 +327,10 @@ class GemmaDecoderLayer(nn.Module):
 
 
 class Gemma2DecoderLayer(nn.Module):
-    def __init__(
-        self,
-        config: gemma_config.GemmaConfig,
-        attn_type: gemma_config.AttentionType,
-    ):
+    def __init__(self, config: gemma_config.GemmaConfig, attn_type: gemma_config.AttentionType):
         super().__init__()
         self.attn_type = attn_type
-        self.self_attn = GemmaAttention(
-            config=config,
-            attn_type=self.attn_type,
-        )
+        self.self_attn = GemmaAttention(config=config, attn_type=self.attn_type)
         self.mlp = GemmaMLP(
             hidden_size=config.hidden_size,
             intermediate_size=config.intermediate_size,
@@ -455,10 +428,7 @@ class GemmaModel(nn.Module):
 
 
 class GemmaForCausalLM(nn.Module):
-    def __init__(
-        self,
-        config: gemma_config.GemmaConfig,
-    ):
+    def __init__(self, config: gemma_config.GemmaConfig):
         super().__init__()
         self.config = config
         assert config.hidden_size % config.num_attention_heads == 0
@@ -658,14 +628,7 @@ class GemmaForCausalLM(nn.Module):
 
     def load_weights(self, model_path: str):
         if os.path.isfile(model_path):
-            self.load_state_dict(
-                torch.load(
-                    model_path,
-                    mmap=True,
-                    weights_only=True,
-                )["model_state_dict"],
-                strict=False,
-            )
+            self.load_state_dict(torch.load(model_path, mmap=True, weights_only=True)["model_state_dict"], strict=False)
         else:
             index_path = os.path.join(model_path, "pytorch_model.bin.index.json")
             with open(index_path, "r", encoding="utf-8") as f:
@@ -706,10 +669,7 @@ class Gemma3ForMultimodalLM(nn.Module):
         if config.rope_wave_length is None:
             raise ValueError("rope_wave_length must be provided for Gemma3.")
         rope_lengths = config.rope_wave_length
-        defaults = {
-            gemma_config.AttentionType.LOCAL_SLIDING: 10_000,
-            gemma_config.AttentionType.GLOBAL: 10_000,
-        }
+        defaults = {gemma_config.AttentionType.LOCAL_SLIDING: 10_000, gemma_config.AttentionType.GLOBAL: 10_000}
         self._register_freqs_cis(
             "local_freqs_cis",
             head_dim,
@@ -879,9 +839,7 @@ class Gemma3ForMultimodalLM(nn.Module):
     ) -> Sequence[str]:
         """Generates responses for given prompts using Gemma model."""
         # Inference only.
-        processing_result = gemma3_preprocessor.tokenize_raw_input(
-            self.tokenizer, prompts, self.config, output_len, device
-        )
+        processing_result = preprocessor.tokenize_raw_input(self.tokenizer, prompts, self.config, output_len, device)
         batch_size = processing_result["batch_size"]
         user_input_token_ids = processing_result["user_input_token_ids"]
         image_batch = processing_result["image_batch"]
@@ -974,14 +932,7 @@ class Gemma3ForMultimodalLM(nn.Module):
 
     def load_weights(self, model_path: str):
         if os.path.isfile(model_path):
-            self.load_state_dict(
-                torch.load(
-                    model_path,
-                    mmap=True,
-                    weights_only=True,
-                )["model_state_dict"],
-                strict=False,
-            )
+            self.load_state_dict(torch.load(model_path, mmap=True, weights_only=True)["model_state_dict"], strict=False)
         else:
             index_path = os.path.join(model_path, "pytorch_model.bin.index.json")
             with open(index_path, "r", encoding="utf-8") as f:

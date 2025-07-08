@@ -11,15 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Siglip vision model for gemma 3 and paligemma."""
-
 import torch
 import torch.nn.functional as F
 from torch import nn
 
-from lxmls.multimodal.gemma3.siglip_vision import config as siglip_vision_config
-
-SiglipVisionModelConfig = siglip_vision_config.SiglipVisionModelConfig
+from lxmls.multimodal.gemma3.siglip_vision.config import SiglipVisionModelConfig
 
 
 class AveragePool2D(nn.Module):

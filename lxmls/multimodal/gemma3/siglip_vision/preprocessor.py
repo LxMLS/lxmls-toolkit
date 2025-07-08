@@ -14,6 +14,12 @@
 """Preprocessor for Siglip vision model.
 
 No neural network is used in the following functions. These are heuristic based.
+
+Example usage:
+Assuming you have a list of PIL images called 'pil_images'
+pil_images = [Image.open("image1.jpg"), Image.open("image2.png")]
+processed_tensors = preprocess_images_pytorch(pil_images)
+for tensor in processed_tensors: print(tensor.shape)
 """
 
 from collections.abc import Sequence
@@ -61,10 +67,3 @@ def preprocess_images_for_siglip_vision(images: Sequence[Image.Image], image_siz
         processed_images.append(image_tensor)
 
     return processed_images
-
-
-# Example usage:
-# Assuming you have a list of PIL images called 'pil_images'
-# pil_images = [Image.open("image1.jpg"), Image.open("image2.png")]
-# processed_tensors = preprocess_images_pytorch(pil_images)
-# for tensor in processed_tensors: print(tensor.shape)
