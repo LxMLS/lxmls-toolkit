@@ -1,9 +1,7 @@
-import numpy as np
-from scipy import *
-from scipy.sparse import *
-
-
 import operator
+
+import numpy as np
+from scipy.sparse import issparse
 
 
 def sort_dic_by_value(dic, reverse=False):
@@ -40,8 +38,8 @@ def spdot(A, B):
 # Gets a perpendicualar line in 2D
 # ----------
 def perp_2d(a):
-    res = 1. / a
-    res = res[:, ] * [-1, 1]
+    res = 1.0 / a
+    res = res[:,] * [-1, 1]
     return res
 
 
