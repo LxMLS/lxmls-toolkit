@@ -17,18 +17,32 @@ logger.setLevel(logging.INFO)
 
 
 class SiglipVisionConfig:
-    def __init__(self):
+    def __init__(
+        self,
+        hidden_size=None,
+        intermediate_size=None,
+        num_hidden_layers=None,
+        num_attention_heads=None,
+        num_channels=None,
+        image_size=None,
+        patch_size=None,
+        attention_dropout=None,
+        layer_norm_eps=None,
+        vision_use_head=None,
+        model_type=None,
+    ):
         # https://huggingface.co/google/gemma-3-4b-it/blob/main/config.json#L28-L37
-        self.hidden_size = 1152
-        self.intermediate_size = 4304
-        self.num_hidden_layers = 27
-        self.num_attention_heads = 16
-        self.num_channels = 3
-        self.image_size = 896
-        self.patch_size = 14
-        self.attention_dropout = 0.0
-        self.layer_norm_eps = 1e-6
-        self.vision_use_head = False
+        self.hidden_size = hidden_size or 1152
+        self.intermediate_size = intermediate_size or 4304
+        self.num_hidden_layers = num_hidden_layers or 27
+        self.num_attention_heads = num_attention_heads or 16
+        self.num_channels = num_channels or 3
+        self.image_size = image_size or 896
+        self.patch_size = patch_size or 14
+        self.attention_dropout = attention_dropout or 0.0
+        self.layer_norm_eps = layer_norm_eps or 1e-6
+        self.vision_use_head = vision_use_head or False
+        self.model_type = model_type
 
 
 class SiglipVisionEmbeddings(nn.Module):

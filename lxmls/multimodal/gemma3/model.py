@@ -6,14 +6,11 @@ from typing import Optional
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
-# import transformers.models.gemma3 as OG
 from safetensors.torch import load_file
-from transformers import AutoModel, DynamicCache
+from transformers import DynamicCache
 from transformers.masking_utils import create_causal_mask, create_sliding_window_causal_mask
 
-# from lxmls.multimodal.gemma3.siglip import SiglipVisionConfig, SiglipVisionModel
-from transformers.models.siglip.modeling_siglip import SiglipVisionConfig
+from lxmls.multimodal.gemma3.siglip import SiglipVisionConfig, SiglipVisionModel
 
 logger = logging.getLogger(__name__)
 formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)7s - %(message)s")
@@ -65,18 +62,15 @@ class Gemma3TextConfig:
 class Gemma3Config:
     def __init__(self):
         self.text_config = Gemma3TextConfig()
-        # self.vision_config = SiglipVisionConfig()
         self.vision_config = SiglipVisionConfig(
-            **{
-                "hidden_size": 1152,
-                "image_size": 896,
-                "intermediate_size": 4304,
-                "model_type": "siglip_vision_model",
-                "num_attention_heads": 16,
-                "num_hidden_layers": 27,
-                "patch_size": 14,
-                "vision_use_head": False,
-            }
+            hidden_size=1152,
+            image_size=896,
+            intermediate_size=4304,
+            model_type="siglip_vision_model",
+            num_attention_heads=16,
+            num_hidden_layers=27,
+            patch_size=14,
+            vision_use_head=False,
         )
         self.mm_tokens_per_image = 256
         self.image_token_id = 262144
@@ -500,9 +494,10 @@ class Gemma3Model(nn.Module):
         super().__init__()
         self.config = config
 
-        # self.vision_tower = SiglipVisionModel(self.config.vision_config)
-        self.vision_tower = AutoModel.from_config(self.config.vision_config)
+        self.vision_tower = SiglipVisionModel(self.config.vision_config)
+        # self.vision_tower = AutoModel.from_config(self.config.vision_config)
         self.multi_modal_projector = Gemma3MultiModalProjector(self.config)
+        # self.multi_modal_projector = OG.Gemma3MultiModalProjector(AutoConfig.from_pretrained("google/gemma-3-4b-it"))
         self.language_model = Gemma3TextModel(self.config.text_config)
 
         self.vocab_size = self.config.text_config.vocab_size
@@ -523,7 +518,7 @@ class Gemma3Model(nn.Module):
         **kwargs,
     ):
         logger.debug("Gemma3Model.forward START")
-        # Replace image id woth PAD if the image token if OOV, to avoid index-errors
+        # Replace image id with PAD if the image token if OOV, to avoid index-errors
         if input_ids is not None and self.config.image_token_id >= self.vocab_size:
             special_image_mask = input_ids == self.config.image_token_id
             llm_input_ids = input_ids.clone()
@@ -540,6 +535,7 @@ class Gemma3Model(nn.Module):
                 past_seen_tokens + input_embeds.shape[1],
                 device=input_embeds.device,
             )
+
         # Merge text and images
         if pixel_values is not None:
             vision_outputs = self.vision_tower(pixel_values)
@@ -556,8 +552,9 @@ class Gemma3Model(nn.Module):
                     )
                 )
             else:
-                special_image_mask = (input_ids == self.config.image_token_id).unsqueeze(-1)
-                special_image_mask = special_image_mask.expand_as(input_embeds).to(input_embeds.device)
+                special_image_mask = input_ids == self.config.image_token_id
+
+            special_image_mask = special_image_mask.unsqueeze(-1).expand_as(input_embeds).to(input_embeds.device)
 
             if input_embeds[special_image_mask].numel() != image_features.numel():
                 image_tokens_in_text = (special_image_mask).sum(dim=1).sum(dim=0)[0]
@@ -609,6 +606,7 @@ class Gemma3ForConditionalGeneration(nn.Module):
         self.config = config
         self.model = Gemma3Model(config)
         self.lm_head = nn.Linear(config.text_config.hidden_size, config.text_config.vocab_size, bias=False)
+
         logger.debug("Gemma3ForConditionalGeneration.__init__ END")
 
     def forward(
@@ -640,17 +638,20 @@ class Gemma3ForConditionalGeneration(nn.Module):
         return logits, past_kv
 
     def load_weights(self, shards: Path | str):
-        logger.debug(f"Gemma3ConditionalGeneration.load_weights START - {shards}")
+        logger.info(f"Loading weights from {shards}")
         shards = Path(shards)
         state_dict = {}
         for shard_file in sorted(list(shards.glob("*.safetensors"))):
             shard = load_file(shard_file, device="cpu")
             state_dict.update(shard)
+
+        logger.info("Loading LM weights")
         lm_state_dict = {
             k[len("language_model.model.") :]: v for k, v in state_dict.items() if k.startswith("language_model.")
         }
         self.model.language_model.load_state_dict(lm_state_dict, strict=True)
 
+        logger.info("Loading MMP weights")
         mm_state_dict = {
             k[len("multi_modal_projector.") :]: v
             for k, v in state_dict.items()
@@ -658,11 +659,12 @@ class Gemma3ForConditionalGeneration(nn.Module):
         }
         self.model.multi_modal_projector.load_state_dict(mm_state_dict, strict=True)
 
+        logger.info("Loading VM weights")
         vm_state_dict = {k[len("vision_tower.") :]: v for k, v in state_dict.items() if k.startswith("vision_tower.")}
         self.model.vision_tower.load_state_dict(vm_state_dict, strict=True)
 
+        logger.info("Loading LM head weights")
         self.lm_head.weight = nn.Parameter(self.model.language_model.embed_tokens.weight)
-        logger.debug("Gemma3ConditionalGeneration.load_weights END")
 
 
 def decode(
@@ -718,10 +720,6 @@ def test_multimodal(shards, len: int, temperature: float):
             "role": "system",
             "content": [{"type": "text", "text": "You are a helpful assistant."}],
         },
-        # {
-        #     "role": "user",
-        #     "content": [{"type": "text", "text": "Write a poem about a chonky cat."}],
-        # },
         {
             "role": "user",
             "content": [
@@ -748,12 +746,23 @@ def test_multimodal(shards, len: int, temperature: float):
         with torch.no_grad():
             inputs = processor.apply_chat_template(
                 messages,
-                add_generation_prompt=True,
+                add_generation_prompt=(i == 0),
+                continue_final_message=(i != 0),
                 tokenize=True,
                 return_dict=True,
                 return_tensors="pt",
             ).to(device, dtype=torch.bfloat16)
-            logits, past_kv = model(**inputs)
+            logger.debug(
+                processor.apply_chat_template(
+                    messages, add_generation_prompt=(i == 0), continue_final_message=(i != 0), tokenize=False
+                )
+            )
+            outputs = model(**inputs)
+            if isinstance(outputs, tuple):
+                logits, past_kv = outputs
+            else:
+                logits = outputs.logits
+
             gen = decode(logits, processor, temperature=temperature, top_k=65, top_p=0.95)
             print(gen, end="", flush=True)
 
