@@ -27,6 +27,7 @@ dependencies = [
     "six",
     "transformers",
     "bertviz>=1.4.1",
+    "safetensors>=0.5.3",
 ]
 
 [project.urls]
