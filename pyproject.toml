@@ -38,6 +38,7 @@ cpu = ["torch>=2.6.0,<2.7", "torchvision>=0.21.0"]
 cu118 = ["torch>=2.6.0,<2.7", "torchvision>=0.21.0"]
 cu124 = ["torch>=2.6.0,<2.7", "torchvision>=0.21.0"]
 test = ["pytest"]
+dev = ["ruff", "pyright"]
 
 [tool.uv]
 no-build-isolation-package = ["flash-attn"]
@@ -81,3 +82,6 @@ include-package-data = true
 [build-system]
 requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[tool.ruff]
+line-length = 120

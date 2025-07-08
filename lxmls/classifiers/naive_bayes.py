@@ -1,11 +1,11 @@
 import numpy as np
 import scipy as scipy
+
 import lxmls.classifiers.linear_classifier as lc
-from lxmls.distributions.gaussian import *
+from lxmls.distributions.gaussian import estimate_gaussian
 
 
 class NaiveBayes(lc.LinearClassifier):
-
     def __init__(self, xtype="gaussian"):
         lc.LinearClassifier.__init__(self)
         self.trained = False
@@ -33,7 +33,7 @@ class NaiveBayes(lc.LinearClassifier):
     # ----------
     def train_gaussian(self, x, y, nr_x, nr_f, nr_c):
         prior = np.zeros(nr_c)
-        likelihood = np.zeros((nr_f, nr_c))
+        _likelihood = np.zeros((nr_f, nr_c))
         classes = np.unique(y)
         means = np.zeros((nr_c, nr_f))
         variances = np.zeros((nr_c, nr_f))
@@ -46,9 +46,9 @@ class NaiveBayes(lc.LinearClassifier):
                 variances[i, f] = g.variance
         # Take the mean of the covariance for each matric
         variances = np.mean(variances, 1)
-        params = np.zeros((nr_f+1, nr_c))
+        params = np.zeros((nr_f + 1, nr_c))
         for i in range(nr_c):
-            params[0, i] = -1/(2*variances[i])*np.dot(means[i, :], means[i, :]) + np.log(prior[i])
+            params[0, i] = -1 / (2 * variances[i]) * np.dot(means[i, :], means[i, :]) + np.log(prior[i])
 
             params[1:, i] = (1 / variances[i] * means[i]).transpose()
         return params
@@ -59,11 +59,11 @@ class NaiveBayes(lc.LinearClassifier):
     # ----------
     def train_multinomial(self, x, y, nr_x, nr_f, nr_c):
         prior = np.zeros(nr_c)
-        ind_per_class = {}
+        _ind_per_class = {}
         classes = np.unique(y)
         for i in range(nr_c):
             idx, _ = np.nonzero(y == classes[i])
-            ind_per_class = idx
+            _ind_per_class = idx
         likelihood = np.zeros((nr_f, nr_c))
         sums = np.zeros((nr_f, 1))
         for i in range(nr_c):
@@ -77,7 +77,7 @@ class NaiveBayes(lc.LinearClassifier):
         for f in range(nr_f):
             for i in range(nr_c):
                 likelihood[f, i] = likelihood[f, i] / sums[f, 0]
-        params = np.zeros((nr_f+1, nr_c))
+        params = np.zeros((nr_f + 1, nr_c))
         for i in range(nr_c):
             params[0, i] = np.log(prior[i])
             params[1:, i] = np.nan_to_num(np.log(likelihood[:, i]))
