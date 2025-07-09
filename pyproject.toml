@@ -27,7 +27,6 @@ dependencies = [
     "six",
     "transformers",
     "bertviz>=1.4.1",
-    "safetensors>=0.5.3",
 ]
 
 [project.urls]
@@ -42,7 +41,7 @@ test = ["pytest"]
 dev = ["ruff", "pyright"]
 
 [tool.uv]
-no-build-isolation-package = ["flash-attn"]
+no-build-isolation-package = ["gptqmodel"]
 conflicts = [[{ extra = "cpu" }, { extra = "cu118" }, { extra = "cu124" }]]
 
 [[tool.uv.index]]

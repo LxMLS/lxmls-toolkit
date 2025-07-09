@@ -78,3 +78,4 @@ labs/scripts/*
 .vscode/
 uv.lock
 data/gemma3
+3p
