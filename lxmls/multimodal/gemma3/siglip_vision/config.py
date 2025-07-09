@@ -12,11 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Gemma model config."""
-
 import dataclasses
 
-from . import preprocessor
+from lxmls.multimodal.gemma3.siglip_vision import preprocessor
 
 
 # https://developers.googleblog.com/en/gemma-explained-paligemma-architecture/

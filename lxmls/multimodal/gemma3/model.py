@@ -23,13 +23,12 @@ import torch.nn.functional as F
 from PIL import Image
 from torch import nn
 
-import lxmls.multimodal.gemma3.config as gemma_config
-from lxmls.multimodal.gemma3 import preprocessor, tokenizer
-from lxmls.multimodal.gemma3.siglip_vision import siglip_vision_model
+from lxmls.multimodal.gemma3 import preprocessor, siglip_vision, tokenizer
+from lxmls.multimodal.gemma3.config import AttentionType, GemmaConfig
 
 
 class Sampler(nn.Module):
-    def __init__(self, vocab_size: int, config: gemma_config.GemmaConfig):
+    def __init__(self, vocab_size: int, config: GemmaConfig):
         super().__init__()
         self.vocab_size = vocab_size
         self.config = config
@@ -179,7 +178,7 @@ class GemmaMLP(nn.Module):
 
 
 class GemmaAttention(nn.Module):
-    def __init__(self, config: gemma_config.GemmaConfig, attn_type: gemma_config.AttentionType):
+    def __init__(self, config: GemmaConfig, attn_type: AttentionType):
         super().__init__()
 
         self.num_heads = config.num_attention_heads
@@ -262,7 +261,7 @@ class GemmaAttention(nn.Module):
         q.mul_(self.scaling)
         scores = torch.matmul(q, k.transpose(2, 3))
         if (
-            self.attn_type == gemma_config.AttentionType.LOCAL_SLIDING
+            self.attn_type == AttentionType.LOCAL_SLIDING
             and self.sliding_window_size is not None
             and local_mask is not None
         ):
@@ -285,49 +284,8 @@ class GemmaAttention(nn.Module):
         return output
 
 
-class GemmaDecoderLayer(nn.Module):
-    def __init__(self, config: gemma_config.GemmaConfig):
-        super().__init__()
-        self.attn_type = gemma_config.AttentionType.GLOBAL
-        self.self_attn = GemmaAttention(config=config, attn_type=self.attn_type)
-        self.mlp = GemmaMLP(
-            hidden_size=config.hidden_size, intermediate_size=config.intermediate_size, quant=config.quant
-        )
-        self.input_layernorm = RMSNorm(config.hidden_size, eps=config.rms_norm_eps)
-        self.post_attention_layernorm = RMSNorm(config.hidden_size, eps=config.rms_norm_eps)
-
-    def forward(
-        self,
-        hidden_states: torch.Tensor,
-        freqs_cis: torch.Tensor,
-        kv_write_indices: torch.Tensor,
-        kv_cache: Tuple[torch.Tensor, torch.Tensor],
-        mask: torch.Tensor,
-        local_mask: torch.Tensor,
-    ) -> torch.Tensor:
-        # Self Attention
-        residual = hidden_states
-        hidden_states = self.input_layernorm(hidden_states)
-        hidden_states = self.self_attn(
-            hidden_states=hidden_states,
-            freqs_cis=freqs_cis,
-            kv_write_indices=kv_write_indices,
-            kv_cache=kv_cache,
-            mask=mask,
-        )
-        hidden_states = residual + hidden_states
-
-        # MLP
-        residual = hidden_states
-        hidden_states = self.post_attention_layernorm(hidden_states)
-        hidden_states = self.mlp(hidden_states)
-        hidden_states = residual + hidden_states
-
-        return hidden_states
-
-
 class Gemma2DecoderLayer(nn.Module):
-    def __init__(self, config: gemma_config.GemmaConfig, attn_type: gemma_config.AttentionType):
+    def __init__(self, config: GemmaConfig, attn_type: AttentionType):
         super().__init__()
         self.attn_type = attn_type
         self.self_attn = GemmaAttention(config=config, attn_type=self.attn_type)
@@ -380,34 +338,24 @@ class Gemma2DecoderLayer(nn.Module):
         return hidden_states
 
 
-class GemmaModel(nn.Module):
-    def __init__(self, config: gemma_config.GemmaConfig):
+class GemmaTextModel(nn.Module):
+    def __init__(self, config: GemmaConfig):
         super().__init__()
         self.config = config
         self.vocab_size = config.vocab_size
 
         self.layers = nn.ModuleList()
         for i in range(config.num_hidden_layers):
-            if config.architecture == gemma_config.Architecture.GEMMA_1:
-                self.layers.append(GemmaDecoderLayer(config))
-            elif config.architecture in (
-                gemma_config.Architecture.GEMMA_2,
-                gemma_config.Architecture.GEMMA_3,
-            ):
-                attn_type = (
-                    config.attn_types[i % len(config.attn_types)]
-                    if config.attn_types is not None
-                    else gemma_config.AttentionType.GLOBAL
-                )
-                self.layers.append(Gemma2DecoderLayer(config, attn_type))
-            else:
-                raise ValueError(f"Unknown architecture: {config.architecture}")
+            attn_type = (
+                config.attn_types[i % len(config.attn_types)] if config.attn_types is not None else AttentionType.GLOBAL
+            )
+            self.layers.append(Gemma2DecoderLayer(config, attn_type))
         self.norm = RMSNorm(config.hidden_size, eps=config.rms_norm_eps)
 
     def forward(
         self,
         hidden_states: torch.Tensor,
-        freqs_cis: Mapping[gemma_config.AttentionType, torch.Tensor],
+        freqs_cis: Mapping[AttentionType, torch.Tensor],
         kv_write_indices: torch.Tensor,
         kv_caches: List[Tuple[torch.Tensor, torch.Tensor]],
         mask: torch.Tensor,
@@ -428,7 +376,7 @@ class GemmaModel(nn.Module):
 
 
 class GemmaForCausalLM(nn.Module):
-    def __init__(self, config: gemma_config.GemmaConfig):
+    def __init__(self, config: GemmaConfig):
         super().__init__()
         self.config = config
         assert config.hidden_size % config.num_attention_heads == 0
@@ -439,29 +387,25 @@ class GemmaForCausalLM(nn.Module):
 
         self.tokenizer = tokenizer.Tokenizer(config.tokenizer)
         self.embedder = Embedding(vocab_size, config.hidden_size, config.quant)
-        self.model = GemmaModel(config)
+        self.model = GemmaTextModel(config)
         self.sampler = Sampler(vocab_size, config)
 
         # Pre-compute rotary embedding table.
-        if config.architecture == gemma_config.Architecture.GEMMA_3:
-            if config.rope_wave_length is None:
-                raise ValueError("rope_wave_length must be provided for Gemma3.")
+        if config.rope_wave_length is None:
+            raise ValueError("rope_wave_length must be provided for Gemma3.")
 
-            rope_lengths = config.rope_wave_length
-            defaults = {
-                gemma_config.AttentionType.LOCAL_SLIDING: 10_000,
-                gemma_config.AttentionType.GLOBAL: 10_000,
-            }
+        rope_lengths = config.rope_wave_length
+        defaults = {
+            AttentionType.LOCAL_SLIDING: 10_000,
+            AttentionType.GLOBAL: 10_000,
+        }
 
-            for attn_type, name in [
-                (gemma_config.AttentionType.LOCAL_SLIDING, "local_freqs_cis"),
-                (gemma_config.AttentionType.GLOBAL, "global_freqs_cis"),
-            ]:
-                theta = rope_lengths.get(attn_type, defaults[attn_type])
-                self._register_freqs_cis(name, head_dim, max_seq_len, theta=theta)
-
-        else:
-            self._register_freqs_cis("freqs_cis", head_dim, max_seq_len)
+        for attn_type, name in [
+            (AttentionType.LOCAL_SLIDING, "local_freqs_cis"),
+            (AttentionType.GLOBAL, "global_freqs_cis"),
+        ]:
+            theta = rope_lengths.get(attn_type, defaults[attn_type])
+            self._register_freqs_cis(name, head_dim, max_seq_len, theta=theta)
 
     def _register_freqs_cis(self, name: str, head_dim: int, max_seq_len: int, theta: int = 10_000):
         self.register_buffer(name, precompute_freqs_cis(head_dim, max_seq_len * 2, theta=theta))
@@ -483,12 +427,8 @@ class GemmaForCausalLM(nn.Module):
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         freqs_cis = {}
 
-        if self.config.architecture == gemma_config.Architecture.GEMMA_3:
-            freqs_cis[gemma_config.AttentionType.LOCAL_SLIDING] = self.local_freqs_cis.index_select(0, input_positions)
-            freqs_cis[gemma_config.AttentionType.GLOBAL] = self.global_freqs_cis.index_select(0, input_positions)
-        else:
-            freqs_cis[gemma_config.AttentionType.LOCAL_SLIDING] = self.freqs_cis.index_select(0, input_positions)
-            freqs_cis[gemma_config.AttentionType.GLOBAL] = self.freqs_cis.index_select(0, input_positions)
+        freqs_cis[AttentionType.LOCAL_SLIDING] = self.local_freqs_cis.index_select(0, input_positions)
+        freqs_cis[AttentionType.GLOBAL] = self.global_freqs_cis.index_select(0, input_positions)
 
         kv_write_indices = input_positions
 
@@ -643,46 +583,36 @@ class GemmaForCausalLM(nn.Module):
 
 
 class Gemma3ForMultimodalLM(nn.Module):
-    """Gemma3 model for multimodal causal LM."""
-
-    def __init__(self, config: gemma_config.GemmaConfig):
+    def __init__(self, config: GemmaConfig):
         super().__init__()
         self.dtype = config.get_dtype()
-        assert config.architecture == gemma_config.Architecture.GEMMA_3
         self.config = config
         max_seq_len = config.max_position_embeddings
         head_dim = config.head_dim
         vocab_size = config.vocab_size
         self.tokenizer = tokenizer.Tokenizer(config.tokenizer)
         self.text_token_embedder = Embedding(vocab_size, config.hidden_size, config.quant)
-        self.model = GemmaModel(config)
+        self.model = GemmaTextModel(config)
         self.sampler = Sampler(vocab_size, config)
 
-        if config.vision_config is None:
-            raise ValueError("vision_config must be provided for Gemma3.")
-        self.siglip_vision_model = siglip_vision_model.SiglipVisionModel(config.vision_config)
-        # transformer/embedder/mm_soft_embedding_norm
+        self.siglip_vision_model = siglip_vision.SiglipVisionModel(config.vision_config)
+
         self.mm_soft_embedding_norm = RMSNorm(config.vision_config.embedding_dim, eps=config.rms_norm_eps)
-        # transformer/embedder/mm_input_projection
         self.mm_input_projection = Linear(config.vision_config.embedding_dim, config.hidden_size, config.quant)
 
-        if config.rope_wave_length is None:
-            raise ValueError("rope_wave_length must be provided for Gemma3.")
         rope_lengths = config.rope_wave_length
-        defaults = {gemma_config.AttentionType.LOCAL_SLIDING: 10_000, gemma_config.AttentionType.GLOBAL: 10_000}
+        defaults = {AttentionType.LOCAL_SLIDING: 10_000, AttentionType.GLOBAL: 10_000}
         self._register_freqs_cis(
             "local_freqs_cis",
             head_dim,
             max_seq_len,
-            theta=rope_lengths.get(
-                gemma_config.AttentionType.LOCAL_SLIDING, defaults[gemma_config.AttentionType.LOCAL_SLIDING]
-            ),
+            theta=rope_lengths.get(AttentionType.LOCAL_SLIDING, defaults[AttentionType.LOCAL_SLIDING]),
         )
         self._register_freqs_cis(
             "global_freqs_cis",
             head_dim,
             max_seq_len,
-            theta=rope_lengths.get(gemma_config.AttentionType.GLOBAL, defaults[gemma_config.AttentionType.GLOBAL]),
+            theta=rope_lengths.get(AttentionType.GLOBAL, defaults[AttentionType.GLOBAL]),
             rope_scaling_factor=config.rope_scaling_factor,
         )
 
@@ -697,9 +627,9 @@ class Gemma3ForMultimodalLM(nn.Module):
     @torch.no_grad()
     def forward(
         self,
-        input_token_ids: torch.Tensor,  # B x L
-        image_patches: torch.Tensor,  # B x N x C x H x W (3x896x896)
-        image_presence_mask: torch.Tensor,  # B x N
+        input_token_ids: torch.Tensor,  # [B, L]
+        image_patches: torch.Tensor,  # [B, N, C, H, W] [3, 896, 896]
+        image_presence_mask: torch.Tensor,  # [B, N]
         input_positions: torch.Tensor,
         kv_caches: List[Tuple[torch.Tensor, torch.Tensor]],
         mask: torch.Tensor,
@@ -711,8 +641,8 @@ class Gemma3ForMultimodalLM(nn.Module):
         **kwargs,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         freqs_cis = {}
-        freqs_cis[gemma_config.AttentionType.LOCAL_SLIDING] = self.local_freqs_cis.index_select(0, input_positions)
-        freqs_cis[gemma_config.AttentionType.GLOBAL] = self.global_freqs_cis.index_select(0, input_positions)
+        freqs_cis[AttentionType.LOCAL_SLIDING] = self.local_freqs_cis.index_select(0, input_positions)
+        freqs_cis[AttentionType.GLOBAL] = self.global_freqs_cis.index_select(0, input_positions)
         hidden_states = self.text_token_embedder(input_token_ids)
         normalizer = torch.tensor(self.config.hidden_size**0.5, dtype=hidden_states.dtype, device=hidden_states.device)
         hidden_states = hidden_states * normalizer
@@ -720,10 +650,11 @@ class Gemma3ForMultimodalLM(nn.Module):
             # the input has images
             B, N, C, H, W = image_patches.shape
             # Flatten and Pass to SiglipVisionModel, and apply SiglipVisionModel Exit
-            flattened_input = image_patches.reshape(B * N, C, H, W)  # (B*N)xCxHxW
-            image_embeddings = self.siglip_vision_model(flattened_input)  # (B*N)xUxD
-            image_embeddings = self.mm_soft_embedding_norm(image_embeddings)  # (B*N) x U x D
-            image_embeddings = self.mm_input_projection(image_embeddings)  # (B*N) x U x model_dim
+            flattened_input = image_patches.reshape(B * N, C, H, W)  # [B*N, C, H, W]
+            image_embeddings = self.siglip_vision_model(flattened_input)  # [B*N, U, D]
+            # Multi-modal projector
+            image_embeddings = self.mm_soft_embedding_norm(image_embeddings)  # [B*N, U, D]
+            image_embeddings = self.mm_input_projection(image_embeddings)  # [B*N, U, model_dim]
             hidden_states = self.populate_image_embeddings(
                 hidden_states.clone(),
                 image_embeddings.clone(),
@@ -757,16 +688,16 @@ class Gemma3ForMultimodalLM(nn.Module):
 
     def populate_image_embeddings(
         self,
-        hidden_states: torch.Tensor,  # B x L x model_dim
-        image_embeddings: torch.Tensor,  # (B*N) x U x model_dim
-        input_token_ids: torch.Tensor,  # B x L
-        image_presence_mask: torch.Tensor,  # B x N
+        hidden_states: torch.Tensor,  # [B, L, model_dim]
+        image_embeddings: torch.Tensor,  # [B*N, U, model_dim]
+        input_token_ids: torch.Tensor,  # [B, L]
+        image_presence_mask: torch.Tensor,  # [B, N]
     ):
         batch_size, seq_len, model_dim = hidden_states.shape
         # Step 1 of 2: Fetch valid image embeddings
         # flatten indices of valid image embeddings
         valid_image_embeddings_indices = torch.nonzero(image_presence_mask.flatten(), as_tuple=False).squeeze()
-        # num_valid_images x model_dim
+        # [num_valid_images, model_dim]
         valid_image_embeddings = image_embeddings.index_select(0, valid_image_embeddings_indices)
 
         # Step 2 of 2: Replace image embeddings at right places.
@@ -837,8 +768,6 @@ class Gemma3ForMultimodalLM(nn.Module):
         top_p: float = 0.95,
         top_k: int = 64,
     ) -> Sequence[str]:
-        """Generates responses for given prompts using Gemma model."""
-        # Inference only.
         processing_result = preprocessor.tokenize_raw_input(self.tokenizer, prompts, self.config, output_len, device)
         batch_size = processing_result["batch_size"]
         user_input_token_ids = processing_result["user_input_token_ids"]

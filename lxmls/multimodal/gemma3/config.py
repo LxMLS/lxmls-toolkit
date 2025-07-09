@@ -36,16 +36,8 @@ class AttentionType(enum.Enum):
     LOCAL_SLIDING = 2
 
 
-class Architecture(enum.Enum):
-    GEMMA_1 = 1
-    GEMMA_2 = 2
-    GEMMA_3 = 3
-
-
 @dataclasses.dataclass
 class GemmaConfig:
-    # The architecture of the model.
-    architecture: Architecture = Architecture.GEMMA_1
     # The number of tokens in the vocabulary.
     vocab_size: int = 256000
     # The maximum sequence length that this model might ever be used with.
@@ -102,7 +94,6 @@ class GemmaConfig:
 def get_model_config(dtype: str = "bfloat16") -> GemmaConfig:
     return GemmaConfig(
         dtype=dtype,
-        architecture=Architecture.GEMMA_3,
         num_hidden_layers=34,
         num_attention_heads=8,
         num_key_value_heads=4,
@@ -125,7 +116,7 @@ def get_model_config(dtype: str = "bfloat16") -> GemmaConfig:
             AttentionType.GLOBAL: 1_000_000,
         },
         vocab_size=262_144,
-        tokenizer="tokenizer/gemma3_cleaned_262144_v2.spiece.model",
+        tokenizer="tokenizer/tokenizer.model",
         use_qk_norm=True,
         vision_config=SiglipVisionModelConfig(),
         rope_scaling_factor=8,

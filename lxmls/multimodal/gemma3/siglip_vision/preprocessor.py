@@ -11,20 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Preprocessor for Siglip vision model.
-
-No neural network is used in the following functions. These are heuristic based.
-
-Example usage:
-Assuming you have a list of PIL images called 'pil_images'
-pil_images = [Image.open("image1.jpg"), Image.open("image2.png")]
-processed_tensors = preprocess_images_pytorch(pil_images)
-for tensor in processed_tensors: print(tensor.shape)
-"""
 
 from collections.abc import Sequence
 
-import numpy as np  # Import NumPy
+import numpy as np
 import torch
 from PIL import Image
 
@@ -56,7 +46,7 @@ def preprocess_images_for_siglip_vision(images: Sequence[Image.Image], image_siz
         image_np = np.array(image, dtype=np.float32) / 255.0  # Normalize to [0,1]
 
         # Convert to PyTorch tensor and rearrange channels
-        image_tensor = torch.from_numpy(image_np).permute(2, 0, 1)  # (H, W, C) → (C, H, W)
+        image_tensor = torch.from_numpy(image_np).permute(2, 0, 1)  # [H, W, C] → [C, H, W]
 
         # Normalize
         image_tensor = (image_tensor - mean_tensor) / std_tensor

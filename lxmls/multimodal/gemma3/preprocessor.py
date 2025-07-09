@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Preprocessor for Gemma3 input."""
 
 from collections.abc import Sequence
 from typing import Any, Union
@@ -22,7 +21,7 @@ from PIL import Image
 
 import lxmls.multimodal.gemma3.config as gemma_config
 from lxmls.multimodal.gemma3 import tokenizer
-from lxmls.multimodal.gemma3.siglip_vision import preprocessor as siglip_vision_preprocessor
+from lxmls.multimodal.gemma3.siglip_vision import preprocess_images_for_siglip_vision
 
 CROPPED_IMAGE_PREFIX = "here is the original image"
 CROPPED_IMAGE_FILLER = "and here are some crops to help you see better"
@@ -99,7 +98,7 @@ def pan_and_scan(img: Image.Image, *, min_crop_size: int = 256, max_num_crops: i
 def input_preprocessor(
     raw_user_prompt: Sequence[Union[Image.Image, str]],
 ) -> Sequence[Union[torch.Tensor, str]]:
-    """Preprocessor for Gemma3 input.
+    """Preprocessor for Gemma3 input
 
     Args:
       raw_user_prompt: A list of images or strings, as provided by the user.
@@ -111,8 +110,8 @@ def input_preprocessor(
     for element in raw_user_prompt:
         if isinstance(element, Image.Image):
             cropped_images = pan_and_scan(element)
-            preprocessed_images_cropped = siglip_vision_preprocessor.preprocess_images_for_siglip_vision(cropped_images)
-            preprocessed_images_uncropped = siglip_vision_preprocessor.preprocess_images_for_siglip_vision([element])
+            preprocessed_images_cropped = preprocess_images_for_siglip_vision(cropped_images)
+            preprocessed_images_uncropped = preprocess_images_for_siglip_vision([element])
             if len(preprocessed_images_cropped) == 1:
                 preprocessed_input.append(preprocessed_images_uncropped[0])
             elif len(preprocessed_images_cropped) > 1:
@@ -129,7 +128,7 @@ def input_preprocessor(
 
 
 def batch_input_preprocessor(raw_input: Sequence[Sequence[Union[Image.Image, str]]]):
-    """Preprocessor for Gemma3 batch input."""
+    """Preprocessor for Gemma3 batch input"""
     preprocessed_input: list[Sequence[Union[torch.Tensor, str]]] = []
     for element in raw_input:
         preprocessed_input.append(input_preprocessor(element))
@@ -145,7 +144,7 @@ def tokenize_raw_input(
 ) -> dict[str, Any]:
     """
     Converts a preprocessed batch of interleaved text and image inputs into
-    token IDs and an image batch suitable for gemma3 model.
+    token IDs and an image batch suitable for gemma3 model
 
     Args:
         preprocessed_batch: List of lists containing strings and torch.Tensor images.

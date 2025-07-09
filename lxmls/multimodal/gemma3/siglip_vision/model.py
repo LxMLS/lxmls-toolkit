@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 import torch
 import torch.nn.functional as F
 from torch import nn
@@ -26,24 +27,21 @@ class AveragePool2D(nn.Module):
         self.config = config
 
     def forward(self, x):
-        """Applies 4x4 average pooling and reshaping."""
         batch_size, seq_len, channels = x.shape
         width = int(seq_len**0.5)
         if width * width != seq_len:
             raise ValueError(f"Sequence length {seq_len} is not a perfect square. Cannot reshape to a square image.")
-        # Bx(64^2)x1152 -> Bx1152x(64^2) -> Bx1152x64x64
+
+        # [B, 64^2, 1152] -> [B, 1152, 64^2] -> [B, 1152, 64, 64]
         x = x.transpose(1, 2).reshape(batch_size, channels, width, width)
-        # Bx1152x64x64-> Bx1152x16x16
+        # [B, 1152, 64, 64] -> [B, 1152, 16, 16]
         x = F.avg_pool2d(x, kernel_size=4, stride=4)
-        # Bx1152x64x64-> Bx1152x256 -> Bx256x1152
+        # [B, 1152, 64, 64] -> [B, 1152, 256] -> [B, 256, 1152]
         x = x.flatten(2).transpose(1, 2)
         return x
 
 
-# Siglip Attention
 class SiglipAttention(nn.Module):
-    """Siglip attention module."""
-
     def __init__(self, dim, num_heads, head_dim):
         super().__init__()
         self.dim = dim
@@ -67,16 +65,16 @@ class SiglipAttention(nn.Module):
         v = self.v_proj(x).view(batch_size, seq_len, self.num_heads, self.head_dim)
 
         # Transpose for multi-head attention
-        k = k.transpose(1, 2)  # (batch_size, num_heads, seq_len, head_dim)
-        q = q.transpose(1, 2)  # (batch_size, num_heads, seq_len, head_dim)
-        v = v.transpose(1, 2)  # (batch_size, num_heads, seq_len, head_dim)
+        k = k.transpose(1, 2)  # [B, H, S, head_dim]
+        q = q.transpose(1, 2)  # [B, H, S, head_dim]
+        v = v.transpose(1, 2)  # [B, H, S, head_dim]
 
         # Scaled dot-product attention
         scores = torch.matmul(q, k.transpose(-2, -1)) / (self.head_dim**0.5)
         attn_weights = F.softmax(scores, dim=-1)
         attn_output = torch.matmul(attn_weights, v)
 
-        # Transpose back to (batch_size, seq_len, num_heads, head_dim)
+        # Transpose back to [B, S, H, head_dim]
         attn_output = attn_output.transpose(1, 2).contiguous()
         attn_output = attn_output.view(batch_size, seq_len, self.num_heads * self.head_dim)
 
@@ -87,23 +85,14 @@ class SiglipAttention(nn.Module):
 
 
 class SiglipMLP(nn.Module):
-    """Siglip MLP module."""
-
     def __init__(self, hidden_size, intermediate_size):
         super().__init__()
         self.fc1 = nn.Linear(hidden_size, intermediate_size)
         self.fc2 = nn.Linear(intermediate_size, hidden_size)
 
     def gelu_tanh(self, x):
-        return (
-            0.5
-            * x
-            * (
-                1
-                + torch.tanh(
-                    torch.sqrt(torch.tensor(2.0 / torch.pi, device=x.device)) * (x + 0.044715 * torch.pow(x, 3))
-                )
-            )
+        return (0.5 * x) * (
+            1 + torch.tanh(torch.sqrt(torch.tensor(2.0 / torch.pi, device=x.device)) * (x + 0.044715 * torch.pow(x, 3)))
         )
 
     def forward(self, x):
@@ -114,41 +103,31 @@ class SiglipMLP(nn.Module):
 
 
 class SiglipEncoderBlock(nn.Module):
-    """Encoder block (Transformer layer) for siglip vision model."""
-
     def __init__(self, config: SiglipVisionModelConfig):
         super().__init__()
         self.self_attn = SiglipAttention(config.embedding_dim, config.num_attention_heads, config.head_dim)
-        # SigLiPFromPatches_0/siglip_encoder/Transformer/encoderblock_0/LayerNorm_0
         self.layer_norm1 = nn.LayerNorm(config.embedding_dim, eps=config.layer_norm_eps)
         self.mlp = SiglipMLP(config.embedding_dim, config.intermediate_size)
-        # SigLiPFromPatches_0/siglip_encoder/Transformer/encoderblock_0/LayerNorm_1
         self.layer_norm2 = nn.LayerNorm(config.embedding_dim, eps=config.layer_norm_eps)
 
     def forward(self, x):
         # Pre-LN
         residual = x
-        # SigLiPFromPatches_0/siglip_encoder/Transformer/encoderblock_0/LayerNorm_0
         x = self.layer_norm1(x)
         x = self.self_attn(x)
         x = x + residual  # Residual connection *after* LayerNorm
 
         residual = x
-        # SigLiPFromPatches_0/siglip_encoder/Transformer/encoderblock_0/LayerNorm_1
         x = self.layer_norm2(x)
         x = self.mlp(x)
         x = x + residual  # Residual connection *after* LayerNorm
         return x
 
 
-# https://developers.googleblog.com/en/gemma-explained-paligemma-architecture/
 class SiglipVisionModel(nn.Module):
-    """Signlip vision model for gemma 3 and paligemma."""
-
     def __init__(self, config: SiglipVisionModelConfig):
         super().__init__()
 
-        # SigLiPFromPatches_0/siglip_encoder/embedding
         self.patch_embedding = nn.Conv2d(
             in_channels=config.input_channels,
             out_channels=config.embedding_dim,
@@ -159,31 +138,29 @@ class SiglipVisionModel(nn.Module):
         )
         self.num_patches = (config.image_size // config.conv2d_patch_size) ** 2
         self.num_positions = self.num_patches
-        # SigLiPFromPatches_0/siglip_encoder
         self.position_embedding = nn.Embedding(self.num_positions, config.embedding_dim)
         self.register_buffer("position_ids", torch.arange(self.num_positions).expand((1, -1)), persistent=False)
 
-        # SigLiPFromPatches_0/siglip_encoder/Transformer/encoderblock_i
         self.encoder_blocks = nn.ModuleList(SiglipEncoderBlock(config=config) for _ in range(config.num_hidden_layers))
-        # SigLiPFromPatches_0/siglip_encoder/Transformer/encoder_norm
         self.final_norm = nn.LayerNorm(config.embedding_dim, config.layer_norm_eps)
         self.avg_pool = AveragePool2D(config)
         self.config = config
 
-    # pixel_values=Bxconfig.input_channels x config.image_size x config.image_size
     @torch.inference_mode
     def forward(self, pixel_values: torch.Tensor) -> torch.Tensor:
-        # Embed the image according to SiplipVisionEmbeddings.
+        # pixel_values: [B, config.input_channels, config.image_size, config.image_size]
+
+        # Embed the image according to SiplipVisionEmbeddings
         x = self.patch_embedding(pixel_values)
-        # (batch_size,channels,height,width)->(batch_size, height*width, channels)
+        # [B, C, H W] -> [B, H*W, C]
         x = x.flatten(2).transpose(1, 2)
 
         position_ids = self.position_ids.to(pixel_values.device)
         x = x + self.position_embedding(position_ids)
 
         for block in self.encoder_blocks:
-            x = block(x)  # batch_size, height*width, embedding_dim (1152)
+            x = block(x)  # [B, H*W, E], where E is the embedding_dim (1152)
         x = self.final_norm(x)
 
-        # siglip exit https://source.corp.google.com/piper///depot/google3/third_party/py/gemma/multimodal/vision.py;l=220
+        # siglip exit
         return self.avg_pool(x)
