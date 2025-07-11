@@ -79,3 +79,7 @@ labs/scripts/*
 uv.lock
 data/gemma3
 3p
+
+# Quantisation
+sparse_logs
+*.log

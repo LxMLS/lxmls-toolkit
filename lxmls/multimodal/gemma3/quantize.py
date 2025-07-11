@@ -1,41 +1,78 @@
-from argparse import ArgumentParser
+import requests
+import torch
+from llmcompressor import oneshot
+from llmcompressor.modifiers.quantization import GPTQModifier
+from llmcompressor.utils import dispatch_for_generation
+from PIL import Image
+from transformers import AutoProcessor, Gemma3ForConditionalGeneration
 
-from datasets import load_dataset
-from gptqmodel import GPTQModel, QuantizeConfig
+# Load model.
+model_id: str = "google/gemma-3-4b-it-qat-q4_0-unquantized"
+model = Gemma3ForConditionalGeneration.from_pretrained(model_id, torch_dtype="auto")
+processor = AutoProcessor.from_pretrained(model_id, trust_remote_code=True)
 
-
-def main(n: int, bs: int, v2: bool = False):
-    if v2:
-        print("Using GPTQ v2: Could take 2x VRAM")
-
-    model_id = "google/gemma-3-4b-it-qat-q4_0-unquantized"
-
-    calibration_dataset = load_dataset(
-        "allenai/c4",
-        data_files="en/c4-train.00001-of-01024.json.gz",
-        split="train",
-    ).select(range(n))["text"]
-
-    quant_config = QuantizeConfig(
-        bits=4,
-        group_size=128,
-        v2=v2,
-        dynamic={
-            r".*language_model.*\.mlp.*": {"bits": 4, "group_size": 128},
-            r".*language_model.*\.self_attn.*": {"bits": 4, "group_size": 128},
-        },
-    )
-
-    model = GPTQModel.load(model_id, quant_config)
-    model.quantize(calibration_dataset, batch_size=bs, auto_gc=True, buffered_fwd=False)
-    model.save("gemma-3-4b-it-qat-4_128")
+# Oneshot arguments
+DATASET_ID = "flickr30k"
+DATASET_SPLIT = {"calibration": "test[:512]"}
+NUM_CALIBRATION_SAMPLES = 512
+MAX_SEQUENCE_LENGTH = 2048
 
 
-if __name__ == "__main__":
-    parser = ArgumentParser()
-    parser.add_argument("--n", type=int, default=1024)
-    parser.add_argument("--bs", type=int, default=4)
-    parser.add_argument("--v2", action="store_true")
-    args = parser.parse_args()
+# Define a oneshot data collator for multimodal inputs.
+def data_collator(batch):
+    assert len(batch) == 1
+    return {key: torch.tensor(value) for key, value in batch[0].items()}
 
-    main(args.n, args.bs, args.v2)
+
+# Recipe
+recipe = [
+    GPTQModifier(
+        targets="Linear",
+        scheme="W4A16",
+        ignore=[
+            "lm_head",
+            "re:model\.vision_tower.*",
+            "re:model\.multi_modal_projector.*",
+        ],
+    ),
+]
+
+# Perform oneshot
+oneshot(
+    model=model,
+    tokenizer=model_id,
+    dataset=DATASET_ID,
+    splits=DATASET_SPLIT,
+    recipe=recipe,
+    max_seq_length=MAX_SEQUENCE_LENGTH,
+    num_calibration_samples=NUM_CALIBRATION_SAMPLES,
+    trust_remote_code_model=True,
+    data_collator=data_collator,
+)
+
+# Confirm generations of the quantized model look sane.
+print("========== SAMPLE GENERATION ==============")
+dispatch_for_generation(model)
+messages = [
+    {
+        "role": "user",
+        "content": [
+            {"type": "text", "text": "Please describe the animal in this image\n"},
+            {"type": "image"},
+        ],
+    },
+]
+prompt = processor.apply_chat_template(messages, add_generation_prompt=True)
+image_url = "http://images.cocodataset.org/train2017/000000231895.jpg"
+raw_image = Image.open(requests.get(image_url, stream=True).raw)
+
+# Note: compile is disabled: https://github.com/huggingface/transformers/issues/38333
+inputs = processor(images=raw_image, text=prompt, return_tensors="pt").to("cuda")
+output = model.generate(**inputs, max_new_tokens=100, disable_compile=True)
+print(processor.decode(output[0], skip_special_tokens=True))
+print("==========================================")
+
+# Save to disk compressed.
+SAVE_DIR = model_id.rstrip("/").split("/")[-1] + "-W4A16-G128"
+model.save_pretrained(SAVE_DIR, save_compressed=True)
+processor.save_pretrained(SAVE_DIR)
