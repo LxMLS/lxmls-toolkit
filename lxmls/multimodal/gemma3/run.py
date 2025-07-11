@@ -158,8 +158,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "--device",
         type=str,
-        default="cpu",
-        choices=["cpu", "cuda"],
+        default="cuda",
+        choices=["cpu", "cuda", "mps"],
         help="Device to run the model on.",
     )
     parser.add_argument("--output_len", type=int, default=24, help="Length of the output sequence.")

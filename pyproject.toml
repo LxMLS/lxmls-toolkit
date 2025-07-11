@@ -38,7 +38,7 @@ cpu = ["torch>=2.6.0,<2.7", "torchvision>=0.21.0"]
 cu118 = ["torch>=2.6.0,<2.7", "torchvision>=0.21.0"]
 cu124 = ["torch>=2.6.0,<2.7", "torchvision>=0.21.0"]
 test = ["pytest"]
-dev = ["ruff", "pyright"]
+dev = ["ruff", "ty"]
 
 [tool.uv]
 no-build-isolation-package = ["gptqmodel"]

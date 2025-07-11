@@ -23,7 +23,9 @@ _IMAGE_STD = [0.5, 0.5, 0.5]  # equivalent to 127.5/255
 DEFAULT_IMAGE_SIZE = 896
 
 
-def preprocess_images_for_siglip_vision(images: Sequence[Image.Image], image_size=DEFAULT_IMAGE_SIZE) -> torch.Tensor:
+def preprocess_images_for_siglip_vision(
+    images: Sequence[Image.Image], image_size=DEFAULT_IMAGE_SIZE
+) -> list[torch.Tensor]:
     """Preprocesses a list of PIL images for Siglip vision model using only PyTorch and PIL.
 
     Args:

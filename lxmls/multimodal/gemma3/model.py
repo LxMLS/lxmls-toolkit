@@ -87,8 +87,8 @@ def precompute_freqs_cis(dim: int, end: int, theta: float = 10000.0, rope_scalin
     """Precomputes the frequency cis."""
     freqs = 1.0 / (theta ** (torch.arange(0, dim, 2)[: (dim // 2)].float() / dim))
     freqs = freqs / rope_scaling_factor
-    t = torch.arange(end, device=freqs.device)
-    freqs = torch.outer(t, freqs).float()
+    t = torch.arange(end, device=freqs.device)  #  type: ignore
+    freqs = torch.outer(t, freqs).float()  #  type: ignore
     freqs_cis = torch.polar(torch.ones_like(freqs), freqs)  # complex64
     return freqs_cis
 
@@ -216,7 +216,7 @@ class GemmaAttention(nn.Module):
         kv_write_indices: torch.Tensor,
         kv_cache: Tuple[torch.Tensor, torch.Tensor],
         mask: torch.Tensor,
-        local_mask: torch.Tensor = None,
+        local_mask: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         hidden_states_shape = hidden_states.shape
         assert len(hidden_states_shape) == 3
@@ -513,7 +513,7 @@ class GemmaForCausalLM(nn.Module):
             if self.config.sliding_window_size
             else None
         )
-        curr_mask_tensor = mask_tensor.index_select(2, input_positions_tensor)
+        curr_mask_tensor = mask_tensor.index_select(dim=2, index=input_positions_tensor)
         curr_local_mask_tensor = (
             local_mask_tensor.index_select(2, input_positions_tensor) if local_mask_tensor is not None else None
         )
@@ -538,11 +538,10 @@ class GemmaForCausalLM(nn.Module):
                 top_ks=top_ks_tensor,
                 local_mask=curr_local_mask_tensor,
             )
-
-            curr_prompt_mask = prompt_mask_tensor.index_select(1, output_index).squeeze(dim=1)
-            curr_token_ids = token_ids_tensor.index_select(1, output_index).squeeze(dim=1)
+            curr_prompt_mask = prompt_mask_tensor.index_select(dim=1, index=output_index).squeeze(dim=1)
+            curr_token_ids = token_ids_tensor.index_select(dim=1, index=output_index).squeeze(dim=1)
             output_token_ids = torch.where(curr_prompt_mask, curr_token_ids, next_token_ids).unsqueeze(dim=1)
-            token_ids_tensor.index_copy_(1, output_index, output_token_ids)
+            token_ids_tensor.index_copy_(dim=1, index=output_index, source=output_token_ids)
 
             input_token_ids_tensor = output_token_ids
             input_positions_tensor = output_index.unsqueeze(dim=-1)
@@ -550,6 +549,7 @@ class GemmaForCausalLM(nn.Module):
             curr_local_mask_tensor = (
                 local_mask_tensor.index_select(2, input_positions_tensor) if local_mask_tensor is not None else None
             )
+
             output_positions_tensor = torch.tensor(0, dtype=torch.int64).to(device)
             output_index = output_index + 1
 
@@ -595,12 +595,14 @@ class Gemma3ForMultimodalLM(nn.Module):
         self.model = GemmaTextModel(config)
         self.sampler = Sampler(vocab_size, config)
 
+        assert config.vision_config is not None, "Vision configuration must be provided for multimodal Gemma 3"
         self.siglip_vision_model = siglip_vision.SiglipVisionModel(config.vision_config)
 
         self.mm_soft_embedding_norm = RMSNorm(config.vision_config.embedding_dim, eps=config.rms_norm_eps)
         self.mm_input_projection = Linear(config.vision_config.embedding_dim, config.hidden_size, config.quant)
 
         rope_lengths = config.rope_wave_length
+        assert rope_lengths is not None, "rope_wave_length must be provided for multimodal Gemma3"
         defaults = {AttentionType.LOCAL_SLIDING: 10_000, AttentionType.GLOBAL: 10_000}
         self._register_freqs_cis(
             "local_freqs_cis",
@@ -640,7 +642,7 @@ class Gemma3ForMultimodalLM(nn.Module):
         local_mask: torch.Tensor | None = None,
         **kwargs,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
-        freqs_cis = {}
+        freqs_cis: dict[AttentionType, torch.Tensor] = {}
         freqs_cis[AttentionType.LOCAL_SLIDING] = self.local_freqs_cis.index_select(0, input_positions)
         freqs_cis[AttentionType.GLOBAL] = self.global_freqs_cis.index_select(0, input_positions)
         hidden_states = self.text_token_embedder(input_token_ids)
@@ -708,7 +710,7 @@ class Gemma3ForMultimodalLM(nn.Module):
         hidden_states[image_placeholder_indices] = valid_image_embeddings.reshape(-1, self.config.hidden_size)
         return hidden_states.reshape(batch_size, seq_len, model_dim).contiguous()
 
-    def create_attention_mask(self, input_ids: torch.Tensor, sequence_length: int):
+    def create_attention_mask(self, input_ids: torch.Tensor, sequence_length: int) -> Tuple[torch.Tensor, torch.Tensor]:
         batch_size = input_ids.shape[0]
         causal_mask = torch.tril(
             torch.ones((batch_size, 1, sequence_length, sequence_length), dtype=torch.bool, device=input_ids.device)
@@ -779,15 +781,11 @@ class Gemma3ForMultimodalLM(nn.Module):
 
         # Create attention mask.
         min_dtype = torch.finfo(self.dtype).min
-        if self.config.sliding_window_size is None:
-            raise ValueError("gemma 3 model requires sliding_window size")
+        n_inf = torch.tensor(min_dtype, dtype=torch.float32, device=device)
+        assert self.config.sliding_window_size is not None
         boolean_mask, local_boolean_mask = self.create_attention_mask(user_input_token_ids, total_seq_len)
-        mask_tensor = torch.where(
-            boolean_mask, 0, torch.tensor(min_dtype, dtype=torch.float32, device=device)
-        ).contiguous()
-        local_mask_tensor = torch.where(
-            local_boolean_mask, 0, torch.tensor(min_dtype, dtype=torch.float32, device=device)
-        ).contiguous()
+        mask_tensor = torch.where(boolean_mask, 0, n_inf).contiguous()
+        local_mask_tensor = torch.where(local_boolean_mask, 0, n_inf).contiguous()
 
         kv_caches = []
         for _ in range(self.config.num_hidden_layers):
@@ -807,8 +805,10 @@ class Gemma3ForMultimodalLM(nn.Module):
 
         input_positions_tensor = torch.arange(0, min_prompt_len, dtype=torch.int64, device=device)
         prompt_mask_tensor = token_ids_tensor != self.tokenizer.pad_id
-        curr_mask_tensor = mask_tensor.index_select(2, input_positions_tensor)
-        curr_local_mask_tensor = local_mask_tensor.index_select(2, input_positions_tensor)
+        curr_mask_tensor = mask_tensor.index_select(dim=2, index=input_positions_tensor)
+        curr_local_mask_tensor = local_mask_tensor.index_select(dim=2, index=input_positions_tensor)
+        # The first iteration produces a sequence of hidden states of shape: [B, min_prompt_len, hidden_size]
+        # To predict the next token, we need to look at the hidden state corresponding to the last token: [min_prompt_len - 1]
         output_positions_tensor = torch.LongTensor([min_prompt_len - 1]).to(device)
         temperatures_tensor = None if not temperature else torch.FloatTensor([temperature] * batch_size).to(device)
         top_ps_tensor = torch.FloatTensor([top_p] * batch_size).to(device)
@@ -820,7 +820,7 @@ class Gemma3ForMultimodalLM(nn.Module):
         for i in range(total_seq_len - min_prompt_len):
             next_token_ids, _ = self(
                 input_token_ids=input_token_ids_tensor,
-                image_patches=image_batch,
+                image_patches=image_batch,  # NOTE: Always `None` after the first iteration
                 image_presence_mask=image_presence_mask,
                 input_positions=input_positions_tensor,
                 kv_caches=kv_caches,
@@ -831,19 +831,35 @@ class Gemma3ForMultimodalLM(nn.Module):
                 top_ks=top_ks_tensor,
                 local_mask=curr_local_mask_tensor,
             )
-            curr_prompt_mask = prompt_mask_tensor.index_select(1, output_index).squeeze(dim=1)
-            curr_token_ids = token_ids_tensor.index_select(1, output_index).squeeze(dim=1)
+            # Check if the current generation step corresponds to a position that was part of the original prompt
+            curr_prompt_mask = prompt_mask_tensor.index_select(dim=1, index=output_index).squeeze(dim=1)
+            # Retrieve the token from the original prompt at the current position
+            curr_token_ids = token_ids_tensor.index_select(dim=1, index=output_index).squeeze(dim=1)
+            # Decide which token to use
+            # if `curr_prompt_mask` is True (i.e. we are still processing the prompt) use prompt token curr_token_ids
+            # else use the token generated by the model: next_token_ids
             output_token_ids = torch.where(curr_prompt_mask, curr_token_ids, next_token_ids).unsqueeze(dim=1)
-            token_ids_tensor.index_copy_(1, output_index, output_token_ids)
+            # Update the 'final' copy of tokens
+            token_ids_tensor.index_copy_(dim=1, index=output_index, source=output_token_ids)
 
+            # Token just generated (or prefilled) is not part of the input
             input_token_ids_tensor = output_token_ids
+            # The input position for the next iteration is set to the current output_index
             input_positions_tensor = output_index.unsqueeze(dim=-1)
+            # The attention masks are updated to reflect the new seq_len for the next iteration
             curr_mask_tensor = mask_tensor.index_select(2, input_positions_tensor)
             curr_local_mask_tensor = (
                 local_mask_tensor.index_select(2, input_positions_tensor) if local_mask_tensor is not None else None
             )
+            # After the first iteration, where we pass in min_prompt_len tokens, we now generate tokens one by one
+            # The input to the model now becomes a single token
+            # The model processes this token and produces a hidden state sequence of shape: [B, 1, hidden_size]
+            # So, now to get the logits for the next token, we need to use the first (and only) hidden state available
             output_positions_tensor = torch.tensor(0, dtype=torch.int64, device=device)
+            # duh
             output_index = output_index + 1
+
+            # The image information is already integrated into the text embeddings in the first iteration
             image_batch = None
             image_presence_mask = None
 
