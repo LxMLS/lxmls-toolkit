@@ -48,6 +48,7 @@ oneshot(
     num_calibration_samples=NUM_CALIBRATION_SAMPLES,
     trust_remote_code_model=True,
     data_collator=data_collator,
+    output_dir=model_id.rstrip("/").split("/")[-1] + "-W4A16-G128",
 )
 
 # Confirm generations of the quantized model look sane.
@@ -71,8 +72,3 @@ inputs = processor(images=raw_image, text=prompt, return_tensors="pt").to("cuda"
 output = model.generate(**inputs, max_new_tokens=100, disable_compile=True)
 print(processor.decode(output[0], skip_special_tokens=True))
 print("==========================================")
-
-# Save to disk compressed.
-SAVE_DIR = model_id.rstrip("/").split("/")[-1] + "-W4A16-G128"
-model.save_pretrained(SAVE_DIR, save_compressed=True)
-processor.save_pretrained(SAVE_DIR)
