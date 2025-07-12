@@ -27,6 +27,8 @@ dependencies = [
     "six",
     "transformers",
     "bertviz>=1.4.1",
+    "hf_transfer",
+    "hf_xet",
 ]
 
 [project.urls]

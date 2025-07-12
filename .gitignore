@@ -77,7 +77,8 @@ labs/scripts/*
 
 .vscode/
 uv.lock
-data/gemma3
+data/vlm/gemma3
+data/vlm/*.tar
 3p
 
 # Quantisation
