@@ -100,7 +100,7 @@ def main(args):
             [
                 "<start_of_turn>user\n",
                 image["cow_in_beach"],
-                ("The name of the animal in the image is <end_of_turn>\n<start_of_turn>model"),
+                "The name of the animal in the image is <end_of_turn>\n<start_of_turn>model",
             ]
         ],
         device,

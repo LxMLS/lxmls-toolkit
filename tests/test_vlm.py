@@ -100,7 +100,6 @@ def gemma3_model_instance(model_data_path):
     ckpt_path = Path(model_data_path) / "model.ckpt"
     logger.debug(f"Loading model from {ckpt_path}")
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    # device = torch.device("cpu")  # Force CPU for testing
     with utils.set_default_tensor_type(model_config.get_dtype()):
         model = gemma3_model.Gemma3ForMultimodalLM(model_config)
         model.load_state_dict(torch.load(ckpt_path)["model_state_dict"])
@@ -122,11 +121,11 @@ def test_text_generation(gemma3_model_instance):
     model, device, peak_memory = gemma3_model_instance
     if peak_memory != -1:
         print(f"Peak memory usage after model load: {peak_memory / 1e9:.2f} GB")
-    prompts = [
+    prompt = [
         ["<start_of_turn>user The capital of Italy is?<end_of_turn>\n<start_of_turn>model"],
         ["<start_of_turn>user What is your purpose?<end_of_turn>\n<start_of_turn>model"],
     ]
-    results = model.generate(prompts, device, output_len=20)
+    results = model.generate(prompt, device, output_len=20)
     assert isinstance(results, list)
     assert len(results) == 2
     assert all(isinstance(res, str) and len(res) > 0 for res in results)
@@ -140,14 +139,15 @@ def test_single_image_generation(gemma3_model_instance, image_data_path):
     model, device, peak_memory = gemma3_model_instance
     if peak_memory != -1:
         print(f"Peak memory usage after model load: {peak_memory / 1e9:.2f} GB")
-    prompts = [
+    prompt = [
         [
+            "<start_of_turn>user\n",
             Image.open(image_data_path / "cow_in_beach.jpg"),
             "The name of the animal in the image is?",
+            "<end_of_turn>\n<start_of_turn>model",
         ]
     ]
-    prompts = utils.format_prompt(prompts)
-    result = model.generate(prompts=prompts, device=device, output_len=20)
+    result = model.generate(prompt, device, output_len=20)
     assert isinstance(result, list)
     assert len(result) == 1
     assert isinstance(result[0], str) and len(result[0]) > 0
@@ -163,11 +163,13 @@ def test_interleaved_image_generation(gemma3_model_instance, image_data_path):
         print(f"Peak memory usage after model load: {peak_memory / 1e9:.2f} GB")
     prompt = [
         [
+            "<start_of_turn>user\n",
             "This image",
             Image.open(image_data_path / "lilly.jpg"),
             "and this image",
             Image.open(image_data_path / "sunflower.jpg"),
             "are similar because? Give me the main reason.",
+            "<end_of_turn>\n<start_of_turn>model",
         ]
     ]
     result = model.generate(prompt, device, output_len=120)
