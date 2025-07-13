@@ -51,7 +51,7 @@ uv python install 3.12
 [Reference](https://docs.astral.sh/uv/guides/integration/pytorch) <br>
 Choose the torch index based on your system and setup the environment:
 ```bash
-uv sync --extra {cpu, cu118, cu124}
+uv sync --extra {cpu, cu118, cu124, cu126}
 ```
 
 Activate the virtual environment with
@@ -71,10 +71,15 @@ source ./.venv/bin/activate
 
 ### Development
 
+Install the `ruff` linter & `ty` type-checker with 
+```bash
+uv sync --extra dev 
+```
+
 To run all tests install `pytest`
 
 ```bash
-uv sync --extra {cpu, cu118, cu124} --extra test
+uv sync --extra test
 ```
 
 and run
@@ -82,7 +87,7 @@ and run
 pytest -m "not gpu" -n auto
 ```
 
-Sequentially run tests that are GPU intensive with 
+Run tests that are GPU intensive with single worker using
 ```bash
 pytest -m gpu -n 1
 ```
