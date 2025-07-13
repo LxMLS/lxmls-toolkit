@@ -79,7 +79,12 @@ uv sync --extra {cpu, cu118, cu124} --extra test
 
 and run
 ```bash
-pytest
+pytest -m "not gpu" -n auto
+```
+
+Sequentially run tests that are GPU intensive with 
+```bash
+pytest -m gpu -n 1
 ```
 
 ### Quantisation

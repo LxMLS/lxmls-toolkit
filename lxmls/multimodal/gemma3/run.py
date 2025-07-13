@@ -14,7 +14,6 @@
 
 
 import argparse
-import contextlib
 import random
 from pathlib import Path
 
@@ -24,31 +23,21 @@ from PIL import Image
 
 from lxmls.multimodal.gemma3 import config
 from lxmls.multimodal.gemma3 import model as gemma3_model
-
-
-@contextlib.contextmanager
-def _set_default_tensor_type(dtype: torch.dtype):
-    """Sets the default torch dtype to the given dtype."""
-    torch.set_default_dtype(dtype)
-    yield
-    torch.set_default_dtype(torch.float)
+from lxmls.multimodal.gemma3.utils import set_default_tensor_type
 
 
 def main(args):
-    # Data Dir
-    data_dir = Path(args.ckpt).parent
-
     # Construct the model config.
     model_config = config.get_model_config()
     model_config.dtype = "float32"
     model_config.quant = args.quant
     image_paths = {
-        "cow_in_beach": data_dir / "images/cow_in_beach.jpg",
-        "lilly": data_dir / "images/lilly.jpg",
-        "sunflower": data_dir / "images/sunflower.JPG",
-        "golden_test_image": data_dir / "images/test_image.jpg",
+        "cow_in_beach": Path(args.image_dir) / "cow_in_beach.jpg",
+        "lilly": Path(args.image_dir) / "lilly.jpg",
+        "sunflower": Path(args.image_dir) / "sunflower.jpg",
+        "golden_test_image": Path(args.image_dir) / "test_image.jpg",
     }
-    model_config.tokenizer = str(data_dir / "tokenizer.model")
+    model_config.tokenizer = str(Path(args.model_dir) / "tokenizer.model")
 
     image = {}
     for key in image_paths:
@@ -66,10 +55,9 @@ def main(args):
 
     # Create the model and load the weights.
     device = torch.device(args.device)
-    with _set_default_tensor_type(model_config.get_dtype()):
+    with set_default_tensor_type(model_config.get_dtype()):
         model = gemma3_model.Gemma3ForMultimodalLM(model_config)
-        model.load_state_dict(torch.load(args.ckpt)["model_state_dict"])
-        # model.load_weights(args.ckpt)
+        model.load_state_dict(torch.load(Path(args.model_dir) / "model.ckpt")["model_state_dict"])
         model = model.to(device).eval()
     print("Model loading done")
 
@@ -147,7 +135,8 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--ckpt", type=str, required=True, help="Path to the checkpoint file.")
+    parser.add_argument("--model_dir", type=str, required=True, help="Path to directory containing the model.")
+    parser.add_argument("--image_dir", type=str, required=True, help="Path to the directory containing images.")
     parser.add_argument(
         "--variant",
         type=str,
