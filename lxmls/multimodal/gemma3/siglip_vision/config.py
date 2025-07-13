@@ -14,7 +14,9 @@
 
 import dataclasses
 
-from lxmls.multimodal.gemma3.siglip_vision import preprocessor
+IMAGE_MEAN = [0.5, 0.5, 0.5]  # equivalent to 127.5/255
+IMAGE_STD = [0.5, 0.5, 0.5]  # equivalent to 127.5/255
+DEFAULT_IMAGE_SIZE = 896
 
 
 # https://developers.googleblog.com/en/gemma-explained-paligemma-architecture/
@@ -31,7 +33,7 @@ class SiglipVisionModelConfig:
     # The number of channels in the input images.
     input_channels: int = 3
     # The input image size.
-    image_size: int = preprocessor.DEFAULT_IMAGE_SIZE
+    image_size: int = DEFAULT_IMAGE_SIZE
     # Kernel size of 2D convolution layer.
     conv2d_patch_size = 14
     # The number of attention heads used in the attention layers of the model.
