@@ -13,18 +13,30 @@
 # limitations under the License.
 
 from collections.abc import Sequence
-from typing import Any, Union
+from dataclasses import dataclass
+from typing import Any, Optional, Union
 
 import numpy as np
 import torch
 from PIL import Image
 
 import lxmls.multimodal.gemma3.config as gemma_config
-from lxmls.multimodal.gemma3 import tokenizer
 from lxmls.multimodal.gemma3.siglip_vision import preprocess_images_for_siglip_vision
+from lxmls.multimodal.gemma3.tokenizer import Tokenizer
 
 CROPPED_IMAGE_PREFIX = "here is the original image"
 CROPPED_IMAGE_FILLER = "and here are some crops to help you see better"
+
+
+@dataclass
+class TokenisationOutput:
+    finalised_token_ids: torch.Tensor
+    image_batch: Optional[torch.Tensor]
+    batch_size: int
+    min_prompt_len: int
+    max_prompt_len: int
+    max_seq_len: int
+    image_presence_mask: Optional[torch.Tensor]
 
 
 def pan_and_scan(img: Image.Image, *, min_crop_size: int = 256, max_num_crops: int = 4) -> Sequence[Image.Image]:
@@ -136,12 +148,12 @@ def batch_input_preprocessor(raw_input: Sequence[Sequence[Union[Image.Image, str
 
 
 def tokenize_raw_input(
-    tokenizer_obj: tokenizer.Tokenizer,
+    tokenizer: Tokenizer,
     raw_input: Sequence[Sequence[Union[str, Image.Image]]],
     config: gemma_config.GemmaConfig,
     output_len: int,
     device: Any,
-) -> dict[str, Any]:
+) -> TokenisationOutput:
     """
     Converts a preprocessed batch of interleaved text and image inputs into
     token IDs and an image batch suitable for gemma3 model
@@ -156,47 +168,42 @@ def tokenize_raw_input(
         user_input_token_ids: Batch of token IDs with shape (B, L), where L is the max sequence length.
         image_batch: Batch of images with shape (B, N, C, H, W), where N is the max number of images.
     """
-    assert config.vision_config is not None
+    vis_cfg = config.vision_config
+    assert vis_cfg is not None
 
     preprocessed_batch = batch_input_preprocessor(raw_input)
 
     # Initialize lists to store token IDs and image tensors
-    all_token_ids = []
-    all_images = []
-    prompt_lengths = []
+    all_token_ids, all_images, prompt_lengths = [], [], []
+    min_prompt_len, max_prompt_len, max_num_images = float("inf"), 0, 0
 
-    max_prompt_len = 0
-    min_prompt_len = float("inf")
-    max_num_images = 0
     # Iterate over each user prompt in the batch
     for prompt in preprocessed_batch:
-        token_ids = []
-        images = []
-        token_ids.append(tokenizer_obj.bos_id)
+        token_ids, images = [], []
+        token_ids.append(tokenizer.bos_id)
         # Process each element in the prompt
         for element in prompt:
             if isinstance(element, str):
                 # Tokenize text and add to token_ids
-                tokens = tokenizer_obj.encode(element, bos=False, eos=False)
+                tokens = tokenizer.encode(element, bos=False, eos=False)
                 token_ids.extend(tokens)
             elif isinstance(element, torch.Tensor):
-                # Prepend (dual endline + tokenizer_obj.boi)
-                token_ids.extend(tokenizer_obj.encode("\n\n", bos=False, eos=False))
-                token_ids.append(tokenizer_obj.boi_id)
+                # Prepend (dual endline + [BEGIN OF IMAGE])
+                token_ids.extend(tokenizer.encode("\n\n", bos=False, eos=False))
+                token_ids.append(tokenizer.boi_id)
                 # Add image placeholder tokens
-                token_ids.extend(
-                    [tokenizer_obj.image_token_placeholder_id] * config.vision_config.encoding_sequence_length
-                )
-                # Append (tokenizer_obj.eoi + dual endline)
-                token_ids.append(tokenizer_obj.eoi_id)
-                token_ids.extend(tokenizer_obj.encode("\n\n", bos=False, eos=False))
+                token_ids.extend([tokenizer.image_token_placeholder_id] * vis_cfg.encoding_sequence_length)
+                # Append ([END OF IMAGE] + dual endline)
+                token_ids.append(tokenizer.eoi_id)
+                token_ids.extend(tokenizer.encode("\n\n", bos=False, eos=False))
                 # Store the image tensor
                 images.append(element)
             else:
                 raise ValueError("Unsupported type in prompt. Expected str or torch.Tensor.")
+
+        # Update values
         curr_prompt_len = len(token_ids)
         prompt_lengths.append(curr_prompt_len)
-
         max_prompt_len = max(max_prompt_len, curr_prompt_len)
         min_prompt_len = min(min_prompt_len, curr_prompt_len)
         max_num_images = max(max_num_images, len(images))
@@ -207,11 +214,11 @@ def tokenize_raw_input(
     max_seq_len = max_prompt_len + output_len
 
     # Pad token IDs to the maximum sequence length
-    user_input_token_ids = []
+    finalised_token_ids = []
     for token_ids in all_token_ids:
         pad_length = max_seq_len - len(token_ids)
-        padded_token_ids = token_ids + [tokenizer_obj.pad_id] * pad_length
-        user_input_token_ids.append(padded_token_ids)
+        padded_token_ids = token_ids + [tokenizer.pad_id] * pad_length
+        finalised_token_ids.append(padded_token_ids)
 
     # Pad images to the maximum number of images in the batch
     image_batch = []
@@ -229,14 +236,7 @@ def tokenize_raw_input(
         if pad_length > 0:
             # Create a list of zero tensors for padding
             padding = [
-                torch.zeros(
-                    (
-                        config.vision_config.input_channels,
-                        config.vision_config.image_size,
-                        config.vision_config.image_size,
-                    ),
-                    device=device,
-                )
+                torch.zeros((vis_cfg.input_channels, vis_cfg.image_size, vis_cfg.image_size), device=device)
                 for _ in range(pad_length)
             ]
             padded_images.extend(padding)
@@ -245,7 +245,7 @@ def tokenize_raw_input(
         image_presence_mask.append(presence_mask)
 
     # Convert lists to tensors
-    user_input_token_ids = torch.tensor(user_input_token_ids, dtype=torch.long, device=device)
+    finalised_token_ids = torch.tensor(finalised_token_ids, dtype=torch.long, device=device)
     if max_num_images > 0:
         image_batch = torch.stack([torch.stack(images) for images in image_batch]).to(device)
         image_presence_mask = torch.tensor(image_presence_mask, dtype=torch.bool, device=device)
@@ -253,15 +253,14 @@ def tokenize_raw_input(
         image_batch = None
         image_presence_mask = None
 
-    # Prepare the output dictionary
-    output_dict = {
-        "user_input_token_ids": user_input_token_ids,
-        "image_batch": image_batch,
-        "batch_size": len(preprocessed_batch),
-        "min_prompt_len": min_prompt_len,
-        "max_prompt_len": max_prompt_len,
-        "max_seq_len": max_seq_len,
-        "image_presence_mask": image_presence_mask,
-    }
-
-    return output_dict
+    # Prepare the output
+    output = TokenisationOutput(
+        finalised_token_ids=finalised_token_ids,
+        image_batch=image_batch,
+        batch_size=len(preprocessed_batch),
+        min_prompt_len=min_prompt_len,  #  type: ignore Intially set to float('inf'), but then we take a min
+        max_prompt_len=max_prompt_len,
+        max_seq_len=max_seq_len,
+        image_presence_mask=image_presence_mask,
+    )
+    return output

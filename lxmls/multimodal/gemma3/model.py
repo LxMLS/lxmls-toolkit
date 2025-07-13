@@ -771,19 +771,19 @@ class Gemma3ForMultimodalLM(nn.Module):
         top_k: int = 64,
     ) -> Sequence[str]:
         processing_result = preprocessor.tokenize_raw_input(self.tokenizer, prompts, self.config, output_len, device)
-        batch_size = processing_result["batch_size"]
-        user_input_token_ids = processing_result["user_input_token_ids"]
-        image_batch = processing_result["image_batch"]
-        min_prompt_len = processing_result["min_prompt_len"]
-        _max_prompt_len = processing_result["max_prompt_len"]
-        total_seq_len = processing_result["max_seq_len"]
-        image_presence_mask = processing_result["image_presence_mask"]
+        batch_size = processing_result.batch_size
+        finalised_token_ids = processing_result.finalised_token_ids
+        image_batch = processing_result.image_batch
+        min_prompt_len = processing_result.min_prompt_len
+        _max_prompt_len = processing_result.max_prompt_len
+        total_seq_len = processing_result.max_seq_len
+        image_presence_mask = processing_result.image_presence_mask
 
         # Create attention mask.
         min_dtype = torch.finfo(self.dtype).min
         n_inf = torch.tensor(min_dtype, dtype=torch.float32, device=device)
         assert self.config.sliding_window_size is not None
-        boolean_mask, local_boolean_mask = self.create_attention_mask(user_input_token_ids, total_seq_len)
+        boolean_mask, local_boolean_mask = self.create_attention_mask(finalised_token_ids, total_seq_len)
         mask_tensor = torch.where(boolean_mask, 0, n_inf).contiguous()
         local_mask_tensor = torch.where(local_boolean_mask, 0, n_inf).contiguous()
 
@@ -798,9 +798,9 @@ class Gemma3ForMultimodalLM(nn.Module):
         input_token_ids_tensor = torch.full(
             (batch_size, min_prompt_len), self.tokenizer.pad_id, dtype=torch.int64, device=device
         )
-        token_ids_tensor = user_input_token_ids.to(device)
+        token_ids_tensor = finalised_token_ids.to(device)
         for i in range(batch_size):
-            p = user_input_token_ids[i]
+            p = finalised_token_ids[i]
             input_token_ids_tensor[i, :min_prompt_len] = p[:min_prompt_len]
 
         input_positions_tensor = torch.arange(0, min_prompt_len, dtype=torch.int64, device=device)
