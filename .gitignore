@@ -77,3 +77,10 @@ labs/scripts/*
 
 .vscode/
 uv.lock
+data/vlm/gemma3
+data/vlm/*.tar
+3p
+
+# Quantisation
+sparse_logs
+*.log

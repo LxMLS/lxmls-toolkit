@@ -51,14 +51,14 @@ uv python install 3.12
 [Reference](https://docs.astral.sh/uv/guides/integration/pytorch) <br>
 Choose the torch index based on your system and setup the environment:
 ```bash
-uv sync --extra {cpu, cu118, cu124}
+uv sync --extra {cpu, cu118, cu124, cu126}
 ```
 
 Activate the virtual environment with
 
 **Linux and MacOS**
 ```bash
-./.venv/bin/activate
+source ./.venv/bin/activate
 ```
 
 **Windows**
@@ -71,13 +71,57 @@ Activate the virtual environment with
 
 ### Development
 
-To run the all tests install `pytest`
+Install the `ruff` linter & `ty` type-checker with 
+```bash
+uv sync --extra dev 
+```
+
+To run all tests install `pytest`
 
 ```bash
-uv sync --extra {cpu, cu118, cu124} --extra test
+uv sync --extra test
 ```
 
 and run
 ```bash
-pytest
+pytest -m "not gpu" -n auto
+```
+
+Run tests that are GPU intensive with single worker using
+```bash
+pytest -m gpu -n 1
+```
+
+### Quantisation
+
+Install `GPTQModel`
+
+```bash
+deactivate
+mkdir 3p && cd 3p
+git clone https://github.com/ModelScope/GPTQModel && cd GPTQModel
+```
+
+Install Python 3.13 with free-threading
+[GPTQModel Issue #1660](https://github.com/ModelCloud/GPTQModel/issues/1610)
+
+```console
+$ uv python install 3.13t
+$ uv venv .venv --python 3.13t
+$ source .venv/bin/activate
+$ python -VV
+Python 3.13.3 experimental free-threading build (main, Apr  9 2025, 04:05:28) [Clang 20.1.0 ]
+```
+
+Build `GPTQModel` from source
+
+```bash
+uv pip install -r requirements.txt
+uv pip install -v . --no-build-isolation
+uv pip install datasets
+```
+
+Run `quantize.py`
+```bash
+python ../../lxmls/multimodal/gemma3/quantize.py
 ```

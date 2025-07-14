@@ -27,6 +27,8 @@ dependencies = [
     "six",
     "transformers",
     "bertviz>=1.4.1",
+    "hf_transfer",
+    "hf_xet",
 ]
 
 [project.urls]
@@ -37,12 +39,21 @@ Homepage = "https://github.com/LxMLS/lxmls-toolkit"
 cpu = ["torch>=2.6.0,<2.7", "torchvision>=0.21.0"]
 cu118 = ["torch>=2.6.0,<2.7", "torchvision>=0.21.0"]
 cu124 = ["torch>=2.6.0,<2.7", "torchvision>=0.21.0"]
-test = ["pytest"]
-dev = ["ruff", "pyright"]
+cu126 = ["torch>=2.6.0,<2.7", "torchvision>=0.21.0"]
+test = ["pytest", "pytest-xdist"]
+dev = ["ruff", "ty"]
+quant = ["llmcompressor"]
 
 [tool.uv]
-no-build-isolation-package = ["flash-attn"]
-conflicts = [[{ extra = "cpu" }, { extra = "cu118" }, { extra = "cu124" }]]
+no-build-isolation-package = ["gptqmodel"]
+conflicts = [
+    [
+        { extra = "cpu" },
+        { extra = "cu118" },
+        { extra = "cu124" },
+        { extra = "cu126" },
+    ],
+]
 
 [[tool.uv.index]]
 name = "pytorch-cpu"
@@ -59,16 +70,23 @@ name = "pytorch-cu124"
 url = "https://download.pytorch.org/whl/cu124"
 explicit = true
 
+[[tool.uv.index]]
+name = "pytorch-cu126"
+url = "https://download.pytorch.org/whl/cu126"
+explicit = true
+
 [tool.uv.sources]
 torch = [
     { index = "pytorch-cpu", extra = "cpu" },
     { index = "pytorch-cu118", extra = "cu118" },
     { index = "pytorch-cu124", extra = "cu124" },
+    { index = "pytorch-cu126", extra = "cu126" },
 ]
 torchvision = [
     { index = "pytorch-cpu", extra = "cpu" },
     { index = "pytorch-cu118", extra = "cu118" },
     { index = "pytorch-cu124", extra = "cu124" },
+    { index = "pytorch-cu126", extra = "cu126" },
 ]
 transformers = { git = "https://github.com/huggingface/transformers" }
 
@@ -82,6 +100,10 @@ include-package-data = true
 [build-system]
 requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["gpu: mark tests that require GPU and must run sequentially."]
 
 [tool.ruff]
 line-length = 120
