@@ -1,4 +1,5 @@
 import numpy as np
+
 from lxmls.deep_learning.mlp import MLP
 from lxmls.deep_learning.utils import index2onehot, logsumexp
 
@@ -9,7 +10,6 @@ class NumpyMLP(MLP):
     """
 
     def __init__(self, **config):
-
         # This will initialize
         # self.config
         # self.parameters
@@ -29,10 +29,9 @@ class NumpyMLP(MLP):
 
         gradients = self.backpropagation(input, output)
 
-        learning_rate = self.config['learning_rate']
+        learning_rate = self.config["learning_rate"]
         num_parameters = len(self.parameters)
         for m in np.arange(num_parameters):
-
             # Update weight
             self.parameters[m][0] -= learning_rate * gradients[m][0]
 
@@ -49,7 +48,6 @@ class NumpyMLP(MLP):
         # Hidden layers
         num_hidden_layers = len(self.parameters) - 1
         for n in range(num_hidden_layers):
-
             # Store input to this layer (needed for backpropagation)
             layer_inputs.append(tilde_z)
 
@@ -96,7 +94,7 @@ class NumpyMLP(MLP):
         # Solution to Exercise 2
 
         raise NotImplementedError("Implement Exercise 2")
-        
+
         # End of solution to Exercise 2
         # ----------
 

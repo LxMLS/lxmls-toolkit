@@ -1,21 +1,22 @@
+import numpy as np
 import torch
+
+from lxmls.deep_learning.utils import Model, glorot_weight_init
 
 
 class PytorchLogLinear(Model):
-
     def __init__(self, **config):
-
         # Initialize parameters
-        weight_shape = (config['input_size'], config['num_classes'])
+        weight_shape = (config["input_size"], config["num_classes"])
         # after Xavier Glorot et al
-        weight_np = glorot_weight_init(weight_shape, 'softmax')
-        self.learning_rate = config['learning_rate']
+        weight_np = glorot_weight_init(weight_shape, "softmax")
+        self.learning_rate = config["learning_rate"]
 
         # IMPORTANT: Cast to pytorch format
         self.weight = torch.from_numpy(weight_np).float()
         self.weight.requires_grad = True
 
-        self.bias = torch.zeros(1, config['num_classes'], requires_grad=True)
+        self.bias = torch.zeros(1, config["num_classes"], requires_grad=True)
 
         self.log_softmax = torch.nn.LogSoftmax(dim=1)
         self.loss_function = torch.nn.NLLLoss()
@@ -27,7 +28,7 @@ class PytorchLogLinear(Model):
         input = torch.from_numpy(input).float()
 
         # Linear transformation
-        z =  torch.matmul(input, torch.t(self.weight)) + self.bias
+        z = torch.matmul(input, torch.t(self.weight)) + self.bias
 
         # Softmax implemented in log domain
         log_tilde_z = self.log_softmax(z)

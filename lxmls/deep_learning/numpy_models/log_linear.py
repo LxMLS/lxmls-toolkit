@@ -21,7 +21,7 @@ class NumpyLogLinear(Model):
     def log_forward(self, input=None):
         """Forward pass of the computation graph"""
 
-        #
+        # Linear transformation
         z = np.dot(input, self.weight.T) + self.bias
 
         # Softmax implemented in log domain
@@ -36,22 +36,22 @@ class NumpyLogLinear(Model):
     def update(self, input=None, output=None):
         """Stochastic Gradient Descent update"""
 
-        #
+        # Probabilities of each class
         class_probabilities = np.exp(self.log_forward(input))
         batch_size, num_classes = class_probabilities.shape
 
-        #
+        # Error derivative at softmax layer
         I = index2onehot(output, num_classes)
-        error = (class_probabilities - I) / batch_size
+        error = - (I - class_probabilities) / batch_size
 
-        #
+        # Weight gradient
         gradient_weight = np.zeros(self.weight.shape)
         for l in np.arange(batch_size):
             gradient_weight += np.outer(error[l, :], input[l, :])
 
-        #
+        # Bias gradient
         gradient_bias = np.sum(error, axis=0, keepdims=True)
 
-        #
+        # SGD update
         self.weight = self.weight - self.learning_rate * gradient_weight
         self.bias = self.bias - self.learning_rate * gradient_bias

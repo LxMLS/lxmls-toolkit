@@ -3,7 +3,9 @@ import scipy
 import scipy.linalg
 import torch
 from torch.distributions import Categorical
+
 from lxmls.deep_learning.rnn import RNN
+
 # To sample from model
 
 
@@ -25,7 +27,6 @@ class PytorchRNN(RNN):
     """
 
     def __init__(self, **config):
-
         # This will initialize
         # self.num_layers
         # self.config
@@ -34,10 +35,7 @@ class PytorchRNN(RNN):
 
         # First parameters are the embeddings
         # instantiate the embedding layer first
-        self.embedding_layer = torch.nn.Embedding(
-            config['input_size'],
-            config['embedding_size']
-        )
+        self.embedding_layer = torch.nn.Embedding(config["input_size"], config["embedding_size"])
 
         # Set its value to the stored weight
         self.embedding_layer.weight.data = cast_float(self.parameters[0]).data
@@ -67,7 +65,7 @@ class PytorchRNN(RNN):
         Update model parameters given batch of data
         """
         gradients = self.backpropagation(input, output)
-        learning_rate = self.config['learning_rate']
+        learning_rate = self.config["learning_rate"]
         # Update each parameter with SGD rule
         num_parameters = len(self.parameters)
         for m in np.arange(num_parameters):
@@ -136,7 +134,6 @@ class FastPytorchRNN(RNN):
     """
 
     def __init__(self, **config):
-
         # This will initialize
         # self.num_layers
         # self.config
@@ -145,19 +142,12 @@ class FastPytorchRNN(RNN):
 
         # First parameters are the embeddings
         # instantiate the embedding layer first
-        self.embedding_layer = torch.nn.Embedding(
-            config['input_size'],
-            config['embedding_size']
-        )
+        self.embedding_layer = torch.nn.Embedding(config["input_size"], config["embedding_size"])
         # Set its value to the stored weight
         self.embedding_layer.weight.data = cast_float(self.parameters[0]).data
 
         # RNN
-        self.rnn = torch.nn.RNN(
-            config['embedding_size'],
-            config['hidden_size'],
-            bias=False
-        )
+        self.rnn = torch.nn.RNN(config["embedding_size"], config["hidden_size"], bias=False)
         # TODO: Set paremeters here
 
         # Log softmax
@@ -169,9 +159,7 @@ class FastPytorchRNN(RNN):
 
         # Get the parameters
         self.parameters = (
-            [self.embedding_layer.weight] +
-            list(self.rnn.parameters()) +
-            [cast_float(self.parameters[-1])]
+            [self.embedding_layer.weight] + list(self.rnn.parameters()) + [cast_float(self.parameters[-1])]
         )
 
     def predict(self, input=None):
@@ -187,7 +175,7 @@ class FastPytorchRNN(RNN):
         Update model parameters given batch of data
         """
         gradients = self.backpropagation(input, output)
-        learning_rate = self.config['learning_rate']
+        learning_rate = self.config["learning_rate"]
         # Update each parameter with SGD rule
         num_parameters = len(self.parameters)
         for m in np.arange(num_parameters):
@@ -256,18 +244,17 @@ class PolicyRNN(FastPytorchRNN):
     """
 
     def __init__(self, **config):
-
         # This will initialize
         # self.num_layers
         # self.config
         # self.parameters
         FastPytorchRNN.__init__(self, **config)
-        if config.get('RL', False):
+        if config.get("RL", False):
             self.loss = self.reinforce_loss
         else:
             self.loss = torch.nn.NLLLoss()
-        self._gamma = config.get('gamma', 0.9)
-        self._maxL = config.get('maxL', None)
+        self._gamma = config.get("gamma", 0.9)
+        self._maxL = config.get("maxL", None)
 
     def _sample(self, input=None):
         """
@@ -276,9 +263,7 @@ class PolicyRNN(FastPytorchRNN):
         :return the samples and its neg. log probabilities
         """
         logits = self._log_forward(input)
-        distribution = Categorical(
-            logits=logits.view(-1, logits.size(-1))
-        )
+        distribution = Categorical(logits=logits.view(-1, logits.size(-1)))
         samples = distribution.sample()
         log_probs = -distribution.log_prob(samples)
 
@@ -306,23 +291,15 @@ class PolicyRNN(FastPytorchRNN):
 
         out = self.pack(loutput)
         output = out.data
-        out_vec = self.torch_ind2onehot(
-            log_p_y.shape,
-            output.reshape(-1, 1), -1
-        )
+        out_vec = self.torch_ind2onehot(log_p_y.shape, output.reshape(-1, 1), -1)
         # torch.sum
-        cost = (torch.exp(log_p_y) - out_vec)**2
+        cost = (torch.exp(log_p_y) - out_vec) ** 2
         # cost to go always positive
-        R = self.cost_to_go(
-            cost,
-            out.batch_sizes,
-            gamma=self._gamma,
-            dim=0
-        )
+        R = self.cost_to_go(cost, out.batch_sizes, gamma=self._gamma, dim=0)
         # compute baseline
         b = self.baseline(R)
         # Calculate loss
-        selected_logprobs = - (R - b) * log_p_y
+        selected_logprobs = -(R - b) * log_p_y
         # avg Sum_t cost to go over sequences
         loss = selected_logprobs.sum() / float(len(out.batch_sizes))
         return loss
@@ -340,15 +317,9 @@ class PolicyRNN(FastPytorchRNN):
         pred = torch.max(log_p_y, dim=1)[1]
         # * lengths
         cost = (pred == output).float()
-        R = self.cost_to_go(
-            cost.reshape(-1, 1),
-            sizes,
-            gamma=self._gamma,
-            dim=0
-        )
+        R = self.cost_to_go(cost.reshape(-1, 1), sizes, gamma=self._gamma, dim=0)
         # Calculate loss
-        selected_logprobs = -R.reshape(-1) * \
-            log_p_y[np.arange(len(output)), output]
+        selected_logprobs = -R.reshape(-1) * log_p_y[np.arange(len(output)), output]
         # sum in time and class dimension mean over batch size
         loss = selected_logprobs.sum() / float(len(out.batch_sizes))
         return loss
@@ -366,12 +337,12 @@ class PolicyRNN(FastPytorchRNN):
             j = 0
             ctg = []
             for i, T in enumerate(sizes):
-                col = [gamma ** i for i in range(T)]
+                col = [gamma**i for i in range(T)]
                 row = np.zeros((T), dtype=float)
                 row[0] = col[0]
                 gammas = scipy.linalg.toeplitz(row, col)
                 gammas = cast_float(gammas, grad=False)
-                rt = torch.matmul(gammas, rwd[j:j + T, :])
+                rt = torch.matmul(gammas, rwd[j : j + T, :])
                 j += T
                 ctg.append(rt)
             R = torch.cat(ctg, dim=0)
@@ -392,9 +363,7 @@ class PolicyRNN(FastPytorchRNN):
         # Word Embeddings
 
         z_e = self.embedding_layer(input.data)
-        pack_z_e = torch.nn.utils.rnn.pack_sequence(
-            self.unpack(z_e, input.batch_sizes)
-        )
+        pack_z_e = torch.nn.utils.rnn.pack_sequence(self.unpack(z_e, input.batch_sizes))
 
         # RNN
         self.h, _ = self.rnn(pack_z_e)
@@ -436,14 +405,9 @@ class PolicyRNN(FastPytorchRNN):
     def batch_var_lenlist(loutput):
         lengths = [(len(i), j) for j, i in enumerate(loutput)]
         lengths = sorted(lengths, reverse=True)
-        out_var = [
-            cast_int(loutput[i], grad=False) for i in list(zip(*lengths))[1]
-        ]
+        out_var = [cast_int(loutput[i], grad=False) for i in list(zip(*lengths))[1]]
         pad_output = torch.nn.utils.rnn.pad_sequence(out_var)
-        output = torch.nn.utils.rnn.pack_padded_sequence(
-            pad_output,
-            list(zip(*lengths))[0], batch_first=False
-        )
+        output = torch.nn.utils.rnn.pack_padded_sequence(pad_output, list(zip(*lengths))[0], batch_first=False)
         return output
 
     def pack(self, loutput, grad=False):
@@ -451,20 +415,14 @@ class PolicyRNN(FastPytorchRNN):
         lengths = sorted(lengths, key=lambda x: x[0], reverse=True)
         padded_output = np.zeros((self._maxL, len(loutput)), dtype=float)
         for i in range(len(loutput)):
-            padded_output[:len(loutput[i]), i] = np.asarray(loutput[i])
+            padded_output[: len(loutput[i]), i] = np.asarray(loutput[i])
         out_var = cast_int(padded_output, grad=grad)
-        output = torch.nn.utils.rnn.pack_padded_sequence(
-            out_var,
-            list(list(zip(*lengths))[0]), batch_first=False
-        )
+        output = torch.nn.utils.rnn.pack_padded_sequence(out_var, list(list(zip(*lengths))[0]), batch_first=False)
         return output
 
     @staticmethod
     def unpack(mat, batch_sizes):
-        return [
-            mat[sum(batch_sizes[:i]):sum(batch_sizes[:i + 1]), :]
-            for i in range(len(batch_sizes))
-        ]
+        return [mat[sum(batch_sizes[:i]) : sum(batch_sizes[: i + 1]), :] for i in range(len(batch_sizes))]
 
     def predict_loss(self, linput, loutput):
         prediction = self.predict(linput)
