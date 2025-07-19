@@ -1,0 +1,109 @@
+[project]
+name = "lxmls"
+version = "0.0.2"
+description = "Machine Learning and Natural Language toolkit"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "LxMLS team" }]
+keywords = ["machine learning"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+    "License :: OSI Approved :: MIT License",
+]
+requires-python = ">=3.9,<=3.12"
+dependencies = [
+    "ipdb",
+    "jupyter",
+    "matplotlib",
+    "nltk",
+    "numpy",
+    "pyyaml",
+    "scipy",
+    "six",
+    "transformers",
+    "bertviz>=1.4.1",
+    "hf_transfer",
+    "hf_xet",
+]
+
+[project.urls]
+Homepage = "https://github.com/LxMLS/lxmls-toolkit"
+
+# https://docs.astral.sh/uv/guides/integration/pytorch
+[project.optional-dependencies]
+cpu = ["torch>=2.6.0,<2.7", "torchvision>=0.21.0"]
+cu118 = ["torch>=2.6.0,<2.7", "torchvision>=0.21.0"]
+cu124 = ["torch>=2.6.0,<2.7", "torchvision>=0.21.0"]
+cu126 = ["torch>=2.6.0,<2.7", "torchvision>=0.21.0"]
+test = ["pytest", "pytest-xdist"]
+dev = ["ruff", "ty"]
+quant = ["llmcompressor"]
+
+[tool.uv]
+no-build-isolation-package = ["gptqmodel"]
+conflicts = [
+    [
+        { extra = "cpu" },
+        { extra = "cu118" },
+        { extra = "cu124" },
+        { extra = "cu126" },
+    ],
+]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-cu118"
+url = "https://download.pytorch.org/whl/cu118"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-cu124"
+url = "https://download.pytorch.org/whl/cu124"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-cu126"
+url = "https://download.pytorch.org/whl/cu126"
+explicit = true
+
+[tool.uv.sources]
+torch = [
+    { index = "pytorch-cpu", extra = "cpu" },
+    { index = "pytorch-cu118", extra = "cu118" },
+    { index = "pytorch-cu124", extra = "cu124" },
+    { index = "pytorch-cu126", extra = "cu126" },
+]
+torchvision = [
+    { index = "pytorch-cpu", extra = "cpu" },
+    { index = "pytorch-cu118", extra = "cu118" },
+    { index = "pytorch-cu124", extra = "cu124" },
+    { index = "pytorch-cu126", extra = "cu126" },
+]
+transformers = { git = "https://github.com/huggingface/transformers" }
+
+[tool.setuptools]
+packages = ["lxmls"]
+include-package-data = true
+
+[tool.setuptools.package-data]
+"lxmls.readers" = ["*.map"]
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["gpu: mark tests that require GPU and must run sequentially."]
+
+[tool.ruff]
+line-length = 120
