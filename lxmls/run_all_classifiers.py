@@ -1,11 +1,10 @@
-import lxmls.readers.simple_data_set as sds
-import lxmls.classifiers.linear_classifier as lcc
+import lxmls.classifiers.max_ent_batch as mec_batch
+import lxmls.classifiers.max_ent_online as mec_online
+import lxmls.classifiers.mira as mirac
 import lxmls.classifiers.naive_bayes as nbc
 import lxmls.classifiers.perceptron as percc
 import lxmls.classifiers.svm as svmc
-import lxmls.classifiers.mira as mirac
-import lxmls.classifiers.max_ent_batch as mec_batch
-import lxmls.classifiers.max_ent_online as mec_online
+import lxmls.readers.simple_data_set as sds
 
 
 def run_all_classifiers(dataset):
@@ -76,10 +75,7 @@ def run_all_classifiers(dataset):
     print("Accuracy train: %f test: %f" % (evaluation, evaluation2))
     fig, axis = dataset.add_line(fig, axis, params_svm, "SVM", "brown")
 
-if __name__ == '__main__':
-    sd = sds.SimpleDataSet(nr_examples=100,
-                       g1=[[-1, -1], 1],
-                       g2=[[1, 1], 1],
-                       balance=0.5,
-                       split=[0.5, 0, 0.5])
+
+if __name__ == "__main__":
+    sd = sds.SimpleDataSet(nr_examples=100, g1=[[-1, -1], 1], g2=[[1, 1], 1], balance=0.5, split=[0.5, 0, 0.5])
     run_all_classifiers(sd)
