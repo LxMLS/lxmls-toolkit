@@ -1,9 +1,9 @@
-import lxmls.sequences.sequence as seq
-import pdb
 from six import Iterator
 
-class _SequenceIterator(Iterator):
+import lxmls.sequences.sequence as seq
 
+
+class _SequenceIterator(Iterator):
     def __init__(self, seq):
         self.seq = seq
         self.pos = 0
@@ -20,7 +20,6 @@ class _SequenceIterator(Iterator):
 
 
 class SequenceList(object):
-
     def __init__(self, x_dict, y_dict):
         self.x_dict = x_dict
         self.y_dict = y_dict
@@ -60,16 +59,16 @@ class SequenceList(object):
 
     def save(self, file):
         seq_fn = open(file, "w")
-        for seq in self.seq_list:
+        for sequence in self.seq_list:
             txt = ""
-            for pos, word in enumerate(seq.x):
-                txt += "%i:%i\t" % (word, seq.y[pos])
+            for pos, word in enumerate(sequence.x):
+                txt += "%i:%i\t" % (word, sequence.y[pos])
             seq_fn.write(txt.strip() + "\n")
         seq_fn.close()
 
     def load(self, file):
         seq_fn = open(file, "r")
-        seq_list = []
+        _seq_list = []
         for line in seq_fn:
             seq_x = []
             seq_y = []

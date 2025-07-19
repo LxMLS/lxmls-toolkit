@@ -1,10 +1,16 @@
+import matplotlib
+import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.markers import MarkerStyle
 
 
 # This class generates a 2D dataset with two classes, "positive" and "negative".
 # Each class follows a Gaussian distribution.
 class SimpleDataSet:
-    """ A simple two dimensional dataset for visualization purposes. The date set contains points from two gaussians with mean u_i and std_i"""
+    """
+    A simple two dimensional dataset for visualization purposes.
+    The date set contains points from two gaussians with mean u_i and std_i
+    """
 
     def __init__(self, nr_examples=100, g1=[[-5, -5], 1], g2=[[5, 5], 1], balance=0.5, split=[0.8, 0, 0.2], seed=1):
         # use a given seed for controled tests
@@ -32,7 +38,9 @@ class SimpleDataSet:
         self.split = split
         self.X = X[perm, :]
         self.y = y[perm]
-        train_y, dev_y, test_y, train_X, dev_X, test_X = split_train_dev_test(self.X, self.y, split[0], split[1], split[2])
+        train_y, dev_y, test_y, train_X, dev_X, test_X = split_train_dev_test(
+            self.X, self.y, split[0], split[1], split[2]
+        )
         self.train_X = train_X
         self.train_y = train_y
         self.dev_X = dev_X
@@ -41,17 +49,30 @@ class SimpleDataSet:
         self.test_y = test_y
 
     def get_name(self):
-        return "Simple Data Set -- Mean1= (%.2f,%.2f) Var1 = %.2f Mean2= (%.2f,%.2f) Var2= %.2f \nNr. Points=%.2f, " \
-               "Balance=%.2f Train-Dev-Test (%.2f,.%.2f,%.2f)" % (
-                   self.mean1[0], self.mean1[1], self.variance1, self.mean2[0], self.mean2[1], self.variance2, self.nr_points,
-                   self.balance, self.split[0], self.split[1], self.split[2])
+        return (
+            "Simple Data Set -- Mean1= (%.2f,%.2f) Var1 = %.2f Mean2= (%.2f,%.2f) Var2= %.2f \nNr. Points=%.2f, "
+            "Balance=%.2f Train-Dev-Test (%.2f,.%.2f,%.2f)"
+            % (
+                self.mean1[0],
+                self.mean1[1],
+                self.variance1,
+                self.mean2[0],
+                self.mean2[1],
+                self.variance2,
+                self.nr_points,
+                self.balance,
+                self.split[0],
+                self.split[1],
+                self.split[2],
+            )
+        )
 
     def get_bayes_optimal(self):
         params = np.zeros((3, 2))
         p1 = self.balance
         p2 = 1.0 - self.balance
-        params[0, 0] = -1.0 / (2.0*self.variance1) * np.dot(self.mean1, self.mean1) + np.log(p1)
-        params[0, 1] = -1.0 / (2.0*self.variance2) * np.dot(self.mean2, self.mean2) + np.log(p2)
+        params[0, 0] = -1.0 / (2.0 * self.variance1) * np.dot(self.mean1, self.mean1) + np.log(p1)
+        params[0, 1] = -1.0 / (2.0 * self.variance2) * np.dot(self.mean2, self.mean2) + np.log(p2)
         params[1, 0] = 1.0 / self.variance1 * self.mean1[0]
         params[2, 0] = 1.0 / self.variance1 * self.mean1[1]
         params[1, 1] = 1.0 / self.variance2 * self.mean2[0]
@@ -60,48 +81,45 @@ class SimpleDataSet:
         return params
 
     def plot_data(self, params=np.array([]), name="Naive Bayes", print_bayes_opt=True, backend=None):
-        import matplotlib
-        import matplotlib.pyplot as plt
         if backend is not None:
             matplotlib.use(backend)
+
         fig = plt.figure()
+        axis = fig.add_subplot(111)
         fig.suptitle(self.get_name())
-        axis = fig.add_subplot(1, 1, 1)
         idx, _ = np.nonzero(self.train_y == 0)
         idx2, _ = np.nonzero(self.train_y == 1)
         idx3, _ = np.nonzero(self.test_y == 0)
         idx4, _ = np.nonzero(self.test_y == 1)
-        axis.scatter(self.train_X[idx, 0], self.train_X[idx, 1], s=30, c="red", marker='s')
-        axis.scatter(self.train_X[idx2, 0], self.train_X[idx2, 1], s=30, c="blue", marker='s')
+
+        axis.scatter(self.train_X[idx, 0], self.train_X[idx, 1], s=30, c="red", marker=MarkerStyle("s"))
+        axis.scatter(self.train_X[idx2, 0], self.train_X[idx2, 1], s=30, c="blue", marker=MarkerStyle("s"))
         if idx3.shape[0] > 0:
-            axis.scatter(self.test_X[idx3, 0], self.test_X[idx3, 1], s=30, c="red", marker='o')
+            axis.scatter(self.test_X[idx3, 0], self.test_X[idx3, 1], s=30, c="red", marker=MarkerStyle("o"))
         if idx4.shape[0] > 0:
-            axis.scatter(self.test_X[idx4, 0], self.test_X[idx4, 1], s=30, c="blue", marker='o')
+            axis.scatter(self.test_X[idx4, 0], self.test_X[idx4, 1], s=30, c="blue", marker=MarkerStyle("o"))
         # Plot Bayes optimal
         if print_bayes_opt:
             bayes_opt_params = self.get_bayes_optimal()
             self.add_line(fig, axis, bayes_opt_params, "Bayes Optimal", "black")
 
         axis.legend()
-        #        fig.show()
         return fig, axis
 
     def add_line(self, fig, axis, params, name, colour):
         x_max = np.max(self.train_X)
         x_min = np.min(self.train_X)
         x = np.arange(x_min, x_max, 0.1, dtype="float")
-        y_star = (
-            (params[1, 1]-params[1, 0])*x + (params[0, 1]-params[0, 0])
-        ) / (params[2, 0]-params[2, 1])
-        axis.plot(x, y_star, 'g--', c=colour, label=name, linewidth=2)
+        y_star = ((params[1, 1] - params[1, 0]) * x + (params[0, 1] - params[0, 0])) / (params[2, 0] - params[2, 1])
+        axis.plot(x, y_star, "g--", c=colour, label=name, linewidth=2)
         axis.legend()
         return fig, axis
 
 
 def split_train_dev_test(X, y, train_per, dev_per, test_per):
-    if train_per+dev_per+test_per > 1:
-        print("Train Dev Test split should sum to one")
-        return
+    if train_per + dev_per + test_per > 1:
+        raise ValueError("Train Dev Test split should sum to one")
+
     dim = y.shape[0]
     split1 = int(dim * train_per)
     if dev_per == 0:
@@ -112,10 +130,11 @@ def split_train_dev_test(X, y, train_per, dev_per, test_per):
         test_X = X[split1:, :]
 
     else:
-        split2 = int(dim * (train_per+dev_per))
+        split2 = int(dim * (train_per + dev_per))
         print(split2)
         train_y, dev_y, test_y = np.vsplit(y, (split1, split2))
         train_X = X[0:split1, :]
         dev_X = X[split1:split2, :]
         test_X = X[split2:, :]
+
     return train_y, dev_y, test_y, train_X, dev_X, test_X

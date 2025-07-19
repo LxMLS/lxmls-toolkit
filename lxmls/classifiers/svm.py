@@ -1,10 +1,10 @@
 import numpy as np
+
 import lxmls.classifiers.linear_classifier as lc
-from lxmls.util.my_math_utils import *
+from lxmls.util.my_math_utils import l2norm_squared
 
 
 class SVM(lc.LinearClassifier):
-
     def __init__(self, nr_epochs=10, initial_step=1.0, alpha=1.0, regularizer=1.0, seed=1):
         lc.LinearClassifier.__init__(self)
         self.trained = False
@@ -32,24 +32,26 @@ class SVM(lc.LinearClassifier):
                 t += 1
                 inst = perm[nr]
                 learning_rate = self.initial_step * np.power(t, -self.alpha)
-                scores = self.get_scores(x[inst:inst+1, :], w)
-                y_true = y[inst:inst+1, 0]
+                scores = self.get_scores(x[inst : inst + 1, :], w)
+                y_true = y[inst : inst + 1, 0]
                 cost_augmented_loss = scores + 1
-                #correct predictions should be made with a margin > 1
+                # correct predictions should be made with a margin > 1
                 cost_augmented_loss[:, y_true] -= 1
                 y_hat = np.argmax(cost_augmented_loss, axis=1).transpose()
-                #minimize objective: sum of slack variables + 1/2*regularizer*l2norm_squared(w)
-                objective += (cost_augmented_loss[:, y_hat] - scores[:, y_true]) + 0.5 * self.regularizer * l2norm_squared(w)
-                w *= (1 - self.regularizer * learning_rate)
-                w[:, y_true] += learning_rate * x[inst:inst+1, :].transpose()
-                w[:, y_hat] -= learning_rate * x[inst:inst+1, :].transpose()
+                # minimize objective: sum of slack variables + 1/2*regularizer*l2norm_squared(w)
+                objective += (
+                    cost_augmented_loss[:, y_hat] - scores[:, y_true]
+                ) + 0.5 * self.regularizer * l2norm_squared(w)
+                w *= 1 - self.regularizer * learning_rate
+                w[:, y_true] += learning_rate * x[inst : inst + 1, :].transpose()
+                w[:, y_hat] -= learning_rate * x[inst : inst + 1, :].transpose()
             self.params_per_round.append(w.copy())
             self.trained = True
             objective /= nr_x
             y_pred = self.test(x_orig, w)
             acc = self.evaluate(y, y_pred)
             self.trained = False
-            print("Epochs: %i Objective: %f" % (epoch_nr, objective))
+            print("Epochs: %i Objective: %f" % (epoch_nr, objective.item()))
             print("Epochs: %i Accuracy: %f" % (epoch_nr, acc))
         self.trained = True
         return w

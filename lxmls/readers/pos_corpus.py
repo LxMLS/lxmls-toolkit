@@ -1,26 +1,23 @@
 import codecs
 import gzip
+import os
 from itertools import chain
-from random import shuffle
 
-from lxmls.sequences.label_dictionary import *
-from lxmls.sequences.sequence import *
-from lxmls.sequences.sequence_list import *
+import numpy as np
+
 from lxmls import data
-from os.path import dirname
-import numpy as np  # This is also needed for theano=True
-
-# from nltk.corpus import brown
+from lxmls.sequences.label_dictionary import LabelDictionary
+from lxmls.sequences.sequence_list import SequenceList
 
 # Train and test files for english WSJ part of the Penn Tree Bank
-data.find('train-02-21.conll')
-data.find('dev-22.conll')
-data.find('test-23.conll')
+data.find("train-02-21.conll")
+data.find("dev-22.conll")
+data.find("test-23.conll")
 
 # Train and test files for portuguese Floresta sintatica
-data.find('pt_train.txt')
+data.find("pt_train.txt")
 pt_dev = ""
-data.find('pt_test.txt')
+data.find("pt_test.txt")
 
 
 def compacify(train_seq, test_seq, dev_seq, theano=False):
@@ -30,7 +27,7 @@ def compacify(train_seq, test_seq, dev_seq, theano=False):
 
     # REDO DICTS
     new_x_dict = LabelDictionary()
-    new_y_dict = LabelDictionary(['noun'])
+    new_y_dict = LabelDictionary(["noun"])
     for corpus_seq in [train_seq, test_seq, dev_seq]:
         for seq in corpus_seq:
             for index in seq.x:
@@ -52,17 +49,13 @@ def compacify(train_seq, test_seq, dev_seq, theano=False):
             for i in seq.y:
                 if corpus_seq.y_dict.get_label_name(i) not in new_y_dict:
                     pass
-            seq.x = [
-                new_x_dict[corpus_seq.x_dict.get_label_name(i)] for i in seq.x
-            ]
-            seq.y = [
-                new_y_dict[corpus_seq.y_dict.get_label_name(i)] for i in seq.y
-            ]
+            seq.x = [new_x_dict[corpus_seq.x_dict.get_label_name(i)] for i in seq.x]
+            seq.y = [new_y_dict[corpus_seq.y_dict.get_label_name(i)] for i in seq.y]
             # For compatibility with GPUs store as numpy arrays and cats to int
             # 32
             if theano:
-                seq.x = np.array(seq.x, dtype='int32')
-                seq.y = np.array(seq.y, dtype='int32')
+                seq.x = np.array(seq.x, dtype="int32")
+                seq.y = np.array(seq.y, dtype="int32")
         # Reinstate new dicts
         corpus_seq.x_dict = new_x_dict
         corpus_seq.y_dict = new_y_dict
@@ -75,24 +68,24 @@ def compacify(train_seq, test_seq, dev_seq, theano=False):
 
 
 class PostagCorpus(object):
-
     def __init__(self):
         # Word dictionary.
         self.word_dict = LabelDictionary()
 
         # POS tag dictionary.
         # Initialize noun to be tag zero so that it the default tag.
-        self.tag_dict = LabelDictionary(['noun'])
+        self.tag_dict = LabelDictionary(["noun"])
 
         # Initialize sequence list.
         self.sequence_list = SequenceList(self.word_dict, self.tag_dict)
 
-    def read_sequence_list_conll(self, train_file,
-                                 mapping_file=(
-                                    "%s/en-ptb.map" % dirname(__file__)
-                                 ),
-                                 max_sent_len=100000,
-                                 max_nr_sent=100000):
+    def read_sequence_list_conll(
+        self,
+        train_file,
+        mapping_file=("%s/en-ptb.map" % os.path.dirname(__file__)),
+        max_sent_len=100000,
+        max_nr_sent=100000,
+    ):
         """Read a text file in conll format and return a sequence list"""
 
         # Build mapping of postags:
@@ -101,9 +94,7 @@ class PostagCorpus(object):
             for line in open(mapping_file):
                 coarse, fine = line.strip().split("\t")
                 mapping[coarse.lower()] = fine.lower()
-        instance_list = self.read_conll_instances(train_file,
-                                                  max_sent_len,
-                                                  max_nr_sent, mapping)
+        instance_list = self.read_conll_instances(train_file, max_sent_len, max_nr_sent, mapping)
         seq_list = SequenceList(self.word_dict, self.tag_dict)
         for sent_x, sent_y in instance_list:
             seq_list.add_sequence(sent_x, sent_y)
@@ -113,18 +104,18 @@ class PostagCorpus(object):
     def read_conll_instances(self, file, max_sent_len, max_nr_sent, mapping):
         """Reads a conll file into a sequence list."""
         if file.endswith("gz"):
-            zf = gzip.open(file, 'rb')
+            zf = gzip.open(file, "rb")
             reader = codecs.getreader("utf-8")
             contents = reader(zf)
         else:
-            contents = codecs.open(file, "r", "utf-8")
+            contents = open(file, "r", encoding="utf-8")
 
         nr_sent = 0
         instances = []
         ex_x = []
         ex_y = []
-        nr_types = len(self.word_dict)
-        nr_pos = len(self.tag_dict)
+        _nr_types = len(self.word_dict)
+        _nr_pos = len(self.tag_dict)
         for line in contents:
             toks = line.split()
             if len(toks) < 2:
@@ -155,7 +146,7 @@ class PostagCorpus(object):
         """Dumps a corpus into a file"""
         if not os.path.isdir(dir + "/"):
             os.mkdir(dir + "/")
-        word_fn = codecs.open(dir + "word.dic", "w", "utf-8")
+        word_fn = open(dir + "word.dic", "w", encoding="utf-8")
         for word_id, word in enumerate(self.int_to_word):
             word_fn.write("%i\t%s\n" % (word_id, word))
         word_fn.close()
@@ -171,7 +162,7 @@ class PostagCorpus(object):
 
     def load_corpus(self, dir):
         """Loads a corpus from a file"""
-        word_fn = codecs.open(dir + "word.dic", "r", "utf-8")
+        word_fn = open(dir + "word.dic", "r", encoding="utf-8")
         for line in word_fn:
             word_nr, word = line.strip().split("\t")
             self.int_to_word.append(word)
@@ -191,15 +182,15 @@ class PostagCorpus(object):
         word_count_fn.close()
         self.sequence_list.load(dir + "sequence_list")
 
-class PostagCorpusData():
+
+class PostagCorpusData:
     """WSJ Wrapper using Data() conventions"""
 
     def __init__(self, **config):
-
         corpus = PostagCorpus()
-        train_seq = corpus.read_sequence_list_conll(data.find('train-02-21.conll'), max_sent_len=15, max_nr_sent=1000)
-        dev_seq = corpus.read_sequence_list_conll(data.find('dev-22.conll'), max_sent_len=15, max_nr_sent=1000)
-        test_seq = corpus.read_sequence_list_conll(data.find('test-23.conll'), max_sent_len=15, max_nr_sent=1000)
+        train_seq = corpus.read_sequence_list_conll(data.find("train-02-21.conll"), max_sent_len=15, max_nr_sent=1000)
+        dev_seq = corpus.read_sequence_list_conll(data.find("dev-22.conll"), max_sent_len=15, max_nr_sent=1000)
+        test_seq = corpus.read_sequence_list_conll(data.find("test-23.conll"), max_sent_len=15, max_nr_sent=1000)
 
         # Redo indices so that they are consecutive. Also cast all data to numpy arrays
         # of int32 for compatibility with GPUs and theano and add reverse index
@@ -211,34 +202,24 @@ class PostagCorpusData():
 
         # Data-sets
         self.datasets = {
-            'train': {
-                'input': [np.array(seq.x) for seq in train_seq],
-                'output': [np.array(seq.y) for seq in train_seq]
+            "train": {
+                "input": [np.array(seq.x) for seq in train_seq],
+                "output": [np.array(seq.y) for seq in train_seq],
             },
-            'dev': {
-                'input': [np.array(seq.x) for seq in dev_seq],
-                'output': [np.array(seq.y) for seq in dev_seq]
-            },
-            'test': {
-                'input': [np.array(seq.x) for seq in test_seq],
-                'output': [np.array(seq.y) for seq in test_seq]
-            }
+            "dev": {"input": [np.array(seq.x) for seq in dev_seq], "output": [np.array(seq.y) for seq in dev_seq]},
+            "test": {"input": [np.array(seq.x) for seq in test_seq], "output": [np.array(seq.y) for seq in test_seq]},
         }
         # Config
         self.config = config
         # Number of samples
-        self.nr_samples = {
-           sset: len(content['output'])
-           for sset, content in self.datasets.items()
-        }
-        self.maxL = max(chain(*[[len(seq) for seq in content['input']] for content in self.datasets.values()]))
+        self.nr_samples = {sset: len(content["output"]) for sset, content in self.datasets.items()}
+        self.maxL = max(chain(*[[len(seq) for seq in content["input"]] for content in self.datasets.values()]))
         return
 
     def size(self, set_name):
         return self.nr_samples[set_name]
 
     def batches(self, set_name, batch_size=None):
-
         assert batch_size == 1, "Only batch_size 1 supported"
 
         dset = self.datasets[set_name]
@@ -247,20 +228,17 @@ class PostagCorpusData():
             nr_batch = 1
             batch_size = nr_examples
         else:
-            nr_batch = int(np.ceil(nr_examples*1./batch_size))
+            nr_batch = int(np.ceil(nr_examples * 1.0 / batch_size))
 
         data = []
         for batch_n in range(nr_batch):
             # Colect data for this batch
             data_batch = {}
-            for side in ['input', 'output']:
-                data_batch[side] = np.array(dset[side][
-                   batch_n * batch_size:(batch_n + 1) * batch_size
-                ])[0, :]
+            for side in ["input", "output"]:
+                data_batch[side] = np.array(dset[side][batch_n * batch_size : (batch_n + 1) * batch_size])[0, :]
             data.append(data_batch)
 
         return DataIterator(data, nr_samples=self.nr_samples[set_name])
-
 
     def sample(self, set_name, batch_size=None):
         dset = self.datasets[set_name]
@@ -269,22 +247,20 @@ class PostagCorpusData():
             nr_batch = 1
             batch_size = nr_examples
         else:
-            nr_batch = int(np.ceil(nr_examples*1./batch_size))
+            nr_batch = int(np.ceil(nr_examples * 1.0 / batch_size))
         data = []
         for batch_n in range(nr_batch):
-            #Colect data for this batch
+            # Colect data for this batch
             data_batch = {}
             sample = np.random.randint(0, nr_examples, batch_size)
-            for side in ['input', 'output']:
+            for side in ["input", "output"]:
                 data_batch[side] = np.asarray(dset[side])[sample]
             data.append(data_batch)
         return DataIterator(data, nr_samples=self.nr_samples[set_name])
 
 
 class DataIterator(object):
-    """
-    Basic data iterator
-    """
+    """Basic data iterator"""
 
     def __init__(self, data, nr_samples):
         self.data = data
