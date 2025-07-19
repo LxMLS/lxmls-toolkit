@@ -52,8 +52,6 @@ def glorot_weight_init(shape, activation_function, random_seed=None):
     # Scaling factor depending on non-linearity
     if activation_function == 'sigmoid':
         weight *= 4
-    elif activation_function == 'softmax':
-        weight *= 4
 
     return weight
 
