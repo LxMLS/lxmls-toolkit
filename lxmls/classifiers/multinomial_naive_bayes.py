@@ -1,12 +1,10 @@
 import numpy as np
 import scipy as scipy
+
 import lxmls.classifiers.linear_classifier as lc
-import sys
-from lxmls.distributions.gaussian import *
 
 
 class MultinomialNaiveBayes(lc.LinearClassifier):
-
     def __init__(self, xtype="gaussian"):
         lc.LinearClassifier.__init__(self)
         self.trained = False
@@ -47,7 +45,7 @@ class MultinomialNaiveBayes(lc.LinearClassifier):
         # End solution to Exercise 1
         # ----------
 
-        params = np.zeros((n_words+1, n_classes))
+        params = np.zeros((n_words + 1, n_classes))
         for i in range(n_classes):
             params[0, i] = np.log(prior[i])
             params[1:, i] = np.nan_to_num(np.log(likelihood[:, i]))
