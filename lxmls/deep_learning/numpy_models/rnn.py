@@ -1,10 +1,10 @@
 import numpy as np
-
 from lxmls.deep_learning.rnn import RNN
 from lxmls.deep_learning.utils import index2onehot, logsumexp
 
 
 class NumpyRNN(RNN):
+
     def __init__(self, **config):
         # This will initialize
         # self.config
@@ -23,7 +23,7 @@ class NumpyRNN(RNN):
         Update model parameters given batch of data
         """
         gradients = self.backpropagation(input, output)
-        learning_rate = self.config["learning_rate"]
+        learning_rate = self.config['learning_rate']
         # Update each parameter with SGD rule
         num_parameters = len(self.parameters)
         for m in range(num_parameters):
@@ -31,6 +31,7 @@ class NumpyRNN(RNN):
             self.parameters[m] -= learning_rate * gradients[m]
 
     def log_forward(self, input):
+
         # Get parameters and sizes
         W_e, W_x, W_h, W_y = self.parameters
         hidden_size = W_h.shape[0]
@@ -42,11 +43,12 @@ class NumpyRNN(RNN):
         # Recurrent layer
         h = np.zeros((nr_steps + 1, hidden_size))
         for t in range(nr_steps):
+
             # Linear
             z_t = W_x.dot(z_e[t, :]) + W_h.dot(h[t, :])
 
             # Non-linear
-            h[t + 1, :] = 1.0 / (1 + np.exp(-z_t))
+            h[t+1, :] = 1.0 / (1 + np.exp(-z_t))
 
         # Output layer
         y = h[1:, :].dot(W_y.T)
@@ -57,7 +59,8 @@ class NumpyRNN(RNN):
         return log_p_y, y, h, z_e, input
 
     def backpropagation(self, input, output):
-        """
+
+        '''
         Compute gradientes, with the back-propagation method
         inputs:
             x: vector with the (embedding) indicies of the words of a
@@ -65,7 +68,7 @@ class NumpyRNN(RNN):
             outputs: vector with the indicies of the tags for each word of
                         the sentence outputs:
             gradient_parameters: vector with parameters gradientes
-        """
+        '''
 
         # Get parameters and sizes
         W_e, W_x, W_h, W_y = self.parameters
@@ -89,7 +92,9 @@ class NumpyRNN(RNN):
         # ----------
 
         # Normalize over sentence length
-        gradient_parameters = [gradient_W_e, gradient_W_x, gradient_W_h, gradient_W_y]
+        gradient_parameters = [
+            gradient_W_e, gradient_W_x, gradient_W_h, gradient_W_y
+        ]
 
         return gradient_parameters
 

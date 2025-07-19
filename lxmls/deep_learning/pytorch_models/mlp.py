@@ -1,6 +1,5 @@
 import numpy as np
 import torch
-
 from lxmls.deep_learning.mlp import MLP
 
 
@@ -16,6 +15,7 @@ class PytorchMLP(MLP):
     """
 
     def __init__(self, **config):
+
         # This will initialize
         # self.num_layers
         # self.config
@@ -85,7 +85,7 @@ class PytorchMLP(MLP):
         Update model parameters given batch of data
         """
         gradients = self.gradients(input, output)
-        learning_rate = self.config["learning_rate"]
+        learning_rate = self.config['learning_rate']
         # Update each parameter with SGD rule
         for m in range(self.num_layers):
             # Update weight

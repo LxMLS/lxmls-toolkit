@@ -1,5 +1,4 @@
 import numpy as np
-
 from lxmls.deep_learning.mlp import MLP
 from lxmls.deep_learning.utils import index2onehot, logsumexp
 
@@ -10,6 +9,7 @@ class NumpyMLP(MLP):
     """
 
     def __init__(self, **config):
+
         # This will initialize
         # self.config
         # self.parameters
@@ -29,9 +29,10 @@ class NumpyMLP(MLP):
 
         gradients = self.backpropagation(input, output)
 
-        learning_rate = self.config["learning_rate"]
+        learning_rate = self.config['learning_rate']
         num_parameters = len(self.parameters)
         for m in np.arange(num_parameters):
+
             # Update weight
             self.parameters[m][0] -= learning_rate * gradients[m][0]
 
@@ -48,6 +49,7 @@ class NumpyMLP(MLP):
         # Hidden layers
         num_hidden_layers = len(self.parameters) - 1
         for n in range(num_hidden_layers):
+
             # Store input to this layer (needed for backpropagation)
             layer_inputs.append(tilde_z)
 
@@ -58,7 +60,7 @@ class NumpyMLP(MLP):
             # Non-linear transformation (sigmoid)
             tilde_z = 1.0 / (1 + np.exp(-z))
 
-        # Store input to this layer (needed for backpropagation)
+        # Store input to last layer
         layer_inputs.append(tilde_z)
 
         # Output linear transformation
@@ -86,8 +88,8 @@ class NumpyMLP(MLP):
         num_examples, num_clases = prob_y.shape
         num_hidden_layers = len(self.parameters) - 1
 
-        # For each layer in reverse store the backpropagated error, then compute
-        # the gradients from the errors and the layer inputs
+        # For each layer in reverse store the backpropagated error, then
+        # compute the gradients from the errors and the layer inputs
         errors = []
 
         # ----------
