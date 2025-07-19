@@ -1,4 +1,3 @@
-import sys
 import warnings
 
 
@@ -15,7 +14,7 @@ class LabelDictionary(dict):
     def add(self, name):
         label_id = len(self.names)
         if name in self:
-            warnings.warn('Ignoring duplicated label ' + name)
+            warnings.warn("Ignoring duplicated label " + name)
         self[name] = label_id
         self.names.append(name)
         return label_id

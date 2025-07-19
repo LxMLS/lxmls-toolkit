@@ -1,9 +1,4 @@
-import sys
-import pdb
-
-
 class Sequence(object):
-
     def __init__(self, sequence_list, x, y, nr):
         self.x = x
         self.y = y
@@ -31,14 +26,18 @@ class Sequence(object):
         rep = ""
         for i, xi in enumerate(self.x):
             yi = self.y[i]
-            rep += "%s/%s " % (self.sequence_list.x_dict.get_label_name(xi),
-                               self.sequence_list.y_dict.get_label_name(yi))
+            rep += "%s/%s " % (
+                self.sequence_list.x_dict.get_label_name(xi),
+                self.sequence_list.y_dict.get_label_name(yi),
+            )
         return rep
 
     def __repr__(self):
         rep = ""
         for i, xi in enumerate(self.x):
             yi = self.y[i]
-            rep += "%s/%s " % (self.sequence_list.x_dict.get_label_name(xi),
-                               self.sequence_list.y_dict.get_label_name(yi))
+            rep += "%s/%s " % (
+                self.sequence_list.x_dict.get_label_name(xi),
+                self.sequence_list.y_dict.get_label_name(yi),
+            )
         return rep
