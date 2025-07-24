@@ -45,7 +45,7 @@ class Sampler(nn.Module):
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         # Select the last element for each sequence.
         # (batch_size, input_len, hidden_size) -> (batch_size, hidden_size)
-        hidden_states = hidden_states.index_select(1, output_positions).squeeze(dim=1)
+        hidden_states = hidden_states.index_select(1, torch.atleast_1d(output_positions)).squeeze(dim=1)
         logits = torch.matmul(hidden_states, embedding.t())
         if embedding_bias is not None:
             logits += embedding_bias
@@ -435,8 +435,8 @@ class Gemma3ForMultimodalLM(nn.Module):
         **kwargs,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         freqs_cis: dict[AttentionType, torch.Tensor] = {}
-        freqs_cis[AttentionType.LOCAL_SLIDING] = self.local_freqs_cis.index_select(0, input_positions)
-        freqs_cis[AttentionType.GLOBAL] = self.global_freqs_cis.index_select(0, input_positions)
+        freqs_cis[AttentionType.LOCAL_SLIDING] = self.local_freqs_cis.index_select(0, torch.atleast_1d(input_positions))
+        freqs_cis[AttentionType.GLOBAL] = self.global_freqs_cis.index_select(0, torch.atleast_1d(input_positions))
         hidden_states = self.text_token_embedder(input_token_ids)
         normalizer = torch.tensor(self.config.hidden_size**0.5, dtype=hidden_states.dtype, device=hidden_states.device)
         hidden_states = hidden_states * normalizer
@@ -492,7 +492,7 @@ class Gemma3ForMultimodalLM(nn.Module):
         # flatten indices of valid image embeddings
         valid_image_embeddings_indices = torch.nonzero(image_presence_mask.flatten(), as_tuple=False).squeeze()
         # [num_valid_images, model_dim]
-        valid_image_embeddings = image_embeddings.index_select(0, valid_image_embeddings_indices)
+        valid_image_embeddings = image_embeddings.index_select(0, torch.atleast_1d(valid_image_embeddings_indices))
 
         # Step 2 of 2: Replace image embeddings at right places.
         image_placeholder_mask = input_token_ids == self.tokenizer.image_token_placeholder_id
