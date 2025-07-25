@@ -2,29 +2,31 @@
 
 # LxMLS 2025
 
-Machine learning toolkit for natural language processing. Written for [LxMLS - Lisbon Machine Learning Summer School](http://lxmls.it.pt)
+Machine Learning toolkit for Natural Language Processing.<br>
+Written for [LxMLS - Lisbon Machine Learning Summer School](http://lxmls.it.pt)
 
 * Scientific Python and Mathematical background
 * Linear Classifiers (Gradient Descent)
 * Feed-forward models in deep learning (Backpropagation)
 * Sequence models in deep learning
 * Attention Models (Transformers)
+* Multimodal Models
 
-Bear in mind that the main purpose of the toolkit is educational. You may resort
-to other toolboxes if you are looking for efficient implementations of the
-algorithms described.
+> [!NOTE]
+> Bear in mind that the main purpose of the toolkit is educational. 
+> You may resort to other toolboxes if you are looking for efficient implementations of the algorithms described.
 
 ## Instructions for Students
 
 > [!IMPORTANT] 
 > This is the **student branch**. You are on the **correct** branch!
 
-Download the code. If you are used to git just clone the student branch. For
-example from the command line in do
+Download the code. If you are used to git just clone the student branch. For example from the command line in do
 
 ```bash
-git clone git@github.com:LxMLS/lxmls-toolkit.git lxmls-toolkit-student
+git clone https://github.com/LxMLS/lxmls-toolkit.git lxmls-toolkit-student
 cd lxmls-toolkit-student
+git checkout student
 ```
 
 ### Install [uv](https://astral.sh/uv) 
@@ -34,11 +36,27 @@ cd lxmls-toolkit-student
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-**Windows**
+**Windows** <br>
+Open Command Prompt (search for `cmd`) to run the following commands.
+
+First, check if your system has `git` using 
+```powershell
+git  --version
+```
+
+If `git` isn't installed run the following command to install it
+```powershell
+winget install Git.Git
+```
+
+Then, install `uv` using
 ```powershell
 powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
-
+If that errors out, try
+```powershell
+winget install astral-sh.uv
+```
 
 ### Set up environment
 
@@ -48,10 +66,18 @@ If you do not have the proper python version, install it with
 uv python install 3.12
 ```
 
+If you have an Nvidia GPU, get the CUDA driver version with 
+```nvidia-smi``` or ```nvcc --version```.
+
 [Reference](https://docs.astral.sh/uv/guides/integration/pytorch) <br>
 Choose the torch index based on your system and setup the environment:
 ```bash
 uv sync --extra {cpu, cu118, cu124, cu126}
+```
+
+For example, if you're on MacOS you'd use
+```bash
+uv sync --extra cpu
 ```
 
 Activate the virtual environment with
@@ -70,6 +96,9 @@ source ./.venv/bin/activate
 > Remember to run scripts from the root directory `lxmls-toolkit-student`
 
 ### Development
+
+> [!NOTE]
+> The following instructions are for developers building the toolkit.
 
 Install the `ruff` linter & `ty` type-checker with 
 ```bash
@@ -92,36 +121,3 @@ Run tests that are GPU intensive with single worker using
 pytest -m gpu -n 1
 ```
 
-### Quantisation
-
-Install `GPTQModel`
-
-```bash
-deactivate
-mkdir 3p && cd 3p
-git clone https://github.com/ModelScope/GPTQModel && cd GPTQModel
-```
-
-Install Python 3.13 with free-threading
-[GPTQModel Issue #1660](https://github.com/ModelCloud/GPTQModel/issues/1610)
-
-```console
-$ uv python install 3.13t
-$ uv venv .venv --python 3.13t
-$ source .venv/bin/activate
-$ python -VV
-Python 3.13.3 experimental free-threading build (main, Apr  9 2025, 04:05:28) [Clang 20.1.0 ]
-```
-
-Build `GPTQModel` from source
-
-```bash
-uv pip install -r requirements.txt
-uv pip install -v . --no-build-isolation
-uv pip install datasets
-```
-
-Run `quantize.py`
-```bash
-python ../../lxmls/multimodal/gemma3/quantize.py
-```
