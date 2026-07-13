@@ -15,17 +15,16 @@ classifiers = [
     "Operating System :: OS Independent",
     "License :: OSI Approved :: MIT License",
 ]
-requires-python = ">=3.9,<=3.12"
+requires-python = ">=3.10,<=3.13"
 dependencies = [
     "ipdb",
     "jupyter",
     "matplotlib",
     "nltk",
     "numpy",
-    "pyyaml",
+    "pyyaml>=6.0",
     "scipy",
-    "six",
-    "transformers",
+    "transformers>=4.45.0",
     "bertviz>=1.4.1",
     "hf_transfer",
     "hf_xet",
@@ -88,7 +87,6 @@ torchvision = [
     { index = "pytorch-cu124", extra = "cu124" },
     { index = "pytorch-cu126", extra = "cu126" },
 ]
-transformers = { git = "https://github.com/huggingface/transformers" }
 
 [tool.setuptools]
 packages = ["lxmls"]
