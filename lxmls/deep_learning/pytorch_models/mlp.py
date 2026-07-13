@@ -33,16 +33,15 @@ class PytorchMLP(MLP):
         self.loss_function = torch.nn.NLLLoss()
 
     # TODO: Move these outside fo the class as in the numpy case
-    def _log_forward(self, input):
+    def _log_forward(self, X):
         """
         Forward pass
         """
 
         # Ensure the type matches torch type
-        input = cast_float(input)
+        X = cast_float(X)
 
-        # Input
-        tilde_z = input
+        tilde_z = X
 
         # ----------
         # Solution to Exercise 6.4
@@ -71,15 +70,15 @@ class PytorchMLP(MLP):
 
         return log_tilde_z
 
-    def gradients(self, input, output):
+    def gradients(self, X, y):
         """
         Computes the gradients of the network with respect to cross entropy
         error cost
         """
-        true_class = torch.from_numpy(output).long()
+        true_class = torch.from_numpy(y).long()
 
         # Compute negative log-likelihood loss
-        _log_forward = self._log_forward(input)
+        _log_forward = self._log_forward(X)
         loss = self.loss_function(_log_forward, true_class)
         # Use autograd to compute the backward pass.
         loss.backward()
@@ -90,18 +89,18 @@ class PytorchMLP(MLP):
             nabla_parameters.append([weight.grad.data, bias.grad.data])
         return nabla_parameters
 
-    def predict(self, input=None):
+    def predict(self, X):
         """
         Predict model outputs given input
         """
-        log_forward = self._log_forward(input).data.numpy()
+        log_forward = self._log_forward(X).data.numpy()
         return np.argmax(log_forward, axis=1)
 
-    def update(self, input=None, output=None):
+    def update(self, X, y):
         """
         Update model parameters given batch of data
         """
-        gradients = self.gradients(input, output)
+        gradients = self.gradients(X, y)
         learning_rate = self.config['learning_rate']
         # Update each parameter with SGD rule
         for m in range(self.num_layers):

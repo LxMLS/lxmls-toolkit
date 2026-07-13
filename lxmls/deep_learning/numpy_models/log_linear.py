@@ -18,36 +18,36 @@ class NumpyLogLinear(Model):
         self.bias = np.zeros((1, config['num_classes']))
         self.learning_rate = config['learning_rate']
 
-    def log_forward(self, input=None):
+    def log_forward(self, X):
         """Forward pass of the computation graph"""
 
         # Linear transformation
-        z = np.dot(input, self.weight.T) + self.bias
+        z = np.dot(X, self.weight.T) + self.bias
 
         # Softmax implemented in log domain
         log_tilde_z = z - logsumexp(z, axis=1, keepdims=True)
 
         return log_tilde_z
 
-    def predict(self, input=None):
+    def predict(self, X):
         """Most probable class index"""
-        return np.argmax(np.exp(self.log_forward(input)), axis=1)
+        return np.argmax(self.log_forward(X), axis=1)
 
-    def update(self, input=None, output=None):
+    def update(self, X, y):
         """Stochastic Gradient Descent update"""
 
         # Probabilities of each class
-        class_probabilities = np.exp(self.log_forward(input))
+        class_probabilities = np.exp(self.log_forward(X))
         batch_size, num_classes = class_probabilities.shape
 
         # Error derivative at softmax layer
-        I = index2onehot(output, num_classes)
+        I = index2onehot(y, num_classes)
         error = - (I - class_probabilities) / batch_size
 
         # Weight gradient
         gradient_weight = np.zeros(self.weight.shape)
         for l in np.arange(batch_size):
-            gradient_weight += np.outer(error[l, :], input[l, :])
+            gradient_weight += np.outer(error[l, :], X[l, :])
 
         # Bias gradient
         gradient_bias = np.sum(error, axis=0, keepdims=True)
