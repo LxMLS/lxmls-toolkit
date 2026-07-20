@@ -33,7 +33,7 @@ class Perceptron(lc.LinearClassifier):
                 y_hat = self.get_label(x[inst : inst + 1, :], w)
 
                 if y[inst : inst + 1, 0] != y_hat:
-                    # Increase features of th e truth
+                    # Increase features of the truth
                     w[:, y[inst : inst + 1, 0]] += self.learning_rate * x[inst : inst + 1, :].transpose()
 
                     # Decrease features of the prediction
