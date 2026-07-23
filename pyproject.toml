@@ -24,7 +24,7 @@ dependencies = [
     "numpy",
     "pyyaml>=6.0",
     "scipy",
-    "transformers>=4.45.0",
+    "transformers>=4.45.0,<5",
     "bertviz>=1.4.1",
     "hf_transfer",
     "hf_xet",
